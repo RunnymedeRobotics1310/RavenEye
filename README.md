@@ -16,15 +16,16 @@ Follow the instructions on the app.
 This app is built as a single-page application using React, TypeScript, and Vite. To run the app locally, follow these steps:
 
 1. Clone the repository
-   2. You'll need an IDE (we recommend IntelliJ IDEA Ultimate - free student licenses available). This will include a copy of git.
-   3. You'll need a current copy of Node. You can install it directly or use a version manager.
+   1. You'll need an IDE (we recommend IntelliJ IDEA Ultimate - free student licenses available). This will include a copy of git.
+   2. You'll need a current copy of Node. You can install it directly or use a version manager.
 2. Run `npm install` to install the dependencies
 3. Run `npm run dev` to start the development server
 4. Open your browser and navigate to `http://localhost:3000`
 5. Make changes to the code and see them reflected in the browser
 6. Run `npm run build` to build the app for production
 7. Start up [RavenBrain](https://github.com/runnymederobotics1310/ravenbrain). RavenBrain is the back-end for RavenEye.
-   8. If you haven't already installed RavenBrain, follow through the steps in the RavenBrain readme.
+   1. If you haven't already installed RavenBrain, follow through the steps in the RavenBrain readme.
+   2. The URL of the back-end of RavenEye is hard-coded in this app. When RavenEye is running locally, the back-end is a localhost URL. If RavenEye is not running locally, the back-end is the official public endpoint. 
 
 ## To Do List
 
