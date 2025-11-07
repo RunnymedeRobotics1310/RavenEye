@@ -1,80 +1,35 @@
-# Runnymede Robotics Team 1310 Data Scouting App
+# Runnymede Robotics Team 1310 Raven Eye Strategy App
 
-This is a data scouting app for Runnymede Robotics Team 1310. It is built using React, TypeScript, and Vite.
+This is a FRC strategy app for Runnymede Robotics Team 1310. It is built using React, TypeScript, and Vite. It 
+communicates with the back-end, RavenBrain, via REST.
 
 ## Usage
 
-Access the app at url **\*\***\*\***\*\***\_\_**\*\***\*\***\*\*** and follow the instructions to use the app.
+The public URL for the app is https://raveneye.team1310.ca
 
-Be sure to sync the data periodically to ensure that the app and spreadsheet are both up to date with the latest data.
+For local developers, you can access the app at http://localhost:3000
+
+Follow the instructions on the app.
 
 ## Development
 
 This app is built as a single-page application using React, TypeScript, and Vite. To run the app locally, follow these steps:
 
 1. Clone the repository
+   2. You'll need an IDE (we recommend IntelliJ IDEA Ultimate - free student licenses available). This will include a copy of git.
+   3. You'll need a current copy of Node. You can install it directly or use a version manager.
 2. Run `npm install` to install the dependencies
 3. Run `npm run dev` to start the development server
 4. Open your browser and navigate to `http://localhost:3000`
 5. Make changes to the code and see them reflected in the browser
 6. Run `npm run build` to build the app for production
-## TODO
+7. Start up [RavenBrain](https://github.com/runnymederobotics1310/ravenbrain). RavenBrain is the back-end for RavenEye.
+   8. If you haven't already installed RavenBrain, follow through the steps in the RavenBrain readme.
 
-- Add human player functions on robot screens
-- Add human player role and all required screens
+## To Do List
+
+- The 2025 (Reefscape) version of the app was very game-specific. For 2026, the front-end will be replaced with more generic features
 
 ### Small things
 - checkboxes are blue
 
----
-
-# React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-});
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react';
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-});
-```
