@@ -30,6 +30,7 @@ This app is built as a single-page application using React, TypeScript, and Vite
 ## To Do List
 
 - The 2025 (Reefscape) version of the app was very game-specific. For 2026, the front-end will be replaced with more generic features
+- Swap out LocalStorage for IndexedDB for easier coding + performance. However IndexedDB is clunky so consider a single dependency https://www.npmjs.com/package/dexie
 
 ### Small things
 - checkboxes are blue
