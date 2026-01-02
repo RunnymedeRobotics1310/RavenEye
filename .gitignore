@@ -9,6 +9,10 @@ dist
 dist-ssr
 *.local
 
+# env files - good defaults committed - ignore changes.
+.env
+.env.development
+
 # Logs
 logs
 *.log
