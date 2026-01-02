@@ -20,25 +20,11 @@ import Sync from "~/common/icons/Sync.tsx";
 import React from "react";
 
 export const links: Route.LinksFunction = () => [
-  // todo: fixme: remove unused links
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
-  {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
-  },
-  {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-  },
+  { rel: "preload", href: logoUrl, as: "image" },
+  { rel: "preload", href: titleUrl, as: "image" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const pictures = [logoUrl, titleUrl];
-  pictures.forEach((picture) => {
-    // const img = new Image();
-    // img.src = picture;
-  });
   const sync = () => {
     // todo: fixme: navigate to sync page
   };
