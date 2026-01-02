@@ -1,7 +1,5 @@
 import {
   getJwt,
-  getPassword,
-  getScoutName,
   saveJwt,
   saveRoles,
   saveScoutName,
@@ -14,11 +12,20 @@ import type { TeamReport } from "~/types/TeamReport.ts";
 
 const HOST = import.meta.env.VITE_API_HOST;
 
-export async function authenticate() {
-  const scoutName = getScoutName();
-  const password = getPassword();
-  if (scoutName === null) {
-    throw new Error("Scout name not set. Can't authenticate to Raven Brain.");
+/**
+ * Authenticates a user by sending their credentials to the server.
+ *
+ * @param {string} username - The username of the user attempting to authenticate.
+ * @param {string} password - The password of the user attempting to authenticate.
+ * @return {Promise<void>} A promise that resolves when the authentication process is complete.
+ *                         Throws an error if authentication fails or there is a server error.
+ */
+export async function authenticate(
+  username: string,
+  password: string,
+): Promise<void> {
+  if (username === null) {
+    throw new Error("User name not set. Can't authenticate to Raven Brain.");
   }
   const options: Record<string, unknown> = {
     headers: {
@@ -27,7 +34,7 @@ export async function authenticate() {
     mode: "cors",
     method: "POST",
     body: JSON.stringify({
-      username: scoutName,
+      username: username,
       password: password,
     }),
   };
@@ -46,7 +53,7 @@ export async function authenticate() {
       const payload = parseJwt(json.access_token);
       saveScoutName(payload.sub);
       saveRoles(payload.roles);
-      return true;
+      return;
     });
 }
 function parseJwt(token: string) {
