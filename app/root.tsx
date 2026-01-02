@@ -2,6 +2,7 @@ import {
   isRouteErrorResponse,
   Links,
   Meta,
+  NavLink,
   Outlet,
   Scripts,
   ScrollRestoration,
@@ -25,9 +26,6 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const sync = () => {
-    // todo: fixme: navigate to sync page
-  };
   return (
     <html lang="en">
       <head>
@@ -40,16 +38,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <section id="layout">
           <header>
             <div id="logo">
-              {/*todo: fixme: link to root*/}
-              <img src={logoUrl} alt="Runnymede Robotics" />
+              <NavLink to={"/"}>
+                <img src={logoUrl} alt="Runnymede Robotics" />
+              </NavLink>
             </div>
             <div id="title">
               <img src={titleUrl} alt="1310 Raven Eye" />
             </div>
             <div className={"sync-button"}>
-              <span className={"button"} onClick={() => sync()}>
+              <NavLink to={"/sync"} className={"button"}>
                 <Sync />
-              </span>
+              </NavLink>
             </div>
           </header>
           <main> {children} </main>
