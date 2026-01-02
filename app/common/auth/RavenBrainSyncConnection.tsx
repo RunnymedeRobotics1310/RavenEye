@@ -7,9 +7,10 @@ type PropTypes = {
   loginMode: boolean;
   username?: string;
   password?: string;
+  children?: React.ReactNode;
 };
 function RavenBrainSyncConnection(props: PropTypes) {
-  const { loginMode, username, password } = props;
+  const { loginMode, username, password, children } = props;
   const navigate = useNavigate();
   const [error, setError] = useState<string>("");
   const [alive, setAlive] = useState(false);
@@ -59,7 +60,8 @@ function RavenBrainSyncConnection(props: PropTypes) {
   }, [error, alive, authenticated]);
 
   useEffect(() => {
-    if (authenticated && !validated) {
+    if ((!credsPresent || authenticated) && !validated) {
+      console.log("trying to validate");
       validate()
         .then(() => {
           setValidated(true);
@@ -70,7 +72,7 @@ function RavenBrainSyncConnection(props: PropTypes) {
     }
   }, [authenticated, validated]);
 
-  if (!error && !authenticated) {
+  if (!error && !validated) {
     return (
       <section>
         <h2>Connecting to Raven Brain</h2>
@@ -119,11 +121,7 @@ function RavenBrainSyncConnection(props: PropTypes) {
   if (loginMode) {
     window.location.reload();
   }
-  return (
-    <section>
-      <Outlet />
-    </section>
-  );
+  return <section>{children}</section>;
 }
 
 export default RavenBrainSyncConnection;
