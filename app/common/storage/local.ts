@@ -132,12 +132,9 @@ export function useRole() {
   return { isAdmin, isExpertScout, isDataScout, isMember, loading, error };
 }
 
-export function savePassword(password: string) {
-  localStorage.setItem("rrPassword", password);
-}
-
 export function getPassword() {
-  return localStorage.getItem("rrPassword");
+  // todo: fixme: Passwords will no longer be saved - implement new login system
+  return null;
 }
 
 export function logout() {
