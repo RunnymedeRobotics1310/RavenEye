@@ -1,3 +1,18 @@
+# OS
+.DS_Store
+
+# Node, React & Rreact Router
+node_modules
+.react-router
+build
+dist
+dist-ssr
+*.local
+
+# env files - good defaults committed - ignore changes.
+.env
+.env.development
+
 # Logs
 logs
 *.log
@@ -7,18 +22,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Editor / IDE
 .vscode/*
 !.vscode/extensions.json
 .idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
