@@ -12,12 +12,12 @@ export function meta({}: Route.MetaArgs) {
 }
 const SyncPage = () => {
   return (
-    <RequireLogin>
-      <section>
+    <main>
+      <RequireLogin>
         <h1>Sync Central</h1>
         <p>Full list of sync services coming soon</p>
-      </section>
-    </RequireLogin>
+      </RequireLogin>
+    </main>
   );
 };
 

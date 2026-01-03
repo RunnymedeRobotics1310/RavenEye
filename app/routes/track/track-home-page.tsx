@@ -1,6 +1,6 @@
 const TrackHomePage = () => {
   return (
-    <section>
+    <main>
       <h1>Track</h1>
       <p>Hello world from Track Home</p>
       <ul>
@@ -16,7 +16,7 @@ const TrackHomePage = () => {
           </ul>
         </li>
       </ul>
-    </section>
+    </main>
   );
 };
 export default TrackHomePage;

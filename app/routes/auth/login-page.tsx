@@ -8,49 +8,53 @@ const LoginPage = () => {
   const fullName = getFullName();
 
   if (loading) {
-    return <Spinner />;
+    return (
+      <main>
+        <Spinner />
+      </main>
+    );
   }
 
   if (loggedIn) {
     return (
-      <section>
+      <main>
         <h1>Welcome {fullName}</h1>
         <p>You have logged in successfully</p>
         <NavLink to={`/`}>Home</NavLink>
-      </section>
+      </main>
     );
   }
 
   if (!alive) {
     return (
-      <section>
+      <main>
         <p>Communication failure connecting to server.</p>
-      </section>
+      </main>
     );
   }
 
   if (!authenticated) {
     return (
-      <section>
+      <main>
         <LoginForm />
-      </section>
+      </main>
     );
   }
 
   if (expired) {
     return (
-      <section>
+      <main>
         <h1>Login Expired</h1>
         <LoginForm />
-      </section>
+      </main>
     );
   }
 
   if (!loggedIn) {
     return (
-      <section>
+      <main>
         <LoginForm />
-      </section>
+      </main>
     );
   }
 

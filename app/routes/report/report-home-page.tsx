@@ -1,9 +1,9 @@
 const ReportHomePage = () => {
   return (
-    <section>
+    <main>
       <h1>Reports</h1>
       <p>Hello world from Report Home</p>
-    </section>
+    </main>
   );
 };
 export default ReportHomePage;

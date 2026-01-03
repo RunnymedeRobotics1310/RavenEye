@@ -18,6 +18,7 @@ import "~/assets/css/report.css";
 import logoUrl from "~/assets/images/logo.png";
 import titleUrl from "~/assets/images/title.png";
 import Sync from "~/common/icons/Sync.tsx";
+import Spinner from "~/common/Spinner.tsx";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
@@ -50,7 +51,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </NavLink>
             </div>
           </header>
-          <main> {children} </main>
+          {children}
           <footer>
             <section>
               <div>&copy; 2026 Runnymede Robotics Team 1310</div>
@@ -77,7 +78,12 @@ export default function App() {
 }
 
 export function HydrateFallback() {
-  return <p>Loading Page Data...</p>;
+  return (
+    <main>
+      <h1>Loading Page Data...</h1>
+      <Spinner />
+    </main>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

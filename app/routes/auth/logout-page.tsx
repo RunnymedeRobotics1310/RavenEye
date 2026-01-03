@@ -12,12 +12,14 @@ const LogoutPage = () => {
   }, []);
 
   return (
-    <ErrorMessage title={"Logout"}>
-      <p>
-        You have logged out successfully, but you shouldn't actually be seeing
-        this page. Please check with an administrator.
-      </p>
-    </ErrorMessage>
+    <main>
+      <ErrorMessage title={"Logout"}>
+        <p>
+          You have logged out successfully, but you shouldn't actually be seeing
+          this page. Please check with an administrator.
+        </p>
+      </ErrorMessage>
+    </main>
   );
 };
 export default LogoutPage;

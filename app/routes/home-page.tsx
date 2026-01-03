@@ -16,7 +16,7 @@ export function meta({}: Route.MetaArgs) {
 const LoggedIn = () => {
   const fullName = getFullName();
   return (
-    <section>
+    <main>
       <h1>Welcome to Raven Eye!</h1>
       <p>
         You are logged in as{" "}
@@ -35,12 +35,12 @@ const LoggedIn = () => {
           <NavLink to={"/report"}>View Reports</NavLink>
         </li>
       </ul>
-    </section>
+    </main>
   );
 };
 const NotLoggedIn = (props: any) => {
   return (
-    <section>
+    <main>
       <h1>Welcome to Raven Eye!</h1>
       <p>
         To use this app, you need to log in first. The app is designed to allow
@@ -78,14 +78,18 @@ const NotLoggedIn = (props: any) => {
           </tr>
         </tbody>
       </table>
-    </section>
+    </main>
   );
 };
 
 const HomePage = () => {
   const status = useLoginStatus();
   if (status.loading) {
-    return <Spinner />;
+    return (
+      <main>
+        <Spinner />
+      </main>
+    );
   }
   if (status.loggedIn) {
     return <LoggedIn />;

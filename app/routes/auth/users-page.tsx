@@ -1,9 +1,9 @@
 const UsersPage = () => {
   return (
-    <section>
+    <main>
       <h1>Manage Users</h1>
       <p>Hello world from users</p>;
-    </section>
+    </main>
   );
 };
 export default UsersPage;
