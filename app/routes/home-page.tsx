@@ -18,8 +18,23 @@ const LoggedIn = () => {
   return (
     <section>
       <h1>Welcome to Raven Eye!</h1>
-      <p>You are logged in as {fullName}</p>
-      <NavLink to={"/logout"}>Log out</NavLink>
+      <p>
+        You are logged in as{" "}
+        <em>
+          <strong>{fullName}</strong>
+        </em>
+      </p>
+      <ul>
+        <li>
+          <NavLink to={"/logout"}>Log out</NavLink>
+        </li>
+        <li>
+          <NavLink to={"/track"}>Track a Robot</NavLink>
+        </li>
+        <li>
+          <NavLink to={"/report"}>View Reports</NavLink>
+        </li>
+      </ul>
     </section>
   );
 };

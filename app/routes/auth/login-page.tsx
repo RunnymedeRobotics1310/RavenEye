@@ -14,7 +14,7 @@ const LoginPage = () => {
   if (loggedIn) {
     return (
       <section>
-        <h2>Welcome {fullName}</h2>
+        <h1>Welcome {fullName}</h1>
         <p>You have logged in successfully</p>
         <NavLink to={`/`}>Home</NavLink>
       </section>
@@ -40,7 +40,7 @@ const LoginPage = () => {
   if (expired) {
     return (
       <section>
-        <h2>Login Expired</h2>;
+        <h1>Login Expired</h1>;
         <LoginForm />
       </section>
     );
