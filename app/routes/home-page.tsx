@@ -1,7 +1,6 @@
 import type { Route } from "~/routes/+types/home";
 import { getFullName, useLoginStatus } from "~/common/storage/auth.ts";
 import { NavLink } from "react-router";
-import ErrorMessage from "~/common/ErrorMessage.tsx";
 import Spinner from "~/common/Spinner.tsx";
 
 export function meta({}: Route.MetaArgs) {
@@ -18,7 +17,8 @@ const LoggedIn = () => {
   const fullName = getFullName();
   return (
     <section>
-      <p>Welcome {fullName}</p>
+      <h1>Welcome to Raven Eye!</h1>
+      <p>You are logged in as {fullName}</p>
       <NavLink to={"/logout"}>Log out</NavLink>
     </section>
   );
@@ -26,7 +26,15 @@ const LoggedIn = () => {
 const NotLoggedIn = (props: any) => {
   return (
     <section>
-      <p>You are not logged in</p>
+      <h1>Welcome to Raven Eye!</h1>
+      <p>
+        To use this app, you need to log in first. The app is designed to allow
+        scouting and logging activity without an internet connection, but to
+        sync data to the server, you will need to be online. To sync, simply
+        click on the sync icon in the top right of the page. Do not reload if
+        you are not online.
+      </p>
+      <br />
       <NavLink to={"/login"}>Log in</NavLink>
       <h3>Login Status</h3>
       <table>

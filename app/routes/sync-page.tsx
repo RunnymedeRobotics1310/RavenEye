@@ -1,4 +1,5 @@
 import type { Route } from "~/routes/+types/sync";
+import RequireLogin from "~/common/auth/RequireLogin.tsx";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -10,7 +11,11 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 const SyncPage = () => {
-  return <p>coming soon</p>;
+  return (
+    <RequireLogin>
+      <p>Full list of sync services coming soon</p>
+    </RequireLogin>
+  );
 };
 
 export default SyncPage;
