@@ -68,10 +68,14 @@ export async function authenticate(
  * Log the user out and forget the userid
  */
 export function logout() {
-  sessionStorage.removeItem(ACCESS_TOKEN_KEY);
-  sessionStorage.removeItem(FULL_NAME_KEY);
-  sessionStorage.removeItem(ROLES_KEY);
-  localStorage.removeItem(USERID_KEY);
+  if (typeof sessionStorage !== "undefined") {
+    sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+    sessionStorage.removeItem(FULL_NAME_KEY);
+    sessionStorage.removeItem(ROLES_KEY);
+  }
+  if (typeof localStorage !== "undefined") {
+    localStorage.removeItem(USERID_KEY);
+  }
 }
 
 /**
@@ -104,7 +108,10 @@ export async function rbfetch(
   urlpath: string,
   options: RequestInit,
 ): Promise<Response> {
-  const accessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY);
+  let accessToken = null;
+  if (typeof sessionStorage !== "undefined") {
+    accessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY);
+  }
   const o2: Record<string, unknown> = {
     ...options,
     headers: {
@@ -122,14 +129,17 @@ export async function rbfetch(
  * Return the login user id
  */
 export function getUserid() {
-  return localStorage.getItem(USERID_KEY);
+  if (typeof localStorage !== "undefined") {
+    return localStorage.getItem(USERID_KEY);
+  }
+  return null;
 }
 
 /**
  * Return the current user's full name
  */
 export function getFullName() {
-  if (sessionStorage) {
+  if (typeof sessionStorage !== "undefined") {
     return sessionStorage.getItem(FULL_NAME_KEY);
   }
   return null;
@@ -146,7 +156,10 @@ export function useLoginStatus() {
     ping()
       .then(() => {
         setAlive(true);
-        const accessToken = sessionStorage?.getItem(ACCESS_TOKEN_KEY);
+        let accessToken = null;
+        if (typeof sessionStorage !== "undefined") {
+          accessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY);
+        }
         if (accessToken === null) {
           setAuthenticated(false);
           setLoading(false);
@@ -200,7 +213,10 @@ export function useRole() {
   const [error, setError] = useState<null | string>(null);
   useEffect(() => {
     function getRoles() {
-      const r = sessionStorage?.getItem(ROLES_KEY);
+      if (typeof sessionStorage === "undefined") {
+        return null;
+      }
+      const r = sessionStorage.getItem(ROLES_KEY);
       if (r === null || r === "") {
         return null;
       } else {
