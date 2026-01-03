@@ -38,5 +38,5 @@ follow these steps:
 
 ## To Do List
 
-- Swap out LocalStorage for IndexedDB for easier coding + performance. However IndexedDB is clunky so consider a single dependency https://www.npmjs.com/package/dexie
+- Swap out LocalStorage for IndexedDB for easier coding + performance. We use native IndexedDB to avoid unnecessary dependencies.
 - Implement authentication via basic auth then JWT. Explain login flow in docs.
