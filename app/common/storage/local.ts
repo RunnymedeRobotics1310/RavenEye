@@ -6,6 +6,7 @@ import type { Tournament } from "~/types/Tournament.ts";
 import { Phase } from "~/common/phase.ts";
 import { useEffect, useState } from "react";
 import type { QuickComment } from "~/types/QuickComment.ts";
+import { getUserid } from "~/common/storage/auth.ts";
 
 function parseKey(keyString: string): ScoutingSessionId {
   const arr = keyString.split("|");
@@ -54,88 +55,6 @@ export function addDefenceEndedEvent(
   } else {
     addEvent(scoutingSessionId, phase, "defence-stopped", note);
   }
-}
-
-export function saveScoutName(name: string) {
-  localStorage.setItem("rrScoutName", name);
-}
-
-export function getScoutName() {
-  return localStorage.getItem("rrScoutName");
-}
-
-export function saveJwt(jwt: string) {
-  localStorage.setItem("rrJwt", jwt);
-}
-
-export function getJwt() {
-  return localStorage.getItem("rrJwt");
-}
-
-export function saveRoles(roles: string[]) {
-  localStorage.setItem("rrRoles", JSON.stringify(roles));
-}
-
-function getRoles() {
-  const r = localStorage.getItem("rrRoles");
-  if (r === null || r === "") {
-    return null;
-  } else {
-    return JSON.parse(r);
-  }
-}
-
-export function usePrimaryRole() {
-  const { isAdmin, isDataScout, isExpertScout, isMember, loading, error } =
-    useRole();
-  const [prettyRole, setPrettyRole] = useState<string | null>(null);
-  useEffect(() => {
-    if (!prettyRole && !loading && !error) {
-      if (isAdmin) {
-        setPrettyRole("admin");
-      } else if (isExpertScout) {
-        setPrettyRole("expert scout");
-      } else if (isDataScout) {
-        setPrettyRole("data scout");
-      } else if (isMember) {
-        setPrettyRole("member");
-      } else {
-        setPrettyRole("anonymous");
-      }
-    }
-  }, [isAdmin, isDataScout, isExpertScout, isMember, loading, error]);
-  return { primaryRole: prettyRole, loading, error };
-}
-
-export function useRole() {
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isExpertScout, setIsExpertScout] = useState(false);
-  const [isDataScout, setIsDataScout] = useState(false);
-  const [isMember, setIsMember] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<null | string>(null);
-  useEffect(() => {
-    try {
-      const roles = getRoles();
-      if (roles) {
-        setIsAdmin(roles.includes("ROLE_ADMIN"));
-        setIsExpertScout(roles.includes("ROLE_EXPERTSCOUT"));
-        setIsDataScout(roles.includes("ROLE_DATASCOUT"));
-        setIsMember(roles.includes("ROLE_MEMBER"));
-      }
-      setLoading(false);
-    } catch (e) {
-      setError("Failed to load roles: " + e);
-      setLoading(false);
-    }
-  });
-  return { isAdmin, isExpertScout, isDataScout, isMember, loading, error };
-}
-
-export function logout() {
-  localStorage.removeItem("rrJwt");
-  localStorage.removeItem("rrRoles");
-  // localStorage.removeItem('rrScoutName'); // keep the name to pre-populate the login form name next time
 }
 
 export function addEvent(
@@ -498,7 +417,7 @@ export function setTeam(team: number) {
 }
 
 export function setScoutingSessionId(alliance: string) {
-  const scout = getScoutName();
+  const scout = getUserid();
   const tournamentString = localStorage.getItem("rrTournament");
   const matchString = localStorage.getItem("rrMatch");
   const teamString = localStorage.getItem("rrTeam");

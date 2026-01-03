@@ -1,5 +1,5 @@
 import type { Route } from "~/routes/+types/sync";
-import RavenBrainSyncConnection from "~/common/auth/RavenBrainSyncConnection.tsx";
+import RequireLogin from "~/common/auth/RequireLogin.tsx";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,9 +12,12 @@ export function meta({}: Route.MetaArgs) {
 }
 const SyncPage = () => {
   return (
-    <RavenBrainSyncConnection loginMode={false}>
-      sync options here
-    </RavenBrainSyncConnection>
+    <main>
+      <RequireLogin>
+        <h1>Sync Central</h1>
+        <p>Full list of sync services coming soon</p>
+      </RequireLogin>
+    </main>
   );
 };
 

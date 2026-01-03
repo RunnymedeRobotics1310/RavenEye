@@ -34,9 +34,37 @@ follow these steps:
 - all client-side rendered
 - Track section of the UI works in offline mode once loaded (except sync)
 - Other UI sections assume a valid connection to RavenBrain exists
+- Minimize external dependencies
+- Code to be kept clear and simple. Students must be able to understand every line in the project
 
+### Storage and Sync
+- Game data will be captured and stored in IndexedDB 
+- Game data records will be synchronized manually by users
+- Aggregate data like dashboard data will be fetched automatically in the background and stored in *IndexedDB*. *IndexedDB* will simplify the async synchronization process by allowing it to capture entire data objects and modify them safely, as compared to storing the data as a series of stringified objects in *localStorage*.
 
-## To Do List
+### Visual Rendering
+- Use semantic markup whenever possible
+- Avoid style and component libraries
+- organize style sheets to support common components and extensibility
+- Target iPhone 5 compatibility for track pages
+- Report UI *may* require desktop/tablet
 
-- Swap out LocalStorage for IndexedDB for easier coding + performance. However IndexedDB is clunky so consider a single dependency https://www.npmjs.com/package/dexie
-- Implement authentication via basic auth then JWT. Explain login flow in docs.
+### Users and Logins
+- The system will no longer use a common login for all members with the same role
+- Every user will be registered in the back-end
+- The following roles will exist
+  - `ROLE_MEMBER` - team 1310 member - not necessarily a strat team member
+  - `ROLE_DATASCOUT` - general scout - can track all data
+  - `ROLE_EXPERTSCOUT` - expert scout - an read all report data
+  - `ROLE_ADMIN` - strat team administrator
+  - `ROLE_SUPERUSER` - system administrator
+- The `ROLE_SUPERUSER` password is set via environment variable
+- `ROLE_SUPERUSER` can create users and grant all roles to them
+- `ROLE_ADMIN` can create new users and assign all roles except `ROLE_ADMIN` and `ROLE_SUPERUSER`
+- Users can self-register for the `ROLE_MEMBER` role by using a secret access key
+- If a user forgets their password, they can flag *forgot password* on their account, and `ROLE_ADMIN` can reset it for them.
+- Users log in via simple *basic auth* authentication
+- a `access_token` JWT is returned upon login
+- The `access_token` is stored in `sessionStorage`
+- Authorization will use a bearer token with each request, and exposed through a simplified `fetch` wrapper called `rbfetch`.
+- Eventually, a `refresh_token` will be employed that will be stored in `localStorage` once appropriate revocation support can be added to the back-end
