@@ -40,7 +40,7 @@ const LoginPage = () => {
   if (expired) {
     return (
       <section>
-        <h1>Login Expired</h1>;
+        <h1>Login Expired</h1>
         <LoginForm />
       </section>
     );
