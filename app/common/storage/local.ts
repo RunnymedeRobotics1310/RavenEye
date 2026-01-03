@@ -132,15 +132,9 @@ export function useRole() {
   return { isAdmin, isExpertScout, isDataScout, isMember, loading, error };
 }
 
-export function getPassword() {
-  // todo: fixme: Passwords will no longer be saved - implement new login system
-  return null;
-}
-
 export function logout() {
   localStorage.removeItem("rrJwt");
   localStorage.removeItem("rrRoles");
-  localStorage.removeItem("rrPassword");
   // localStorage.removeItem('rrScoutName'); // keep the name to pre-populate the login form name next time
 }
 
