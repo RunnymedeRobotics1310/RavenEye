@@ -34,6 +34,9 @@ const LoggedIn = () => {
         <li>
           <NavLink to={"/report"}>View Reports</NavLink>
         </li>
+        <li>
+          <NavLink to={"/admin"}>Administer System</NavLink>
+        </li>
       </ul>
     </main>
   );
