@@ -221,7 +221,8 @@ select {
     height: 5rem;
 }
 section.tournamentAdmin,
-section.scheduleAdmin{
+section.scheduleAdmin,
+section.usersAdmin{
     table td,
     table th {
         padding: 0.25rem .5rem;

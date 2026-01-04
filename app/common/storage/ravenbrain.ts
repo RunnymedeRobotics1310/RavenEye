@@ -3,6 +3,7 @@ import type { GameEvent } from "~/types/GameEvent.ts";
 import type { QuickComment } from "~/types/QuickComment.ts";
 import type { ScheduleItem } from "~/types/ScheduleItem.ts";
 import type { TeamReport } from "~/types/TeamReport.ts";
+import type { User } from "~/types/User.ts";
 import { rbfetch } from "~/common/storage/auth.ts";
 
 export function useTournamentList() {
@@ -335,5 +336,35 @@ export function useAllComments() {
     error: string | null;
     loading: boolean;
     refresh: () => void;
+  };
+}
+
+export function useUserList() {
+  const [data, setData] = useState<User[] | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    rbfetch("/api/users", {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch users: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch users: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, []);
+
+  return { data, error, loading } as {
+    data: User[] | null;
+    error: string | null;
+    loading: boolean;
   };
 }
