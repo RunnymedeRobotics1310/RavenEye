@@ -1,4 +1,4 @@
-import type { Route } from "~/routes/+types/sync";
+import type { Route } from "../routes/+types/sync-page";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 
 export function meta({}: Route.MetaArgs) {
