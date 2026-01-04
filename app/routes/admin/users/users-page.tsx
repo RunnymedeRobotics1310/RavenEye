@@ -44,8 +44,8 @@ const UsersPage = () => {
   return (
     <main>
       <h1>Manage Users</h1>
-      <p>Administrator tool to manage users (login required)</p>
-      <RequireLogin showForm={false}>
+      <p>Administrator tool to manage users.</p>
+      <RequireLogin>
         <List />
       </RequireLogin>
     </main>
