@@ -1,3 +1,16 @@
+# [2.6.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v2.5.0...v2.6.0) (2026-01-04)
+
+
+### Bug Fixes
+
+* create admin page and link to user admin section ([eed9214](https://github.com/RunnymedeRobotics1310/RavenEye/commit/eed921404cc672e05be6062b44a1bfcf9769dd6e))
+* remove suppress login (co-coded with Quentin during review) ([2ab9f91](https://github.com/RunnymedeRobotics1310/RavenEye/commit/2ab9f914298d3d3e87403f63c44b83f6c1ec5296))
+
+
+### Features
+
+* Display user list ([743c578](https://github.com/RunnymedeRobotics1310/RavenEye/commit/743c578c6c2a7f90878181cc274f9aca145b7f9a))
+
 # [2.5.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v2.4.0...v2.5.0) (2026-01-04)
 
 
