@@ -1,3 +1,17 @@
+# [3.0.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v2.6.0...v3.0.0) (2026-01-04)
+
+
+### Build System
+
+* Add NPM plugin to trigger automatic package-lock version updates ([75456e9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/75456e9e1c4223abeee40954456ca90a02241b36))
+* Switch package private flag to true to prevent automatic publishes to npm registry ([e020e35](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e020e3535a870327ec2707c845d8a4a5c5368f62))
+
+
+### BREAKING CHANGES
+
+* Brand new front-end for 2026 season
+* Brand new front-end for 2026 season
+
 # [2.6.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v2.5.0...v2.6.0) (2026-01-04)
 
 
