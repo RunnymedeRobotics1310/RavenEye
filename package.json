@@ -15,11 +15,15 @@
     "react": "^19",
     "react-dom": "^19",
     "react-router": "^7",
-    "vite-plugin-package-version": "^1.1.0",
     "isbot": "^5"
   },
   "devDependencies": {
     "@react-router/dev": "^7",
+    "@semantic-release/changelog": "^6",
+    "@semantic-release/commit-analyzer": "^13",
+    "@semantic-release/git": "^10",
+    "@semantic-release/github": "^12",
+    "@semantic-release/release-notes-generator": "^14",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^5",
@@ -29,5 +33,17 @@
     "typescript": "^5",
     "vite": "^7",
     "vite-tsconfig-paths": "^5"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/github",
+      "@semantic-release/git"
+    ]
   }
 }

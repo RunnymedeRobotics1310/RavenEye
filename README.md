@@ -1,4 +1,5 @@
 # Runnymede Robotics Team 1310 Raven Eye Strategy App
+[![semantic-release: raveneye](https://img.shields.io/badge/semantic--release-raveneye-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
 This is a FRC strategy app for Runnymede Robotics Team 1310. It is built using React, React Router, TypeScript, 
 and Vite. It communicates with the back-end, RavenBrain, via REST.

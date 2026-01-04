@@ -8,7 +8,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 
-import type { Route } from "~/+types/root";
+import type { Route } from "./+types/root";
 import "~/assets/css/global.css";
 import "~/assets/css/typography.css";
 import "~/assets/css/colors.css";
@@ -55,7 +55,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <footer>
             <section>
               <div>&copy; 2026 Runnymede Robotics Team 1310</div>
-              <div>Version: {import.meta.env.PACKAGE_VERSION}</div>
+              <div>Version: {import.meta.env.VITE_APP_VERSION}</div>
             </section>
             {import.meta.env.DEV && (
               <menu id="menu">

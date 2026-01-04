@@ -22,6 +22,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Scripts
+cleanup.sh
+
 # Editor / IDE
 .vscode/*
 !.vscode/extensions.json
