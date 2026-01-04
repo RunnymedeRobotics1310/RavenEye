@@ -1,7 +1,7 @@
 {
   "name": "1310-raven-eye",
   "version": "3.0.0",
-  "private": false,
+  "private": true,
   "type": "module",
   "description": "1310 Raven Eye - Strategy Web Application",
   "homepage": "https://github.com/RunnymedeRobotics1310/RavenEye",
