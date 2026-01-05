@@ -5,6 +5,7 @@ import type { ScheduleItem } from "~/types/ScheduleItem.ts";
 import type { TeamReport } from "~/types/TeamReport.ts";
 import type { User } from "~/types/User.ts";
 import { rbfetch } from "~/common/storage/auth.ts";
+import type { StrategyArea } from "~/types/StrategyArea.ts";
 
 export function useTournamentList() {
   const [list, setList] = useState([]);
@@ -367,4 +368,96 @@ export function useUserList() {
     error: string | null;
     loading: boolean;
   };
+}
+
+export function useStrategyAreaList() {
+  const [data, setData] = useState<StrategyArea[] | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    rbfetch("/api/strategy-areas", {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch strategy areas: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch strategy areas: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, []);
+
+  return { data, error, loading } as {
+    data: StrategyArea[] | null;
+    error: string | null;
+    loading: boolean;
+  };
+}
+
+export async function createStrategyArea(
+  item: StrategyArea,
+): Promise<StrategyArea> {
+  return rbfetch("/api/strategy-areas", {
+    method: "POST",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to create strategy area: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+export function useStrategyArea(id: string | undefined) {
+  const [data, setData] = useState<StrategyArea | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    rbfetch(`/api/strategy-areas/${id}`, {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch strategy area: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch strategy area: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, [id]);
+
+  return { data, error, loading } as {
+    data: StrategyArea | null;
+    error: string | null;
+    loading: boolean;
+  };
+}
+
+export async function updateStrategyArea(
+  item: StrategyArea,
+): Promise<StrategyArea> {
+  return rbfetch("/api/strategy-areas/" + item.id, {
+    method: "PUT",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to update strategy area: " + resp.status);
+    }
+    return resp.json();
+  });
 }

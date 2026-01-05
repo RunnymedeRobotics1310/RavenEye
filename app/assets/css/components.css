@@ -222,6 +222,7 @@ select {
 }
 section.tournamentAdmin,
 section.scheduleAdmin,
+section.strategyareasAdmin,
 section.usersAdmin{
     table td,
     table th {

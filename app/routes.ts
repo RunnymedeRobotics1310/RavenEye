@@ -7,6 +7,18 @@ export default [
   route("logout", "./routes/auth/logout-page.tsx"),
   route("admin", "./routes/admin/admin-page.tsx"),
   route("admin/users", "./routes/admin/users/users-page.tsx"),
+  route(
+    "admin/strategy-areas",
+    "./routes/admin/strategy-areas/strategy-areas-page.tsx",
+  ),
+  route(
+    "admin/strategy-areas/add",
+    "./routes/admin/strategy-areas/add-page.tsx",
+  ),
+  route(
+    "admin/strategy-areas/:id",
+    "./routes/admin/strategy-areas/edit-page.tsx",
+  ),
   route("report", "./routes/report/report-home-page.tsx"),
   route("track", "./routes/track/track-home-page.tsx"),
 ] satisfies RouteConfig;

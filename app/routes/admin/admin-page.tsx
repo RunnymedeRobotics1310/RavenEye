@@ -8,6 +8,9 @@ const AdminPage = () => {
         <li>
           <NavLink to={"/admin/users"}>Users</NavLink>
         </li>
+        <li>
+          <NavLink to={"/admin/strategy-areas"}>Strategy Areas</NavLink>
+        </li>
       </ul>
     </main>
   );
