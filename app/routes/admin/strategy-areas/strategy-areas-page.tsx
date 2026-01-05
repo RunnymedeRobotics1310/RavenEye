@@ -30,14 +30,16 @@ const List = () => {
           </tr>
         </thead>
         <tbody>
-          {data?.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.frcyear}</td>
-              <td>{user.name}</td>
-              <td>{user.description}</td>
+          {data?.map((item) => (
+            <tr key={item.id}>
+              <td>{item.id}</td>
+              <td>{item.frcyear}</td>
+              <td>{item.name}</td>
+              <td>{item.description}</td>
               <td>
-                <button>Edit</button>
+                <NavLink to={`/admin/strategy-areas/${item.id}`}>
+                  <button>Edit</button>
+                </NavLink>
               </td>
             </tr>
           ))}

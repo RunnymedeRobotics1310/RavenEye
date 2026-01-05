@@ -413,3 +413,51 @@ export async function createStrategyArea(
     return resp.json();
   });
 }
+
+export function useStrategyArea(id: string | undefined) {
+  const [data, setData] = useState<StrategyArea | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    rbfetch(`/api/strategy-areas/${id}`, {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch strategy area: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch strategy area: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, [id]);
+
+  return { data, error, loading } as {
+    data: StrategyArea | null;
+    error: string | null;
+    loading: boolean;
+  };
+}
+
+export async function updateStrategyArea(
+  item: StrategyArea,
+): Promise<StrategyArea> {
+  return rbfetch("/api/strategy-areas/" + item.id, {
+    method: "PUT",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to update strategy area: " + resp.status);
+    }
+    return resp.json();
+  });
+}

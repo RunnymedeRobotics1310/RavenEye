@@ -1,14 +1,20 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import { NavLink } from "react-router";
+import { NavLink, useParams } from "react-router";
 import { useState } from "react";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
-import { createStrategyArea } from "~/common/storage/ravenbrain.ts";
+import {
+  updateStrategyArea,
+  useStrategyArea,
+} from "~/common/storage/ravenbrain.ts";
 import { StrategyAreaForm } from "./StrategyAreaForm.tsx";
+import Spinner from "~/common/Spinner.tsx";
+import ErrorMessage from "~/common/ErrorMessage.tsx";
 
 const Success = () => {
   return (
     <section>
       <h1>Success!</h1>
+      <p>Strategy area updated successfully.</p>
       <NavLink to={"/admin/strategy-areas"}>
         <button>Return to Strategy Areas</button>
       </NavLink>
@@ -16,7 +22,9 @@ const Success = () => {
   );
 };
 
-const AddPage = () => {
+const EditPage = () => {
+  const { id } = useParams();
+  const { data, loading, error: fetchError } = useStrategyArea(id);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [msg, setMsg] = useState<string>("");
@@ -24,7 +32,7 @@ const AddPage = () => {
   const handleSubmit = (item: StrategyArea) => {
     setError(false);
     setMsg("");
-    createStrategyArea(item)
+    updateStrategyArea(item)
       .then((resp) => {
         setSuccess(true);
       })
@@ -34,19 +42,31 @@ const AddPage = () => {
       });
   };
 
+  if (loading) return <Spinner />;
+  if (fetchError)
+    return (
+      <ErrorMessage title="Error fetching strategy area">
+        {fetchError}
+      </ErrorMessage>
+    );
+
   return (
     <main>
       <h1>Manage Strategy Areas</h1>
-      <p>Create a new strategy area.</p>
+      <p>Edit strategy area.</p>
       <RequireLogin>
         {error && <p style={{ color: "red" }}>{msg}</p>}
         {success ? (
           <Success />
         ) : (
-          <StrategyAreaForm submitFunction={handleSubmit} disabled={success} />
+          <StrategyAreaForm
+            submitFunction={handleSubmit}
+            disabled={success}
+            initialData={data || undefined}
+          />
         )}
       </RequireLogin>
     </main>
   );
 };
-export default AddPage;
+export default EditPage;
