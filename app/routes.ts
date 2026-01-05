@@ -11,6 +11,10 @@ export default [
     "admin/strategy-areas",
     "./routes/admin/strategy-areas/strategy-areas-page.tsx",
   ),
+  route(
+    "admin/strategy-areas/add",
+    "./routes/admin/strategy-areas/add-page.tsx",
+  ),
   route("report", "./routes/report/report-home-page.tsx"),
   route("track", "./routes/track/track-home-page.tsx"),
 ] satisfies RouteConfig;

@@ -2,6 +2,7 @@ import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { useStrategyAreaList } from "~/common/storage/ravenbrain.ts";
 import Spinner from "~/common/Spinner.tsx";
 import ErrorMessage from "~/common/ErrorMessage.tsx";
+import { NavLink } from "react-router";
 
 const List = () => {
   const { data, loading, error } = useStrategyAreaList();
@@ -15,6 +16,9 @@ const List = () => {
 
   return (
     <section className={"strategyareasAdmin"}>
+      <NavLink to="/admin/strategy-areas/add">
+        <button>Add</button>
+      </NavLink>
       <table>
         <thead>
           <tr>

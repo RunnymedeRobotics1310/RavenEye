@@ -399,3 +399,17 @@ export function useStrategyAreaList() {
     loading: boolean;
   };
 }
+
+export async function createStrategyArea(
+  item: StrategyArea,
+): Promise<StrategyArea> {
+  return rbfetch("/api/strategy-areas", {
+    method: "POST",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to create strategy area: " + resp.status);
+    }
+    return resp.json();
+  });
+}
