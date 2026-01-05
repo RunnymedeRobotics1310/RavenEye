@@ -26,6 +26,7 @@ const AddPage = () => {
     setMsg("");
     createStrategyArea(item)
       .then((resp) => {
+        console.log("Created", resp);
         setSuccess(true);
       })
       .catch((err) => {

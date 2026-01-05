@@ -34,6 +34,7 @@ const EditPage = () => {
     setMsg("");
     updateStrategyArea(item)
       .then((resp) => {
+        console.log("Updated", resp);
         setSuccess(true);
       })
       .catch((err) => {
