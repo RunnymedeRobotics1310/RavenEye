@@ -16,9 +16,6 @@ const List = () => {
 
   return (
     <section className={"strategyareasAdmin"}>
-      <NavLink to="/admin/strategy-areas/add">
-        <button>Add</button>
-      </NavLink>
       <table>
         <thead>
           <tr>
@@ -45,6 +42,9 @@ const List = () => {
           ))}
         </tbody>
       </table>
+      <NavLink to="/admin/strategy-areas/add">
+        <button>Add</button>
+      </NavLink>
     </section>
   );
 };
@@ -52,7 +52,19 @@ const StrategyAreasPage = () => {
   return (
     <main>
       <h1>Manage Strategy Areas</h1>
-      <p>Administrator tool to manage strategy areas.</p>
+      <p>
+        This page lists all strategy areas. There is no ability to suppress
+        strategy areas not related to this year. This will not be necessary this
+        year, but in 2027 this UI will need to be updated.
+      </p>
+      <p>
+        At this time, deleting strategy areas is not possible. A future
+        enhancement will allow this. In the meantime, do not re-use strategy
+        areas. Once a strategy area has been created, it will start to be used
+        with event types. Changing the meaning of a strategy area that is
+        already connected to an event type will result in corrupt data. Keep the
+        meaning of a strategy area consistent once created.
+      </p>
       <RequireLogin>
         <List />
       </RequireLogin>
