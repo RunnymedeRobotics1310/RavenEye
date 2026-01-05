@@ -60,11 +60,12 @@ export const StrategyAreaForm = ({
       <p>
         <label id={"description-label"}>Description:</label>
         <br />
-        <input
+        <textarea
           aria-labelledby={"description-label"}
-          type="text"
           name="description"
           required
+          rows={3}
+          maxLength={1024}
           value={item.description}
           onChange={(e) => setItem({ ...item, description: e.target.value })}
         />
