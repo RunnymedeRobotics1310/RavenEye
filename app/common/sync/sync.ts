@@ -149,7 +149,7 @@ export const useDashboardDataSyncStatus = (): SyncStatus => {
     inProgress: false,
     isComplete: true,
     remaining: 0,
-    error: null,
+    error: new Error("Not yet implemented"),
   };
   return dummy;
 };
@@ -162,7 +162,7 @@ export const useEventTypesSyncStatus = (): SyncStatus => {
     inProgress: false,
     isComplete: true,
     remaining: 0,
-    error: null,
+    error: new Error("Not yet implemented"),
   };
   return dummy;
 };
@@ -175,7 +175,7 @@ export const useMatchScheduleSyncStatus = (): SyncStatus => {
     inProgress: false,
     isComplete: true,
     remaining: 0,
-    error: null,
+    error: new Error("Not yet implemented"),
   };
   return dummy;
 };
@@ -188,7 +188,7 @@ export const useQuickCommentsSyncStatus = (): SyncStatus => {
     inProgress: false,
     isComplete: true,
     remaining: 0,
-    error: null,
+    error: new Error("Not yet implemented"),
   };
   return dummy;
 };
@@ -201,7 +201,7 @@ export const useSequenceTypesSyncStatus = (): SyncStatus => {
     inProgress: false,
     isComplete: true,
     remaining: 0,
-    error: null,
+    error: new Error("Not yet implemented"),
   };
   return dummy;
 };
@@ -222,7 +222,7 @@ export const useTrackingDataSyncStatus = (): SyncStatus => {
     inProgress: false,
     isComplete: true,
     remaining: 0,
-    error: null,
+    error: new Error("Not yet implemented"),
   };
   return dummy;
 };
