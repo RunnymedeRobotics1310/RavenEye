@@ -186,12 +186,12 @@ export function useLoginStatus() {
               setLoggedIn(true);
               setLoading(false);
             })
-            .catch((err) => {
+            .catch(() => {
               setLoading(false);
             });
         }
       })
-      .catch((err) => {
+      .catch(() => {
         setAlive(false);
         setLoading(false);
       });

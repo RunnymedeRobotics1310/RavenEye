@@ -6,7 +6,6 @@ import type { TeamReport } from "~/types/TeamReport.ts";
 import type { User } from "~/types/User.ts";
 import { rbfetch } from "~/common/storage/auth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
-import type { RBTournament } from "~/types/RBTournament.ts";
 
 export function useSchedule(tournamentId: string) {
   const [matches, setSchedule] = useState([]);

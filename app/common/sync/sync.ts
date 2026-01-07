@@ -256,7 +256,7 @@ export const useOverallSyncStatus = (): SyncStatus => {
   const isComplete = statuses.every((s) => s.isComplete);
   const remaining = statuses.reduce((acc, s) => acc + s.remaining, 0);
   const error = statuses.find((s) => s.error !== null)?.error || null;
-  const result: SyncStatus = {
+  return {
     loading: loading,
     component: "Overall",
     lastSync: lastSync,
@@ -265,5 +265,4 @@ export const useOverallSyncStatus = (): SyncStatus => {
     remaining: remaining,
     error: error,
   };
-  return result;
 };
