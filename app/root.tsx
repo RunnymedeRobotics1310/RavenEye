@@ -19,7 +19,8 @@ import logoUrl from "~/assets/images/logo.png";
 import titleUrl from "~/assets/images/title.png";
 import Sync from "~/common/icons/Sync.tsx";
 import Spinner from "~/common/Spinner.tsx";
-import { useOverallSyncStatus } from "~/common/sync/sync.ts";
+import { useOverallSyncStatus, syncAll } from "~/common/sync/sync.ts";
+import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
@@ -70,6 +71,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    syncAll();
+  }, []);
   return <Outlet />;
 }
 

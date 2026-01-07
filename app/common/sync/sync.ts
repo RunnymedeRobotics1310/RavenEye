@@ -1,8 +1,65 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
-import {
-  type RBTournament,
-  useTournamentList,
-} from "~/common/storage/ravenbrain.ts";
+import { repository, useSyncStatus } from "~/common/storage/localdb.ts";
+import { rbfetch } from "~/common/storage/auth.ts";
+
+export async function syncTournamentList() {
+  console.log("Synchronizing tournament list");
+  await repository.putSyncStatus({
+    loading: true,
+    component: "Tournament List",
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const resp = await rbfetch("/api/tournament", {});
+    if (resp.ok) {
+      const data = await resp.json();
+      await repository.putTournamentList(data);
+      await repository.putSyncStatus({
+        loading: false,
+        component: "Tournament List",
+        lastSync: new Date(),
+        inProgress: false,
+        isComplete: true,
+        remaining: 0,
+        error: null,
+      });
+    } else {
+      const err = new Error("Failed to fetch tournaments");
+      await repository.putSyncStatus({
+        loading: false,
+        component: "Tournament List",
+        lastSync: new Date(),
+        inProgress: false,
+        isComplete: false,
+        remaining: 0,
+        error: err,
+      });
+    }
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Tournament List",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
+export function syncAll() {
+  syncTournamentList();
+  setInterval(() => {
+    syncTournamentList();
+  }, 30000);
+}
 
 export const useDashboardDataSyncStatus = (): SyncStatus => {
   const dummy: SyncStatus = {
@@ -83,18 +140,7 @@ export const useStrategyAreasSyncStatus = (): SyncStatus => {
 };
 
 export const useTournamentListSyncStatus = (): SyncStatus => {
-  const { list, error, loading } = useTournamentList();
-  console.log("Tournament List Sync Status:", { list, loading, error });
-  const dummy: SyncStatus = {
-    loading: loading,
-    component: "Tournament List",
-    lastSync: new Date(),
-    inProgress: false,
-    isComplete: true,
-    remaining: 0,
-    error: error,
-  };
-  return dummy;
+  return useSyncStatus("Tournament List");
 };
 
 export const useTrackingDataSyncStatus = (): SyncStatus => {

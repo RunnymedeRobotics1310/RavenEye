@@ -6,52 +6,7 @@ import type { TeamReport } from "~/types/TeamReport.ts";
 import type { User } from "~/types/User.ts";
 import { rbfetch } from "~/common/storage/auth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
-
-export function useTournamentList() {
-  const [list, setList] = useState([]);
-  const [error, setError] = useState<Error | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [doRefresh, setDoRefresh] = useState(true);
-
-  function refresh() {
-    setDoRefresh(true);
-  }
-
-  useEffect(() => {
-    rbfetch("/api/tournament", {})
-      .then((resp) => {
-        if (resp.ok) {
-          resp.json().then((data) => {
-            setList(data);
-            setLoading(false);
-            setDoRefresh(false);
-          });
-        } else {
-          setError(new Error("Failed to fetch tournaments"));
-          setLoading(false);
-          setDoRefresh(false);
-        }
-      })
-      .catch((e) => {
-        setError(e);
-        setLoading(false);
-      });
-  }, [doRefresh]);
-
-  return { list, error, loading, refresh } as {
-    list: RBTournament[];
-    error: Error | null;
-    loading: boolean;
-    refresh: () => void;
-  };
-}
-
-export type RBTournament = {
-  id: string;
-  name: string;
-  startTime: Date;
-  endTime: Date;
-};
+import type { RBTournament } from "~/types/RBTournament.ts";
 
 export async function saveTournament(tournament: RBTournament) {
   return rbfetch("/api/tournament", {
