@@ -4,12 +4,15 @@ import type { RBTournament } from "~/types/RBTournament.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { EventType } from "~/types/EventType.ts";
 
+import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
+
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 4;
+const DB_VERSION = 5;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
 const EVENT_TYPES_STORE = "eventTypes";
+const MATCH_SCHEDULE_STORE = "matchSchedule";
 
 export class Repository {
   private db: IDBDatabase | null = null;
@@ -39,6 +42,9 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(EVENT_TYPES_STORE)) {
           db.createObjectStore(EVENT_TYPES_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(MATCH_SCHEDULE_STORE)) {
+          db.createObjectStore(MATCH_SCHEDULE_STORE, { autoIncrement: true });
         }
       };
     });
@@ -186,6 +192,38 @@ export class Repository {
       request.onerror = () => reject(request.error);
     });
   }
+
+  async putMatchSchedule(list: RBScheduleRecord[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([MATCH_SCHEDULE_STORE], "readwrite");
+      const store = transaction.objectStore(MATCH_SCHEDULE_STORE);
+
+      const clearRequest = store.clear();
+      clearRequest.onsuccess = () => {
+        for (const item of list) {
+          store.add(item);
+        }
+        resolve();
+      };
+      clearRequest.onerror = () => reject(clearRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getMatchSchedule(): Promise<RBScheduleRecord[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([MATCH_SCHEDULE_STORE], "readonly");
+      const store = transaction.objectStore(MATCH_SCHEDULE_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result as RBScheduleRecord[]);
+      request.onerror = () => reject(request.error);
+    });
+  }
 }
 
 export const repository = new Repository();
@@ -263,6 +301,35 @@ export function useEventTypeList() {
         }
       } catch (err) {
         console.error("Failed to load event type list", err);
+      }
+    };
+
+    load();
+    const interval = setInterval(load, 1000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  return { list, loading };
+}
+
+export function useMatchSchedule() {
+  const [list, setList] = useState<RBScheduleRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      try {
+        const data = await repository.getMatchSchedule();
+        if (isMounted) {
+          setList(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Failed to load match schedule", err);
       }
     };
 

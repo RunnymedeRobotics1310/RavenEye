@@ -4,6 +4,7 @@ import {
   getEventTypeList,
   getStrategyAreaList,
   getTournamentList,
+  getScheduleForTournament,
   ping,
 } from "~/common/storage/rb.ts";
 
@@ -27,6 +28,7 @@ export function doSync() {
       syncTournamentList();
       syncStrategyAreaList();
       syncEventTypeList();
+      syncMatchSchedule();
     } else {
       log("Skipping - not connected");
     }
@@ -157,6 +159,48 @@ export async function syncEventTypeList() {
   }
 }
 
+export async function syncMatchSchedule() {
+  log("Match Schedule");
+  await repository.putSyncStatus({
+    loading: false,
+    component: "Match Schedule",
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const tournaments = await repository.getTournamentList();
+    const schedules = await Promise.all(
+      tournaments.map((t) => getScheduleForTournament(t.id)),
+    );
+    const data = schedules.flat();
+    await repository.putMatchSchedule(data);
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Match Schedule",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: true,
+      remaining: 0,
+      error: null,
+    });
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Match Schedule",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
 export const useDashboardDataSyncStatus = (): SyncStatus => {
   const dummy: SyncStatus = {
     loading: false,
@@ -175,16 +219,7 @@ export const useEventTypesSyncStatus = (): SyncStatus => {
 };
 
 export const useMatchScheduleSyncStatus = (): SyncStatus => {
-  const dummy: SyncStatus = {
-    loading: false,
-    component: "Match Schedule",
-    lastSync: new Date(),
-    inProgress: false,
-    isComplete: true,
-    remaining: 0,
-    error: new Error("Not yet implemented"),
-  };
-  return dummy;
+  return useSyncStatus("Match Schedule");
 };
 
 export const useQuickCommentsSyncStatus = (): SyncStatus => {
