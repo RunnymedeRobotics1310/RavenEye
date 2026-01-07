@@ -274,5 +274,7 @@ section.sync-status {
             width: .8rem;
         }
     }
-
+    .sync-status-error {
+        margin-left: .6rem;
+    }
 }
