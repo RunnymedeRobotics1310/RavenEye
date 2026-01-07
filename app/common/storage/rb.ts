@@ -10,6 +10,7 @@ import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
 import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
+import type { SequenceType } from "~/types/SequenceType.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -50,6 +51,15 @@ export async function getEventTypeList() {
     return resp.json() as unknown as EventType[];
   } else {
     throw new Error("Failure fetching event type list");
+  }
+}
+
+export async function getSequenceTypeList() {
+  const resp = await rbfetch("/api/sequence-types", {});
+  if (resp.ok) {
+    return resp.json() as unknown as SequenceType[];
+  } else {
+    throw new Error("Failure fetching sequence type list");
   }
 }
 
