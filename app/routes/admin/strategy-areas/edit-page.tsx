@@ -9,6 +9,7 @@ import {
 import { StrategyAreaForm } from "./StrategyAreaForm.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import ErrorMessage from "~/common/ErrorMessage.tsx";
+import { syncStrategyAreaList } from "~/common/sync/sync.ts";
 
 const Success = () => {
   return (
@@ -29,18 +30,18 @@ const EditPage = () => {
   const [error, setError] = useState<boolean>(false);
   const [msg, setMsg] = useState<string>("");
 
-  const handleSubmit = (item: StrategyArea) => {
+  const handleSubmit = async (item: StrategyArea) => {
     setError(false);
     setMsg("");
-    updateStrategyArea(item)
-      .then((resp) => {
-        console.log("Updated", resp);
-        setSuccess(true);
-      })
-      .catch((err) => {
-        setError(true);
-        setMsg("Something went wrong: " + err.message);
-      });
+    try {
+      const resp = await updateStrategyArea(item);
+      console.log("Updated", resp);
+      await syncStrategyAreaList();
+      setSuccess(true);
+    } catch (err: any) {
+      setError(true);
+      setMsg("Something went wrong: " + err.message);
+    }
   };
 
   if (loading) return <Spinner />;

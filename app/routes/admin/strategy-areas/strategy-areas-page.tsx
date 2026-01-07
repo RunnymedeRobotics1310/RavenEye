@@ -1,18 +1,11 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import { useStrategyAreaList } from "~/common/storage/ravenbrain.ts";
+import { useStrategyAreaList } from "~/common/storage/localdb.ts";
 import Spinner from "~/common/Spinner.tsx";
-import ErrorMessage from "~/common/ErrorMessage.tsx";
 import { NavLink } from "react-router";
 
 const List = () => {
-  const { data, loading, error } = useStrategyAreaList();
+  const { list: data, loading } = useStrategyAreaList();
   if (loading) return <Spinner />;
-  if (error)
-    return (
-      <ErrorMessage title={"Error loading strategy area list"}>
-        {error}
-      </ErrorMessage>
-    );
 
   return (
     <section className={"strategyareasAdmin"}>

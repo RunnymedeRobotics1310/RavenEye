@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import { createStrategyArea } from "~/common/storage/ravenbrain.ts";
 import { StrategyAreaForm } from "./StrategyAreaForm.tsx";
+import { syncStrategyAreaList } from "~/common/sync/sync.ts";
 
 const Success = () => {
   return (
@@ -21,18 +22,18 @@ const AddPage = () => {
   const [error, setError] = useState<boolean>(false);
   const [msg, setMsg] = useState<string>("");
 
-  const handleSubmit = (item: StrategyArea) => {
+  const handleSubmit = async (item: StrategyArea) => {
     setError(false);
     setMsg("");
-    createStrategyArea(item)
-      .then((resp) => {
-        console.log("Created", resp);
-        setSuccess(true);
-      })
-      .catch((err) => {
-        setError(true);
-        setMsg("Something went wrong: " + err.message);
-      });
+    try {
+      const resp = await createStrategyArea(item);
+      console.log("Created", resp);
+      await syncStrategyAreaList();
+      setSuccess(true);
+    } catch (err: any) {
+      setError(true);
+      setMsg("Something went wrong: " + err.message);
+    }
   };
 
   return (

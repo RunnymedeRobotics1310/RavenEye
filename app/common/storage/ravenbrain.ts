@@ -322,36 +322,6 @@ export function useUserList() {
   };
 }
 
-export function useStrategyAreaList() {
-  const [data, setData] = useState<StrategyArea[] | null>(null);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    rbfetch("/api/strategy-areas", {}).then((resp) => {
-      if (resp.ok) {
-        resp.json().then((data) => {
-          if (data) {
-            setData(data);
-          } else {
-            setError("Failed to fetch strategy areas: " + data.reason);
-          }
-          setLoading(false);
-        });
-      } else {
-        setError("Failed to fetch strategy areas: " + resp.status);
-        setLoading(false);
-      }
-    });
-  }, []);
-
-  return { data, error, loading } as {
-    data: StrategyArea[] | null;
-    error: string | null;
-    loading: boolean;
-  };
-}
-
 export async function createStrategyArea(
   item: StrategyArea,
 ): Promise<StrategyArea> {

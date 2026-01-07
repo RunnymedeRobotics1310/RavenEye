@@ -9,8 +9,10 @@ export function initializeSyncSchedule() {
   syncInitialized = true;
 
   syncTournamentList();
+  syncStrategyAreaList();
   setInterval(() => {
     syncTournamentList();
+    syncStrategyAreaList();
   }, 15000);
 }
 
@@ -64,6 +66,65 @@ export async function syncTournamentList() {
     await repository.putSyncStatus({
       loading: false,
       component: "Tournament List",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
+export async function syncStrategyAreaList() {
+  console.log(
+    "[sync] Strategy Area List at " +
+      new Date().toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
+  );
+  await repository.putSyncStatus({
+    loading: true,
+    component: "Strategy Areas",
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const resp = await rbfetch("/api/strategy-areas", {});
+    if (resp.ok) {
+      const data = await resp.json();
+      await repository.putStrategyAreaList(data);
+      await repository.putSyncStatus({
+        loading: false,
+        component: "Strategy Areas",
+        lastSync: new Date(),
+        inProgress: false,
+        isComplete: true,
+        remaining: 0,
+        error: null,
+      });
+    } else {
+      const err = new Error("Failed to fetch strategy areas");
+      await repository.putSyncStatus({
+        loading: false,
+        component: "Strategy Areas",
+        lastSync: new Date(),
+        inProgress: false,
+        isComplete: false,
+        remaining: 0,
+        error: err,
+      });
+    }
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Strategy Areas",
       lastSync: new Date(),
       inProgress: false,
       isComplete: false,
@@ -139,16 +200,7 @@ export const useSequenceTypesSyncStatus = (): SyncStatus => {
 };
 
 export const useStrategyAreasSyncStatus = (): SyncStatus => {
-  const dummy: SyncStatus = {
-    loading: false,
-    component: "Strategy Areas",
-    lastSync: new Date(),
-    inProgress: false,
-    isComplete: true,
-    remaining: 0,
-    error: null,
-  };
-  return dummy;
+  return useSyncStatus("Strategy Areas");
 };
 
 export const useTournamentListSyncStatus = (): SyncStatus => {
