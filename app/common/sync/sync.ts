@@ -1,18 +1,28 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository, useSyncStatus } from "~/common/storage/localdb.ts";
-import { rbfetch } from "~/common/storage/auth.ts";
+import { rbfetch, ping } from "~/common/storage/auth.ts";
 
 let syncInitialized = false;
+
+export function doSync() {
+  ping()
+    .then(() => {
+      syncTournamentList();
+      syncStrategyAreaList();
+    })
+    .catch((error) => {
+      // Don't worry if you can't sync - user may not be connected
+      console.log("[sync] Skipping - not connected");
+    });
+}
 
 export function initializeSyncSchedule() {
   if (syncInitialized) return;
   syncInitialized = true;
 
-  syncTournamentList();
-  syncStrategyAreaList();
+  doSync();
   setInterval(() => {
-    syncTournamentList();
-    syncStrategyAreaList();
+    doSync();
   }, 15000);
 }
 
