@@ -8,6 +8,7 @@ import SyncSequenceTypes from "~/common/sync/SyncSequenceTypes.tsx";
 import SyncQuickComments from "~/common/sync/SyncQuickComments.tsx";
 import SyncTrackingData from "~/common/sync/SyncTrackingData.tsx";
 import SyncDashboardData from "~/common/sync/SyncDashboardData.tsx";
+import SyncNowButton from "~/common/sync/SyncNowButton.tsx";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -28,6 +29,7 @@ const SyncPage = () => {
           Some actions happen in the background, while others need to be
           initiated by you.
         </p>
+        <SyncNowButton />
         <h2>Manual Sync</h2>
         <SyncQuickComments />
         <SyncTrackingData />

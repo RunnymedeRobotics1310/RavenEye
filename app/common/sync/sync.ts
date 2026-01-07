@@ -20,29 +20,34 @@ function log(msg: string): void {
       }),
   );
 }
-let syncInitialized = false;
 
-export function doSync() {
-  ping().then((alive) => {
-    if (alive) {
-      syncTournamentList();
-      syncStrategyAreaList();
-      syncEventTypeList();
-      syncMatchSchedule();
-    } else {
-      log("Skipping - not connected");
-    }
-  });
-}
+let syncInitialized = false;
 
 export function initializeSyncSchedule() {
   if (syncInitialized) return;
   syncInitialized = true;
 
   doSync();
-  setInterval(() => {
-    doSync();
-  }, 15000);
+  setInterval(
+    () => {
+      doSync();
+    },
+    60 * 60 * 1000,
+  );
+}
+
+export async function doSync() {
+  const alive = await ping();
+  if (alive) {
+    await Promise.all([
+      syncTournamentList(),
+      syncStrategyAreaList(),
+      syncEventTypeList(),
+      syncMatchSchedule(),
+    ]);
+  } else {
+    log("Skipping - not connected");
+  }
 }
 
 export async function syncTournamentList() {
