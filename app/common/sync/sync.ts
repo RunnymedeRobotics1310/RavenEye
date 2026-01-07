@@ -2,6 +2,13 @@ import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository, useSyncStatus } from "~/common/storage/localdb.ts";
 import { rbfetch } from "~/common/storage/auth.ts";
 
+export function initializeSyncSchedule() {
+  syncTournamentList();
+  setInterval(() => {
+    syncTournamentList();
+  }, 15000);
+}
+
 export async function syncTournamentList() {
   console.log("Synchronizing tournament list");
   await repository.putSyncStatus({
@@ -52,13 +59,6 @@ export async function syncTournamentList() {
       error: err,
     });
   }
-}
-
-export function syncAll() {
-  syncTournamentList();
-  setInterval(() => {
-    syncTournamentList();
-  }, 30000);
 }
 
 export const useDashboardDataSyncStatus = (): SyncStatus => {
