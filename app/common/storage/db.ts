@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import type { SyncStatus } from "~/types/SyncStatus.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
+import type { EventType } from "~/types/EventType.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
+const EVENT_TYPES_STORE = "eventTypes";
 
 export class Repository {
   private db: IDBDatabase | null = null;
@@ -34,6 +36,9 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(STRATEGY_AREAS_STORE)) {
           db.createObjectStore(STRATEGY_AREAS_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(EVENT_TYPES_STORE)) {
+          db.createObjectStore(EVENT_TYPES_STORE, { autoIncrement: true });
         }
       };
     });
@@ -149,6 +154,38 @@ export class Repository {
       request.onerror = () => reject(request.error);
     });
   }
+
+  async putEventTypeList(list: EventType[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([EVENT_TYPES_STORE], "readwrite");
+      const store = transaction.objectStore(EVENT_TYPES_STORE);
+
+      const clearRequest = store.clear();
+      clearRequest.onsuccess = () => {
+        for (const item of list) {
+          store.add(item);
+        }
+        resolve();
+      };
+      clearRequest.onerror = () => reject(clearRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getEventTypeList(): Promise<EventType[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([EVENT_TYPES_STORE], "readonly");
+      const store = transaction.objectStore(EVENT_TYPES_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result as EventType[]);
+      request.onerror = () => reject(request.error);
+    });
+  }
 }
 
 export const repository = new Repository();
@@ -197,6 +234,35 @@ export function useStrategyAreaList() {
         }
       } catch (err) {
         console.error("Failed to load strategy area list", err);
+      }
+    };
+
+    load();
+    const interval = setInterval(load, 1000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  return { list, loading };
+}
+
+export function useEventTypeList() {
+  const [list, setList] = useState<EventType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      try {
+        const data = await repository.getEventTypeList();
+        if (isMounted) {
+          setList(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Failed to load event type list", err);
       }
     };
 

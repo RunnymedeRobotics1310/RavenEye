@@ -1,6 +1,7 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository, useSyncStatus } from "~/common/storage/db.ts";
 import {
+  getEventTypeList,
   getStrategyAreaList,
   getTournamentList,
   ping,
@@ -25,6 +26,7 @@ export function doSync() {
     if (alive) {
       syncTournamentList();
       syncStrategyAreaList();
+      syncEventTypeList();
     } else {
       log("Skipping - not connected");
     }
@@ -117,6 +119,44 @@ export async function syncStrategyAreaList() {
   }
 }
 
+export async function syncEventTypeList() {
+  log("Event Type List");
+  await repository.putSyncStatus({
+    loading: false,
+    component: "Event Types",
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const data = await getEventTypeList();
+    await repository.putEventTypeList(data);
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Event Types",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: true,
+      remaining: 0,
+      error: null,
+    });
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Event Types",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
 export const useDashboardDataSyncStatus = (): SyncStatus => {
   const dummy: SyncStatus = {
     loading: false,
@@ -131,16 +171,7 @@ export const useDashboardDataSyncStatus = (): SyncStatus => {
 };
 
 export const useEventTypesSyncStatus = (): SyncStatus => {
-  const dummy: SyncStatus = {
-    loading: false,
-    component: "Event Types",
-    lastSync: new Date(),
-    inProgress: false,
-    isComplete: true,
-    remaining: 0,
-    error: new Error("Not yet implemented"),
-  };
-  return dummy;
+  return useSyncStatus("Event Types");
 };
 
 export const useMatchScheduleSyncStatus = (): SyncStatus => {
