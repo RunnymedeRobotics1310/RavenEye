@@ -60,13 +60,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <div>&copy; 2026 Runnymede Robotics Team 1310</div>
               <div>Version: {import.meta.env.VITE_APP_VERSION}</div>
             </section>
-            {import.meta.env.DEV && (
-              <menu id="menu">
-                <li>
-                  <span>development footer menu items</span>
-                </li>
-              </menu>
-            )}
           </footer>
         </section>
         <ScrollRestoration />
