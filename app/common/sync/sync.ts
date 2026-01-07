@@ -2,18 +2,29 @@ import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository, useSyncStatus } from "~/common/storage/localdb.ts";
 import { rbfetch, ping } from "~/common/storage/auth.ts";
 
+function log(msg: string): void {
+  console.log(
+    "[sync] " +
+      msg +
+      " at " +
+      new Date().toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
+  );
+}
 let syncInitialized = false;
 
 export function doSync() {
-  ping()
-    .then(() => {
+  ping().then((alive) => {
+    if (alive) {
       syncTournamentList();
       syncStrategyAreaList();
-    })
-    .catch((error) => {
-      // Don't worry if you can't sync - user may not be connected
-      console.log("[sync] Skipping - not connected");
-    });
+    } else {
+      log("Skipping - not connected");
+    }
+  });
 }
 
 export function initializeSyncSchedule() {
@@ -27,14 +38,7 @@ export function initializeSyncSchedule() {
 }
 
 export async function syncTournamentList() {
-  console.log(
-    "[sync] Tournament List at " +
-      new Date().toLocaleTimeString(undefined, {
-        hour: "numeric",
-        minute: "2-digit",
-        second: "2-digit",
-      }),
-  );
+  log("Tournament List");
   await repository.putSyncStatus({
     loading: false,
     component: "Tournament List",
@@ -86,14 +90,7 @@ export async function syncTournamentList() {
 }
 
 export async function syncStrategyAreaList() {
-  console.log(
-    "[sync] Strategy Area List at " +
-      new Date().toLocaleTimeString(undefined, {
-        hour: "numeric",
-        minute: "2-digit",
-        second: "2-digit",
-      }),
-  );
+  log("Strategy Area List");
   await repository.putSyncStatus({
     loading: false,
     component: "Strategy Areas",
@@ -223,8 +220,8 @@ export const useTrackingDataSyncStatus = (): SyncStatus => {
     component: "Tracking Data",
     lastSync: new Date(),
     inProgress: false,
-    isComplete: false,
-    remaining: 1310,
+    isComplete: true,
+    remaining: 0,
     error: null,
   };
   return dummy;

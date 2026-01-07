@@ -12,9 +12,13 @@ const FULL_NAME_KEY = "ravenbrain_full_name";
  * @return {Promise<boolean>} A promise that resolves to true if the server responds with a status indicating success, otherwise false.
  */
 export async function ping(): Promise<boolean> {
-  return fetch(import.meta.env.VITE_API_HOST + "/api/ping", {}).then((resp) => {
-    return resp.ok;
-  });
+  return fetch(import.meta.env.VITE_API_HOST + "/api/ping", {})
+    .then((resp) => {
+      return resp.ok;
+    })
+    .catch(() => {
+      return false;
+    });
 }
 
 /**
@@ -154,7 +158,12 @@ export function useLoginStatus() {
 
   useEffect(() => {
     ping()
-      .then(() => {
+      .then((result) => {
+        if (!result) {
+          setAlive(false);
+          setLoading(false);
+          return;
+        }
         setAlive(true);
         let accessToken = null;
         if (typeof sessionStorage !== "undefined") {
