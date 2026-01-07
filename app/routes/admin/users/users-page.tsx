@@ -1,5 +1,5 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import { useUserList } from "~/common/storage/ravenbrain.ts";
+import { useUserList } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
 import ErrorMessage from "~/common/ErrorMessage.tsx";
 

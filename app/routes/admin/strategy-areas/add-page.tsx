@@ -2,7 +2,7 @@ import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { NavLink } from "react-router";
 import { useState } from "react";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
-import { createStrategyArea } from "~/common/storage/ravenbrain.ts";
+import { createStrategyArea } from "~/common/storage/rb.ts";
 import { StrategyAreaForm } from "./StrategyAreaForm.tsx";
 import { syncStrategyAreaList } from "~/common/sync/sync.ts";
 

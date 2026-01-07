@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { isJwtExpired, parseJwt } from "~/common/util.ts";
-import { ping } from "~/common/storage/ravenbrain.ts";
+import { ping } from "~/common/storage/rb.ts";
 
 const ACCESS_TOKEN_KEY = "ravenbrain_access_token";
 const ROLES_KEY = "ravenbrain_roles";

@@ -1,6 +1,6 @@
 import LoginForm from "~/common/auth/LoginForm.tsx";
 import Spinner from "~/common/Spinner.tsx";
-import { getFullName, useLoginStatus } from "~/common/storage/auth.ts";
+import { getFullName, useLoginStatus } from "~/common/storage/rbauth.ts";
 import { NavLink } from "react-router";
 
 const LoginPage = () => {

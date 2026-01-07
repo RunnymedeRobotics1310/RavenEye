@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { authenticate, getUserid } from "~/common/storage/auth.ts";
+import { authenticate, getUserid } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import { useNavigate } from "react-router";
 

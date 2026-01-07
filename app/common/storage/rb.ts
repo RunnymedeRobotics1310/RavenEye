@@ -4,7 +4,7 @@ import type { QuickComment } from "~/types/QuickComment.ts";
 import type { ScheduleItem } from "~/types/ScheduleItem.ts";
 import type { TeamReport } from "~/types/TeamReport.ts";
 import type { User } from "~/types/User.ts";
-import { rbfetch } from "~/common/storage/auth.ts";
+import { rbfetch } from "~/common/storage/rbauth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 
 /**

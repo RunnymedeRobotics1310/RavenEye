@@ -6,7 +6,7 @@ import type { Tournament } from "~/types/Tournament.ts";
 import { Phase } from "~/common/phase.ts";
 import { useEffect, useState } from "react";
 import type { QuickComment } from "~/types/QuickComment.ts";
-import { getUserid } from "~/common/storage/auth.ts";
+import { getUserid } from "~/common/storage/rbauth.ts";
 
 function parseKey(keyString: string): ScoutingSessionId {
   const arr = keyString.split("|");
