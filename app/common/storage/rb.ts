@@ -4,10 +4,12 @@ import type { QuickComment } from "~/types/QuickComment.ts";
 import type { ScheduleItem } from "~/types/ScheduleItem.ts";
 import type { TeamReport } from "~/types/TeamReport.ts";
 import type { User } from "~/types/User.ts";
+import { repository } from "~/common/storage/db.ts";
 import { rbfetch } from "~/common/storage/rbauth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
+import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -49,6 +51,37 @@ export async function getEventTypeList() {
   } else {
     throw new Error("Failure fetching event type list");
   }
+}
+
+export async function getScheduleForTournament(tournamentId: string) {
+  const resp = await rbfetch("/api/schedule/" + tournamentId, {});
+  if (resp.ok) {
+    return resp.json() as unknown as RBScheduleRecord[];
+  } else {
+    throw new Error("Failure fetching schedule for tournament " + tournamentId);
+  }
+}
+
+export async function getSchedule(): Promise<RBScheduleItem[]> {
+  const tournaments = await repository.getTournamentList();
+  const schedules = await Promise.all(
+    tournaments.map((t) => getScheduleForTournament(t.id)),
+  );
+
+  return schedules.flat().map((record) => ({
+    id: record.id,
+    tournamentId: record.tournamentId,
+    level: record.level,
+    match: record.match,
+    red1: record.red1,
+    red2: record.red2,
+    red3: record.red3,
+    red4: record.red4,
+    blue1: record.blue1,
+    blue2: record.blue2,
+    blue3: record.blue3,
+    blue4: record.blue4,
+  }));
 }
 
 export function useSchedule(tournamentId: string) {
