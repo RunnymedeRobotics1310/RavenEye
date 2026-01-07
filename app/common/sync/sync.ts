@@ -1,4 +1,8 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
+import {
+  type RBTournament,
+  useTournamentList,
+} from "~/common/storage/ravenbrain.ts";
 
 export const useDashboardDataSyncStatus = (): SyncStatus => {
   const dummy: SyncStatus = {
@@ -79,14 +83,16 @@ export const useStrategyAreasSyncStatus = (): SyncStatus => {
 };
 
 export const useTournamentListSyncStatus = (): SyncStatus => {
+  const { list, error, loading } = useTournamentList();
+  console.log("Tournament List Sync Status:", { list, loading, error });
   const dummy: SyncStatus = {
-    loading: false,
+    loading: loading,
     component: "Tournament List",
     lastSync: new Date(),
     inProgress: false,
     isComplete: true,
     remaining: 0,
-    error: null,
+    error: error,
   };
   return dummy;
 };

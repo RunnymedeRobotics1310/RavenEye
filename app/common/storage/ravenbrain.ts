@@ -9,7 +9,7 @@ import type { StrategyArea } from "~/types/StrategyArea.ts";
 
 export function useTournamentList() {
   const [list, setList] = useState([]);
-  const [error, setError] = useState<null | string>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(true);
   const [doRefresh, setDoRefresh] = useState(true);
 
@@ -18,24 +18,29 @@ export function useTournamentList() {
   }
 
   useEffect(() => {
-    rbfetch("/api/tournament", {}).then((resp) => {
-      if (resp.ok) {
-        resp.json().then((data) => {
-          setList(data);
+    rbfetch("/api/tournament", {})
+      .then((resp) => {
+        if (resp.ok) {
+          resp.json().then((data) => {
+            setList(data);
+            setLoading(false);
+            setDoRefresh(false);
+          });
+        } else {
+          setError(new Error("Failed to fetch tournaments"));
           setLoading(false);
           setDoRefresh(false);
-        });
-      } else {
-        setError("Failed to fetch tournaments");
+        }
+      })
+      .catch((e) => {
+        setError(e);
         setLoading(false);
-        setDoRefresh(false);
-      }
-    });
+      });
   }, [doRefresh]);
 
   return { list, error, loading, refresh } as {
     list: RBTournament[];
-    error: string | null;
+    error: Error | null;
     loading: boolean;
     refresh: () => void;
   };
