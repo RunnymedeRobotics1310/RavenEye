@@ -22,7 +22,7 @@ export class Repository {
         resolve(request.result);
       };
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = () => {
         const db = request.result;
         if (!db.objectStoreNames.contains(SYNC_STATUS_STORE)) {
           db.createObjectStore(SYNC_STATUS_STORE, { keyPath: "component" });
