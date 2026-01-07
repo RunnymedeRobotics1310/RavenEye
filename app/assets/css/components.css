@@ -190,6 +190,10 @@ button {
     }
 }
 
+.rotating {
+    animation: spin 1.3s linear infinite;
+}
+
 
 .googleExampleContentPreStyle {
     white-space: pre-wrap;

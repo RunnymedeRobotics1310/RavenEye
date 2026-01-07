@@ -26,10 +26,13 @@ function Sync(props: PropTypes) {
     title = "No Sync Required";
   }
 
+  const isRotating = status.loading || status.inProgress;
+  const className = color + (isRotating ? " rotating" : "");
+
   return (
     <BaseIcon>
       <svg
-        className={color}
+        className={className}
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
       >
