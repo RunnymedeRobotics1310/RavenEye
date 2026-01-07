@@ -26,7 +26,7 @@ export async function syncTournamentList() {
       }),
   );
   await repository.putSyncStatus({
-    loading: true,
+    loading: false,
     component: "Tournament List",
     lastSync: new Date(),
     inProgress: true,
@@ -85,7 +85,7 @@ export async function syncStrategyAreaList() {
       }),
   );
   await repository.putSyncStatus({
-    loading: true,
+    loading: false,
     component: "Strategy Areas",
     lastSync: new Date(),
     inProgress: true,
