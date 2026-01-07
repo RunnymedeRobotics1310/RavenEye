@@ -10,14 +10,13 @@ import { getUserid } from "~/common/storage/rbauth.ts";
 
 function parseKey(keyString: string): ScoutingSessionId {
   const arr = keyString.split("|");
-  const key: ScoutingSessionId = {
+  return {
     tournamentId: arr[0],
     scoutName: arr[1],
     matchId: parseInt(arr[2]),
     alliance: arr[3],
     teamNumber: parseInt(arr[4]),
   };
-  return key;
 }
 
 function stringifyKey(obj: ScoutingSessionId): string {
@@ -185,8 +184,7 @@ export function handleSyncFix() {
 }
 export function syncFix1Executed() {
   const str = localStorage.getItem("rrSyncFix1Executed");
-  if (str && str === "true") return true;
-  return false;
+  return !!(str && str === "true");
 }
 export function useUnsynchronizeEverything() {
   const [error, setError] = useState<null | string>(null);
@@ -374,8 +372,7 @@ export function getAllTournaments(): Tournament[] {
     return [];
   }
 
-  const list: Tournament[] = JSON.parse(str);
-  return list;
+  return JSON.parse(str);
 }
 
 export function setCurrentTournament(tournamentId: string) {
@@ -486,8 +483,7 @@ export function getScoutedSessions(synchronized: boolean) {
   if (!scoutedSessionsString) {
     return [];
   }
-  const result = JSON.parse(scoutedSessionsString) as ScoutingSessionId[];
-  return result;
+  return JSON.parse(scoutedSessionsString) as ScoutingSessionId[];
 }
 
 function replaceScoutedSessions(
@@ -619,7 +615,7 @@ export function getCurrentGamestate() {
 
 export function addQuickComment(quickComment: QuickComment) {
   const quickCommentsString = localStorage.getItem("rrQuickComments");
-  let quickComments: QuickComment[] | null = null;
+  let quickComments: QuickComment[] | null;
 
   if (quickCommentsString) {
     quickComments = JSON.parse(quickCommentsString) as QuickComment[];

@@ -29,7 +29,7 @@ function LoginForm() {
         setSuccess(true);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setLoading(false);
         setSuccess(false);
       });
