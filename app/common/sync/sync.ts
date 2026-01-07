@@ -1,7 +1,10 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository, useSyncStatus } from "~/common/storage/db.ts";
-import { rbfetch } from "~/common/storage/rbauth.ts";
-import { ping } from "~/common/storage/rb.ts";
+import {
+  getStrategyAreaList,
+  getTournamentList,
+  ping,
+} from "~/common/storage/rb.ts";
 
 function log(msg: string): void {
   console.log(
@@ -51,31 +54,17 @@ export async function syncTournamentList() {
   });
 
   try {
-    const resp = await rbfetch("/api/tournament", {});
-    if (resp.ok) {
-      const data = await resp.json();
-      await repository.putTournamentList(data);
-      await repository.putSyncStatus({
-        loading: false,
-        component: "Tournament List",
-        lastSync: new Date(),
-        inProgress: false,
-        isComplete: true,
-        remaining: 0,
-        error: null,
-      });
-    } else {
-      const err = new Error("Failed to fetch tournaments");
-      await repository.putSyncStatus({
-        loading: false,
-        component: "Tournament List",
-        lastSync: new Date(),
-        inProgress: false,
-        isComplete: false,
-        remaining: 0,
-        error: err,
-      });
-    }
+    const data = await getTournamentList();
+    await repository.putTournamentList(data);
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Tournament List",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: true,
+      remaining: 0,
+      error: null,
+    });
   } catch (e) {
     const err = e instanceof Error ? e : new Error(String(e));
     await repository.putSyncStatus({
@@ -103,31 +92,17 @@ export async function syncStrategyAreaList() {
   });
 
   try {
-    const resp = await rbfetch("/api/strategy-areas", {});
-    if (resp.ok) {
-      const data = await resp.json();
-      await repository.putStrategyAreaList(data);
-      await repository.putSyncStatus({
-        loading: false,
-        component: "Strategy Areas",
-        lastSync: new Date(),
-        inProgress: false,
-        isComplete: true,
-        remaining: 0,
-        error: null,
-      });
-    } else {
-      const err = new Error("Failed to fetch strategy areas");
-      await repository.putSyncStatus({
-        loading: false,
-        component: "Strategy Areas",
-        lastSync: new Date(),
-        inProgress: false,
-        isComplete: false,
-        remaining: 0,
-        error: err,
-      });
-    }
+    const data = await getStrategyAreaList();
+    await repository.putStrategyAreaList(data);
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Strategy Areas",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: true,
+      remaining: 0,
+      error: null,
+    });
   } catch (e) {
     const err = e instanceof Error ? e : new Error(String(e));
     await repository.putSyncStatus({

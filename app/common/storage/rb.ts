@@ -6,6 +6,7 @@ import type { TeamReport } from "~/types/TeamReport.ts";
 import type { User } from "~/types/User.ts";
 import { rbfetch } from "~/common/storage/rbauth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
+import type { RBTournament } from "~/types/RBTournament.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -20,6 +21,24 @@ export async function ping(): Promise<boolean> {
     .catch(() => {
       return false;
     });
+}
+
+export async function getTournamentList() {
+  const resp = await rbfetch("/api/tournament", {});
+  if (resp.ok) {
+    return resp.json() as unknown as RBTournament[];
+  } else {
+    throw new Error("Failure fetching tournament list");
+  }
+}
+
+export async function getStrategyAreaList() {
+  const resp = await rbfetch("/api/strategy-areas", {});
+  if (resp.ok) {
+    return resp.json() as unknown as StrategyArea[];
+  } else {
+    throw new Error("Failure fetching strategy area list");
+  }
 }
 
 export function useSchedule(tournamentId: string) {
