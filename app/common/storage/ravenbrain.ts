@@ -7,6 +7,21 @@ import type { User } from "~/types/User.ts";
 import { rbfetch } from "~/common/storage/auth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 
+/**
+ * Sends a ping request to the API to check if the server is reachable.
+ *
+ * @return {Promise<boolean>} A promise that resolves to true if the server responds with a status indicating success, otherwise false.
+ */
+export async function ping(): Promise<boolean> {
+  return fetch(import.meta.env.VITE_API_HOST + "/api/ping", {})
+    .then((resp) => {
+      return resp.ok;
+    })
+    .catch(() => {
+      return false;
+    });
+}
+
 export function useSchedule(tournamentId: string) {
   const [matches, setSchedule] = useState([]);
   const [error, setError] = useState<null | string>(null);

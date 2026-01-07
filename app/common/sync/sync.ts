@@ -1,6 +1,7 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository, useSyncStatus } from "~/common/storage/localdb.ts";
-import { rbfetch, ping } from "~/common/storage/auth.ts";
+import { rbfetch } from "~/common/storage/auth.ts";
+import { ping } from "~/common/storage/ravenbrain.ts";
 
 function log(msg: string): void {
   console.log(
