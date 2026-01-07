@@ -8,14 +8,6 @@ import { rbfetch } from "~/common/storage/auth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 
-export async function saveTournament(tournament: RBTournament) {
-  return rbfetch("/api/tournament", {
-    method: "POST",
-    body: JSON.stringify(tournament),
-  }).then((resp) => {
-    return resp.ok;
-  });
-}
 export function useSchedule(tournamentId: string) {
   const [matches, setSchedule] = useState([]);
   const [error, setError] = useState<null | string>(null);
