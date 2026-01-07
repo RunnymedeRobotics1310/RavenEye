@@ -7,6 +7,7 @@ import type { User } from "~/types/User.ts";
 import { rbfetch } from "~/common/storage/rbauth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
+import type { EventType } from "~/types/EventType.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -38,6 +39,15 @@ export async function getStrategyAreaList() {
     return resp.json() as unknown as StrategyArea[];
   } else {
     throw new Error("Failure fetching strategy area list");
+  }
+}
+
+export async function getEventTypeList() {
+  const resp = await rbfetch("/api/event-types", {});
+  if (resp.ok) {
+    return resp.json() as unknown as EventType[];
+  } else {
+    throw new Error("Failure fetching event type list");
   }
 }
 
