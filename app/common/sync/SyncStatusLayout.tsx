@@ -22,6 +22,7 @@ const SyncStatusLayout = (props: PropTypes) => {
           day: "numeric",
           hour: "numeric",
           minute: "2-digit",
+          second: "2-digit",
         })}
       </div>
       <div className={"sync-status-last-sync-ultra-short"}>
@@ -29,6 +30,7 @@ const SyncStatusLayout = (props: PropTypes) => {
           ? status.lastSync.toLocaleTimeString(undefined, {
               hour: "numeric",
               minute: "2-digit",
+              second: "2-digit",
             })
           : status.lastSync.toLocaleDateString(undefined, {
               month: "short",

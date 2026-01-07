@@ -245,6 +245,7 @@ section.usersAdmin{
 }
 
 section.sync-status {
+    margin-bottom: 0.25rem;
     .sync-status-component,
     .sync-status-completion,
     .sync-status-error {
@@ -253,6 +254,7 @@ section.sync-status {
     .sync-status-last-sync-long,
     .sync-status-last-sync-ultra-short {
         display: none;
+        margin-right: .5rem;
     }
     @media screen and (min-width: 400px) {
         .sync-status-last-sync-long {
@@ -265,7 +267,7 @@ section.sync-status {
         }
     }
     .sync-status-component {
-        width: 11rem;
+        width: 9rem;
     }
     .sync-status-completion {
         margin-right: .5rem;
@@ -275,8 +277,5 @@ section.sync-status {
             padding-top: 0;
             margin-top: 0;
         }
-    }
-    .sync-status-error {
-        margin-left: .6rem;
     }
 }
