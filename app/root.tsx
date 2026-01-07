@@ -19,6 +19,7 @@ import logoUrl from "~/assets/images/logo.png";
 import titleUrl from "~/assets/images/title.png";
 import Sync from "~/common/icons/Sync.tsx";
 import Spinner from "~/common/Spinner.tsx";
+import { useOverallSyncStatus } from "~/common/sync/sync.ts";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
@@ -26,6 +27,7 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const syncStatus = useOverallSyncStatus();
   return (
     <html lang="en">
       <head>
@@ -47,7 +49,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
             <div className={"sync-button"}>
               <NavLink to={"/sync"} className={"button"}>
-                <Sync />
+                <Sync status={syncStatus} />
               </NavLink>
             </div>
           </header>

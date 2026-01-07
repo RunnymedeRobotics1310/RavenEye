@@ -58,15 +58,26 @@ a:active {
     }
 }
 .syncLoading {
+    color: grey;
+    fill: grey;
 }
-.syncRed {
+.syncError {
     color: red;
     fill: red;
 }
-.syncGreen {
+.syncHappening {
+    color: lime;
+    fill: lime;
+}
+.syncToDo {
+    color: orange;
+    fill: orange;
+}
+.syncComplete {
     color: green;
     fill: green;
 }
+
 .match-select .team-select button:disabled {
     color:gray;
     background-color: darkgray

@@ -239,3 +239,36 @@ section.usersAdmin{
         text-transform: uppercase;
     }
 }
+
+section.sync-status {
+    .sync-status-component,
+    .sync-status-completion,
+    .sync-status-error {
+        display: inline-block;
+    }
+    .sync-status-last-sync-long,
+    .sync-status-last-sync-ultra-short {
+        display: none;
+    }
+    @media screen and (min-width: 400px) {
+        .sync-status-last-sync-long {
+            display: inline-block;
+        }
+    }
+    @media screen and (max-width: 399px) {
+        .sync-status-last-sync-ultra-short {
+            display: inline-block;
+        }
+    }
+    .sync-status-component {
+        width: 11rem;
+    }
+    .sync-status-completion {
+        margin-right: .5rem;
+        span.icon {
+            height: .8rem;
+            width: .8rem;
+        }
+    }
+
+}
