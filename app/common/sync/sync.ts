@@ -2,7 +2,12 @@ import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository, useSyncStatus } from "~/common/storage/localdb.ts";
 import { rbfetch } from "~/common/storage/auth.ts";
 
+let syncInitialized = false;
+
 export function initializeSyncSchedule() {
+  if (syncInitialized) return;
+  syncInitialized = true;
+
   syncTournamentList();
   setInterval(() => {
     syncTournamentList();
@@ -10,7 +15,14 @@ export function initializeSyncSchedule() {
 }
 
 export async function syncTournamentList() {
-  console.log("Synchronizing tournament list");
+  console.log(
+    "[sync] Tournament List at " +
+      new Date().toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit",
+        second: "2-digit",
+      }),
+  );
   await repository.putSyncStatus({
     loading: true,
     component: "Tournament List",
