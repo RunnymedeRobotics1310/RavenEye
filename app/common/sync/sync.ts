@@ -2,6 +2,7 @@ import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository, useSyncStatus } from "~/common/storage/db.ts";
 import {
   getEventTypeList,
+  getSequenceTypeList,
   getStrategyAreaList,
   getTournamentList,
   getScheduleForTournament,
@@ -43,6 +44,7 @@ export async function doSync() {
       syncTournamentList(),
       syncStrategyAreaList(),
       syncEventTypeList(),
+      syncSequenceTypeList(),
       syncMatchSchedule(),
     ]);
   } else {
@@ -164,6 +166,44 @@ export async function syncEventTypeList() {
   }
 }
 
+export async function syncSequenceTypeList() {
+  log("Sequence Type List");
+  await repository.putSyncStatus({
+    loading: false,
+    component: "Sequence Types",
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const data = await getSequenceTypeList();
+    await repository.putSequenceTypeList(data);
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Sequence Types",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: true,
+      remaining: 0,
+      error: null,
+    });
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Sequence Types",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
 export async function syncMatchSchedule() {
   log("Match Schedule");
   await repository.putSyncStatus({
@@ -241,16 +281,7 @@ export const useQuickCommentsSyncStatus = (): SyncStatus => {
 };
 
 export const useSequenceTypesSyncStatus = (): SyncStatus => {
-  const dummy: SyncStatus = {
-    loading: false,
-    component: "Sequence Types",
-    lastSync: new Date(),
-    inProgress: false,
-    isComplete: true,
-    remaining: 0,
-    error: new Error("Not yet implemented"),
-  };
-  return dummy;
+  return useSyncStatus("Sequence Types");
 };
 
 export const useStrategyAreasSyncStatus = (): SyncStatus => {

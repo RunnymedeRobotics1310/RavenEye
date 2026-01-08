@@ -3,15 +3,17 @@ import type { SyncStatus } from "~/types/SyncStatus.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { EventType } from "~/types/EventType.ts";
+import type { SequenceType } from "~/types/SequenceType.ts";
 
 import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 5;
+const DB_VERSION = 6;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
 const EVENT_TYPES_STORE = "eventTypes";
+const SEQUENCE_TYPES_STORE = "sequenceTypes";
 const MATCH_SCHEDULE_STORE = "matchSchedule";
 
 export class Repository {
@@ -42,6 +44,9 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(EVENT_TYPES_STORE)) {
           db.createObjectStore(EVENT_TYPES_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(SEQUENCE_TYPES_STORE)) {
+          db.createObjectStore(SEQUENCE_TYPES_STORE, { autoIncrement: true });
         }
         if (!db.objectStoreNames.contains(MATCH_SCHEDULE_STORE)) {
           db.createObjectStore(MATCH_SCHEDULE_STORE, { autoIncrement: true });
@@ -193,6 +198,38 @@ export class Repository {
     });
   }
 
+  async putSequenceTypeList(list: SequenceType[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([SEQUENCE_TYPES_STORE], "readwrite");
+      const store = transaction.objectStore(SEQUENCE_TYPES_STORE);
+
+      const clearRequest = store.clear();
+      clearRequest.onsuccess = () => {
+        for (const item of list) {
+          store.add(item);
+        }
+        resolve();
+      };
+      clearRequest.onerror = () => reject(clearRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getSequenceTypeList(): Promise<SequenceType[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([SEQUENCE_TYPES_STORE], "readonly");
+      const store = transaction.objectStore(SEQUENCE_TYPES_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result as SequenceType[]);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
   async putMatchSchedule(list: RBScheduleRecord[]): Promise<void> {
     const db = await this.getDB();
     return new Promise((resolve, reject) => {
@@ -301,6 +338,35 @@ export function useEventTypeList() {
         }
       } catch (err) {
         console.error("Failed to load event type list", err);
+      }
+    };
+
+    load();
+    const interval = setInterval(load, 1000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  return { list, loading };
+}
+
+export function useSequenceTypeList() {
+  const [list, setList] = useState<SequenceType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      try {
+        const data = await repository.getSequenceTypeList();
+        if (isMounted) {
+          setList(data);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Failed to load sequence type list", err);
       }
     };
 
