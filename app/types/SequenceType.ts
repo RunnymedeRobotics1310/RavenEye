@@ -5,5 +5,6 @@ export interface SequenceType {
   name: string;
   description: string;
   frcyear: number;
+  disabled: boolean;
   events: SequenceEvent[];
 }

@@ -19,6 +19,7 @@ export const SequenceTypeForm = ({
     name: "",
     description: "",
     frcyear: new Date().getFullYear(),
+    disabled: false,
     events: [],
   });
 
@@ -76,6 +77,17 @@ export const SequenceTypeForm = ({
           onChange={(e) =>
             setItem({ ...item, frcyear: parseInt(e.target.value) || 0 })
           }
+        />
+      </p>
+      <p>
+        <label id={"disabled-label"}>Disabled:</label>
+        <br />
+        <input
+          aria-labelledby={"disabled-label"}
+          type="checkbox"
+          name="disabled"
+          checked={item.disabled}
+          onChange={(e) => setItem({ ...item, disabled: e.target.checked })}
         />
       </p>
       <p>

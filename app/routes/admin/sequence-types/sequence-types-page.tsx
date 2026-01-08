@@ -14,6 +14,7 @@ const List = () => {
           <tr>
             <th>ID</th>
             <th>Season</th>
+            <th>Disabled</th>
             <th>Name</th>
             <th>Description</th>
             <th>Events</th>
@@ -25,6 +26,7 @@ const List = () => {
             <tr key={item.id}>
               <td>{item.id}</td>
               <td>{item.frcyear}</td>
+              <td>{item.disabled ? "Yes" : "No"}</td>
               <td>{item.name}</td>
               <td>{item.description}</td>
               <td>{item.events?.length || 0}</td>
