@@ -54,6 +54,15 @@ export async function getEventTypeList() {
   }
 }
 
+export async function getEventTypeListForYear(year: number) {
+  const resp = await rbfetch("/api/event-types/year/" + year, {});
+  if (resp.ok) {
+    return resp.json() as unknown as EventType[];
+  } else {
+    throw new Error("Failure fetching event type list for year");
+  }
+}
+
 export async function getSequenceTypeList() {
   const resp = await rbfetch("/api/sequence-types", {});
   if (resp.ok) {
