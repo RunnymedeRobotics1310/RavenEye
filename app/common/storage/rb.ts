@@ -64,8 +64,8 @@ export async function getSequenceTypeList() {
 }
 
 export async function createSequenceType(
-  item: StrategyArea,
-): Promise<StrategyArea> {
+  item: SequenceType,
+): Promise<SequenceType> {
   return rbfetch("/api/sequence-types", {
     method: "POST",
     body: JSON.stringify(item),
@@ -78,8 +78,8 @@ export async function createSequenceType(
 }
 
 export async function updateSequenceType(
-  item: StrategyArea,
-): Promise<StrategyArea> {
+  item: SequenceType,
+): Promise<SequenceType> {
   return rbfetch("/api/sequence-types/" + item.id, {
     method: "PUT",
     body: JSON.stringify(item),
@@ -496,4 +496,38 @@ export async function updateStrategyArea(
     }
     return resp.json();
   });
+}
+
+export function useSequenceType(id: string | undefined) {
+  const [data, setData] = useState<SequenceType | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    rbfetch(`/api/sequence-types/${id}`, {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch sequence type: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch sequence type: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, [id]);
+
+  return { data, error, loading } as {
+    data: SequenceType | null;
+    error: string | null;
+    loading: boolean;
+  };
 }
