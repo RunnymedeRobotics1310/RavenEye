@@ -63,6 +63,34 @@ export async function getSequenceTypeList() {
   }
 }
 
+export async function createSequenceType(
+  item: StrategyArea,
+): Promise<StrategyArea> {
+  return rbfetch("/api/sequence-types", {
+    method: "POST",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to create sequence type: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+export async function updateSequenceType(
+  item: StrategyArea,
+): Promise<StrategyArea> {
+  return rbfetch("/api/sequence-types/" + item.id, {
+    method: "PUT",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to update sequence types: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
 export async function getScheduleForTournament(tournamentId: string) {
   const resp = await rbfetch("/api/schedule/" + tournamentId, {});
   if (resp.ok) {
