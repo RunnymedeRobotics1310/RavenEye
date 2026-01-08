@@ -1,4 +1,4 @@
-import { type FormEvent, useState, useEffect } from "react";
+import { type FormEvent, useState, useEffect, useMemo } from "react";
 import { NavLink } from "react-router";
 import type { SequenceType } from "~/types/SequenceType.ts";
 import type { SequenceEvent } from "~/types/SequenceEvent.ts";
@@ -25,11 +25,26 @@ export const SequenceTypeForm = ({
 
   const { list: eventTypes } = useEventTypeList();
 
+  const filteredEventTypes = useMemo(() => {
+    return eventTypes?.filter((et) => et.frcyear === item.frcyear) || [];
+  }, [eventTypes, item.frcyear]);
+
   useEffect(() => {
     if (initialData) {
       setItem(initialData);
     }
   }, [initialData]);
+
+  useEffect(() => {
+    if (item.events && item.events.length > 0) {
+      const validEvents = item.events.filter(
+        (ev) => ev.eventtype.frcyear === item.frcyear,
+      );
+      if (validEvents.length !== item.events.length) {
+        setItem((prev) => ({ ...prev, events: validEvents }));
+      }
+    }
+  }, [item.frcyear]);
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -37,11 +52,11 @@ export const SequenceTypeForm = ({
   };
 
   const addEvent = () => {
-    if (!eventTypes || eventTypes.length === 0) return;
+    if (filteredEventTypes.length === 0) return;
     const newEvent: SequenceEvent = {
       id: 0,
       sequencetype: item,
-      eventtype: eventTypes[0],
+      eventtype: filteredEventTypes[0],
       startOfSequence: false,
       endOfSequence: false,
     };
@@ -134,13 +149,13 @@ export const SequenceTypeForm = ({
                     <select
                       value={ev.eventtype.eventtype}
                       onChange={(e) => {
-                        const et = eventTypes?.find(
+                        const et = filteredEventTypes?.find(
                           (t) => t.eventtype === e.target.value,
                         );
                         if (et) updateEvent(index, { eventtype: et });
                       }}
                     >
-                      {eventTypes?.map((et) => (
+                      {filteredEventTypes?.map((et) => (
                         <option key={et.eventtype} value={et.eventtype}>
                           {et.name}
                         </option>
