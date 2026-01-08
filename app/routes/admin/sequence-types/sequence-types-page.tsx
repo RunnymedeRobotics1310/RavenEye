@@ -13,6 +13,7 @@ const List = () => {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Season</th>
             <th>Name</th>
             <th>Description</th>
             <th>Events</th>
@@ -23,6 +24,7 @@ const List = () => {
           {data?.map((item) => (
             <tr key={item.id}>
               <td>{item.id}</td>
+              <td>{item.frcyear}</td>
               <td>{item.name}</td>
               <td>{item.description}</td>
               <td>{item.events?.length || 0}</td>

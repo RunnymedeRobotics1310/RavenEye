@@ -4,5 +4,6 @@ export interface SequenceType {
   id: number;
   name: string;
   description: string;
+  frcyear: number;
   events: SequenceEvent[];
 }

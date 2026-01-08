@@ -18,6 +18,7 @@ export const SequenceTypeForm = ({
     id: 0,
     name: "",
     description: "",
+    frcyear: new Date().getFullYear(),
     events: [],
   });
 
@@ -63,6 +64,20 @@ export const SequenceTypeForm = ({
 
   return (
     <form onSubmit={handleFormSubmit}>
+      <p>
+        <label id={"season-label"}>Season:</label>
+        <br />
+        <input
+          aria-labelledby={"season-label"}
+          type="number"
+          name="season"
+          required
+          value={item.frcyear}
+          onChange={(e) =>
+            setItem({ ...item, frcyear: parseInt(e.target.value) || 0 })
+          }
+        />
+      </p>
       <p>
         <label id={"name-label"}>Name:</label>
         <br />
