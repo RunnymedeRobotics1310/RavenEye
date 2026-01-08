@@ -41,7 +41,7 @@ const AddPage = () => {
       <h1>Manage Strategy Areas</h1>
       <p>Create a new strategy area.</p>
       <RequireLogin>
-        {error && <p style={{ color: "red" }}>{msg}</p>}
+        {error && <p className={"errorMessage"}>{msg}</p>}
         {success ? (
           <Success />
         ) : (

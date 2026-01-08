@@ -41,7 +41,7 @@ const AddPage = () => {
       <h1>Manage Sequence Types</h1>
       <p>Create a new sequence type.</p>
       <RequireLogin>
-        {error && <p style={{ color: "red" }}>{msg}</p>}
+        {error && <p className={"errorMessage"}>{msg}</p>}
         {success ? (
           <Success />
         ) : (

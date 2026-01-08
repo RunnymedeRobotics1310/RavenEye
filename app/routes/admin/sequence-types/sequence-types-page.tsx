@@ -23,7 +23,10 @@ const List = () => {
         </thead>
         <tbody>
           {data?.map((item) => (
-            <tr key={item.id}>
+            <tr
+              key={item.id}
+              className={item.disabled ? "disabled-item" : undefined}
+            >
               <td>{item.id}</td>
               <td>{item.frcyear}</td>
               <td>{item.disabled ? "Yes" : "No"}</td>

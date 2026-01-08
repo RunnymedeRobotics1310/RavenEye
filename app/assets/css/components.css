@@ -227,6 +227,7 @@ select {
 section.tournamentAdmin,
 section.scheduleAdmin,
 section.strategyareasAdmin,
+section.sequencetypesAdmin,
 section.usersAdmin{
     table td,
     table th {
@@ -242,6 +243,14 @@ section.usersAdmin{
         padding: 0.25rem .5rem;
         text-transform: uppercase;
     }
+}
+
+.disabled-item {
+    color: gray;
+}
+
+.sync-now-button {
+    margin-bottom: 1rem;
 }
 
 section.sync-status {

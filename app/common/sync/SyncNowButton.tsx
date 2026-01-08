@@ -15,7 +15,7 @@ const SyncNowButton = () => {
   return (
     <button
       onClick={handleSync}
-      style={{ marginBottom: "1rem" }}
+      className={"sync-now-button"}
       disabled={isSyncing}
     >
       {isSyncing ? "Syncing..." : "Sync Now"}
