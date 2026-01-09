@@ -6,9 +6,10 @@ import type { SequenceType } from "~/types/SequenceType.ts";
 
 import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
+import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 7;
+const DB_VERSION = 8;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -329,6 +330,58 @@ export class Repository {
       transaction.onerror = () => reject(transaction.error);
     });
   }
+
+  async captureEvent(item: RBEventLogRecord): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([NEW_EVENT_STORE], "readwrite");
+
+      const store = transaction.objectStore(NEW_EVENT_STORE);
+      const storeRequest = store.add(item, unsyncEventKey(item));
+      storeRequest.onsuccess = () => resolve();
+      storeRequest.onerror = () => reject(storeRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getUnsynchronizedEvents(): Promise<RBEventLogRecord[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([NEW_EVENT_STORE], "readonly");
+      const store = transaction.objectStore(NEW_EVENT_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result as RBEventLogRecord[]);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async markEventSynchronized(items: RBEventLogRecord[]): Promise<void> {
+    const db = await this.getDB();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [NEW_EVENT_STORE, SYNC_EVENT_STORE],
+        "readwrite",
+      );
+      const newStore = transaction.objectStore(NEW_EVENT_STORE);
+      const syncStore = transaction.objectStore(SYNC_EVENT_STORE);
+
+      items.forEach((item) => {
+        const key = unsyncEventKey(item);
+        const newStoreReq = newStore.get(key);
+        newStoreReq.onsuccess = () => {
+          syncStore.add(item);
+          newStore.delete(key);
+        };
+      });
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
 }
 
 /**
@@ -343,6 +396,23 @@ const unsyncCommentKey = (item: RBQuickComment): string => {
     item.timestamp = new Date(item.timestamp);
   }
   return "user(" + item.userId + ")-" + item.timestamp.getTime();
+};
+
+const unsyncEventKey = (item: RBEventLogRecord): string => {
+  // re-parse date
+  if (item.timestamp instanceof Date) {
+    /* empty */
+  } else {
+    item.timestamp = new Date(item.timestamp);
+  }
+  return (
+    "user(" +
+    item.userId +
+    ")-" +
+    item.timestamp.getTime() +
+    "-" +
+    item.eventType
+  );
 };
 
 export const repository = new Repository();

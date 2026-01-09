@@ -6,7 +6,6 @@ import { NavLink } from "react-router";
 const LoginPage = () => {
   const { loading, debug_alive, debug_hasToken, debug_expired, loggedIn } =
     useLoginStatus();
-  const fullName = getDisplayName();
 
   if (loading) {
     return (
@@ -17,6 +16,7 @@ const LoginPage = () => {
   }
 
   if (loggedIn) {
+    const fullName = getDisplayName();
     return (
       <main>
         <h1>Welcome {fullName}</h1>

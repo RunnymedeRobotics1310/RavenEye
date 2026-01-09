@@ -8,8 +8,18 @@ import {
   getScheduleForTournament,
   ping,
   saveQuickCommentRecords,
+  saveEventLogRecords,
 } from "~/common/storage/rb.ts";
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
+
+const TOURNAMENT_LIST = "Tournament List";
+const STRATEGY_AREAS = "Strategy Areas";
+const EVENT_TYPES = "Event Types";
+const SEQUENCE_TYPES = "Sequence Types";
+const MATCH_SCHEDULE = "Match Schedule";
+const QUICK_COMMENTS = "Quick Comments";
+const TRACKING_DATA = "Tracking Data";
+const DASHBOARD_DATA = "Dashboard Data";
 
 function log(msg: string): void {
   console.log(
@@ -31,6 +41,7 @@ export function initializeSyncSchedule() {
   syncInitialized = true;
 
   updateCommentUnsyncCount();
+  updateEventUnsyncCount();
   doSync();
   setInterval(
     () => {
@@ -43,7 +54,7 @@ export function initializeSyncSchedule() {
 export async function doManualSync() {
   const alive = await ping();
   if (alive) {
-    await syncQuickComments();
+    await Promise.all([syncQuickComments(), syncTrackingData()]);
   } else {
     log("Skipping Manual Sync - not connected");
   }
@@ -65,10 +76,10 @@ async function doSync() {
 }
 
 export async function syncTournamentList() {
-  log("Tournament List");
+  log(TOURNAMENT_LIST);
   await repository.putSyncStatus({
     loading: false,
-    component: "Tournament List",
+    component: TOURNAMENT_LIST,
     lastSync: new Date(),
     inProgress: true,
     isComplete: false,
@@ -81,7 +92,7 @@ export async function syncTournamentList() {
     await repository.putTournamentList(data);
     await repository.putSyncStatus({
       loading: false,
-      component: "Tournament List",
+      component: TOURNAMENT_LIST,
       lastSync: new Date(),
       inProgress: false,
       isComplete: true,
@@ -92,7 +103,7 @@ export async function syncTournamentList() {
     const err = e instanceof Error ? e : new Error(String(e));
     await repository.putSyncStatus({
       loading: false,
-      component: "Tournament List",
+      component: TOURNAMENT_LIST,
       lastSync: new Date(),
       inProgress: false,
       isComplete: false,
@@ -103,10 +114,10 @@ export async function syncTournamentList() {
 }
 
 export async function syncStrategyAreaList() {
-  log("Strategy Area List");
+  log(STRATEGY_AREAS);
   await repository.putSyncStatus({
     loading: false,
-    component: "Strategy Areas",
+    component: STRATEGY_AREAS,
     lastSync: new Date(),
     inProgress: true,
     isComplete: false,
@@ -119,7 +130,7 @@ export async function syncStrategyAreaList() {
     await repository.putStrategyAreaList(data);
     await repository.putSyncStatus({
       loading: false,
-      component: "Strategy Areas",
+      component: STRATEGY_AREAS,
       lastSync: new Date(),
       inProgress: false,
       isComplete: true,
@@ -130,7 +141,7 @@ export async function syncStrategyAreaList() {
     const err = e instanceof Error ? e : new Error(String(e));
     await repository.putSyncStatus({
       loading: false,
-      component: "Strategy Areas",
+      component: STRATEGY_AREAS,
       lastSync: new Date(),
       inProgress: false,
       isComplete: false,
@@ -141,11 +152,11 @@ export async function syncStrategyAreaList() {
 }
 
 export async function syncEventTypeList() {
-  log("Event Type List");
+  log(EVENT_TYPES);
   // todo: fixme: group these in the repository by year so that they can be retrieved by year
   await repository.putSyncStatus({
     loading: false,
-    component: "Event Types",
+    component: EVENT_TYPES,
     lastSync: new Date(),
     inProgress: true,
     isComplete: false,
@@ -158,7 +169,7 @@ export async function syncEventTypeList() {
     await repository.putEventTypeList(data);
     await repository.putSyncStatus({
       loading: false,
-      component: "Event Types",
+      component: EVENT_TYPES,
       lastSync: new Date(),
       inProgress: false,
       isComplete: true,
@@ -169,7 +180,7 @@ export async function syncEventTypeList() {
     const err = e instanceof Error ? e : new Error(String(e));
     await repository.putSyncStatus({
       loading: false,
-      component: "Event Types",
+      component: EVENT_TYPES,
       lastSync: new Date(),
       inProgress: false,
       isComplete: false,
@@ -180,10 +191,10 @@ export async function syncEventTypeList() {
 }
 
 export async function syncSequenceTypeList() {
-  log("Sequence Type List");
+  log(SEQUENCE_TYPES);
   await repository.putSyncStatus({
     loading: false,
-    component: "Sequence Types",
+    component: SEQUENCE_TYPES,
     lastSync: new Date(),
     inProgress: true,
     isComplete: false,
@@ -196,7 +207,7 @@ export async function syncSequenceTypeList() {
     await repository.putSequenceTypeList(data);
     await repository.putSyncStatus({
       loading: false,
-      component: "Sequence Types",
+      component: SEQUENCE_TYPES,
       lastSync: new Date(),
       inProgress: false,
       isComplete: true,
@@ -207,7 +218,7 @@ export async function syncSequenceTypeList() {
     const err = e instanceof Error ? e : new Error(String(e));
     await repository.putSyncStatus({
       loading: false,
-      component: "Sequence Types",
+      component: SEQUENCE_TYPES,
       lastSync: new Date(),
       inProgress: false,
       isComplete: false,
@@ -218,10 +229,10 @@ export async function syncSequenceTypeList() {
 }
 
 export async function syncMatchSchedule() {
-  log("Match Schedule");
+  log(MATCH_SCHEDULE);
   await repository.putSyncStatus({
     loading: false,
-    component: "Match Schedule",
+    component: MATCH_SCHEDULE,
     lastSync: new Date(),
     inProgress: true,
     isComplete: false,
@@ -238,7 +249,7 @@ export async function syncMatchSchedule() {
     await repository.putMatchSchedule(data);
     await repository.putSyncStatus({
       loading: false,
-      component: "Match Schedule",
+      component: MATCH_SCHEDULE,
       lastSync: new Date(),
       inProgress: false,
       isComplete: true,
@@ -249,7 +260,7 @@ export async function syncMatchSchedule() {
     const err = e instanceof Error ? e : new Error(String(e));
     await repository.putSyncStatus({
       loading: false,
-      component: "Match Schedule",
+      component: MATCH_SCHEDULE,
       lastSync: new Date(),
       inProgress: false,
       isComplete: false,
@@ -260,10 +271,10 @@ export async function syncMatchSchedule() {
 }
 
 export async function syncQuickComments() {
-  log("Quick Comments");
+  log(QUICK_COMMENTS);
   await repository.putSyncStatus({
     loading: false,
-    component: "Quick Comments",
+    component: QUICK_COMMENTS,
     lastSync: new Date(),
     inProgress: true,
     isComplete: false,
@@ -276,7 +287,7 @@ export async function syncQuickComments() {
     if (data != null && data.length > 0) {
       await repository.putSyncStatus({
         loading: false,
-        component: "Quick Comments",
+        component: QUICK_COMMENTS,
         lastSync: new Date(),
         inProgress: true,
         isComplete: false,
@@ -292,7 +303,7 @@ export async function syncQuickComments() {
       if (failureReasons.length > 0) {
         await repository.putSyncStatus({
           loading: false,
-          component: "Quick Comments",
+          component: QUICK_COMMENTS,
           lastSync: new Date(),
           inProgress: false,
           isComplete: false,
@@ -302,7 +313,7 @@ export async function syncQuickComments() {
       } else {
         await repository.putSyncStatus({
           loading: false,
-          component: "Quick Comments",
+          component: QUICK_COMMENTS,
           lastSync: new Date(),
           inProgress: false,
           isComplete: true,
@@ -313,7 +324,7 @@ export async function syncQuickComments() {
     } else {
       await repository.putSyncStatus({
         loading: false,
-        component: "Quick Comments",
+        component: QUICK_COMMENTS,
         lastSync: new Date(),
         inProgress: false,
         isComplete: true,
@@ -325,7 +336,7 @@ export async function syncQuickComments() {
     const err = e instanceof Error ? e : new Error(String(e));
     await repository.putSyncStatus({
       loading: false,
-      component: "Quick Comments",
+      component: QUICK_COMMENTS,
       lastSync: new Date(),
       inProgress: false,
       isComplete: false,
@@ -334,10 +345,89 @@ export async function syncQuickComments() {
     });
   }
 }
+
+export async function syncTrackingData() {
+  log(TRACKING_DATA);
+  await repository.putSyncStatus({
+    loading: false,
+    component: TRACKING_DATA,
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const data = await repository.getUnsynchronizedEvents();
+    if (data != null && data.length > 0) {
+      await repository.putSyncStatus({
+        loading: false,
+        component: TRACKING_DATA,
+        lastSync: new Date(),
+        inProgress: true,
+        isComplete: false,
+        remaining: data.length,
+        error: null,
+      });
+      const result = await saveEventLogRecords(data);
+      const successful = result
+        .filter((r) => r.success)
+        .map((r) => r.eventLogRecord);
+      await repository.markEventSynchronized(successful);
+      const failureReasons = result
+        .filter((r) => !r.success)
+        .map((r) => r.reason);
+      if (failureReasons.length > 0) {
+        await repository.putSyncStatus({
+          loading: false,
+          component: TRACKING_DATA,
+          lastSync: new Date(),
+          inProgress: false,
+          isComplete: false,
+          remaining: 0,
+          error: new Error(JSON.stringify(failureReasons)),
+        });
+      } else {
+        await repository.putSyncStatus({
+          loading: false,
+          component: TRACKING_DATA,
+          lastSync: new Date(),
+          inProgress: false,
+          isComplete: true,
+          remaining: 0,
+          error: null,
+        });
+      }
+    } else {
+      await repository.putSyncStatus({
+        loading: false,
+        component: TRACKING_DATA,
+        lastSync: new Date(),
+        inProgress: false,
+        isComplete: true,
+        remaining: 0,
+        error: null,
+      });
+    }
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: TRACKING_DATA,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
 export const useDashboardDataSyncStatus = (): SyncStatus => {
   const dummy: SyncStatus = {
     loading: false,
-    component: "Dashboard Data",
+    component: DASHBOARD_DATA,
     lastSync: new Date(),
     inProgress: false,
     isComplete: true,
@@ -348,11 +438,11 @@ export const useDashboardDataSyncStatus = (): SyncStatus => {
 };
 
 export const useEventTypesSyncStatus = (): SyncStatus => {
-  return useSyncStatus("Event Types");
+  return useSyncStatus(EVENT_TYPES);
 };
 
 export const useMatchScheduleSyncStatus = (): SyncStatus => {
-  return useSyncStatus("Match Schedule");
+  return useSyncStatus(MATCH_SCHEDULE);
 };
 
 /**
@@ -360,17 +450,41 @@ export const useMatchScheduleSyncStatus = (): SyncStatus => {
  */
 export async function updateCommentUnsyncCount() {
   const data = await repository.getUnsynchronizedComments();
-  const stat = await repository.getSyncStatus("Quick Comments");
+  const stat = await repository.getSyncStatus(QUICK_COMMENTS);
   if (stat) {
     stat.remaining = data.length;
+    stat.isComplete = data.length === 0;
     await repository.putSyncStatus(stat);
   } else {
     await repository.putSyncStatus({
       loading: false,
-      component: "Quick Comments",
+      component: QUICK_COMMENTS,
       lastSync: new Date(),
       inProgress: false,
-      isComplete: false,
+      isComplete: data.length === 0,
+      remaining: 0,
+      error: null,
+    });
+  }
+}
+
+/**
+ * Update the count of unsynchronized quick comments.
+ */
+export async function updateEventUnsyncCount() {
+  const data = await repository.getUnsynchronizedEvents();
+  const stat = await repository.getSyncStatus(TRACKING_DATA);
+  if (stat) {
+    stat.remaining = data.length;
+    stat.isComplete = data.length === 0;
+    await repository.putSyncStatus(stat);
+  } else {
+    await repository.putSyncStatus({
+      loading: false,
+      component: TRACKING_DATA,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: data.length === 0,
       remaining: 0,
       error: null,
     });
@@ -378,32 +492,23 @@ export async function updateCommentUnsyncCount() {
 }
 
 export const useQuickCommentsSyncStatus = (): SyncStatus => {
-  return useSyncStatus("Quick Comments");
+  return useSyncStatus(QUICK_COMMENTS);
 };
 
 export const useSequenceTypesSyncStatus = (): SyncStatus => {
-  return useSyncStatus("Sequence Types");
+  return useSyncStatus(SEQUENCE_TYPES);
 };
 
 export const useStrategyAreasSyncStatus = (): SyncStatus => {
-  return useSyncStatus("Strategy Areas");
+  return useSyncStatus(STRATEGY_AREAS);
 };
 
 export const useTournamentListSyncStatus = (): SyncStatus => {
-  return useSyncStatus("Tournament List");
+  return useSyncStatus(TOURNAMENT_LIST);
 };
 
 export const useTrackingDataSyncStatus = (): SyncStatus => {
-  const dummy: SyncStatus = {
-    loading: false,
-    component: "Tracking Data",
-    lastSync: new Date(),
-    inProgress: false,
-    isComplete: true,
-    remaining: 0,
-    error: new Error("Not yet implemented"),
-  };
-  return dummy;
+  return useSyncStatus(TRACKING_DATA);
 };
 
 export const useOverallSyncStatus = (): SyncStatus => {
