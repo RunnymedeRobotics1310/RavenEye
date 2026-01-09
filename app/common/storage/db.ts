@@ -5,15 +5,20 @@ import type { EventType } from "~/types/EventType.ts";
 import type { SequenceType } from "~/types/SequenceType.ts";
 
 import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
+import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 6;
+const DB_VERSION = 7;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
 const EVENT_TYPES_STORE = "eventTypes";
 const SEQUENCE_TYPES_STORE = "sequenceTypes";
 const MATCH_SCHEDULE_STORE = "matchSchedule";
+const SYNC_COMMENT_STORE = "syncedComments";
+const NEW_COMMENT_STORE = "newComments";
+const SYNC_EVENT_STORE = "syncedEvents";
+const NEW_EVENT_STORE = "newEvent";
 
 export class Repository {
   private db: IDBDatabase | null = null;
@@ -49,6 +54,18 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(MATCH_SCHEDULE_STORE)) {
           db.createObjectStore(MATCH_SCHEDULE_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(SYNC_COMMENT_STORE)) {
+          db.createObjectStore(SYNC_COMMENT_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(NEW_COMMENT_STORE)) {
+          db.createObjectStore(NEW_COMMENT_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(SYNC_EVENT_STORE)) {
+          db.createObjectStore(SYNC_EVENT_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(NEW_EVENT_STORE)) {
+          db.createObjectStore(NEW_EVENT_STORE, { autoIncrement: true });
         }
       };
     });
@@ -258,6 +275,24 @@ export class Repository {
 
       request.onsuccess = () => resolve(request.result as RBScheduleRecord[]);
       request.onerror = () => reject(request.error);
+    });
+  }
+
+  async putComment(item: RBQuickComment): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([NEW_COMMENT_STORE], "readwrite");
+      const store = transaction.objectStore(NEW_COMMENT_STORE);
+
+      const clearRequest = store.clear();
+      clearRequest.onsuccess = () => {
+        store.add(item);
+        resolve();
+      };
+      clearRequest.onerror = () => reject(clearRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
     });
   }
 }
