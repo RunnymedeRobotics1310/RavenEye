@@ -131,6 +131,7 @@ export async function syncStrategyAreaList() {
 
 export async function syncEventTypeList() {
   log("Event Type List");
+  // todo: fixme: group these in the repository by year so that they can be retrieved by year
   await repository.putSyncStatus({
     loading: false,
     component: "Event Types",
