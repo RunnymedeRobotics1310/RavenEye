@@ -1,7 +1,7 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import { useStrategyAreaList } from "~/common/storage/db.ts";
 import Spinner from "~/common/Spinner.tsx";
 import { NavLink } from "react-router";
+import { useStrategyAreaList } from "~/common/storage/dbhooks.ts";
 
 const List = () => {
   const { list: data, loading } = useStrategyAreaList();

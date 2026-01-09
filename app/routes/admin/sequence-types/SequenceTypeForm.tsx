@@ -3,7 +3,8 @@ import { NavLink } from "react-router";
 import type { SequenceType } from "~/types/SequenceType.ts";
 import type { SequenceEvent } from "~/types/SequenceEvent.ts";
 import type { EventType } from "~/types/EventType.ts";
-import { useEventTypeList } from "~/common/storage/db.ts";
+
+import { useEventTypeList } from "~/common/storage/dbhooks.ts";
 
 export const SequenceTypeForm = ({
   submitFunction,

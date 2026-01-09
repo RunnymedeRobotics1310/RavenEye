@@ -1,7 +1,7 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import { useSequenceTypeList } from "~/common/storage/db.ts";
 import Spinner from "~/common/Spinner.tsx";
 import { NavLink } from "react-router";
+import { useSequenceTypeList } from "~/common/storage/dbhooks.ts";
 
 const List = () => {
   const { list: data, loading } = useSequenceTypeList();

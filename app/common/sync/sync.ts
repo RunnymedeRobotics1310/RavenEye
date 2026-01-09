@@ -1,5 +1,5 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
-import { repository, useSyncStatus } from "~/common/storage/db.ts";
+import { repository } from "~/common/storage/db.ts";
 import {
   getEventTypeList,
   getSequenceTypeList,
@@ -8,6 +8,7 @@ import {
   getScheduleForTournament,
   ping,
 } from "~/common/storage/rb.ts";
+import { useSyncStatus } from "~/common/storage/dbhooks.ts";
 
 function log(msg: string): void {
   console.log(
