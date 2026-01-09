@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { ping } from "~/common/storage/rb.ts";
 import type { RBJWT } from "~/types/RBJWT.ts";
 
-const SESSION_KEY_ACCESS_TOKEN = "ravenbrain_access_token";
-const SESSION_KEY_USERID = "ravenbrain_userid";
-const SESSION_KEY_LOGIN = "ravenbrain_login";
-const SESSION_KEY_DISPLAY_NAME = "ravenbrain_displayName";
-const SESSION_KEY_ROLES = "ravenbrain_roles";
+const SESSION_KEY_ACCESS_TOKEN = "raveneye_access_token";
+const SESSION_KEY_USERID = "raveneye_userid";
+const SESSION_KEY_LOGIN = "raveneye_login";
+const SESSION_KEY_DISPLAY_NAME = "raveneye_displayName";
+const SESSION_KEY_ROLES = "raveneye_roles";
 
 /**
  * Authenticates a user by sending their credentials to the server.
@@ -48,7 +48,6 @@ export async function authenticate(
       const accessToken = json.access_token;
       const jwt = parseJwt(accessToken);
       validateRavenBrainJwt(jwt);
-      console.log(jwt);
       sessionStorage.setItem(SESSION_KEY_ACCESS_TOKEN, accessToken);
       sessionStorage.setItem(SESSION_KEY_USERID, jwt.userid.toString());
       sessionStorage.setItem(SESSION_KEY_LOGIN, jwt.login);

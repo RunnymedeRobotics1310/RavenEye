@@ -1,3 +1,14 @@
+## [3.2.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.2.1...v3.2.2) (2026-01-09)
+
+
+### Bug Fixes
+
+* clean up error handling in rbauth.ts ([64ad07e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/64ad07edcc87856dbf35a747a04799ca40e296c0))
+* Don't pre-load login - browser options configured to do this now. ([bebd207](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bebd2072dcecf71273814385e5815289270a14f9))
+* review comments - var name cleanup and log stmt removal ([e74a9b5](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e74a9b5b81722afda16263e5008a1343abcf370d))
+* Standardize login logic ([6e47f5b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6e47f5bf57800dd026e568ab30968fff01d3bfc7))
+* typescript bug related to scout name ([8a82b62](https://github.com/RunnymedeRobotics1310/RavenEye/commit/8a82b62681c01352736a713682fcefab24d2a426))
+
 ## [3.2.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.2.0...v3.2.1) (2026-01-09)
 
 
