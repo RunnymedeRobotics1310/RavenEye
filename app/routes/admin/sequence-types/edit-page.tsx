@@ -1,20 +1,20 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { NavLink, useParams } from "react-router";
 import { useState } from "react";
-import type { StrategyArea } from "~/types/StrategyArea.ts";
-import { updateStrategyArea, useStrategyArea } from "~/common/storage/rb.ts";
-import { StrategyAreaForm } from "./StrategyAreaForm.tsx";
+import type { SequenceType } from "~/types/SequenceType.ts";
+import { updateSequenceType, useSequenceType } from "~/common/storage/rb.ts";
+import { SequenceTypeForm } from "./SequenceTypeForm.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import ErrorMessage from "~/common/ErrorMessage.tsx";
-import { syncStrategyAreaList } from "~/common/sync/sync.ts";
+import { syncSequenceTypeList } from "~/common/sync/sync.ts";
 
 const Success = () => {
   return (
     <section>
       <h1>Success!</h1>
-      <p>Strategy area updated successfully.</p>
-      <NavLink to={"/admin/strategy-areas"}>
-        <button>Return to Strategy Areas</button>
+      <p>Sequence type updated successfully.</p>
+      <NavLink to={"/admin/sequence-types"}>
+        <button>Return to Sequence Types</button>
       </NavLink>
     </section>
   );
@@ -22,18 +22,18 @@ const Success = () => {
 
 const EditPage = () => {
   const { id } = useParams();
-  const { data, loading, error: fetchError } = useStrategyArea(id);
+  const { data, loading, error: fetchError } = useSequenceType(id);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [msg, setMsg] = useState<string>("");
 
-  const handleSubmit = async (item: StrategyArea) => {
+  const handleSubmit = async (item: SequenceType) => {
     setError(false);
     setMsg("");
     try {
-      const resp = await updateStrategyArea(item);
+      const resp = await updateSequenceType(item);
       console.log("Updated", resp);
-      await syncStrategyAreaList();
+      await syncSequenceTypeList();
       setSuccess(true);
     } catch (err: any) {
       setError(true);
@@ -44,21 +44,21 @@ const EditPage = () => {
   if (loading) return <Spinner />;
   if (fetchError)
     return (
-      <ErrorMessage title="Error fetching strategy area">
+      <ErrorMessage title="Error fetching sequence type">
         {fetchError}
       </ErrorMessage>
     );
 
   return (
     <main>
-      <h1>Manage Strategy Areas</h1>
-      <p>Edit strategy area.</p>
+      <h1>Manage Sequence Types</h1>
+      <p>Edit sequence type.</p>
       <RequireLogin>
         {error && <p className={"errorMessage"}>{msg}</p>}
         {success ? (
           <Success />
         ) : (
-          <StrategyAreaForm
+          <SequenceTypeForm
             submitFunction={handleSubmit}
             disabled={success}
             initialData={data || undefined}

@@ -1,5 +1,5 @@
 import type { Route } from "../routes/+types/home-page";
-import { getFullName, useLoginStatus } from "~/common/storage/auth.ts";
+import { getFullName, useLoginStatus } from "~/common/storage/rbauth.ts";
 import { NavLink } from "react-router";
 import Spinner from "~/common/Spinner.tsx";
 

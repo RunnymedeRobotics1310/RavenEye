@@ -1,17 +1,17 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { NavLink } from "react-router";
 import { useState } from "react";
-import type { StrategyArea } from "~/types/StrategyArea.ts";
-import { createStrategyArea } from "~/common/storage/rb.ts";
-import { StrategyAreaForm } from "./StrategyAreaForm.tsx";
-import { syncStrategyAreaList } from "~/common/sync/sync.ts";
+import type { SequenceType } from "~/types/SequenceType.ts";
+import { createSequenceType } from "~/common/storage/rb.ts";
+import { SequenceTypeForm } from "./SequenceTypeForm.tsx";
+import { syncSequenceTypeList } from "~/common/sync/sync.ts";
 
 const Success = () => {
   return (
     <section>
       <h1>Success!</h1>
-      <NavLink to={"/admin/strategy-areas"}>
-        <button>Return to Strategy Areas</button>
+      <NavLink to={"/admin/sequence-types"}>
+        <button>Return to Sequence Types</button>
       </NavLink>
     </section>
   );
@@ -22,13 +22,13 @@ const AddPage = () => {
   const [error, setError] = useState<boolean>(false);
   const [msg, setMsg] = useState<string>("");
 
-  const handleSubmit = async (item: StrategyArea) => {
+  const handleSubmit = async (item: SequenceType) => {
     setError(false);
     setMsg("");
     try {
-      const resp = await createStrategyArea(item);
+      const resp = await createSequenceType(item);
       console.log("Created", resp);
-      await syncStrategyAreaList();
+      await syncSequenceTypeList();
       setSuccess(true);
     } catch (err: any) {
       setError(true);
@@ -38,14 +38,14 @@ const AddPage = () => {
 
   return (
     <main>
-      <h1>Manage Strategy Areas</h1>
-      <p>Create a new strategy area.</p>
+      <h1>Manage Sequence Types</h1>
+      <p>Create a new sequence type.</p>
       <RequireLogin>
         {error && <p className={"errorMessage"}>{msg}</p>}
         {success ? (
           <Success />
         ) : (
-          <StrategyAreaForm submitFunction={handleSubmit} disabled={success} />
+          <SequenceTypeForm submitFunction={handleSubmit} disabled={success} />
         )}
       </RequireLogin>
     </main>

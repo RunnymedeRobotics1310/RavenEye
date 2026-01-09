@@ -4,58 +4,133 @@ import type { QuickComment } from "~/types/QuickComment.ts";
 import type { ScheduleItem } from "~/types/ScheduleItem.ts";
 import type { TeamReport } from "~/types/TeamReport.ts";
 import type { User } from "~/types/User.ts";
-import { rbfetch } from "~/common/storage/auth.ts";
+import { repository } from "~/common/storage/db.ts";
+import { rbfetch } from "~/common/storage/rbauth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
+import type { RBTournament } from "~/types/RBTournament.ts";
+import type { EventType } from "~/types/EventType.ts";
+import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
+import type { SequenceType } from "~/types/SequenceType.ts";
 
-export function useTournamentList() {
-  const [list, setList] = useState([]);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(true);
-  const [doRefresh, setDoRefresh] = useState(true);
-
-  function refresh() {
-    setDoRefresh(true);
-  }
-
-  useEffect(() => {
-    rbfetch("/api/tournament", {}).then((resp) => {
-      if (resp.ok) {
-        resp.json().then((data) => {
-          setList(data);
-          setLoading(false);
-          setDoRefresh(false);
-        });
-      } else {
-        setError("Failed to fetch tournaments");
-        setLoading(false);
-        setDoRefresh(false);
-      }
+/**
+ * Sends a ping request to the API to check if the server is reachable.
+ *
+ * @return {Promise<boolean>} A promise that resolves to true if the server responds with a status indicating success, otherwise false.
+ */
+export async function ping(): Promise<boolean> {
+  return fetch(import.meta.env.VITE_API_HOST + "/api/ping", {})
+    .then((resp) => {
+      return resp.ok;
+    })
+    .catch(() => {
+      return false;
     });
-  }, [doRefresh]);
-
-  return { list, error, loading, refresh } as {
-    list: RBTournament[];
-    error: string | null;
-    loading: boolean;
-    refresh: () => void;
-  };
 }
 
-export type RBTournament = {
-  id: string;
-  name: string;
-  startTime: Date;
-  endTime: Date;
-};
+export async function getTournamentList() {
+  const resp = await rbfetch("/api/tournament", {});
+  if (resp.ok) {
+    return resp.json() as unknown as RBTournament[];
+  } else {
+    throw new Error("Failure fetching tournament list");
+  }
+}
 
-export async function saveTournament(tournament: RBTournament) {
-  return rbfetch("/api/tournament", {
+export async function getStrategyAreaList() {
+  const resp = await rbfetch("/api/strategy-areas", {});
+  if (resp.ok) {
+    return resp.json() as unknown as StrategyArea[];
+  } else {
+    throw new Error("Failure fetching strategy area list");
+  }
+}
+
+export async function getEventTypeList() {
+  const resp = await rbfetch("/api/event-types", {});
+  if (resp.ok) {
+    return resp.json() as unknown as EventType[];
+  } else {
+    throw new Error("Failure fetching event type list");
+  }
+}
+
+export async function getEventTypeListForYear(year: number) {
+  const resp = await rbfetch("/api/event-types/year/" + year, {});
+  if (resp.ok) {
+    return resp.json() as unknown as EventType[];
+  } else {
+    throw new Error("Failure fetching event type list for year");
+  }
+}
+
+export async function getSequenceTypeList() {
+  const resp = await rbfetch("/api/sequence-types", {});
+  if (resp.ok) {
+    return resp.json() as unknown as SequenceType[];
+  } else {
+    throw new Error("Failure fetching sequence type list");
+  }
+}
+
+export async function createSequenceType(
+  item: SequenceType,
+): Promise<SequenceType> {
+  return rbfetch("/api/sequence-types", {
     method: "POST",
-    body: JSON.stringify(tournament),
+    body: JSON.stringify(item),
   }).then((resp) => {
-    return resp.ok;
+    if (!resp.ok) {
+      throw new Error("Failed to create sequence type: " + resp.status);
+    }
+    return resp.json();
   });
 }
+
+export async function updateSequenceType(
+  item: SequenceType,
+): Promise<SequenceType> {
+  return rbfetch("/api/sequence-types/" + item.id, {
+    method: "PUT",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to update sequence types: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+export async function getScheduleForTournament(tournamentId: string) {
+  const resp = await rbfetch("/api/schedule/" + tournamentId, {});
+  if (resp.ok) {
+    return resp.json() as unknown as RBScheduleRecord[];
+  } else {
+    throw new Error("Failure fetching schedule for tournament " + tournamentId);
+  }
+}
+
+export async function getSchedule(): Promise<RBScheduleItem[]> {
+  const tournaments = await repository.getTournamentList();
+  const schedules = await Promise.all(
+    tournaments.map((t) => getScheduleForTournament(t.id)),
+  );
+
+  return schedules.flat().map((record) => ({
+    id: record.id,
+    tournamentId: record.tournamentId,
+    level: record.level,
+    match: record.match,
+    red1: record.red1,
+    red2: record.red2,
+    red3: record.red3,
+    red4: record.red4,
+    blue1: record.blue1,
+    blue2: record.blue2,
+    blue3: record.blue3,
+    blue4: record.blue4,
+  }));
+}
+
 export function useSchedule(tournamentId: string) {
   const [matches, setSchedule] = useState([]);
   const [error, setError] = useState<null | string>(null);
@@ -370,36 +445,6 @@ export function useUserList() {
   };
 }
 
-export function useStrategyAreaList() {
-  const [data, setData] = useState<StrategyArea[] | null>(null);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    rbfetch("/api/strategy-areas", {}).then((resp) => {
-      if (resp.ok) {
-        resp.json().then((data) => {
-          if (data) {
-            setData(data);
-          } else {
-            setError("Failed to fetch strategy areas: " + data.reason);
-          }
-          setLoading(false);
-        });
-      } else {
-        setError("Failed to fetch strategy areas: " + resp.status);
-        setLoading(false);
-      }
-    });
-  }, []);
-
-  return { data, error, loading } as {
-    data: StrategyArea[] | null;
-    error: string | null;
-    loading: boolean;
-  };
-}
-
 export async function createStrategyArea(
   item: StrategyArea,
 ): Promise<StrategyArea> {
@@ -460,4 +505,38 @@ export async function updateStrategyArea(
     }
     return resp.json();
   });
+}
+
+export function useSequenceType(id: string | undefined) {
+  const [data, setData] = useState<SequenceType | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    rbfetch(`/api/sequence-types/${id}`, {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch sequence type: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch sequence type: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, [id]);
+
+  return { data, error, loading } as {
+    data: SequenceType | null;
+    error: string | null;
+    loading: boolean;
+  };
 }

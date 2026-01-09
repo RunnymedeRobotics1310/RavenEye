@@ -20,7 +20,7 @@
     --title-bar-background: #444;
     --thirdendary-text: #333;
 }
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: dark) and (min-width: 320px) {
     :root {
         --primary-text: #eed;
         --primary-background: #222;

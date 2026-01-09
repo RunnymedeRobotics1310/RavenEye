@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { logout } from "~/common/storage/auth.ts";
+import { logout } from "~/common/storage/rbauth.ts";
 import { useNavigate } from "react-router";
 import ErrorMessage from "~/common/ErrorMessage.tsx";
 

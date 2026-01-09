@@ -19,6 +19,11 @@ import logoUrl from "~/assets/images/logo.png";
 import titleUrl from "~/assets/images/title.png";
 import Sync from "~/common/icons/Sync.tsx";
 import Spinner from "~/common/Spinner.tsx";
+import {
+  useOverallSyncStatus,
+  initializeSyncSchedule,
+} from "~/common/sync/sync.ts";
+import { useEffect } from "react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
@@ -26,11 +31,13 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const syncStatus = useOverallSyncStatus();
   return (
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>1310 Raven Eye</title>
         <Meta />
         <Links />
       </head>
@@ -47,7 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </div>
             <div className={"sync-button"}>
               <NavLink to={"/sync"} className={"button"}>
-                <Sync />
+                <Sync status={syncStatus} />
               </NavLink>
             </div>
           </header>
@@ -57,13 +64,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <div>&copy; 2026 Runnymede Robotics Team 1310</div>
               <div>Version: {import.meta.env.VITE_APP_VERSION}</div>
             </section>
-            {import.meta.env.DEV && (
-              <menu id="menu">
-                <li>
-                  <span>development footer menu items</span>
-                </li>
-              </menu>
-            )}
           </footer>
         </section>
         <ScrollRestoration />
@@ -74,6 +74,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    initializeSyncSchedule();
+  }, []);
   return <Outlet />;
 }
 

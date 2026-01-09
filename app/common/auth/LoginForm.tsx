@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { authenticate, getUserid } from "~/common/storage/auth.ts";
+import { authenticate, getUserid } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import { useNavigate } from "react-router";
 
@@ -29,7 +29,7 @@ function LoginForm() {
         setSuccess(true);
         setLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setLoading(false);
         setSuccess(false);
       });

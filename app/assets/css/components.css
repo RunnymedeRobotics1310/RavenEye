@@ -190,6 +190,10 @@ button {
     }
 }
 
+.rotating {
+    animation: spin 1.3s linear infinite;
+}
+
 
 .googleExampleContentPreStyle {
     white-space: pre-wrap;
@@ -223,6 +227,7 @@ select {
 section.tournamentAdmin,
 section.scheduleAdmin,
 section.strategyareasAdmin,
+section.sequencetypesAdmin,
 section.usersAdmin{
     table td,
     table th {
@@ -237,5 +242,48 @@ section.usersAdmin{
         font-size: .4rem;
         padding: 0.25rem .5rem;
         text-transform: uppercase;
+    }
+}
+
+.disabled-item {
+    color: gray;
+}
+
+.sync-now-button {
+    margin-bottom: 1rem;
+}
+
+section.sync-status {
+    margin-bottom: 0.5rem;
+    .sync-status-component,
+    .sync-status-completion,
+    .sync-status-error {
+        display: inline-block;
+    }
+    .sync-status-last-sync-long,
+    .sync-status-last-sync-ultra-short {
+        display: none;
+        margin: 0 .5rem;
+    }
+    @media screen and (min-width: 400px) {
+        .sync-status-last-sync-long {
+            display: inline-block;
+        }
+    }
+    @media screen and (max-width: 399px) {
+        .sync-status-last-sync-ultra-short {
+            display: inline-block;
+        }
+    }
+    .sync-status-component {
+        width: 9rem;
+    }
+    .sync-status-completion {
+        span.icon {
+            height: .8rem;
+            width: .8rem;
+            padding-top: 0;
+            margin-top: 0;
+        }
     }
 }

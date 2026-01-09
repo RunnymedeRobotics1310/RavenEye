@@ -38,6 +38,7 @@ html {
         display: grid;
         grid-template-columns: 1fr;
         height: var(--footer-height);
+        margin-top: 0.5rem;
         div, menu {
             justify-self: center;
             align-self: center;

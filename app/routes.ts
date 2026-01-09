@@ -19,6 +19,18 @@ export default [
     "admin/strategy-areas/:id",
     "./routes/admin/strategy-areas/edit-page.tsx",
   ),
+  route(
+    "admin/sequence-types",
+    "./routes/admin/sequence-types/sequence-types-page.tsx",
+  ),
+  route(
+    "admin/sequence-types/add",
+    "./routes/admin/sequence-types/add-page.tsx",
+  ),
+  route(
+    "admin/sequence-types/:id",
+    "./routes/admin/sequence-types/edit-page.tsx",
+  ),
   route("report", "./routes/report/report-home-page.tsx"),
   route("track", "./routes/track/track-home-page.tsx"),
 ] satisfies RouteConfig;

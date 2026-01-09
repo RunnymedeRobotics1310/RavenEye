@@ -1,4 +1,4 @@
-import { useLoginStatus } from "~/common/storage/auth.ts";
+import { useLoginStatus } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import LoginForm from "~/common/auth/LoginForm.tsx";
 

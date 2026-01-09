@@ -1,21 +1,11 @@
 import { useEffect, useState } from "react";
 import { isJwtExpired, parseJwt } from "~/common/util.ts";
+import { ping } from "~/common/storage/rb.ts";
 
 const ACCESS_TOKEN_KEY = "ravenbrain_access_token";
 const ROLES_KEY = "ravenbrain_roles";
 const USERID_KEY = "ravenbrain_user_id";
 const FULL_NAME_KEY = "ravenbrain_full_name";
-
-/**
- * Sends a ping request to the API to check if the server is reachable.
- *
- * @return {Promise<boolean>} A promise that resolves to true if the server responds with a status indicating success, otherwise false.
- */
-export async function ping(): Promise<boolean> {
-  return fetch(import.meta.env.VITE_API_HOST + "/api/ping", {}).then((resp) => {
-    return resp.ok;
-  });
-}
 
 /**
  * Authenticates a user by sending their credentials to the server.
@@ -154,7 +144,12 @@ export function useLoginStatus() {
 
   useEffect(() => {
     ping()
-      .then(() => {
+      .then((result) => {
+        if (!result) {
+          setAlive(false);
+          setLoading(false);
+          return;
+        }
         setAlive(true);
         let accessToken = null;
         if (typeof sessionStorage !== "undefined") {
@@ -177,12 +172,12 @@ export function useLoginStatus() {
               setLoggedIn(true);
               setLoading(false);
             })
-            .catch((err) => {
+            .catch(() => {
               setLoading(false);
             });
         }
       })
-      .catch((err) => {
+      .catch(() => {
         setAlive(false);
         setLoading(false);
       });
