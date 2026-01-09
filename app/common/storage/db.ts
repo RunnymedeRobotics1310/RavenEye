@@ -8,7 +8,7 @@ import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 8;
+const DB_VERSION = 7;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
