@@ -1,5 +1,5 @@
 import type { Route } from "../routes/+types/home-page";
-import { getFullName, useLoginStatus } from "~/common/storage/rbauth.ts";
+import { getDisplayName, useLoginStatus } from "~/common/storage/rbauth.ts";
 import { NavLink } from "react-router";
 import Spinner from "~/common/Spinner.tsx";
 
@@ -14,7 +14,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 const LoggedIn = () => {
-  const fullName = getFullName();
+  const fullName = getDisplayName();
   return (
     <main>
       <h1>Welcome to Raven Eye!</h1>
