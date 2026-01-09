@@ -179,13 +179,20 @@ export async function rbfetch(
 }
 
 /**
- * Return the current user's id (not to be confused with their login, which they used to authenticate - that is not available in this app - it's not necessary).
+ * Return the current user's id (not to be confused with their login,
+ * which they used to authenticate - that is not available in
+ * this app - it's not necessary).
+ *
+ * Throws an error if called when the user is not logged in.
  */
-export function getUserid() {
+export function getUserid(): number {
   if (typeof sessionStorage !== "undefined") {
-    return sessionStorage.getItem(SESSION_KEY_USERID);
+    const s = sessionStorage.getItem(SESSION_KEY_USERID);
+    if (s != null) {
+      return parseInt(s);
+    }
   }
-  return null;
+  throw new Error("Not logged in");
 }
 
 /**
@@ -193,9 +200,12 @@ export function getUserid() {
  */
 export function getDisplayName() {
   if (typeof sessionStorage !== "undefined") {
-    return sessionStorage.getItem(SESSION_KEY_DISPLAY_NAME);
+    const s = sessionStorage.getItem(SESSION_KEY_DISPLAY_NAME);
+    if (s != null) {
+      return s;
+    }
   }
-  return null;
+  throw new Error("Not logged in");
 }
 
 /**
@@ -267,6 +277,25 @@ export function useLoginStatus() {
 }
 
 /**
+ * Retrieves the roles from session storage.
+ *
+ * This method attempts to fetch a list of roles stored in the session storage under a predefined key.
+ * If session storage is unavailable, or if the roles data is not found or empty, the method returns null.
+ *
+ * @return {string[]} An array of roles if available, or null if they do not exist or cannot be retrieved.
+ * @throws an error if the user is not logged in
+ */
+export function getRoles(): string[] {
+  if (typeof sessionStorage !== "undefined") {
+    const r = sessionStorage.getItem(SESSION_KEY_ROLES);
+    if (r !== null) {
+      return JSON.parse(r);
+    }
+  }
+  throw new Error("Not logged in");
+}
+
+/**
  * A custom React hook that returns user roles
  *
  * @return {Object} Returns an object containing:
@@ -285,17 +314,6 @@ export function useRole() {
   const [isMember, setIsMember] = useState(false);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    function getRoles(): string[] | null {
-      if (typeof sessionStorage === "undefined") {
-        return null;
-      }
-      const r = sessionStorage.getItem(SESSION_KEY_ROLES);
-      if (r === null || r === "") {
-        return null;
-      } else {
-        return JSON.parse(r);
-      }
-    }
     const roles = getRoles();
     if (roles) {
       setIsSuperuser(roles.includes("ROLE_SUPERUSER"));
