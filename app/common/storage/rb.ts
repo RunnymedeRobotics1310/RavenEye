@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
-import type { GameEvent } from "~/types/GameEvent.ts";
-import type { QuickComment } from "~/types/QuickComment.ts";
-import type { ScheduleItem } from "~/types/ScheduleItem.ts";
-import type { TeamReport } from "~/types/TeamReport.ts";
 import type { User } from "~/types/User.ts";
-import { repository } from "~/common/storage/db.ts";
 import { rbfetch } from "~/common/storage/rbauth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
 import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
 import type { SequenceType } from "~/types/SequenceType.ts";
+import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
+import type { RBEventLogPostResult } from "~/types/RBEventLogPostResult.ts";
+import type { RBQuickCommentPostResult } from "~/types/RBQuickCommentPostResult.ts";
+import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -27,6 +26,12 @@ export async function ping(): Promise<boolean> {
     });
 }
 
+/**
+ * Fetches the entire list of tournaments from the server.
+ *
+ * @return {Promise<RBTournament[]>} A promise that resolves to an array of tournament objects.
+ * @throws {Error} If the request fails or the server responds with an error status.
+ */
 export async function getTournamentList() {
   const resp = await rbfetch("/api/tournament", {});
   if (resp.ok) {
@@ -36,6 +41,12 @@ export async function getTournamentList() {
   }
 }
 
+/**
+ * Fetches the entire list of strategy areas from the server.
+ *
+ * @return {Promise<StrategyArea[]>} A promise that resolves to an array of strategy area objects.
+ * @throws {Error} If the request fails or the server responds with an error status.
+ */
 export async function getStrategyAreaList() {
   const resp = await rbfetch("/api/strategy-areas", {});
   if (resp.ok) {
@@ -45,6 +56,12 @@ export async function getStrategyAreaList() {
   }
 }
 
+/**
+ * Fetches the entire list of event types from the server.
+ *
+ * @return {Promise<EventType[]>} A promise that resolves to an array of event type objects.
+ * @throws {Error} If the request fails or the server responds with an error status.
+ */
 export async function getEventTypeList() {
   const resp = await rbfetch("/api/event-types", {});
   if (resp.ok) {
@@ -54,15 +71,12 @@ export async function getEventTypeList() {
   }
 }
 
-export async function getEventTypeListForYear(year: number) {
-  const resp = await rbfetch("/api/event-types/year/" + year, {});
-  if (resp.ok) {
-    return resp.json() as unknown as EventType[];
-  } else {
-    throw new Error("Failure fetching event type list for year");
-  }
-}
-
+/**
+ * Fetches the entire list of sequence types from the server.
+ *
+ * @return {Promise<SequenceType[]>} A promise that resolves to an array of sequence type objects.
+ * @throws {Error} If the request fails or the server responds with an error status.
+ */
 export async function getSequenceTypeList() {
   const resp = await rbfetch("/api/sequence-types", {});
   if (resp.ok) {
@@ -72,6 +86,12 @@ export async function getSequenceTypeList() {
   }
 }
 
+/**
+ * Saves a sequence type on RavenBrain.
+ *
+ * @param {SequenceType} item - The sequence type object to be created.
+ * @return {Promise<SequenceType>} A promise that resolves to the created sequence type object.
+ */
 export async function createSequenceType(
   item: SequenceType,
 ): Promise<SequenceType> {
@@ -86,6 +106,12 @@ export async function createSequenceType(
   });
 }
 
+/**
+ * Updates an existing sequence type on RavenBrain.
+ *
+ * @param {SequenceType} item - The sequence type object to be updated.
+ * @return {Promise<SequenceType>} A promise that resolves to the updated sequence type object.
+ */
 export async function updateSequenceType(
   item: SequenceType,
 ): Promise<SequenceType> {
@@ -100,6 +126,13 @@ export async function updateSequenceType(
   });
 }
 
+/**
+ * Fetches the schedule for a specified tournament.
+ *
+ * @param {string} tournamentId - The unique identifier of the tournament whose schedule needs to be fetched.
+ * @return {Promise<RBScheduleRecord[]>} A promise that resolves to an array of schedule records for the tournament.
+ * @throws {Error} If the schedule cannot be fetched successfully.
+ */
 export async function getScheduleForTournament(tournamentId: string) {
   const resp = await rbfetch("/api/schedule/" + tournamentId, {});
   if (resp.ok) {
@@ -109,312 +142,17 @@ export async function getScheduleForTournament(tournamentId: string) {
   }
 }
 
-export async function getSchedule(): Promise<RBScheduleItem[]> {
-  const tournaments = await repository.getTournamentList();
-  const schedules = await Promise.all(
-    tournaments.map((t) => getScheduleForTournament(t.id)),
-  );
-
-  return schedules.flat().map((record) => ({
-    id: record.id,
-    tournamentId: record.tournamentId,
-    level: record.level,
-    match: record.match,
-    red1: record.red1,
-    red2: record.red2,
-    red3: record.red3,
-    red4: record.red4,
-    blue1: record.blue1,
-    blue2: record.blue2,
-    blue3: record.blue3,
-    blue4: record.blue4,
-  }));
-}
-
-export function useSchedule(tournamentId: string) {
-  const [matches, setSchedule] = useState([]);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(true);
-  const [doRefresh, setDoRefresh] = useState(true);
-
-  function refresh() {
-    setDoRefresh(true);
-  }
-
-  useEffect(() => {
-    rbfetch("/api/schedule/" + tournamentId, {}).then((resp) => {
-      if (resp.ok) {
-        resp.json().then((data) => {
-          setSchedule(data);
-          setLoading(false);
-          setDoRefresh(false);
-        });
-      } else {
-        setError("Failed to fetch schedule");
-        setLoading(false);
-        setDoRefresh(false);
-      }
-    });
-  }, [tournamentId, loading, doRefresh]);
-
-  return { matches, error, loading, refresh } as {
-    matches: ScheduleItem[];
-    error: string | null;
-    loading: boolean;
-    refresh: () => void;
-  };
-}
-
-export type RBScheduleItem = {
-  tournamentId: string;
-  match: number;
-  red1: number;
-  red2: number;
-  red3: number;
-  blue1: number;
-  blue2: number;
-  blue3: number;
-};
-
-export async function saveMatch(match: RBScheduleItem) {
-  return rbfetch("/api/schedule", {
-    method: "POST",
-    body: JSON.stringify(match),
-  }).then((resp) => {
-    return resp.ok;
-  });
-}
-
-export type RBGameEvent = {
-  timestamp: Date;
-  scoutName: string;
-  tournamentId: string;
-  matchId: number;
-  alliance: string;
-  teamNumber: number;
-  eventType: string;
-  amount: number;
-  note: string;
-};
-export type RBGameEventResponse = {
-  success: boolean;
-  reason: string;
-  eventLogRecord: RBGameEvent;
-};
-export async function saveEvents(
-  events: GameEvent[],
-): Promise<RBGameEventResponse[]> {
-  const rbEvents: RBGameEvent[] = [];
-  for (const e of events) {
-    const rbe: RBGameEvent = {
-      timestamp: e.timestamp,
-      scoutName: e.scoutName,
-      tournamentId: e.tournamentId,
-      matchId: e.matchId,
-      alliance: e.alliance,
-      teamNumber: e.teamNumber,
-      eventType: e.eventType,
-      amount: e.amount,
-      note: e.note ? e.note : "",
-    };
-    if (
-      rbe.scoutName &&
-      rbe.scoutName !== "" &&
-      rbe.tournamentId &&
-      rbe.tournamentId !== "" &&
-      rbe.matchId > 0 &&
-      (rbe.alliance === "red" || rbe.alliance === "blue") &&
-      rbe.teamNumber > 0 &&
-      rbe.eventType &&
-      rbe.eventType !== "" &&
-      rbe.amount > -1
-    ) {
-      rbEvents.push(rbe);
-    }
-  }
-
-  return rbfetch("/api/event", {
-    method: "POST",
-    body: JSON.stringify(rbEvents),
-  })
-    .then((resp) => {
-      return resp.json();
-    })
-    .catch((error) => {
-      console.error("Error saving events", error);
-      return false;
-    });
-}
-
-export type QuickCommentResponse = {
-  comment: QuickComment;
-  success: boolean;
-  reason: string | null;
-};
-export async function saveQuickComments(
-  comments: QuickComment[],
-): Promise<QuickCommentResponse[]> {
-  return rbfetch("/api/quickcomment", {
-    method: "POST",
-    body: JSON.stringify(comments),
-  }).then((resp) => {
-    return resp.json();
-  });
-}
-
-export function useTeamsForTournament(tournamentId: string) {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(true);
-  const [doRefresh, setDoRefresh] = useState(true);
-
-  function refresh() {
-    setDoRefresh(true);
-  }
-
-  useEffect(() => {
-    rbfetch(`/api/schedule/teams-for-tournament/${tournamentId}`, {}).then(
-      (resp) => {
-        if (resp.ok) {
-          resp.json().then((data) => {
-            if (data) {
-              console.log("Loaded teams for tournament " + tournamentId, data);
-              setData(data);
-            } else {
-              setError("Failed to fetch teams for tournament " + tournamentId);
-            }
-            setLoading(false);
-            setDoRefresh(false);
-          });
-        } else {
-          setError("Failed to fetch teams for tournament " + tournamentId);
-          setLoading(false);
-          setDoRefresh(false);
-        }
-      },
-    );
-  }, [doRefresh, tournamentId]);
-
-  return { data, error, loading, refresh } as {
-    data: number[] | null;
-    error: string | null;
-    loading: boolean;
-    refresh: () => void;
-  };
-}
-
-export function useTournamentReport(tournamentId: string, teamNumber: number) {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(true);
-  const [doRefresh, setDoRefresh] = useState(true);
-
-  function refresh() {
-    setDoRefresh(true);
-  }
-
-  useEffect(() => {
-    rbfetch(`/api/schedule/tournament/${tournamentId}/${teamNumber}`, {}).then(
-      (resp) => {
-        if (resp.ok) {
-          resp.json().then((data) => {
-            if (data.success) {
-              setData(data.report);
-            } else {
-              setError("Failed to fetch tournament report: " + data.reason);
-            }
-            setLoading(false);
-            setDoRefresh(false);
-          });
-        } else {
-          setError("Failed to fetch tournament report: " + resp.status);
-          setLoading(false);
-          setDoRefresh(false);
-        }
-      },
-    );
-  }, [doRefresh, tournamentId, teamNumber]);
-
-  return { data, error, loading, refresh } as {
-    data: string | null; // todo: fixme: this is not the right type
-    error: string | null;
-    loading: boolean;
-    refresh: () => void;
-  };
-}
-
-export function useTeamReport(teamNumber: number) {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(true);
-  const [doRefresh, setDoRefresh] = useState(true);
-
-  function refresh() {
-    setDoRefresh(true);
-  }
-
-  useEffect(() => {
-    rbfetch(`/api/report/team/${teamNumber}`, {}).then((resp) => {
-      if (resp.ok) {
-        resp.json().then((data) => {
-          if (data.success) {
-            setData(data.report);
-          } else {
-            setError("Failed to fetch team report: " + data.reason);
-          }
-          setLoading(false);
-          setDoRefresh(false);
-        });
-      } else {
-        setError("Failed to fetch team report: " + resp.status);
-        setLoading(false);
-        setDoRefresh(false);
-      }
-    });
-  }, [doRefresh, teamNumber]);
-
-  return { data, error, loading, refresh } as {
-    data: TeamReport | null;
-    error: string | null;
-    loading: boolean;
-    refresh: () => void;
-  };
-}
-
-export function useAllComments() {
-  const [data, setData] = useState(null);
-  const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(true);
-  const [doRefresh, setDoRefresh] = useState(true);
-
-  function refresh() {
-    setDoRefresh(true);
-  }
-
-  useEffect(() => {
-    rbfetch(`/api/quickcomment`, {}).then((resp) => {
-      if (resp.ok) {
-        resp.json().then((data) => {
-          setData(data);
-          setLoading(false);
-          setDoRefresh(false);
-        });
-      } else {
-        setError("Failed to fetch all comments: " + resp.status);
-        setLoading(false);
-        setDoRefresh(false);
-      }
-    });
-  }, [doRefresh]);
-
-  return { data, error, loading, refresh } as {
-    data: QuickComment[] | null;
-    error: string | null;
-    loading: boolean;
-    refresh: () => void;
-  };
-}
-
+/**
+ * A custom hook that fetches and provides a list of users from RavenBrain.
+ *
+ * This hook manages the state for data, loading, and error, allowing components to easily make use
+ * of the information without handling the fetch logic manually.
+ *
+ * @return {Object} An object containing the following properties:
+ *  - `data` (User[] | null): The list of users fetched from the API, or null if not yet fetched or on error.
+ *  - `error` (string | null): The error message if the fetch operation fails, or null if there's no error.
+ *  - `loading` (boolean): A boolean indicating whether the fetch operation is in progress.
+ */
 export function useUserList() {
   const [data, setData] = useState<User[] | null>(null);
   const [error, setError] = useState<null | string>(null);
@@ -445,6 +183,13 @@ export function useUserList() {
   };
 }
 
+/**
+ * Creates a new strategy area by sending the provided data to RavenBrain.
+ *
+ * @param {StrategyArea} item - The strategy area object to be created, containing required properties.
+ * @return {Promise<StrategyArea>} A promise that resolves to the created strategy area object.
+ * @throws {Error} If the server response indicates a failure.
+ */
 export async function createStrategyArea(
   item: StrategyArea,
 ): Promise<StrategyArea> {
@@ -459,6 +204,12 @@ export async function createStrategyArea(
   });
 }
 
+/**
+ * A custom hook for retrieving and managing the state of a strategy area by its ID.
+ *
+ * @param {string | undefined} id - The ID of the strategy area to fetch. If undefined, no fetch request is performed.
+ * @return {{ data: StrategyArea | null, error: string | null, loading: boolean }} An object containing the fetched strategy area data, any errors that occurred, and the loading state.
+ */
 export function useStrategyArea(id: string | undefined) {
   const [data, setData] = useState<StrategyArea | null>(null);
   const [error, setError] = useState<null | string>(null);
@@ -493,6 +244,13 @@ export function useStrategyArea(id: string | undefined) {
   };
 }
 
+/**
+ * Updates an existing strategy area on RavenBrain.
+ *
+ * @param {StrategyArea} item - The strategy area object containing updated data. Must include an `id` property.
+ * @return {Promise<StrategyArea>} A promise that resolves to the updated strategy area object retrieved from the server.
+ * @throws {Error} If the server response is not okay (e.g., non-2xx status code).
+ */
 export async function updateStrategyArea(
   item: StrategyArea,
 ): Promise<StrategyArea> {
@@ -507,6 +265,13 @@ export async function updateStrategyArea(
   });
 }
 
+/**
+ * Fetches a sequence type based on a given identifier.
+ *
+ * @param {string | undefined} id - The unique identifier of the sequence type to fetch.
+ * @return {{ data: SequenceType | null, error: string | null, loading: boolean }}
+ *         An object containing the fetched sequence type data, any error message, and the loading state.
+ */
 export function useSequenceType(id: string | undefined) {
   const [data, setData] = useState<SequenceType | null>(null);
   const [error, setError] = useState<null | string>(null);
@@ -539,4 +304,45 @@ export function useSequenceType(id: string | undefined) {
     error: string | null;
     loading: boolean;
   };
+}
+
+/**
+ * Saves an array of event log records to RavenBrain.
+ *
+ * @param {RBEventLogRecord[]} records - An array of event log records to be saved.
+ * @return {Promise<RBEventLogPostResult[]>} A promise that resolves to an array of results
+ * returned from the server after saving the event log records.
+ */
+export async function saveEventLogRecords(
+  records: RBEventLogRecord[],
+): Promise<RBEventLogPostResult[]> {
+  return rbfetch("/api/event", {
+    method: "POST",
+    body: JSON.stringify(records),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to save event log records: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * Persists an array of quick comment records to the server.
+ *
+ * @param {RBQuickComment[]} records - An array of quick comment record objects to be saved.
+ * @return {Promise<RBQuickCommentPostResult>} A promise that resolves with the result of the save operation.
+ */
+export async function saveQuickCommentRecords(
+  records: RBQuickComment[],
+): Promise<RBQuickCommentPostResult> {
+  return rbfetch("/api/quickcomment", {
+    method: "POST",
+    body: JSON.stringify(records),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to save quickcomment records: " + resp.status);
+    }
+    return resp.json();
+  });
 }

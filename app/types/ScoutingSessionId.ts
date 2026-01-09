@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 export type ScoutingSessionId = {
   tournamentId: string;
   scoutName: string;

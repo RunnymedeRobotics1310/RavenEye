@@ -1,10 +1,8 @@
-/**
- * @deprecated
- */
-export type QuickComment = {
-  name: string;
+export interface RBQuickComment {
+  id: number;
+  userId: number;
   role: string;
   team: number;
   timestamp: Date;
   quickComment: string;
-};
+}
