@@ -278,7 +278,7 @@ export class Repository {
     });
   }
 
-  async putComment(item: RBQuickComment): Promise<void> {
+  async captureComment(item: RBQuickComment): Promise<void> {
     const db = await this.getDB();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([NEW_COMMENT_STORE], "readwrite");

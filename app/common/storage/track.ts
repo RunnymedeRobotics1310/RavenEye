@@ -22,5 +22,5 @@ export async function recordComment(team: number, comment: string) {
     timestamp: new Date(),
     quickComment: comment,
   };
-  await repository.putComment(qc);
+  await repository.captureComment(qc);
 }
