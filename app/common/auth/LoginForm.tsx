@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authenticate } from "~/common/storage/rbauth.ts";
+import { authenticate, useLoginStatus } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import { useNavigate } from "react-router";
 
@@ -23,6 +23,23 @@ function LoginForm() {
         setLoading(false);
         setSuccess(false);
       });
+  }
+
+  function LoginFailed() {
+    const { debug_alive } = useLoginStatus();
+    if (!debug_alive) {
+      return (
+        <section>
+          <p>Unable to log in: server not available</p>
+        </section>
+      );
+    }
+
+    return (
+      <section>
+        <p>Login failed</p>
+      </section>
+    );
   }
 
   if (!submitted) {
@@ -100,11 +117,7 @@ function LoginForm() {
   }
 
   if (!success) {
-    return (
-      <section>
-        <p>Login failed</p>
-      </section>
-    );
+    return <LoginFailed />;
   }
 
   navigate(0); // refresh
