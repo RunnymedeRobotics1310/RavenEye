@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 export type GameEvent = {
   timestamp: Date;
   scoutName: string;
