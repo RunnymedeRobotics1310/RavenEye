@@ -9,7 +9,7 @@ import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 8;
+const DB_VERSION = 9;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -42,31 +42,31 @@ export class Repository {
           db.createObjectStore(SYNC_STATUS_STORE, { keyPath: "component" });
         }
         if (!db.objectStoreNames.contains(TOURNAMENT_LIST_STORE)) {
-          db.createObjectStore(TOURNAMENT_LIST_STORE, { autoIncrement: true });
+          db.createObjectStore(TOURNAMENT_LIST_STORE, { keyPath: "id" });
         }
         if (!db.objectStoreNames.contains(STRATEGY_AREAS_STORE)) {
-          db.createObjectStore(STRATEGY_AREAS_STORE, { autoIncrement: true });
+          db.createObjectStore(STRATEGY_AREAS_STORE, { keyPath: "id" });
         }
         if (!db.objectStoreNames.contains(EVENT_TYPES_STORE)) {
-          db.createObjectStore(EVENT_TYPES_STORE, { autoIncrement: true });
+          db.createObjectStore(EVENT_TYPES_STORE, { keyPath: "eventtype" });
         }
         if (!db.objectStoreNames.contains(SEQUENCE_TYPES_STORE)) {
-          db.createObjectStore(SEQUENCE_TYPES_STORE, { autoIncrement: true });
+          db.createObjectStore(SEQUENCE_TYPES_STORE, { keyPath: "id" });
         }
         if (!db.objectStoreNames.contains(MATCH_SCHEDULE_STORE)) {
-          db.createObjectStore(MATCH_SCHEDULE_STORE, { autoIncrement: true });
+          db.createObjectStore(MATCH_SCHEDULE_STORE, { keyPath: "id" });
         }
         if (!db.objectStoreNames.contains(NEW_COMMENT_STORE)) {
           db.createObjectStore(NEW_COMMENT_STORE);
         }
         if (!db.objectStoreNames.contains(SYNC_COMMENT_STORE)) {
-          db.createObjectStore(SYNC_COMMENT_STORE, { autoIncrement: true });
+          db.createObjectStore(SYNC_COMMENT_STORE, { keyPath: "id" });
         }
         if (!db.objectStoreNames.contains(NEW_EVENT_STORE)) {
-          db.createObjectStore(NEW_EVENT_STORE, { autoIncrement: true });
+          db.createObjectStore(NEW_EVENT_STORE);
         }
         if (!db.objectStoreNames.contains(SYNC_EVENT_STORE)) {
-          db.createObjectStore(SYNC_EVENT_STORE, { autoIncrement: true });
+          db.createObjectStore(SYNC_EVENT_STORE, { keyPath: "id" });
         }
       };
     });
