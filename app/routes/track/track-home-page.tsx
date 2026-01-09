@@ -1,3 +1,6 @@
+import RequireLogin from "~/common/auth/RequireLogin.tsx";
+import QuickCommentForm from "~/common/track/QuickCommentForm.tsx";
+
 const TrackHomePage = () => {
   return (
     <main>
@@ -16,6 +19,9 @@ const TrackHomePage = () => {
           </ul>
         </li>
       </ul>
+      <RequireLogin>
+        <QuickCommentForm />
+      </RequireLogin>
     </main>
   );
 };
