@@ -1,5 +1,6 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import QuickCommentForm from "~/common/track/QuickCommentForm.tsx";
+import DebugEventSyncForm from "~/common/track/DebugEventSyncForm.tsx";
 
 const TrackHomePage = () => {
   return (
@@ -21,6 +22,7 @@ const TrackHomePage = () => {
       </ul>
       <RequireLogin>
         <QuickCommentForm />
+        <DebugEventSyncForm />
       </RequireLogin>
     </main>
   );
