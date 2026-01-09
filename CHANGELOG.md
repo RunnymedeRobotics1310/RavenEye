@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.2.0...v3.2.1) (2026-01-09)
+
+
+### Bug Fixes
+
+* Simplify RavenBrain communication layer ([ae7e3fd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ae7e3fd68be6821c7adeeff28815799a0ebfd635))
+
 # [3.2.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.1.0...v3.2.0) (2026-01-09)
 
 
