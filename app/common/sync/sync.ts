@@ -7,6 +7,7 @@ import {
   getTournamentList,
   getScheduleForTournament,
   ping,
+  saveQuickCommentRecords,
 } from "~/common/storage/rb.ts";
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
 
@@ -29,6 +30,7 @@ export function initializeSyncSchedule() {
   if (syncInitialized) return;
   syncInitialized = true;
 
+  updateCommentUnsyncCount();
   doSync();
   setInterval(
     () => {
@@ -38,7 +40,16 @@ export function initializeSyncSchedule() {
   );
 }
 
-export async function doSync() {
+export async function doManualSync() {
+  const alive = await ping();
+  if (alive) {
+    await syncQuickComments();
+  } else {
+    log("Skipping Manual Sync - not connected");
+  }
+  await doSync();
+}
+async function doSync() {
   const alive = await ping();
   if (alive) {
     await Promise.all([
@@ -248,6 +259,81 @@ export async function syncMatchSchedule() {
   }
 }
 
+export async function syncQuickComments() {
+  log("Quick Comments");
+  await repository.putSyncStatus({
+    loading: false,
+    component: "Quick Comments",
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const data = await repository.getUnsynchronizedComments();
+    if (data != null && data.length > 0) {
+      await repository.putSyncStatus({
+        loading: false,
+        component: "Quick Comments",
+        lastSync: new Date(),
+        inProgress: true,
+        isComplete: false,
+        remaining: data.length,
+        error: null,
+      });
+      const result = await saveQuickCommentRecords(data);
+      const successful = result.filter((r) => r.success).map((r) => r.comment);
+      await repository.markCommentSynchronized(successful);
+      const failureReasons = result
+        .filter((r) => !r.success)
+        .map((r) => r.reason);
+      if (failureReasons.length > 0) {
+        await repository.putSyncStatus({
+          loading: false,
+          component: "Quick Comments",
+          lastSync: new Date(),
+          inProgress: false,
+          isComplete: false,
+          remaining: 0,
+          error: new Error(JSON.stringify(failureReasons)),
+        });
+      } else {
+        await repository.putSyncStatus({
+          loading: false,
+          component: "Quick Comments",
+          lastSync: new Date(),
+          inProgress: false,
+          isComplete: true,
+          remaining: 0,
+          error: null,
+        });
+      }
+    } else {
+      await repository.putSyncStatus({
+        loading: false,
+        component: "Quick Comments",
+        lastSync: new Date(),
+        inProgress: false,
+        isComplete: true,
+        remaining: 0,
+        error: null,
+      });
+    }
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Quick Comments",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
 export const useDashboardDataSyncStatus = (): SyncStatus => {
   const dummy: SyncStatus = {
     loading: false,
@@ -269,17 +355,30 @@ export const useMatchScheduleSyncStatus = (): SyncStatus => {
   return useSyncStatus("Match Schedule");
 };
 
+/**
+ * Update the count of unsynchronized quick comments.
+ */
+export async function updateCommentUnsyncCount() {
+  const data = await repository.getUnsynchronizedComments();
+  const stat = await repository.getSyncStatus("Quick Comments");
+  if (stat) {
+    stat.remaining = data.length;
+    await repository.putSyncStatus(stat);
+  } else {
+    await repository.putSyncStatus({
+      loading: false,
+      component: "Quick Comments",
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: null,
+    });
+  }
+}
+
 export const useQuickCommentsSyncStatus = (): SyncStatus => {
-  const dummy: SyncStatus = {
-    loading: false,
-    component: "Quick Comments",
-    lastSync: new Date(),
-    inProgress: false,
-    isComplete: true,
-    remaining: 0,
-    error: new Error("Not yet implemented"),
-  };
-  return dummy;
+  return useSyncStatus("Quick Comments");
 };
 
 export const useSequenceTypesSyncStatus = (): SyncStatus => {

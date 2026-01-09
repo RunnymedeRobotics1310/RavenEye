@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { doSync, useOverallSyncStatus } from "~/common/sync/sync.ts";
+import { doManualSync, useOverallSyncStatus } from "~/common/sync/sync.ts";
 
 const SyncNowButton = () => {
   const status = useOverallSyncStatus();
@@ -8,7 +8,7 @@ const SyncNowButton = () => {
 
   const handleSync = async () => {
     setManualSyncing(true);
-    await doSync();
+    await doManualSync();
     setManualSyncing(false);
   };
 

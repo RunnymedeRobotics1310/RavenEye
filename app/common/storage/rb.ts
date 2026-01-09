@@ -335,7 +335,7 @@ export async function saveEventLogRecords(
  */
 export async function saveQuickCommentRecords(
   records: RBQuickComment[],
-): Promise<RBQuickCommentPostResult> {
+): Promise<RBQuickCommentPostResult[]> {
   return rbfetch("/api/quickcomment", {
     method: "POST",
     body: JSON.stringify(records),

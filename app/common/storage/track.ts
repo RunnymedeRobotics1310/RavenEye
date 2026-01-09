@@ -1,6 +1,7 @@
 import { getRoles, getUserid } from "~/common/storage/rbauth.ts";
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 import { repository } from "~/common/storage/db.ts";
+import { updateCommentUnsyncCount } from "~/common/sync/sync.ts";
 
 /**
  * Records a comment made by a user for a specific team.
@@ -23,4 +24,5 @@ export async function recordComment(team: number, comment: string) {
     quickComment: comment,
   };
   await repository.captureComment(qc);
+  await updateCommentUnsyncCount();
 }
