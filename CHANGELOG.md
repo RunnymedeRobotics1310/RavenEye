@@ -1,3 +1,19 @@
+# [3.3.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.2.2...v3.3.0) (2026-01-09)
+
+
+### Bug Fixes
+
+* clean up error handling in rbauth.ts ([481e959](https://github.com/RunnymedeRobotics1310/RavenEye/commit/481e959d5e9158126a63696ef1051001549feb74))
+* Comment storage ([32dd5b8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/32dd5b87f0dddd3b75122f0013c9ae968f40ea5a))
+* rename method ([2d13de9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/2d13de9691a378fd9b4df5c1e7d24f0cfcaa7cee))
+* Update db version number ([b620458](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b6204584c6def3fbb3bfc90bccf5d5d6c988c8ea))
+
+
+### Features
+
+* Quick Comment sync ([798f636](https://github.com/RunnymedeRobotics1310/RavenEye/commit/798f6363cf0641a64eb422db31eb056c2aa3f2bb))
+* Save quick comments ([87d720d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/87d720d14b70be044d6bd8fd4c949f901e0815ba))
+
 ## [3.2.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.2.1...v3.2.2) (2026-01-09)
 
 
