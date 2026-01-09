@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { isJwtExpired, parseJwt } from "~/common/util.ts";
 import { ping } from "~/common/storage/rb.ts";
+import type { RBJWT } from "~/types/RBJWT.ts";
 
-const ACCESS_TOKEN_KEY = "ravenbrain_access_token";
-const ROLES_KEY = "ravenbrain_roles";
-const USERID_KEY = "ravenbrain_user_id";
-const FULL_NAME_KEY = "ravenbrain_full_name";
+const SESSION_KEY_ACCESS_TOKEN = "raveneye_access_token";
+const SESSION_KEY_USERID = "raveneye_userid";
+const SESSION_KEY_LOGIN = "raveneye_login";
+const SESSION_KEY_DISPLAY_NAME = "raveneye_displayName";
+const SESSION_KEY_ROLES = "raveneye_roles";
 
 /**
  * Authenticates a user by sending their credentials to the server.
@@ -45,13 +46,76 @@ export async function authenticate(
     })
     .then((json) => {
       const accessToken = json.access_token;
-      const payload = parseJwt(accessToken);
-      localStorage.setItem(USERID_KEY, username);
-      sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-      sessionStorage.setItem(FULL_NAME_KEY, payload.fullName);
-      sessionStorage.setItem(ROLES_KEY, JSON.stringify(payload.roles));
+      const jwt = parseJwt(accessToken);
+      validateRavenBrainJwt(jwt);
+      sessionStorage.setItem(SESSION_KEY_ACCESS_TOKEN, accessToken);
+      sessionStorage.setItem(SESSION_KEY_USERID, jwt.userid.toString());
+      sessionStorage.setItem(SESSION_KEY_LOGIN, jwt.login);
+      sessionStorage.setItem(SESSION_KEY_DISPLAY_NAME, jwt.displayName);
+      sessionStorage.setItem(SESSION_KEY_ROLES, JSON.stringify(jwt.roles));
       return;
     });
+}
+
+/**
+ * Decodes a JSON Web Token (JWT) and parses its payload into an object.
+ *
+ * @param {string} token - The JWT string to be decoded and parsed.
+ * @return {RBJWT} The decoded payload object of the JWT.
+ */
+function parseJwt(token: string): RBJWT {
+  const base64Url = token.split(".")[1];
+  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+  const jsonPayload = decodeURIComponent(
+    window
+      .atob(base64)
+      .split("")
+      .map(function (c) {
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join(""),
+  );
+  return JSON.parse(jsonPayload) as RBJWT;
+}
+
+/**
+ * Validates a JSON Web Token (JWT) by checking its issuer, expiration, and
+ * "not before" claims.
+ *
+ * @param {RBJWT} jwt - The JWT object to be validated. It should contain
+ * `iss`, `exp`, and `nbf` properties to perform the validation.
+ * @return {void} Throws an error if the JWT fails validation due to an invalid
+ * issuer, expiration, or "not before" time.
+ */
+function validateRavenBrainJwt(jwt: RBJWT): void {
+  if (jwt.iss !== "raven-brain") {
+    throw new Error("JWT Not from Raven Brain");
+  }
+  const currentTime = Date.now() / 1000; // Current time in seconds
+  if (jwt.exp < currentTime) {
+    throw new Error("JWT has expired");
+  }
+  if (jwt.nbf > currentTime) {
+    throw new Error("JWT is not yet valid");
+  }
+}
+
+/**
+ * Determines whether a given JSON Web Token (JWT) has expired.
+ *
+ * @param {string} token - The JWT to be checked for expiration.
+ * @return {boolean} Returns true if the token is expired or invalid, otherwise false.
+ */
+function isJwtExpired(token: string): boolean {
+  if (!token) return true; // Token is missing
+  try {
+    const decodedToken: { exp: number } = parseJwt(token);
+    const currentTime = Date.now() / 1000; // Current time in seconds
+    return decodedToken.exp < currentTime; // Check if expired
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return true; // Assume expired if there's an error
+  }
 }
 
 /**
@@ -59,12 +123,10 @@ export async function authenticate(
  */
 export function logout() {
   if (typeof sessionStorage !== "undefined") {
-    sessionStorage.removeItem(ACCESS_TOKEN_KEY);
-    sessionStorage.removeItem(FULL_NAME_KEY);
-    sessionStorage.removeItem(ROLES_KEY);
+    sessionStorage.clear();
   }
   if (typeof localStorage !== "undefined") {
-    localStorage.removeItem(USERID_KEY);
+    localStorage.clear();
   }
 }
 
@@ -100,7 +162,7 @@ export async function rbfetch(
 ): Promise<Response> {
   let accessToken = null;
   if (typeof sessionStorage !== "undefined") {
-    accessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY);
+    accessToken = sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN);
   }
   const o2: Record<string, unknown> = {
     ...options,
@@ -116,29 +178,50 @@ export async function rbfetch(
 }
 
 /**
- * Return the login user id
+ * Return the current user's id (not to be confused with their login,
+ * which they used to authenticate - that is not available in
+ * this app - it's not necessary).
+ *
+ * Throws an error if called when the user is not logged in.
  */
-export function getUserid() {
-  if (typeof localStorage !== "undefined") {
-    return localStorage.getItem(USERID_KEY);
+export function getUserid(): number {
+  if (typeof sessionStorage !== "undefined") {
+    const s = sessionStorage.getItem(SESSION_KEY_USERID);
+    if (s != null) {
+      return parseInt(s);
+    }
   }
-  return null;
+  throw new Error("Not logged in");
 }
 
 /**
  * Return the current user's full name
  */
-export function getFullName() {
+export function getDisplayName() {
   if (typeof sessionStorage !== "undefined") {
-    return sessionStorage.getItem(FULL_NAME_KEY);
+    const s = sessionStorage.getItem(SESSION_KEY_DISPLAY_NAME);
+    if (s != null) {
+      return s;
+    }
   }
-  return null;
+  throw new Error("Not logged in");
 }
 
+/**
+ * Fetch the login status of the user - checks to see if they are logged in, and
+ * also provides intermediate login status details for diagnostic purposes.
+ *
+ * @return {Object} An object containing the following properties:
+ * - `loggedIn` (boolean): Whether the user is considered logged in based on token validation.
+ * - `loading` (boolean): Intermediate login status - validating logged-in state
+ * - `debug_alive` (boolean): Intermediate login status - server is found to be available
+ * - `debug_hasToken` (boolean): Intermediate login status - an access token is present
+ * - `debug_expired` (boolean): Intermediate login status - the access token has expired
+ */
 export function useLoginStatus() {
   const [loading, setLoading] = useState(true);
   const [alive, setAlive] = useState(false);
-  const [authenticated, setAuthenticated] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
   const [expired, setExpired] = useState(false);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
@@ -153,14 +236,14 @@ export function useLoginStatus() {
         setAlive(true);
         let accessToken = null;
         if (typeof sessionStorage !== "undefined") {
-          accessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY);
+          accessToken = sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN);
         }
         if (accessToken === null) {
-          setAuthenticated(false);
+          setHasToken(false);
           setLoading(false);
           return;
         } else {
-          setAuthenticated(true);
+          setHasToken(true);
         }
 
         if (isJwtExpired(accessToken)) {
@@ -183,7 +266,32 @@ export function useLoginStatus() {
       });
   }, []);
 
-  return { loading, alive, authenticated, expired, loggedIn };
+  return {
+    loading,
+    debug_alive: alive,
+    debug_hasToken: hasToken,
+    debug_expired: expired,
+    loggedIn,
+  };
+}
+
+/**
+ * Retrieves the roles from session storage.
+ *
+ * This method attempts to fetch a list of roles stored in the session storage under a predefined key.
+ * If session storage is unavailable, or if the roles data is not found or empty, the method returns null.
+ *
+ * @return {string[]} An array of roles if available, or null if they do not exist or cannot be retrieved.
+ * @throws an error if the user is not logged in
+ */
+export function getRoles(): string[] {
+  if (typeof sessionStorage !== "undefined") {
+    const r = sessionStorage.getItem(SESSION_KEY_ROLES);
+    if (r !== null) {
+      return JSON.parse(r);
+    }
+  }
+  throw new Error("Not logged in");
 }
 
 /**
@@ -196,7 +304,6 @@ export function useLoginStatus() {
  * - {boolean} isDataScout: Indicates if the user has the "ROLE_DATASCOUT".
  * - {boolean} isMember: Indicates if the user has the "ROLE_MEMBER".
  * - {boolean} loading: Represents whether the role data is still being loaded.
- * - {null|string} error: Contains an error message if roles fail to load, null otherwise.
  */
 export function useRole() {
   const [isSuperuser, setIsSuperuser] = useState(false);
@@ -205,34 +312,16 @@ export function useRole() {
   const [isDataScout, setIsDataScout] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<null | string>(null);
   useEffect(() => {
-    function getRoles() {
-      if (typeof sessionStorage === "undefined") {
-        return null;
-      }
-      const r = sessionStorage.getItem(ROLES_KEY);
-      if (r === null || r === "") {
-        return null;
-      } else {
-        return JSON.parse(r);
-      }
+    const roles = getRoles();
+    if (roles) {
+      setIsSuperuser(roles.includes("ROLE_SUPERUSER"));
+      setIsAdmin(roles.includes("ROLE_ADMIN"));
+      setIsExpertScout(roles.includes("ROLE_EXPERTSCOUT"));
+      setIsDataScout(roles.includes("ROLE_DATASCOUT"));
+      setIsMember(roles.includes("ROLE_MEMBER"));
     }
-
-    try {
-      const roles = getRoles();
-      if (roles) {
-        setIsSuperuser(roles.includes("ROLE_SUPERUSER"));
-        setIsAdmin(roles.includes("ROLE_ADMIN"));
-        setIsExpertScout(roles.includes("ROLE_EXPERTSCOUT"));
-        setIsDataScout(roles.includes("ROLE_DATASCOUT"));
-        setIsMember(roles.includes("ROLE_MEMBER"));
-      }
-      setLoading(false);
-    } catch (e) {
-      setError("Failed to load roles: " + e);
-      setLoading(false);
-    }
+    setLoading(false);
   }, []);
   return {
     isSuperuser,
@@ -241,6 +330,5 @@ export function useRole() {
     isDataScout,
     isMember,
     loading,
-    error,
   };
 }

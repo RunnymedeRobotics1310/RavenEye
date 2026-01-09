@@ -1,25 +1,15 @@
-import { useEffect, useState } from "react";
-import { authenticate, getUserid } from "~/common/storage/rbauth.ts";
+import { useState } from "react";
+import { authenticate } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import { useNavigate } from "react-router";
 
 function LoginForm() {
-  const [savedName, setSavedName] = useState("");
   const [formName, setFormName] = useState("");
   const [formPassword, setFormPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
-  useEffect(() => {
-    if (savedName == "") {
-      const loadedName = getUserid();
-      if (loadedName && loadedName != "") {
-        setSavedName(loadedName);
-        setFormName(loadedName);
-      }
-    }
-  }, []);
 
   function handleLoginClick() {
     setLoading(true);
@@ -67,7 +57,7 @@ function LoginForm() {
                       type={"password"}
                       id={"password"}
                       autoComplete={"current-password"}
-                      placeholder={"password"}
+                      placeholder={"Password"}
                       onChange={(e) => {
                         setFormPassword(e.target.value);
                       }}

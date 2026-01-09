@@ -1,11 +1,12 @@
 import LoginForm from "~/common/auth/LoginForm.tsx";
 import Spinner from "~/common/Spinner.tsx";
-import { getFullName, useLoginStatus } from "~/common/storage/rbauth.ts";
+import { getDisplayName, useLoginStatus } from "~/common/storage/rbauth.ts";
 import { NavLink } from "react-router";
 
 const LoginPage = () => {
-  const { loading, alive, authenticated, expired, loggedIn } = useLoginStatus();
-  const fullName = getFullName();
+  const { loading, debug_alive, debug_hasToken, debug_expired, loggedIn } =
+    useLoginStatus();
+  const fullName = getDisplayName();
 
   if (loading) {
     return (
@@ -25,7 +26,7 @@ const LoginPage = () => {
     );
   }
 
-  if (!alive) {
+  if (!debug_alive) {
     return (
       <main>
         <p>Communication failure connecting to server.</p>
@@ -33,7 +34,7 @@ const LoginPage = () => {
     );
   }
 
-  if (!authenticated) {
+  if (!debug_hasToken) {
     return (
       <main>
         <LoginForm />
@@ -41,7 +42,7 @@ const LoginPage = () => {
     );
   }
 
-  if (expired) {
+  if (debug_expired) {
     return (
       <main>
         <h1>Login Expired</h1>
