@@ -282,14 +282,11 @@ export class Repository {
     const db = await this.getDB();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([NEW_COMMENT_STORE], "readwrite");
-      const store = transaction.objectStore(NEW_COMMENT_STORE);
 
-      const clearRequest = store.clear();
-      clearRequest.onsuccess = () => {
-        store.add(item);
-        resolve();
-      };
-      clearRequest.onerror = () => reject(clearRequest.error);
+      const store = transaction.objectStore(NEW_COMMENT_STORE);
+      const storeRequest = store.add(item);
+      storeRequest.onsuccess = () => resolve();
+      storeRequest.onerror = () => reject(storeRequest.error);
 
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error);
