@@ -24,6 +24,8 @@ lerna-debug.log*
 
 # Scripts
 cleanup.sh
+# SSL Certificates
+certs/
 
 # Editor / IDE
 .vscode/*

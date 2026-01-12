@@ -1,0 +1,46 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            --build-arg VITE_API_HOST=${{ vars.VITE_API_HOST || 'https://ravenbrain.team1310.ca' }} \
+            -t raveneye:${{ github.sha }} \
+            -t raveneye:latest \
+            .
+
+      - name: Deploy application
+        run: |
+          cd /opt/raveneye
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d app
+
+      - name: Verify deployment
+        run: |
+          echo "Waiting for application to start..."
+          sleep 10
+          docker compose -f /opt/raveneye/docker-compose.yml -f /opt/raveneye/docker-compose.prod.yml ps app
+          echo "Deployment complete"
+
+      - name: Cleanup old images
+        run: |
+          # Remove dangling images to save disk space
+          docker image prune -f

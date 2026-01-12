@@ -1,0 +1,13 @@
+# Production overrides for RavenEye
+# Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+services:
+  app:
+    volumes:
+      # Production SSL certificates path
+      - ${SSL_CERT_PATH:-/mnt/data/raveneye/certs}:/etc/nginx/certs:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
