@@ -5,7 +5,7 @@ services:
   app:
     volumes:
       # Production SSL certificates path
-      - ${SSL_CERT_PATH:-/mnt/data/raveneye/certs}:/etc/nginx/certs:ro
+      - ${SSL_CERT_PATH:-/mnt/nas/raveneye/raveneye-data/certs}:/etc/nginx/certs:ro
     logging:
       driver: "json-file"
       options:
