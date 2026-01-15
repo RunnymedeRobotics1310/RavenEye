@@ -1,3 +1,10 @@
+## [3.3.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.0...v3.3.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* Add ci/cd support and automatic production deployment. Includes a detailed deployment README.md. ([#139](https://github.com/RunnymedeRobotics1310/RavenEye/issues/139)) ([0258930](https://github.com/RunnymedeRobotics1310/RavenEye/commit/02589304670750e61f91499883add364df720c4c))
+
 # [3.3.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.2.2...v3.3.0) (2026-01-09)
 
 
