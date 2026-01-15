@@ -1,0 +1,44 @@
+# Dependencies
+node_modules
+
+# Build output
+build
+dist
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+
+# Documentation
+*.md
+!README.md
+
+# Environment files (build args used instead)
+.env*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Test files
+*.test.*
+*.spec.*
+__tests__
+
+# CI/CD
+.github
+
+# SSL certificates
+certs
+
+# React Router cache
+.react-router

@@ -1,0 +1,21 @@
+services:
+  app:
+    image: raveneye:latest
+    container_name: raveneye-app
+    ports:
+      - "443:443"
+    volumes:
+      - ${SSL_CERT_PATH:-./certs}:/etc/nginx/certs:ro
+    environment:
+      - TZ=UTC
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://localhost/health", "--no-check-certificate"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  default:
+    name: raveneye-network

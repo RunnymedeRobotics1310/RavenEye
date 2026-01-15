@@ -12,6 +12,8 @@ For local developers, you can access the app at http://localhost:3000
 
 Follow the instructions on the app.
 
+Deployment instructions can be found in the [DEPLOYMENT.md](DEPLOYMENT.md) file.
+
 ## Development
 
 This app is built as a single-page application using React, React Router, TypeScript, and Vite. To run the app locally, 
