@@ -73,4 +73,4 @@ follow these steps:
 - Eventually, a `refresh_token` will be employed that will be stored in `localStorage` once appropriate revocation support can be added to the back-end
 
 ### Deployment
-Deployment instructions are located in this file: [Deployment](./DEPLOYMENT.MD).
+Deployment instructions are located in this file: [Deployment](./DEPLOYMENT.md).
