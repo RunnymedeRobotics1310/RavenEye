@@ -18,43 +18,41 @@ RavenEye is a React-based Single Page Application (SPA) that connects to the Rav
 ### 1. Create Directory Structure
 
 ```bash
-sudo mkdir -p /opt/raveneye
-sudo mkdir -p /mnt/data/raveneye/certs
+sudo mkdir -p /mnt/nas/raveneye/re-git
+sudo mkdir -p /mnt/nas/raveneye/re-data/certs
 ```
 
 ### 2. Copy Docker Compose Files
 
-Copy the following files to `/opt/raveneye/`:
-- `docker-compose.yml`
-- `docker-compose.prod.yml`
+Checkout this repo to `/mnt/nas/raveneye/re-git`:
 
 ```bash
-sudo cp docker-compose.yml docker-compose.prod.yml /opt/raveneye/
+git clone https://github.com/RunnymedeRobotics1310/RavenEye.git
 ```
 
 ### 3. SSL Certificate Setup
 
-Place your SSL certificates in `/mnt/data/raveneye/certs/`:
+Place your SSL certificates in `/mnt/nas/raveneye/re-data/certs/`:
 - `fullchain.pem` - Full certificate chain
 - `privkey.pem` - Private key
 
 For Let's Encrypt certificates, you can create symbolic links:
 
 ```bash
-sudo ln -s /etc/letsencrypt/live/raveneye.team1310.ca/fullchain.pem /mnt/data/raveneye/certs/fullchain.pem
-sudo ln -s /etc/letsencrypt/live/raveneye.team1310.ca/privkey.pem /mnt/data/raveneye/certs/privkey.pem
+sudo ln -s /etc/letsencrypt/live/raveneye.team1310.ca/fullchain.pem /mnt/nas/raveneye/re-data/certs/fullchain.pem
+sudo ln -s /etc/letsencrypt/live/raveneye.team1310.ca/privkey.pem /mnt/nas/raveneye/re-data/certs/privkey.pem
 ```
 
 ### 4. Configure GitHub Repository Variables
 
-In your GitHub repository settings, add the following variable:
+In your GitHub repository settings (.env), add the following variable:
 - `VITE_API_HOST`: The URL of your RavenBrain API (e.g., `https://ravenbrain.team1310.ca`)
 
 ### 5. GitHub Self-Hosted Runner
 
 The deployment uses a self-hosted GitHub Actions runner. Ensure the runner:
 - Has Docker installed and accessible
-- Has write access to `/opt/raveneye/`
+- Has write access to `/mnt/nas/raveneye/re-git/`
 - Is registered with the repository
 
 ## Manual Deployment
@@ -63,14 +61,14 @@ If you need to deploy manually without CI/CD:
 
 ```bash
 # Build the Docker image
-docker build \
+sudo docker build \
   --build-arg VITE_API_HOST=https://ravenbrain.team1310.ca \
   -t raveneye:latest \
   .
 
 # Deploy using Docker Compose
-cd /opt/raveneye
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+cd /mnt/nas/raveneye/re-git
+sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 ## CI/CD Pipeline
