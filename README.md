@@ -71,3 +71,6 @@ follow these steps:
 - The `access_token` is stored in `sessionStorage`
 - Authorization will use a bearer token with each request, and exposed through a simplified `fetch` wrapper called `rbfetch`.
 - Eventually, a `refresh_token` will be employed that will be stored in `localStorage` once appropriate revocation support can be added to the back-end
+
+### Deployment
+Deployment instructions are located in this file: [Deployment](./DEPLOYMENT.MD).
