@@ -2,12 +2,62 @@
 # Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 services:
-  app:
+
+  nginx:
     volumes:
       # Production SSL certificates path
-      - ${SSL_CERT_PATH:-/mnt/nas/raveneye/re-data/certs}:/etc/nginx/certs:ro
+      - ${DOCKER_SSL_CERT_PATH:-/mnt/nas/raveneye/certs}:/etc/nginx/certs:ro
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
+  mysql:
+    volumes:
+      - ${DOCKER_MYSQL_DATA:-/home/quentin/containers/ravenbrain/mysql}:/var/lib/mysql
+    ports: [ ]
+    restart: unless-stopped
+
+  backup:
+    image: mysql:8.4
+    container_name: ravenbrain-backup
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ravenbrain}
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-60}
+      TZ: UTC
+    volumes:
+      - ${DOCKER_MYSQL_BACKUP:-/mnt/nas/raveneye/backups}:/backup
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        echo "Backup container started. Interval: $${BACKUP_INTERVAL_SECONDS}s, Retention: $${BACKUP_RETENTION_DAYS} days"
+        while true; do
+          TIMESTAMP=$$(date +%Y%m%d-%H%M%S)
+          BACKUP_FILE="/backup/ravenbrain-$${TIMESTAMP}.sql"
+          echo "$$(date): Starting backup..."
+          if mysqldump -h mysql -u root -p"$${MYSQL_ROOT_PASSWORD}" \
+              --single-transaction --routines --triggers \
+              "$${MYSQL_DATABASE}" > "$${BACKUP_FILE}"; then
+            gzip "$${BACKUP_FILE}"
+            echo "$$(date): Backup completed: $${BACKUP_FILE}.gz"
+            # Remove backups older than retention period
+            find /backup -name "ravenbrain-*.sql.gz" -mtime +$${BACKUP_RETENTION_DAYS} -delete
+            echo "$$(date): Cleaned up backups older than $${BACKUP_RETENTION_DAYS} days"
+          else
+            echo "$$(date): Backup FAILED"
+            rm -f "$${BACKUP_FILE}"
+          fi
+          echo "$$(date): Next backup in $${BACKUP_INTERVAL_SECONDS} seconds"
+          sleep $${BACKUP_INTERVAL_SECONDS}
+        done
+    networks:
+      - raveneye-network

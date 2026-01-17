@@ -11,7 +11,8 @@ dist-ssr
 
 # env files - good defaults committed - ignore changes.
 .env
-.env.development
+!.env.development.example
+!.env.production.example
 
 # Logs
 logs
