@@ -65,15 +65,15 @@ const NotLoggedIn = (props: any) => {
         <tbody>
           <tr>
             <td>Server Accessible</td>
-            <td>{props.status.alive ? "yes" : "no"}</td>
+            <td>{props.status.debug_alive ? "yes" : "no"}</td>
           </tr>
           <tr>
             <td>Previously Authenticated</td>
-            <td>{props.status.authenticated ? "yes" : "no"}</td>
+            <td>{props.status.debug_hasToken ? "yes" : "no"}</td>
           </tr>
           <tr>
             <td>Authentication Expired</td>
-            <td>{props.status.expired ? "yes" : "no"}</td>
+            <td>{props.status.debug_expired ? "yes" : "no"}</td>
           </tr>
           <tr>
             <td>Logged In</td>
