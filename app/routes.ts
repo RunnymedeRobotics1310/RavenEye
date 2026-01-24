@@ -7,6 +7,8 @@ export default [
   route("logout", "./routes/auth/logout-page.tsx"),
   route("admin", "./routes/admin/admin-page.tsx"),
   route("admin/users", "./routes/admin/users/users-page.tsx"),
+  route("admin/users/add", "./routes/admin/users/add-page.tsx"),
+  route("admin/users/:id", "./routes/admin/users/edit-page.tsx"),
   route(
     "admin/strategy-areas",
     "./routes/admin/strategy-areas/strategy-areas-page.tsx",
