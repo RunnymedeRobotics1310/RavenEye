@@ -184,6 +184,97 @@ export function useUserList() {
 }
 
 /**
+ * A custom hook for retrieving and managing the state of a user by their ID.
+ *
+ * @param {string | undefined} id - The ID of the user to fetch. If undefined, no fetch request is performed.
+ * @return {{ data: User | null, error: string | null, loading: boolean }} An object containing the fetched user data, any errors that occurred, and the loading state.
+ */
+export function useUser(id: string | undefined) {
+  const [data, setData] = useState<User | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+    rbfetch(`/api/users/${id}`, {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch user: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch user: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, [id]);
+
+  return { data, error, loading } as {
+    data: User | null;
+    error: string | null;
+    loading: boolean;
+  };
+}
+
+/**
+ * Form data type for creating/updating users (password instead of passwordHash)
+ */
+export interface UserFormData {
+  id: number;
+  login: string;
+  displayName: string;
+  password: string;
+  enabled: boolean;
+  forgotPassword: boolean;
+  roles: string[];
+}
+
+/**
+ * Creates a new user by sending the provided data to RavenBrain.
+ *
+ * @param {UserFormData} item - The user object to be created, containing required properties.
+ * @return {Promise<User>} A promise that resolves to the created user object.
+ * @throws {Error} If the server response indicates a failure.
+ */
+export async function createUser(item: UserFormData): Promise<User> {
+  return rbfetch("/api/users", {
+    method: "POST",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to create user: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * Updates an existing user on RavenBrain.
+ *
+ * @param {UserFormData} item - The user object containing updated data. Must include an `id` property.
+ * @return {Promise<User>} A promise that resolves to the updated user object retrieved from the server.
+ * @throws {Error} If the server response is not okay (e.g., non-2xx status code).
+ */
+export async function updateUser(item: UserFormData): Promise<User> {
+  return rbfetch("/api/users/" + item.id, {
+    method: "PUT",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to update user: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+/**
  * Creates a new strategy area by sending the provided data to RavenBrain.
  *
  * @param {StrategyArea} item - The strategy area object to be created, containing required properties.
