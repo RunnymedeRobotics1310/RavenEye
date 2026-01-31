@@ -1,4 +1,7 @@
 const CompStart = () => {
-  return <p> Comp</p>;
+  return <div> <p> Comp</p>
+         <p>
+            You suck do better!
+          </p> </div>;
 };
 export default CompStart;

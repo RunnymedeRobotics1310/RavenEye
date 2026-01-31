@@ -44,9 +44,14 @@ const TrackHomePage = () => {
   return (
     <main>
       <h1>Track</h1>
-      <p>
+      <div> <p>
         Scouts and team members - you're in the right place to track robots!
       </p>
+      <p>
+                  comp/area/match/team  </p>
+
+               <p>   drill/area/team </p>
+      </div>
 
       {showComment && (
         <Envelope closeFunction={() => setShowComment(false)}>
