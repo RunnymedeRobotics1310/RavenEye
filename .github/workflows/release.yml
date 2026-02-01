@@ -10,10 +10,21 @@ jobs:
   publish:
     permissions:
       contents: write
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
+
+    outputs:
+      released: ${{ steps.semantic.outputs.new_release_published }}
+      version: ${{ steps.semantic.outputs.new_release_version }}
+      tag: ${{ steps.semantic.outputs.new_release_git_tag }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -30,11 +41,33 @@ jobs:
         run: npm run build
 
       - name: Semantic Release
-        run: npx semantic-release
+        id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          node << 'EOF'
+          const semanticRelease = require('semantic-release');
+
+          (async () => {
+            const result = await semanticRelease();
+            const fs = require('fs');
+            const output = process.env.GITHUB_OUTPUT;
+
+            if (result) {
+              fs.appendFileSync(output, `new_release_published=true\n`);
+              fs.appendFileSync(output, `new_release_version=${result.nextRelease.version}\n`);
+              fs.appendFileSync(output, `new_release_git_tag=${result.nextRelease.gitTag}\n`);
+              console.log(`Released ${result.nextRelease.version}`);
+            } else {
+              fs.appendFileSync(output, `new_release_published=false\n`);
+              console.log('No release published');
+            }
+          })();
+          EOF
 
   build:
+    needs: publish
+    if: needs.publish.outputs.released == 'true'
     permissions:
       contents: read
       packages: write
@@ -46,6 +79,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.publish.outputs.tag }}
 
       - name: Set image name
         id: image-name
@@ -70,7 +105,7 @@ jobs:
           build-args: |
             VITE_API_HOST=${{ vars.VITE_API_HOST || 'https://ravenbrain.team1310.ca' }}
           tags: |
-            ${{ steps.image-name.outputs.image }}:${{ github.sha }}
+            ${{ steps.image-name.outputs.image }}:${{ needs.publish.outputs.version }}
             ${{ steps.image-name.outputs.image }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
