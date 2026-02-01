@@ -331,110 +331,123 @@ Add:
 
 ## CI/CD with GitHub Actions
 
-RavenBrain uses GitHub Actions with a self-hosted runner for automated deployments. When code is pushed to the `main`
-branch, the runner on your server automatically builds and deploys the updated application.
+RavenEye uses GitHub Actions with a self-hosted runner for automated deployments. When code is pushed to the `main`
+branch, the workflow automatically creates a release, builds a Docker image, and deploys to production.
 
 ### How It Works
 
 1. Code is pushed to the `main` branch on GitHub
-2. GitHub signals the self-hosted runner on your server
-3. The runner checks out the code, builds the Docker image, and restarts the app container
-4. The database container is not affected
+2. The `publish` job runs on GitHub-hosted Ubuntu runners:
+   - Runs type checking and builds the application
+   - Creates a semantic release (version bump, changelog, git tag)
+3. The `build` job runs on GitHub-hosted Ubuntu runners:
+   - Builds a multi-architecture Docker image (amd64/arm64)
+   - Pushes the image to GitHub Container Registry (ghcr.io)
+4. The `deploy` job runs on the self-hosted runner (Linux container on Windows 11):
+   - Pulls the latest Docker image
+   - Restarts only the nginx (RavenEye) container
+   - The database and RavenBrain containers are not affected
 
-### Setting Up the Self-Hosted Runner
+### Self-Hosted Runner Architecture
 
-The github self-hosted runner should run on the Docker host. There are other deployment options,
-including running it in Docker or on a totally separate server. Here is the rationale for running
-it on the docker hosts:
+The GitHub runner runs in a Linux container on the Windows 11 Docker host. This approach provides:
 
 | Approach | Pros | Cons |
 | --- | --- | --- |
-| Runner on host (current) | Simple, direct Docker access | Mixes CI/CD with app |
-| Runner in Docker | Isolated | Requires Docker-in-Docker or socket mounting, adds complexity and security considerations |
-| Runner on separate server | Clean separation | Would need to SSH/access production server to deploy, defeating the purpose |
+| Runner in Linux container (current) | Consistent Linux environment, matches workflow syntax, easy to manage | Requires Docker socket access |
+| Runner on Windows host | Direct access | Windows path/shell issues, harder to maintain |
+| Runner on separate server | Clean separation | Would need remote access to deploy |
 
-The problem with Docker-in-Docker:
+The runner container:
+- Uses the host's Docker daemon via socket mount
+- Has the config directory (with `.env`) mounted at `/opt/raveneye-config`
+- Checks out compose files from the repository during workflow runs
+- Only handles lightweight deployment tasks (pull image, restart container)
 
-The runner needs to:
+### Triggering Deployments
 
-1. Run ./gradlew dockerBuild (build a Docker image)
-2. Run docker compose up (restart containers)
+The workflow supports multiple triggers:
 
-If the runner is in a container, it would need access to the host's Docker daemon (via socket mount), which has security
-implications and adds complexity.
+| Trigger | Use Case |
+| --- | --- |
+| Push to `main` | Normal RavenEye development - builds, releases, and deploys |
+| Manual (`workflow_dispatch`) | Re-run deployment from GitHub Actions UI |
+| External (`repository_dispatch`) | Triggered by RavenBrain to deploy its container |
 
-Run the runner directly on the host (which in our case is a Proxmox LXC container), not in Docker. It's:
+**To trigger from RavenBrain**, add this to RavenBrain's workflow:
+```yaml
+- name: Trigger RavenEye deployment
+  run: |
+    gh api repos/RunnymedeRobotics1310/RavenEye/dispatches \
+      -f event_type=deploy \
+      -f 'client_payload={"service":"app"}'
+  env:
+    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
 
-- A lightweight Go process that idles most of the time
-- Needs direct Docker access anyway
-- Simple to install and maintain
+Or manually via CLI:
+```bash
+gh api repos/RunnymedeRobotics1310/RavenEye/dispatches \
+  -f event_type=deploy \
+  -f 'client_payload={"service":"app"}'
+```
 
-The runner and RavenBrain share the same LXC container, but they're separate processes with different purposes.
-This is a common and practical setup for small deployments.
+### Setting Up the Self-Hosted Runner
 
 #### 1. Get the Registration Token
 
-1. Go to the repository on GitHub: `https://github.com/RunnymedeRobotics1310/RavenBrain`
+1. Go to the repository on GitHub: `https://github.com/RunnymedeRobotics1310/RavenEye`
 2. Click **Settings** → **Actions** → **Runners**
 3. Click **New self-hosted runner**
-4. Select **Linux** and your architecture (x64 or ARM64)
-5. Copy the registration token shown (valid for 1 hour)
+4. Copy the registration token shown (valid for 1 hour)
 
-#### 2. Install the Runner on Your Server
+#### 2. Create the Config Directory
 
-SSH into your production server and run:
-
-```bash
-# Create a directory for the runner
-mkdir -p /opt/github-runner && cd /opt/github-runner
-
-# Download the runner (check GitHub for latest version)
-curl -o actions-runner-linux-x64-2.321.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz
-
-# Extract
-tar xzf actions-runner-linux-x64-2.321.0.tar.gz
-
-# Configure the runner
-./config.sh --url https://github.com/RunnymedeRobotics1310/RavenBrain --token <YOUR_TOKEN>
-```
-
-When prompted:
-
-- **Runner group**: Press Enter for default
-- **Runner name**: Enter a name like `ravenbrain-prod`
-- **Labels**: Press Enter for default (or add `production`)
-- **Work folder**: Press Enter for default
-
-#### 3. Install as a Service
+Create a config directory on the host to store your `.env` file:
 
 ```bash
-sudo ./svc.sh install
-sudo ./svc.sh start
+mkdir -p /C/Users/q/raveneye/config
 ```
 
-Verify the runner is connected:
+Copy your production `.env` file to this directory and add the runner token:
 
 ```bash
-sudo ./svc.sh status
+# In /C/Users/q/raveneye/config/.env
+GITHUB_RUNNER_TOKEN=your_registration_token_here
+RAVENEYE_CONFIG=/C/Users/q/raveneye/config
+# ... other config values
 ```
 
-The runner should now appear as "Online" in GitHub Settings → Actions → Runners.
+#### 3. Start the Runner
 
-#### 4. Grant Docker Permissions
-
-The runner needs permission to use Docker:
+From the code directory, start the runner:
 
 ```bash
-sudo usermod -aG docker $(whoami)
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d github-runner
 ```
 
-Log out and back in for the change to take effect.
+The runner will automatically:
+- Register itself with GitHub using the token
+- Store its credentials in the `github-runner-data` volume
+- Appear as "Online" in GitHub Settings → Actions → Runners
+
+After initial registration, the `GITHUB_RUNNER_TOKEN` is no longer needed (credentials are persisted in the volume).
+
+#### 4. Verify the Runner
+
+Check that the runner is running:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.prod.yml logs github-runner
+```
+
+The runner should show as **Online** at: `https://github.com/RunnymedeRobotics1310/RavenEye/settings/actions/runners`
 
 ### Manual Deployment Trigger
 
 You can manually trigger a deployment from GitHub:
 
-1. Go to the repository → **Actions** → **Deploy to Production**
+1. Go to the repository → **Actions** → **Generate Release and Deploy to Production**
 2. Click **Run workflow** → **Run workflow**
 
 ### Viewing Deployment Logs
@@ -448,8 +461,28 @@ Or check locally on the server:
 
 ```bash
 # Runner logs
-journalctl -u actions.runner.RunnymedeRobotics1310-RavenBrain.ravenbrain-prod.service -f
+docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f github-runner
 
 # Application logs
-docker compose -f /opt/ravenbrain/docker-compose.yml -f /opt/ravenbrain/docker-compose.prod.yml logs -f app
+docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f nginx
+```
+
+### Troubleshooting
+
+**Runner shows as offline:**
+```bash
+# Check runner status
+docker compose -f docker-compose.yml -f docker-compose.prod.yml ps github-runner
+
+# Restart the runner
+docker compose -f docker-compose.yml -f docker-compose.prod.yml restart github-runner
+```
+
+**Re-register the runner** (if credentials are lost):
+```bash
+# Remove the runner data volume and re-register
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down github-runner
+docker volume rm raveneye_github-runner-data
+# Add a new GITHUB_RUNNER_TOKEN to .env
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d github-runner
 ```

@@ -1,7 +1,29 @@
 # Production overrides for RavenEye
 # Usage: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# GitHub Runner:
+#   First-time setup: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d github-runner
+#   The runner registers itself and persists credentials in the github-runner-data volume.
+#   After initial registration, the GITHUB_RUNNER_TOKEN is no longer needed.
 
 services:
+
+  github-runner:
+    image: myoung34/github-runner:latest
+    container_name: raveneye-github-runner
+    restart: unless-stopped
+    environment:
+      REPO_URL: https://github.com/RunnymedeRobotics1310/RavenEye
+      ACCESS_TOKEN: ${GITHUB_RUNNER_TOKEN:-}
+      RUNNER_NAME: raveneye-prod
+      RUNNER_WORKDIR: /tmp/runner
+      LABELS: self-hosted,Linux,X64,production
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${RAVENEYE_CONFIG}:/opt/raveneye-config:ro
+      - github-runner-data:/home/runner
+    networks:
+      - raveneye-network
 
   nginx:
     image: ${RAVENEYE_IMAGE:-ghcr.io/runnymederobotics1310/raveneye:latest}

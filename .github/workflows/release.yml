@@ -5,9 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:  # Allow manual trigger
+  repository_dispatch:  # Allow trigger from other repos (e.g., RavenBrain)
+    types: [deploy]
 
 jobs:
   publish:
+    if: github.event_name != 'repository_dispatch'
     permissions:
       contents: write
       issues: write
@@ -126,24 +129,72 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull latest image
+      - name: Pull latest RavenEye image
         run: |
           docker pull ${{ needs.build.outputs.image }}:latest
 
-      - name: Deploy application
+      - name: Deploy RavenEye
         run: |
-          cd /opt/raveneye
           RAVENEYE_IMAGE=${{ needs.build.outputs.image }}:latest \
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d nginx
+            docker compose --env-file /opt/raveneye-config/.env \
+              -f docker-compose.yml -f docker-compose.prod.yml up -d nginx
 
       - name: Verify deployment
         run: |
           echo "Waiting for application to start..."
           sleep 10
-          docker compose -f /opt/raveneye/docker-compose.yml -f /opt/raveneye/docker-compose.prod.yml ps app
+          docker compose --env-file /opt/raveneye-config/.env \
+            -f docker-compose.yml -f docker-compose.prod.yml ps nginx
           echo "Deployment complete"
 
       - name: Cleanup old images
         run: |
-          # Remove dangling images to save disk space
+          docker image prune -f
+
+  # Deploy job for external triggers (e.g., RavenBrain rebuild)
+  # Trigger with: gh api repos/RunnymedeRobotics1310/RavenEye/dispatches -f event_type=deploy -f client_payload='{"service":"app"}'
+  deploy-external:
+    if: github.event_name == 'repository_dispatch'
+    permissions:
+      contents: read
+      packages: read
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull latest image
+        run: |
+          SERVICE=${{ github.event.client_payload.service || 'app' }}
+          if [ "$SERVICE" = "app" ]; then
+            docker pull ghcr.io/runnymederobotics1310/ravenbrain:latest
+          elif [ "$SERVICE" = "nginx" ]; then
+            docker pull ghcr.io/runnymederobotics1310/raveneye:latest
+          fi
+
+      - name: Deploy service
+        run: |
+          SERVICE=${{ github.event.client_payload.service || 'app' }}
+          docker compose --env-file /opt/raveneye-config/.env \
+            -f docker-compose.yml -f docker-compose.prod.yml up -d $SERVICE
+
+      - name: Verify deployment
+        run: |
+          SERVICE=${{ github.event.client_payload.service || 'app' }}
+          echo "Waiting for $SERVICE to start..."
+          sleep 10
+          docker compose --env-file /opt/raveneye-config/.env \
+            -f docker-compose.yml -f docker-compose.prod.yml ps $SERVICE
+          echo "Deployment complete"
+
+      - name: Cleanup old images
+        run: |
           docker image prune -f
