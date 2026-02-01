@@ -5,9 +5,12 @@ on:
     branches:
       - main
   workflow_dispatch:  # Allow manual trigger
+  repository_dispatch:  # Allow trigger from other repos (e.g., RavenBrain)
+    types: [deploy]
 
 jobs:
   publish:
+    if: github.event_name != 'repository_dispatch'
     permissions:
       contents: write
       issues: write
@@ -108,14 +111,35 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # Unified deploy job handles both RavenEye builds and external triggers (e.g., RavenBrain)
+  # External trigger: gh api repos/RunnymedeRobotics1310/RavenEye/dispatches -f event_type=deploy -f 'client_payload={"service":"app"}'
   deploy:
     needs: build
+    if: always() && (needs.build.result == 'success' || github.event_name == 'repository_dispatch')
     permissions:
       contents: read
       packages: read
     runs-on: self-hosted
 
     steps:
+      - name: Determine deployment target
+        id: target
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            SERVICE="${{ github.event.client_payload.service || 'app' }}"
+            if [ "$SERVICE" = "app" ]; then
+              IMAGE="ghcr.io/runnymederobotics1310/ravenbrain:latest"
+            else
+              IMAGE="ghcr.io/runnymederobotics1310/raveneye:latest"
+            fi
+          else
+            SERVICE="nginx"
+            IMAGE="${{ needs.build.outputs.image }}:latest"
+          fi
+          echo "service=$SERVICE" >> $GITHUB_OUTPUT
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+          echo "Deploying $SERVICE using $IMAGE"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -127,23 +151,21 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull latest image
-        run: |
-          docker pull ${{ needs.build.outputs.image }}:latest
+        run: docker pull ${{ steps.target.outputs.image }}
 
-      - name: Deploy application
+      - name: Deploy service
         run: |
-          cd /opt/raveneye
-          RAVENEYE_IMAGE=${{ needs.build.outputs.image }}:latest \
-            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d nginx
+          RAVENEYE_IMAGE=${{ steps.target.outputs.image }} \
+            docker compose --env-file /opt/raveneye-config/.env \
+              -f docker-compose.yml -f docker-compose.prod.yml up -d ${{ steps.target.outputs.service }}
 
       - name: Verify deployment
         run: |
-          echo "Waiting for application to start..."
+          echo "Waiting for ${{ steps.target.outputs.service }} to start..."
           sleep 10
-          docker compose -f /opt/raveneye/docker-compose.yml -f /opt/raveneye/docker-compose.prod.yml ps app
+          docker compose --env-file /opt/raveneye-config/.env \
+            -f docker-compose.yml -f docker-compose.prod.yml ps ${{ steps.target.outputs.service }}
           echo "Deployment complete"
 
       - name: Cleanup old images
-        run: |
-          # Remove dangling images to save disk space
-          docker image prune -f
+        run: docker image prune -f
