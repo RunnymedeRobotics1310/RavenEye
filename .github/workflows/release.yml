@@ -111,56 +111,35 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+  # Unified deploy job handles both RavenEye builds and external triggers (e.g., RavenBrain)
+  # External trigger: gh api repos/RunnymedeRobotics1310/RavenEye/dispatches -f event_type=deploy -f 'client_payload={"service":"app"}'
   deploy:
     needs: build
+    if: always() && (needs.build.result == 'success' || github.event_name == 'repository_dispatch')
     permissions:
       contents: read
       packages: read
     runs-on: self-hosted
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull latest RavenEye image
+      - name: Determine deployment target
+        id: target
         run: |
-          docker pull ${{ needs.build.outputs.image }}:latest
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            SERVICE="${{ github.event.client_payload.service || 'app' }}"
+            if [ "$SERVICE" = "app" ]; then
+              IMAGE="ghcr.io/runnymederobotics1310/ravenbrain:latest"
+            else
+              IMAGE="ghcr.io/runnymederobotics1310/raveneye:latest"
+            fi
+          else
+            SERVICE="nginx"
+            IMAGE="${{ needs.build.outputs.image }}:latest"
+          fi
+          echo "service=$SERVICE" >> $GITHUB_OUTPUT
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+          echo "Deploying $SERVICE using $IMAGE"
 
-      - name: Deploy RavenEye
-        run: |
-          RAVENEYE_IMAGE=${{ needs.build.outputs.image }}:latest \
-            docker compose --env-file /opt/raveneye-config/.env \
-              -f docker-compose.yml -f docker-compose.prod.yml up -d nginx
-
-      - name: Verify deployment
-        run: |
-          echo "Waiting for application to start..."
-          sleep 10
-          docker compose --env-file /opt/raveneye-config/.env \
-            -f docker-compose.yml -f docker-compose.prod.yml ps nginx
-          echo "Deployment complete"
-
-      - name: Cleanup old images
-        run: |
-          docker image prune -f
-
-  # Deploy job for external triggers (e.g., RavenBrain rebuild)
-  # Trigger with: gh api repos/RunnymedeRobotics1310/RavenEye/dispatches -f event_type=deploy -f client_payload='{"service":"app"}'
-  deploy-external:
-    if: github.event_name == 'repository_dispatch'
-    permissions:
-      contents: read
-      packages: read
-    runs-on: self-hosted
-
-    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -172,29 +151,21 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull latest image
-        run: |
-          SERVICE=${{ github.event.client_payload.service || 'app' }}
-          if [ "$SERVICE" = "app" ]; then
-            docker pull ghcr.io/runnymederobotics1310/ravenbrain:latest
-          elif [ "$SERVICE" = "nginx" ]; then
-            docker pull ghcr.io/runnymederobotics1310/raveneye:latest
-          fi
+        run: docker pull ${{ steps.target.outputs.image }}
 
       - name: Deploy service
         run: |
-          SERVICE=${{ github.event.client_payload.service || 'app' }}
-          docker compose --env-file /opt/raveneye-config/.env \
-            -f docker-compose.yml -f docker-compose.prod.yml up -d $SERVICE
+          RAVENEYE_IMAGE=${{ steps.target.outputs.image }} \
+            docker compose --env-file /opt/raveneye-config/.env \
+              -f docker-compose.yml -f docker-compose.prod.yml up -d ${{ steps.target.outputs.service }}
 
       - name: Verify deployment
         run: |
-          SERVICE=${{ github.event.client_payload.service || 'app' }}
-          echo "Waiting for $SERVICE to start..."
+          echo "Waiting for ${{ steps.target.outputs.service }} to start..."
           sleep 10
           docker compose --env-file /opt/raveneye-config/.env \
-            -f docker-compose.yml -f docker-compose.prod.yml ps $SERVICE
+            -f docker-compose.yml -f docker-compose.prod.yml ps ${{ steps.target.outputs.service }}
           echo "Deployment complete"
 
       - name: Cleanup old images
-        run: |
-          docker image prune -f
+        run: docker image prune -f
