@@ -1,3 +1,11 @@
+## [3.3.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.4...v3.3.5) (2026-02-01)
+
+
+### Bug Fixes
+
+* Fix gitignore comment ([649e9df](https://github.com/RunnymedeRobotics1310/RavenEye/commit/649e9df290798597ce32c996ea71d798d228a396))
+* Remove .env which was confusing people ([32b062c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/32b062cd86ead979ba0211710624e87ebf0b7aff))
+
 ## [3.3.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.3...v3.3.4) (2026-02-01)
 
 
