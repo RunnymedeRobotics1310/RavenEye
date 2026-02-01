@@ -7,6 +7,7 @@ const SESSION_KEY_USERID = "raveneye_userid";
 const SESSION_KEY_LOGIN = "raveneye_login";
 const SESSION_KEY_DISPLAY_NAME = "raveneye_displayName";
 const SESSION_KEY_ROLES = "raveneye_roles";
+const SESSION_KEY_RAVENBRAIN_VERSION = "raveneye_ravenbrain_version";
 
 /**
  * Authenticates a user by sending their credentials to the server.
@@ -146,7 +147,10 @@ export async function validate(): Promise<true> {
         throw Error("Unhandled server error (" + resp.status + ")");
       }
     })
-    .then(() => {
+    .then((json) => {
+      if (json.version && typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, json.version);
+      }
       return true;
     });
 }
@@ -205,6 +209,16 @@ export function getDisplayName() {
     }
   }
   throw new Error("Not logged in");
+}
+
+/**
+ * Return the RavenBrain server version, or null if not available
+ */
+export function getRavenBrainVersion(): string | null {
+  if (typeof sessionStorage !== "undefined") {
+    return sessionStorage.getItem(SESSION_KEY_RAVENBRAIN_VERSION);
+  }
+  return null;
 }
 
 /**

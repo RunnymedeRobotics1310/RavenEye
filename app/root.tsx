@@ -23,7 +23,8 @@ import {
   useOverallSyncStatus,
   initializeSyncSchedule,
 } from "~/common/sync/sync.ts";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { getRavenBrainVersion } from "~/common/storage/rbauth.ts";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
@@ -32,6 +33,22 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const syncStatus = useOverallSyncStatus();
+  const [ravenBrainVersion, setRavenBrainVersion] = useState<string | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const checkVersion = () => {
+      const version = getRavenBrainVersion();
+      if (version) {
+        setRavenBrainVersion(version);
+      }
+    };
+    checkVersion();
+    const interval = setInterval(checkVersion, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <html lang="en">
       <head>
@@ -62,7 +79,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <footer>
             <section>
               <div>&copy; 2026 Runnymede Robotics Team 1310</div>
-              <div>Version: {import.meta.env.VITE_APP_VERSION}</div>
+              <div>
+                RavenEye: {import.meta.env.VITE_APP_VERSION}
+                {ravenBrainVersion && ` | RavenBrain: ${ravenBrainVersion}`}
+              </div>
             </section>
           </footer>
         </section>
