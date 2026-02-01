@@ -4,7 +4,7 @@
 services:
 
   nginx:
-    image: raveneye:latest
+    image: ${RAVENEYE_IMAGE:-ghcr.io/runnymederobotics1310/raveneye:latest}
     container_name: raveneye-nginx
     ports:
       - "443:443"
