@@ -9,7 +9,7 @@ dist
 dist-ssr
 *.local
 
-# env files - good defaults committed - ignore changes.
+# env files
 .env
 !.env.development.example
 !.env.production.example
