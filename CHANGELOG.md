@@ -1,3 +1,17 @@
+## [3.3.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.5...v3.3.6) (2026-02-01)
+
+
+### Bug Fixes
+
+* Display version number for RavenEye AND RavenBrain in footer ([#152](https://github.com/RunnymedeRobotics1310/RavenEye/issues/152)) ([f804dda](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f804dda4643050e987b3693e57a25cbd4b843020))
+
+## [3.3.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.5...v3.3.6) (2026-02-01)
+
+
+### Bug Fixes
+
+* Display version number for RavenEye AND RavenBrain in footer ([#152](https://github.com/RunnymedeRobotics1310/RavenEye/issues/152)) ([f804dda](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f804dda4643050e987b3693e57a25cbd4b843020))
+
 ## [3.3.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.4...v3.3.5) (2026-02-01)
 
 
