@@ -1,3 +1,17 @@
+## [3.3.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.1...v3.3.2) (2026-02-01)
+
+
+### Bug Fixes
+
+* Debug statements ([54877cb](https://github.com/RunnymedeRobotics1310/RavenEye/commit/54877cbb4dda34c908f6084af6a41aefef420890))
+* Fix version number reporting. ([#140](https://github.com/RunnymedeRobotics1310/RavenEye/issues/140)) ([e403623](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e403623bfc8df90f9a76c7e27b7e8b92595dca54))
+* Move all docker config to RavenEye. ([449a21c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/449a21cab7864c0f340fb0c3ba5f9dc0f6cb979e))
+* Move raveneye from dev to prod docker-compose file ([7fabfd2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7fabfd282839f16772bfecdc3d13c814b5b03db9))
+* nginx config. ([badac1d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/badac1d4f1e80e8eaceb8de13cf3f656c13c778d))
+* Release build to GHCR and do deployment on local runner ([44c6adf](https://github.com/RunnymedeRobotics1310/RavenEye/commit/44c6adf477d204dc59989126479dfda041e7fdd8))
+* Track ui framework ([16350e1](https://github.com/RunnymedeRobotics1310/RavenEye/commit/16350e1ac80d283b6a375f171cdadeed912d74e4))
+* Typescript config updates to correct build issue ([da85e1e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/da85e1e1e1b08fcddeee6d8a57aafc44ddac958c))
+
 ## [3.3.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.0...v3.3.1) (2026-01-15)
 
 
