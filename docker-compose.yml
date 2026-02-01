@@ -1,24 +1,5 @@
 services:
 
-  nginx:
-    image: raveneye:latest
-    container_name: raveneye-nginx
-    ports:
-      - "443:443"
-    volumes:
-      - ${DOCKER_SSL_CERT_PATH:-./certs}:/etc/nginx/certs:ro
-    environment:
-      - TZ=UTC
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://localhost/health", "--no-check-certificate"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    networks:
-      - raveneye-network
-
   mysql:
     image: mysql:8.4
     container_name: ravenbrain-mysql
@@ -42,7 +23,7 @@ services:
       start_period: 30s
 
   app:
-    image: ravenbrain:latest
+    image: ghcr.io/runnymederobotics1310/ravenbrain:latest
     container_name: ravenbrain-app
     depends_on:
       mysql:
