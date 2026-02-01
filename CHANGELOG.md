@@ -1,3 +1,11 @@
+## [3.3.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.3...v3.3.4) (2026-02-01)
+
+
+### Bug Fixes
+
+* Link publish and build ([f306c95](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f306c95d3d9c2b234912353b2e400590cb28d926))
+* Semver script fix ([7f50477](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7f50477206679b1b816ffefa5b73e2ebed1abb98))
+
 ## [3.3.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.2...v3.3.3) (2026-02-01)
 
 
