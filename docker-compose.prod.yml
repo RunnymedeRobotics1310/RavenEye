@@ -4,14 +4,29 @@
 services:
 
   nginx:
+    image: raveneye:latest
+    container_name: raveneye-nginx
+    ports:
+      - "443:443"
     volumes:
       # Production SSL certificates path
       - ${DOCKER_SSL_CERT_PATH:-/mnt/nas/raveneye/certs}:/etc/nginx/certs:ro
+    environment:
+      - TZ=UTC
+    restart: unless-stopped
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://localhost/health", "--no-check-certificate"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - raveneye-network
 
   mysql:
     volumes:
