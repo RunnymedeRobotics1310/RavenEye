@@ -347,16 +347,11 @@ The github self-hosted runner should run on the Docker host. There are other dep
 including running it in Docker or on a totally separate server. Here is the rationale for running
 it on the docker hosts:
 
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
-         Approach          |            Pros              |                                           Cons                                            |
-
-------------------------------------------------------------------------------------------------------------------------------------------------------
-Runner on host (current)  | Simple, direct Docker access | Mixes CI/CD with app |
-Runner in Docker | Isolated | Requires Docker-in-Docker or socket mounting, adds complexity and security
-considerations |
-Runner on separate server | Clean separation | Would need to SSH/access production server to deploy, defeating the
-purpose |
+| Approach | Pros | Cons |
+| --- | --- | --- |
+| Runner on host (current) | Simple, direct Docker access | Mixes CI/CD with app |
+| Runner in Docker | Isolated | Requires Docker-in-Docker or socket mounting, adds complexity and security considerations |
+| Runner on separate server | Clean separation | Would need to SSH/access production server to deploy, defeating the purpose |
 
 The problem with Docker-in-Docker:
 
