@@ -74,7 +74,7 @@ const TrackHomePage = () => {
         <li>user selects match/drill</li>
         <li>user selects team</li>
         <li>
-          user goes to score tracking screen
+          User goes to score tracking screen
           <br />
           <ul>
             <li>this can look like a game map or not</li>
