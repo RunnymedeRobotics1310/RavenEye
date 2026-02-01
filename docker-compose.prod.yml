@@ -10,7 +10,7 @@ services:
       - "443:443"
     volumes:
       # Production SSL certificates path
-      - ${DOCKER_SSL_CERT_PATH:-/mnt/nas/raveneye/certs}:/etc/nginx/certs:ro
+      - ${RAVENEYE_CERTS:-/mnt/nas/raveneye/certs}:/etc/nginx/certs:ro
     environment:
       - TZ=UTC
     restart: unless-stopped
@@ -30,7 +30,7 @@ services:
 
   mysql:
     volumes:
-      - ${DOCKER_MYSQL_DATA:-/home/quentin/containers/ravenbrain/mysql}:/var/lib/mysql
+      - ravenbrain-mysql-data:/var/lib/mysql
     ports: [ ]
     restart: unless-stopped
 
@@ -49,7 +49,7 @@ services:
       BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-60}
       TZ: UTC
     volumes:
-      - ${DOCKER_MYSQL_BACKUP:-/mnt/nas/raveneye/backups}:/backup
+      - ${RAVENEYE_BACKUPS:-/mnt/nas/raveneye/backups}:/backup
     entrypoint: /bin/bash
     command:
       - -c
