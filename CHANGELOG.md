@@ -1,3 +1,10 @@
+## [3.3.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.2...v3.3.3) (2026-02-01)
+
+
+### Bug Fixes
+
+* Build multiple platforms ([5df82a2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/5df82a20a69cb6c351708d132896e27a5d9eff1e))
+
 ## [3.3.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.1...v3.3.2) (2026-02-01)
 
 
