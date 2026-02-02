@@ -1,3 +1,10 @@
+## [3.3.8](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.7...v3.3.8) (2026-02-02)
+
+
+### Bug Fixes
+
+* RB version as header not body value ([#158](https://github.com/RunnymedeRobotics1310/RavenEye/issues/158)) ([9e43c90](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9e43c905cb4afd1988348f237d7c8bc63e9c5cdb))
+
 ## [3.3.7](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.6...v3.3.7) (2026-02-02)
 
 
