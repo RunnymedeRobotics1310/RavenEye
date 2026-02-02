@@ -14,10 +14,11 @@ services:
     restart: unless-stopped
     environment:
       REPO_URL: https://github.com/RunnymedeRobotics1310/RavenEye
-      ACCESS_TOKEN: ${GITHUB_RUNNER_TOKEN:-}
+      RUNNER_TOKEN: ${GITHUB_RUNNER_TOKEN:-}
       RUNNER_NAME: raveneye-prod
       RUNNER_WORKDIR: /tmp/runner
       LABELS: self-hosted,Linux,X64,production
+      DISABLE_AUTO_UPDATE: "true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${RAVENEYE_CONFIG}:/opt/raveneye-config:ro
