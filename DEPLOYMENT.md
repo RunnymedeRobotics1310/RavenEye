@@ -384,9 +384,20 @@ The workflow supports multiple triggers:
     GH_TOKEN: ${{ secrets.RAVENEYE_DISPATCH_TOKEN }}
 ```
 
-**Note:** The default `GITHUB_TOKEN` cannot dispatch events to other repositories. You must create a
-Personal Access Token (PAT) with access to RavenEye and add it as a secret named `RAVENEYE_DISPATCH_TOKEN`
-in the RavenBrain repository.
+**Setting up the PAT for cross-repo dispatch:**
+
+1. Go to `https://github.com/settings/tokens?type=beta` (Fine-grained tokens)
+2. Click **Generate new token**
+3. Name: `RavenEye Dispatch`
+4. Expiration: Choose as appropriate
+5. Repository access: **Only select repositories** → select **RavenEye**
+6. Permissions → Repository permissions:
+   - **Contents**: Read and write
+7. Click **Generate token** and copy it
+8. In RavenBrain repo, go to **Settings** → **Secrets and variables** → **Actions**
+9. Click **New repository secret**
+   - Name: `RAVENEYE_DISPATCH_TOKEN`
+   - Value: paste the PAT
 
 Or manually via CLI:
 ```bash
