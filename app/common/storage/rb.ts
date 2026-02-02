@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { User } from "~/types/User.ts";
-import { rbfetch } from "~/common/storage/rbauth.ts";
+import {
+  rbfetch,
+  SESSION_KEY_RAVENBRAIN_VERSION,
+} from "~/common/storage/rbauth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
@@ -19,6 +22,10 @@ import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 export async function ping(): Promise<boolean> {
   return fetch(import.meta.env.VITE_API_HOST + "/api/ping", {})
     .then((resp) => {
+      const ver = resp.headers.get("X-RavenBrain-Version");
+      if (ver && typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, ver);
+      }
       return resp.ok;
     })
     .catch(() => {
