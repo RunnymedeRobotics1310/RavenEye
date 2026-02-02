@@ -1,3 +1,10 @@
+## [3.3.7](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.6...v3.3.7) (2026-02-02)
+
+
+### Bug Fixes
+
+* Switch action to use runner tokens ([e9c5830](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e9c5830db3c0fcd8cc0f8ddbc093b31a92fcab72))
+
 ## [3.3.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.5...v3.3.6) (2026-02-01)
 
 
