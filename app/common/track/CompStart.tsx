@@ -1,7 +1,9 @@
 const CompStart = () => {
   return <div> <p> Comp</p>
          <p>
-            You suck do better!
-          </p> </div>;
+            Click your competition </p>
+            <button>Humber</button> <button>Georgian</button>
+            <p> </p>
+           </div>;
 };
 export default CompStart;
