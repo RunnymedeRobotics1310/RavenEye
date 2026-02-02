@@ -378,18 +378,20 @@ The workflow supports multiple triggers:
 ```yaml
 - name: Trigger RavenEye deployment
   run: |
-    gh api repos/RunnymedeRobotics1310/RavenEye/dispatches \
-      -f event_type=deploy \
-      -f 'client_payload={"service":"app"}'
+    echo '{"event_type":"deploy","client_payload":{"service":"app"}}' | \
+      gh api repos/RunnymedeRobotics1310/RavenEye/dispatches --input -
   env:
-    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    GH_TOKEN: ${{ secrets.RAVENEYE_DISPATCH_TOKEN }}
 ```
+
+**Note:** The default `GITHUB_TOKEN` cannot dispatch events to other repositories. You must create a
+Personal Access Token (PAT) with access to RavenEye and add it as a secret named `RAVENEYE_DISPATCH_TOKEN`
+in the RavenBrain repository.
 
 Or manually via CLI:
 ```bash
-gh api repos/RunnymedeRobotics1310/RavenEye/dispatches \
-  -f event_type=deploy \
-  -f 'client_payload={"service":"app"}'
+echo '{"event_type":"deploy","client_payload":{"service":"app"}}' | \
+  gh api repos/RunnymedeRobotics1310/RavenEye/dispatches --input -
 ```
 
 ### Setting Up the Self-Hosted Runner
