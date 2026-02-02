@@ -378,18 +378,31 @@ The workflow supports multiple triggers:
 ```yaml
 - name: Trigger RavenEye deployment
   run: |
-    gh api repos/RunnymedeRobotics1310/RavenEye/dispatches \
-      -f event_type=deploy \
-      -f 'client_payload={"service":"app"}'
+    echo '{"event_type":"deploy","client_payload":{"service":"app"}}' | \
+      gh api repos/RunnymedeRobotics1310/RavenEye/dispatches --input -
   env:
-    GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    GH_TOKEN: ${{ secrets.RAVENEYE_DISPATCH_TOKEN }}
 ```
+
+**Setting up the PAT for cross-repo dispatch:**
+
+1. Go to `https://github.com/settings/tokens?type=beta` (Fine-grained tokens)
+2. Click **Generate new token**
+3. Name: `RavenEye Dispatch`
+4. Expiration: Choose as appropriate
+5. Repository access: **Only select repositories** → select **RavenEye**
+6. Permissions → Repository permissions:
+   - **Contents**: Read and write
+7. Click **Generate token** and copy it
+8. In RavenBrain repo, go to **Settings** → **Secrets and variables** → **Actions**
+9. Click **New repository secret**
+   - Name: `RAVENEYE_DISPATCH_TOKEN`
+   - Value: paste the PAT
 
 Or manually via CLI:
 ```bash
-gh api repos/RunnymedeRobotics1310/RavenEye/dispatches \
-  -f event_type=deploy \
-  -f 'client_payload={"service":"app"}'
+echo '{"event_type":"deploy","client_payload":{"service":"app"}}' | \
+  gh api repos/RunnymedeRobotics1310/RavenEye/dispatches --input -
 ```
 
 ### Setting Up the Self-Hosted Runner

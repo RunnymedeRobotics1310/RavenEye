@@ -112,7 +112,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   # Unified deploy job handles both RavenEye builds and external triggers (e.g., RavenBrain)
-  # External trigger: gh api repos/RunnymedeRobotics1310/RavenEye/dispatches -f event_type=deploy -f 'client_payload={"service":"app"}'
+  # External trigger: echo '{"event_type":"deploy","client_payload":{"service":"app"}}' | gh api repos/RunnymedeRobotics1310/RavenEye/dispatches --input -
   deploy:
     needs: build
     if: always() && (needs.build.result == 'success' || github.event_name == 'repository_dispatch')
