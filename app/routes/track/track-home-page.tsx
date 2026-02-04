@@ -47,7 +47,9 @@ const TrackHomePage = () => {
       <p>
         Scouts and team members - you're in the right place to track robots!
       </p>
+      <p>comp/match/area/team </p>
 
+      <p> drill/area/team </p>
       {showComment && (
         <Envelope closeFunction={() => setShowComment(false)}>
           <QuickCommentForm />
