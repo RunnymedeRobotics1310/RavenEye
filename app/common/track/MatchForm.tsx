@@ -2,7 +2,7 @@ import { useState } from "react";
 
 const MatchForm = () => {
   const [match, setMatch] = useState(0);
-  const [team, setTeam] = useState(0);
+  const [team, setTeam] = useState(0); //not done
   const [submitted, setSubmitted] = useState<boolean>(false);
 
   const handleArea = () => {
