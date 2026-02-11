@@ -170,7 +170,12 @@ export function useUserList() {
       if (resp.ok) {
         resp.json().then((data) => {
           if (data) {
-            setData(data);
+            setData(
+              (data as User[])
+                // sort by enabled first (1) and disabled second (0)
+                .slice()
+                .sort((a, b) => Number(b.enabled) - Number(a.enabled)),
+            );
           } else {
             setError("Failed to fetch users: " + data.reason);
           }
