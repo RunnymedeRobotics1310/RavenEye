@@ -17,6 +17,11 @@ const Envelope = (props: EnvelopeProps) => {
 const CompStart = () => {
   const [showHumber, setShowHumber] = useState(false);
   const [showGeorgian, setShowGeorgian] = useState(false);
+  const [testClose, setTestClose] = useState(false);
+
+  const handleTestClose = () => {
+    setTestClose(true);
+  };
 
   const handleShowHumber = () => {
     setShowGeorgian(false);
@@ -28,25 +33,47 @@ const CompStart = () => {
     setShowGeorgian(true);
   };
 
+  const ButtonsClose = () => {
+    if (!testClose) {
+      return (
+        <div>
+          <button
+            onClick={() => {
+              handleShowHumber();
+              handleTestClose();
+            }}
+          >
+            Humber
+          </button>
+          <button
+            onClick={() => {
+              handleShowGeorgian();
+              handleTestClose();
+            }}
+          >
+            Georgian
+          </button>
+        </div>
+      );
+    }
+  };
+
   return (
-    <main>
-      <div>
-        <p>Comp</p>
-        {showHumber && (
-          <Envelope closeFunction={() => setShowHumber(false)}>
-            <MatchForm />
-          </Envelope>
-        )}
-        {showGeorgian && (
-          <Envelope closeFunction={() => setShowGeorgian(false)}>
-            <MatchForm />
-          </Envelope>
-        )}
-        <button onClick={handleShowHumber}>Humber</button>
-        <button onClick={handleShowGeorgian}>Georgian</button>
-        <p></p>
-      </div>{" "}
-    </main>
+    <div>
+      <p>Comp</p>
+      {showHumber && (
+        <Envelope closeFunction={() => setShowHumber(false)}>
+          <MatchForm />
+        </Envelope>
+      )}
+      {showGeorgian && (
+        <Envelope closeFunction={() => setShowGeorgian(false)}>
+          <MatchForm />
+        </Envelope>
+      )}
+      <ButtonsClose></ButtonsClose>
+      <p></p>
+    </div>
   );
 };
 

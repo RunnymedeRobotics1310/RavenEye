@@ -8,14 +8,17 @@ const AutoPage = () => {
       <button>Start</button>
       <button>End</button>
       <button>Miss</button>
-      <p>time</p>
+      {"  time"}
+      <p></p>
       <h4>Pickup</h4>
       <button>Start</button>
-      <button>End</button> <p>time</p>
+      <button>End</button>
+      {"  time"} <p></p>
       <h4>Climb</h4>
       <button>Start</button>
       <button>Climb</button>
-      <button>Fail</button> <p>time</p>
+      <button>Fail</button>
+      {"  time"} <p></p>
     </main>
   );
 };

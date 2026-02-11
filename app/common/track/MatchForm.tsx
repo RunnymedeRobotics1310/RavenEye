@@ -1,18 +1,38 @@
 import { useState } from "react";
+import DrillStart from "~/common/track/DrillStart.tsx";
+
+type EnvelopeProps = {
+  closeFunction: () => void;
+  children: React.ReactNode;
+};
+const Envelope = (props: EnvelopeProps) => {
+  return (
+    <div>
+      {props.children}
+      <button onClick={props.closeFunction}>Close</button>
+    </div>
+  );
+};
 
 const MatchForm = () => {
   const [match, setMatch] = useState(0);
   const [team, setTeam] = useState(0); //not done
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [clickTeam, setClickTeam] = useState(false);
 
   const handleArea = () => {
-    return <h3>hi</h3>;
-  }; //this isn't working
+    setClickTeam(true);
+  };
 
   const ChooseTeam = () => {
     return (
       <div>
         <p>Team:</p>
+        {clickTeam && (
+          <Envelope closeFunction={() => setClickTeam(false)}>
+            <DrillStart />
+          </Envelope>
+        )}
         <button onClick={handleArea}>1111</button>
         <button>2222</button>
         <button>3333</button>
