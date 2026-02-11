@@ -2,6 +2,7 @@ const EndgamePage = () => {
   return (
     <main>
       <div>
+        <h2>Endgame</h2>
         <p>map?</p>
         <button>Start Climb</button>
         {"  time"}
