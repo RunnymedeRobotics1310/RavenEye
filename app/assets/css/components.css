@@ -247,6 +247,8 @@ section.usersAdmin{
 
 .disabled-item {
     color: gray;
+    opacity: 0.5;
+    font-style: italic;
 }
 
 .sync-now-button {
