@@ -32,3 +32,6 @@ certs/
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# Claude local project files
+.claude/
