@@ -26,6 +26,9 @@ const LoggedIn = () => {
       </p>
       <ul>
         <li>
+          <NavLink to={"/profile"}>My Profile</NavLink>
+        </li>
+        <li>
           <NavLink to={"/logout"}>Log out</NavLink>
         </li>
         <li>

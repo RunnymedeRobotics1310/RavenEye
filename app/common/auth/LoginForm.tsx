@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { authenticate, useLoginStatus } from "~/common/storage/rbauth.ts";
+import { forgotPassword } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
 import { useNavigate } from "react-router";
 
@@ -9,6 +10,9 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState<string | null>(null);
+  const [forgotError, setForgotError] = useState<string | null>(null);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
 
   function handleLoginClick() {
@@ -22,6 +26,27 @@ function LoginForm() {
       .catch(() => {
         setLoading(false);
         setSuccess(false);
+      });
+  }
+
+  function handleForgotPassword() {
+    if (formName === "") {
+      setForgotError("Please enter your username first.");
+      return;
+    }
+    setForgotError(null);
+    setForgotMsg(null);
+    setForgotLoading(true);
+    forgotPassword(formName)
+      .then(() => {
+        setForgotMsg(
+          "Your password has been flagged for reset. An administrator will reset your password and share it with you via Teams, email, or voice.",
+        );
+        setForgotLoading(false);
+      })
+      .catch((err: any) => {
+        setForgotError("Failed to flag password for reset: " + err.message);
+        setForgotLoading(false);
       });
   }
 
@@ -101,9 +126,26 @@ function LoginForm() {
                   Log in. You need to be connected to the internet to log in.
                 </td>
               </tr>
+              <tr>
+                <td>
+                  <button
+                    type="button"
+                    disabled={forgotLoading}
+                    onClick={handleForgotPassword}
+                  >
+                    Forgot Password
+                  </button>
+                </td>
+                <td>
+                  Flag your account for a password reset by an administrator.
+                </td>
+              </tr>
             </tbody>
           </table>
         </form>
+        {forgotLoading && <Spinner />}
+        {forgotMsg && <p>{forgotMsg}</p>}
+        {forgotError && <p className={"errorMessage"}>{forgotError}</p>}
       </div>
     );
   }

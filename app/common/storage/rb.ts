@@ -242,7 +242,7 @@ export interface UserFormData {
   id: number;
   login: string;
   displayName: string;
-  password: string;
+  passwordHash: string;
   enabled: boolean;
   forgotPassword: boolean;
   roles: string[];
@@ -448,4 +448,23 @@ export async function saveQuickCommentRecords(
     }
     return resp.json();
   });
+}
+
+/**
+ * Flags a user's password as forgotten. This is an unauthenticated request
+ * that marks the account so an administrator can reset the password.
+ *
+ * @param {string} login - The login/username of the user who forgot their password.
+ * @throws {Error} If the server responds with a non-OK status.
+ */
+export async function forgotPassword(login: string): Promise<void> {
+  const resp = await fetch(
+    import.meta.env.VITE_API_HOST +
+      "/api/users/forgot-password?login=" +
+      encodeURIComponent(login),
+    { method: "POST", mode: "cors" },
+  );
+  if (!resp.ok) {
+    throw new Error("Failed to flag forgotten password: " + resp.status);
+  }
 }
