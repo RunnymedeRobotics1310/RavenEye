@@ -451,6 +451,42 @@ export async function saveQuickCommentRecords(
 }
 
 /**
+ * A custom hook that fetches users who have requested a password reset.
+ * Only returns users with forgotPassword=true. Requires ADMIN/SUPERUSER role.
+ *
+ * @return {{ data: User[] | null, error: string | null, loading: boolean }}
+ */
+export function useForgotPasswordUsers() {
+  const [data, setData] = useState<User[] | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    rbfetch("/api/users/forgot-password", {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data as User[]);
+          } else {
+            setError("Failed to fetch forgot-password users");
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch forgot-password users: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, []);
+
+  return { data, error, loading } as {
+    data: User[] | null;
+    error: string | null;
+    loading: boolean;
+  };
+}
+
+/**
  * Flags a user's password as forgotten. This is an unauthenticated request
  * that marks the account so an administrator can reset the password.
  *

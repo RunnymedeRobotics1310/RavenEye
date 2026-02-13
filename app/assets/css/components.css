@@ -289,3 +289,25 @@ section.sync-status {
         }
     }
 }
+
+.banner {
+    padding: 0.75rem 1rem;
+    margin: 0;
+    text-align: center;
+    font-weight: bold;
+}
+.banner a {
+    text-decoration: underline;
+}
+.banner-warning {
+    background-color: #b33;
+    color: #fff;
+}
+.banner-warning a { color: #fff; }
+
+table tbody tr.forgot-password-row {
+    background-color: #d99;
+}
+table tbody tr:nth-child(odd).forgot-password-row {
+    background-color: #b88 !important;
+}

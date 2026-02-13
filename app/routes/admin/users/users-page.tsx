@@ -32,8 +32,11 @@ const List = () => {
           </tr>
         </thead>
         <tbody>
-          {data?.map((user) => (
-            <tr key={user.id} className={user.enabled ? "" : "disabled-item"}>
+          {data
+            ?.slice()
+            .sort((a, b) => Number(b.forgotPassword) - Number(a.forgotPassword))
+            .map((user) => (
+            <tr key={user.id} className={`${user.enabled ? "" : "disabled-item"} ${user.forgotPassword ? "forgot-password-row" : ""}`}>
               <td>{user.id}</td>
               <td>{user.login}</td>
               <td>{user.displayName}</td>
