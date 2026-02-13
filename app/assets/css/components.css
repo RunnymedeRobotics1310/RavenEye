@@ -220,6 +220,10 @@ select {
     border-radius: var(--border-radius);
     padding: 0.35rem .75rem;
 }
+input:read-only {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 #quick-comment-comment {
     width: 90%;
     height: 5rem;
@@ -228,6 +232,7 @@ section.tournamentAdmin,
 section.scheduleAdmin,
 section.strategyareasAdmin,
 section.sequencetypesAdmin,
+section.eventtypesAdmin,
 section.usersAdmin{
     table td,
     table th {

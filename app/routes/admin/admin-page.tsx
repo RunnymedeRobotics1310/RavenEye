@@ -12,6 +12,9 @@ const AdminPage = () => {
           <NavLink to={"/admin/strategy-areas"}>Strategy Areas</NavLink>
         </li>
         <li>
+          <NavLink to={"/admin/event-types"}>Event Types</NavLink>
+        </li>
+        <li>
           <NavLink to={"/admin/sequence-types"}>Sequence Types</NavLink>
         </li>
       </ul>

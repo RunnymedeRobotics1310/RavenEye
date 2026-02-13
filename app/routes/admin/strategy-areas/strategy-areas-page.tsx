@@ -7,8 +7,15 @@ const List = () => {
   const { list: data, loading } = useStrategyAreaList();
   if (loading) return <Spinner />;
 
+  const addButton = (
+    <NavLink to="/admin/strategy-areas/add">
+      <button>Add</button>
+    </NavLink>
+  );
+
   return (
     <section className={"strategyareasAdmin"}>
+      {data && data.length > 20 && addButton}
       <table>
         <thead>
           <tr>
@@ -35,9 +42,7 @@ const List = () => {
           ))}
         </tbody>
       </table>
-      <NavLink to="/admin/strategy-areas/add">
-        <button>Add</button>
-      </NavLink>
+      {addButton}
     </section>
   );
 };

@@ -7,8 +7,15 @@ const List = () => {
   const { list: data, loading } = useSequenceTypeList();
   if (loading) return <Spinner />;
 
+  const addButton = (
+    <NavLink to="/admin/sequence-types/add">
+      <button>Add</button>
+    </NavLink>
+  );
+
   return (
     <section className={"sequencetypesAdmin"}>
+      {data && data.length > 20 && addButton}
       <table>
         <thead>
           <tr>
@@ -42,9 +49,7 @@ const List = () => {
           ))}
         </tbody>
       </table>
-      <NavLink to="/admin/sequence-types/add">
-        <button>Add</button>
-      </NavLink>
+      {addButton}
     </section>
   );
 };

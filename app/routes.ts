@@ -33,6 +33,18 @@ export default [
     "admin/sequence-types/:id",
     "./routes/admin/sequence-types/edit-page.tsx",
   ),
+  route(
+    "admin/event-types",
+    "./routes/admin/event-types/event-types-page.tsx",
+  ),
+  route(
+    "admin/event-types/add",
+    "./routes/admin/event-types/add-page.tsx",
+  ),
+  route(
+    "admin/event-types/:eventtype",
+    "./routes/admin/event-types/edit-page.tsx",
+  ),
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
   route("track", "./routes/track/track-home-page.tsx"),
