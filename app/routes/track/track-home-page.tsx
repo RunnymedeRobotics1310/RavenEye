@@ -163,18 +163,19 @@ const TrackHomePage = () => {
           </ul>
         </li>
       </ul>
-      <li>
-        <p>Penalties</p>
-        <ul>
-          <li>zone_violation</li>
-          <li>fuel_violation</li>
-          <li>pin</li>
-          <li>other: specify?</li>
-        </ul>
-      </li>
+
       <h2>No-sequence events</h2>
       <ul>
         <li>comment</li>
+        <li>
+          <p>Penalties</p>
+          <ul>
+            <li>zone_violation</li>
+            <li>fuel_violation</li>
+            <li>pin</li>
+            <li>other: specify?</li>
+          </ul>
+        </li>
       </ul>
     </main>
   );
