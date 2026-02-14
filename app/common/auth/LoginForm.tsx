@@ -23,7 +23,8 @@ function LoginForm() {
         setSuccess(true);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((ex: any) => {
+        console.log("Login failed", ex);
         setLoading(false);
         setSuccess(false);
       });

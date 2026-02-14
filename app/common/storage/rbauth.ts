@@ -90,14 +90,15 @@ function parseJwt(token: string): RBJWT {
  */
 function validateRavenBrainJwt(jwt: RBJWT): void {
   if (jwt.iss !== "raven-brain") {
-    throw new Error("JWT Not from Raven Brain");
+    throw new Error("JWT Not from Raven Brain. iss: " + jwt.iss);
   }
   const currentTime = Date.now() / 1000; // Current time in seconds
   if (jwt.exp < currentTime) {
-    throw new Error("JWT has expired");
+    throw new Error("JWT has expired. Current time: " + currentTime+" exp: "+ jwt.exp);
   }
-  if (jwt.nbf > currentTime) {
-    throw new Error("JWT is not yet valid");
+  if (jwt.nbf - 2 > currentTime) {
+    // allow 2ms grace period
+    throw new Error("JWT is not yet valid. Current time: "+currentTime+" nbf: "+ jwt.nbf);
   }
 }
 
