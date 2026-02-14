@@ -1,3 +1,21 @@
+# [3.4.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.8...v3.4.0) (2026-02-14)
+
+
+### Bug Fixes
+
+* Disabled users look a little more disabled ([b623aa9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b623aa9ff2d1f42871269bc114c83c8443eca20d))
+* Hide admin menu from non-admins ([ed7dcfa](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ed7dcfa320d6ed2b847321e968dd60a4ce02959e))
+* Send password up to server as passwordHash field ([e596fdd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e596fdd042ca38625b1286c817a39399e466cc30))
+* Sort users disabled first ([d07d886](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d07d886ed175b3b492281f4fad75f43a55d5a638))
+* Switch to test containers ([b829f8b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b829f8b5907350698b9f1d4e8d383159972cfcbb))
+
+
+### Features
+
+* Admin users shown forgot password banner ([2c254bb](https://github.com/RunnymedeRobotics1310/RavenEye/commit/2c254bb43a709781d8e1e53c3ad05da331ed70f8))
+* Event type UI ([dd5dc1c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/dd5dc1ca3c52f12125464a11d70304fac0423aa9))
+* Forgot password and edit my profile and change my password ([9bf968d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9bf968d8768db56e9cba8437c7c9f28c7c65048b))
+
 ## [3.3.8](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.7...v3.3.8) (2026-02-02)
 
 
