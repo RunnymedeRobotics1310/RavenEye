@@ -1,3 +1,10 @@
+## [3.4.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.1...v3.4.2) (2026-02-14)
+
+
+### Bug Fixes
+
+* Update build system ([d4bbdaf](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d4bbdaf843369e615076d5ed967dec143e60bd29))
+
 ## [3.4.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.0...v3.4.1) (2026-02-14)
 
 
