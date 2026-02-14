@@ -1,3 +1,10 @@
+## [3.4.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.0...v3.4.1) (2026-02-14)
+
+
+### Bug Fixes
+
+* Temporarily disable arm builds ([48f51ec](https://github.com/RunnymedeRobotics1310/RavenEye/commit/48f51ec82bdb5b0a6273468a327f855abe670959))
+
 # [3.4.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.8...v3.4.0) (2026-02-14)
 
 
