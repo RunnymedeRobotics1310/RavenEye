@@ -11,8 +11,9 @@ const AutoPage = () => {
       {"  time"}
       <p></p>
       <h4>Pickup</h4>
-      <button>Start</button>
-      <button>End</button>
+      <button>Start Outpost</button>
+      <button>Start Depot</button>
+      <button>Start Ballpit</button> <button>End</button>
       {"  time"} <p></p>
       <h4>Climb</h4>
       <button>Start</button>

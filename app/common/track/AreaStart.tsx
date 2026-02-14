@@ -4,6 +4,7 @@ import ScorePage from "~/common/track/ScorePage.tsx";
 import PickupPage from "~/common/track/PickupPage.tsx";
 import DefensePage from "~/common/track/DefensePage.tsx";
 import EndgamePage from "~/common/track/EndgamePage.tsx";
+import PitScoutPage from "~/common/track/PitScoutPage.tsx";
 
 type EnvelopeProps = {
   closeFunction: () => void;
@@ -18,12 +19,13 @@ const Envelope = (props: EnvelopeProps) => {
   );
 };
 
-const DrillStart = () => {
+const AreaStart = () => {
   const [showAuto, setShowAuto] = useState(false);
   const [showScore, setShowScore] = useState(false);
   const [showPickup, setShowPickup] = useState(false);
   const [showDefense, setShowDefense] = useState(false);
   const [showEndgame, setShowEndgame] = useState(false);
+  const [showPit, setShowPit] = useState(false);
 
   const handleShowAuto = () => {
     setShowAuto(true);
@@ -31,6 +33,7 @@ const DrillStart = () => {
     setShowPickup(false);
     setShowDefense(false);
     setShowEndgame(false);
+    setShowPit(false);
   };
   const handleShowScore = () => {
     setShowAuto(false);
@@ -38,6 +41,7 @@ const DrillStart = () => {
     setShowPickup(false);
     setShowDefense(false);
     setShowEndgame(false);
+    setShowPit(false);
   };
   const handleShowPickup = () => {
     setShowAuto(false);
@@ -45,6 +49,7 @@ const DrillStart = () => {
     setShowPickup(true);
     setShowDefense(false);
     setShowEndgame(false);
+    setShowPit(false);
   };
   const handleShowDefense = () => {
     setShowAuto(false);
@@ -52,6 +57,7 @@ const DrillStart = () => {
     setShowPickup(false);
     setShowDefense(true);
     setShowEndgame(false);
+    setShowPit(false);
   };
   const handleShowEndgame = () => {
     setShowAuto(false);
@@ -59,10 +65,18 @@ const DrillStart = () => {
     setShowPickup(false);
     setShowDefense(false);
     setShowEndgame(true);
+    setShowPit(false);
+  };
+  const handleShowPit = () => {
+    setShowAuto(false);
+    setShowScore(false);
+    setShowPickup(false);
+    setShowDefense(false);
+    setShowEndgame(false);
+    setShowPit(true);
   };
   return (
     <div>
-      <p> Drill</p>
       <p> Which area are you scouting? </p>
       {showAuto && (
         <Envelope closeFunction={() => setShowAuto(false)}>
@@ -89,13 +103,19 @@ const DrillStart = () => {
           <EndgamePage />
         </Envelope>
       )}
+      {showPit && (
+        <Envelope closeFunction={() => setShowPit(false)}>
+          <PitScoutPage />
+        </Envelope>
+      )}
       <button onClick={handleShowAuto}>Auto</button>{" "}
       <button onClick={handleShowScore}>Scoring</button>{" "}
       <button onClick={handleShowPickup}>Pickup</button>{" "}
       <button onClick={handleShowDefense}>Defence</button>{" "}
-      <button onClick={handleShowEndgame}>Endgame</button>
+      <button onClick={handleShowEndgame}>Endgame</button>{" "}
+      <button onClick={handleShowPit}>I'm a Pit Scout</button>
       <p></p>{" "}
     </div>
   );
 };
-export default DrillStart;
+export default AreaStart;
