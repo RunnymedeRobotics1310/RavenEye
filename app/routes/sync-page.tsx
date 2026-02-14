@@ -9,6 +9,8 @@ import SyncQuickComments from "~/common/sync/SyncQuickComments.tsx";
 import SyncTrackingData from "~/common/sync/SyncTrackingData.tsx";
 import SyncDashboardData from "~/common/sync/SyncDashboardData.tsx";
 import SyncNowButton from "~/common/sync/SyncNowButton.tsx";
+import FrcSyncButton from "~/common/sync/FrcSyncButton.tsx";
+import { useRole } from "~/common/storage/rbauth.ts";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -20,6 +22,8 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 const SyncPage = () => {
+  const { isSuperuser } = useRole();
+
   return (
     <main>
       <RequireLogin>
@@ -40,6 +44,17 @@ const SyncPage = () => {
         <SyncEventTypes />
         <SyncSequenceTypes />
         <SyncDashboardData />
+        {isSuperuser && (
+          <>
+            <h2>Force Sync with FRC</h2>
+            <p>
+              Forces RavenBrain to immediately re-sync with FRC, without waiting
+              for the scheduled sync to run. Once complete, RavenEye will sync
+              the updated data from RavenBrain.
+            </p>
+            <FrcSyncButton />
+          </>
+        )}
       </RequireLogin>
     </main>
   );
