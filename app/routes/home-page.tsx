@@ -1,5 +1,9 @@
 import type { Route } from "../routes/+types/home-page";
-import { getDisplayName, useLoginStatus } from "~/common/storage/rbauth.ts";
+import {
+  getDisplayName,
+  getRoles,
+  useLoginStatus,
+} from "~/common/storage/rbauth.ts";
 import { NavLink } from "react-router";
 import Spinner from "~/common/Spinner.tsx";
 
@@ -15,6 +19,9 @@ export function meta({}: Route.MetaArgs) {
 }
 const LoggedIn = () => {
   const fullName = getDisplayName();
+  const roles = getRoles();
+  const isAdmin =
+    roles.includes("ROLE_ADMIN") || roles.includes("ROLE_SUPERUSER");
   return (
     <main>
       <h1>Welcome to Raven Eye!</h1>
@@ -26,6 +33,9 @@ const LoggedIn = () => {
       </p>
       <ul>
         <li>
+          <NavLink to={"/profile"}>My Profile</NavLink>
+        </li>
+        <li>
           <NavLink to={"/logout"}>Log out</NavLink>
         </li>
         <li>
@@ -34,9 +44,11 @@ const LoggedIn = () => {
         <li>
           <NavLink to={"/report"}>View Reports</NavLink>
         </li>
-        <li>
-          <NavLink to={"/admin"}>Administer System</NavLink>
-        </li>
+        {isAdmin && (
+          <li>
+            <NavLink to={"/admin"}>Administer System</NavLink>
+          </li>
+        )}
       </ul>
     </main>
   );

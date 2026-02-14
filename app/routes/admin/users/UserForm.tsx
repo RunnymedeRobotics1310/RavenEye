@@ -14,7 +14,7 @@ export interface UserFormData {
   id: number;
   login: string;
   displayName: string;
-  password: string;
+  passwordHash: string;
   enabled: boolean;
   forgotPassword: boolean;
   roles: string[];
@@ -35,7 +35,7 @@ export const UserForm = ({
     id: 0,
     login: "",
     displayName: "",
-    password: "",
+    passwordHash: "",
     enabled: true,
     forgotPassword: false,
     roles: ["ROLE_MEMBER"],
@@ -47,7 +47,7 @@ export const UserForm = ({
         id: initialData.id,
         login: initialData.login,
         displayName: initialData.displayName,
-        password: "",
+        passwordHash: "",
         enabled: initialData.enabled,
         forgotPassword: initialData.forgotPassword,
         roles: initialData.roles,
@@ -107,8 +107,7 @@ export const UserForm = ({
           name="password"
           required={!isEdit}
           autoComplete="new-password"
-          value={item.password}
-          onChange={(e) => setItem({ ...item, password: e.target.value })}
+          onChange={(e) => setItem({ ...item, passwordHash: e.target.value })}
         />
       </p>
       <p>

@@ -25,6 +25,7 @@ import {
 } from "~/common/sync/sync.ts";
 import { useEffect, useState } from "react";
 import { getRavenBrainVersion } from "~/common/storage/rbauth.ts";
+import Banners from "~/common/banners/Banners.tsx";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
@@ -97,7 +98,12 @@ export default function App() {
   useEffect(() => {
     initializeSyncSchedule();
   }, []);
-  return <Outlet />;
+  return (
+    <>
+      <Banners />
+      <Outlet />
+    </>
+  );
 }
 
 export function HydrateFallback() {
