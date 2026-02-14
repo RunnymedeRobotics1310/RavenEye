@@ -1,4 +1,9 @@
+import { recordEvent } from "~/common/storage/track.ts";
+
 const EndgamePage = () => {
+  const buttonTest = () => {
+    recordEvent("climb-fail");
+  };
   return (
     <main>
       <div>
@@ -7,7 +12,7 @@ const EndgamePage = () => {
         <button>Start Climb</button>
         {"  time"}
         <p></p>
-        <button>Fail</button>
+        <button onClick={buttonTest}>Fail</button>
         <p></p>
         <button>Stop</button>
         <p></p>
