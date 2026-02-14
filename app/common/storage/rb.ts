@@ -79,6 +79,97 @@ export async function getEventTypeList() {
 }
 
 /**
+ * A custom hook for retrieving and managing the state of an event type by its key.
+ *
+ * @param {string | undefined} eventtype - The event type key to fetch. If undefined, no fetch request is performed.
+ * @return {{ data: EventType | null, error: string | null, loading: boolean }}
+ */
+export function useEventType(eventtype: string | undefined) {
+  const [data, setData] = useState<EventType | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!eventtype) {
+      setLoading(false);
+      return;
+    }
+    rbfetch(`/api/event-types/${eventtype}`, {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch event type: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch event type: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, [eventtype]);
+
+  return { data, error, loading } as {
+    data: EventType | null;
+    error: string | null;
+    loading: boolean;
+  };
+}
+
+/**
+ * Creates a new event type on RavenBrain.
+ *
+ * @param {EventType} item - The event type object to be created.
+ * @return {Promise<EventType>} A promise that resolves to the created event type object.
+ */
+export async function createEventType(item: EventType): Promise<EventType> {
+  return rbfetch("/api/event-types", {
+    method: "POST",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to create event type: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * Updates an existing event type on RavenBrain.
+ *
+ * @param {EventType} item - The event type object containing updated data.
+ * @return {Promise<EventType>} A promise that resolves to the updated event type object.
+ */
+export async function updateEventType(item: EventType): Promise<EventType> {
+  return rbfetch("/api/event-types/" + item.eventtype, {
+    method: "PUT",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to update event type: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * Deletes an event type on RavenBrain.
+ *
+ * @param {string} eventtype - The event type key to delete.
+ */
+export async function deleteEventType(eventtype: string): Promise<void> {
+  return rbfetch("/api/event-types/" + eventtype, {
+    method: "DELETE",
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to delete event type: " + resp.status);
+    }
+  });
+}
+
+/**
  * Fetches the entire list of sequence types from the server.
  *
  * @return {Promise<SequenceType[]>} A promise that resolves to an array of sequence type objects.
