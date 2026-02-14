@@ -1,3 +1,10 @@
+## [3.4.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.2...v3.4.3) (2026-02-14)
+
+
+### Bug Fixes
+
+* Allow 2ms grace time on JWT ([4df6b2d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4df6b2d662625bf118ae5cdc94382885e4f89c33))
+
 ## [3.4.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.1...v3.4.2) (2026-02-14)
 
 
