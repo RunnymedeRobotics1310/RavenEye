@@ -131,6 +131,14 @@ button {
     font-size: 0.7rem;
     font-weight: bold;
 }
+.event-type-button .event-type-quantity {
+    width: 3rem;
+    margin-left: 0.25rem;
+}
+.event-type-button .event-type-note {
+    width: 5rem;
+    margin-left: 0.25rem;
+}
 
 .camoButton{
     background: none;

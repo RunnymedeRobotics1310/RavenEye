@@ -4,4 +4,6 @@ export interface EventType {
   description: string;
   frcyear: number;
   strategyareaId: number;
+  showQuantity: boolean;
+  showNote: boolean;
 }
