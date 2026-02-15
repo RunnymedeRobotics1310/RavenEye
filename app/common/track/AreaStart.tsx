@@ -1,19 +1,32 @@
+import { useMemo } from "react";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
-import type { Screen } from "~/routes/track/track-home-page";
-import { useStrategyAreaList } from "~/common/storage/dbhooks.ts";
+import {
+  useStrategyAreaList,
+  useTournamentList,
+} from "~/common/storage/dbhooks.ts";
+import { getScoutingSession } from "~/common/storage/track.ts";
 import Spinner from "~/common/Spinner.tsx";
 
-const areaScreenMap: Record<string, Screen> = {
-  auto: "auto",
-  scoring: "score",
-  pickup: "pickup",
-  defence: "defense",
-  defense: "defense",
-  endgame: "endgame",
-};
-
 const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
-  const { list: areas, loading } = useStrategyAreaList();
+  const { list: allAreas, loading: areasLoading } = useStrategyAreaList();
+  const { list: tournaments, loading: tournamentsLoading } =
+    useTournamentList();
+  const loading = areasLoading || tournamentsLoading;
+
+  const frcyear = useMemo(() => {
+    const session = getScoutingSession();
+    const tournament = tournaments.find(
+      (t) => t.id === session.tournamentId,
+    );
+    return tournament
+      ? new Date(tournament.startTime).getFullYear()
+      : new Date().getFullYear();
+  }, [tournaments]);
+
+  const areas = useMemo(
+    () => allAreas.filter((a) => a.frcyear === frcyear),
+    [allAreas, frcyear],
+  );
 
   if (loading) {
     return (
@@ -27,15 +40,11 @@ const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
     <main>
       <button onClick={goBack}>Back</button>
       <p>Which area are you scouting?</p>
-      {areas.map((area) => {
-        const screen = areaScreenMap[area.name.toLowerCase()];
-        if (!screen) return null;
-        return (
-          <span key={area.id}>
-            <button onClick={() => navigate(screen)}>{area.name}</button>{" "}
-          </span>
-        );
-      })}
+      {areas.map((area) => (
+        <span key={area.id}>
+          <button onClick={() => navigate(area.code)}>{area.name}</button>{" "}
+        </span>
+      ))}
       <button onClick={() => navigate("pit")}>I'm a Pit Scout</button>
     </main>
   );

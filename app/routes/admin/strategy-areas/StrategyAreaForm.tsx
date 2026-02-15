@@ -6,13 +6,16 @@ export const StrategyAreaForm = ({
   submitFunction,
   disabled,
   initialData,
+  isEdit,
 }: {
   submitFunction: (item: StrategyArea) => void;
   disabled: boolean;
   initialData?: StrategyArea;
+  isEdit?: boolean;
 }) => {
   const [item, setItem] = useState<StrategyArea>({
     id: 0,
+    code: "",
     frcyear: new Date().getFullYear(),
     name: "",
     description: "",
@@ -44,6 +47,24 @@ export const StrategyAreaForm = ({
             setItem({ ...item, frcyear: parseInt(e.target.value) || 0 })
           }
         />
+      </p>
+      <p>
+        <label id={"code-label"}>Code:</label>
+        <br />
+        <input
+          aria-labelledby={"code-label"}
+          type="text"
+          name="code"
+          required
+          pattern="^[0-9a-zA-Z-]+$"
+          title="Letters, numbers, and hyphens only"
+          readOnly={isEdit}
+          value={item.code}
+          onChange={(e) => setItem({ ...item, code: e.target.value })}
+        />
+        {!isEdit && (
+          <small> (letters, numbers, and hyphens only)</small>
+        )}
       </p>
       <p>
         <label id={"name-label"}>Name:</label>

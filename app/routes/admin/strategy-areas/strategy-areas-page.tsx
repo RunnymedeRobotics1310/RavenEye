@@ -21,6 +21,7 @@ const List = () => {
           <tr>
             <th>ID</th>
             <th>Season</th>
+            <th>Code</th>
             <th>Name</th>
             <th>Description</th>
             <th>Commands</th>
@@ -31,6 +32,7 @@ const List = () => {
             <tr key={item.id}>
               <td>{item.id}</td>
               <td>{item.frcyear}</td>
+              <td>{item.code}</td>
               <td>{item.name}</td>
               <td>{item.description}</td>
               <td>
