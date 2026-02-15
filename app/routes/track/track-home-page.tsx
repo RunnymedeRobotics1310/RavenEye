@@ -66,6 +66,99 @@ const TrackHomePage = () => {
       {activeScreen === "comp-level" && <CompLevel {...props} />}
       {activeScreen === "comp-match" && <MatchForm {...props} />}
       {activeScreen === "comp-teams" && <CompTeams {...props} />}
+      <hr />
+      <hr />
+      <h1>Reference Data</h1>
+      <h2>Sequences</h2>
+      <ul>
+        <li>
+          <p>Auto</p>
+          <ul>
+            <li>shoot_start</li>
+            <li>shoot_end</li>
+            <li>shoot_miss</li>
+            <li>pickup_outpost*</li>
+            <li>pickup_depot*</li>
+            <li>pickup_ballpit*</li>
+            <li>pickup_end</li>
+            <li>climb_start</li>
+            <li>climb_success</li>
+            <li>climb_fail</li>
+            <li>*might delete, turn into a map instead</li>
+          </ul>
+        </li>
+        <li>
+          <p>Scoring</p>
+          <ul>
+            <li>score_start</li>
+            <li>score_end</li>
+            <li>score_5</li>
+            <li>score_10</li>
+            <li>score_15</li>
+            <li>score_20</li>
+            <li>... keep going</li>
+            <li>miss_5</li>
+            <li>miss_10</li>
+            <li>miss_15</li>
+            <li>miss_20</li>
+            <li>... keep going</li>
+            <li>
+              if there's a better way to record slider numbers please let me
+              know
+            </li>
+          </ul>
+        </li>
+        <li>
+          {" "}
+          <p>Pickup</p>
+          <ul>
+            <li>pickup_start</li>
+            <li>pickup_end</li>
+            <li>pickup_5</li>
+            <li>pickup_10</li>
+            <li>pickup_15</li>
+            <li>pickup_20</li>
+            <li>... keep going</li>
+            <li>lose_5</li>
+            <li>lose_10</li>
+            <li>lose_15</li>
+            <li>lose_20</li>
+            <li>... keep going</li>
+          </ul>
+        </li>
+        <li>
+          <p>Defense</p>
+          <ul>
+            <li>start_defense</li>
+            <li>end_defense</li>
+            <li>defense_strat_submit</li>
+          </ul>
+        </li>
+        <li>
+          <p>Endgame</p>
+          <ul>
+            <li>start_climbing</li>
+            <li>fail_climbing</li>
+            <li>stop_climbing</li>
+            <li>climb_l1</li>
+            <li>climb_l2</li>
+            <li>climb_l3</li>
+          </ul>
+        </li>
+      </ul>
+      <li>
+        <p>Penalties</p>
+        <ul>
+          <li>zone_violation</li>
+          <li>fuel_violation</li>
+          <li>pin</li>
+          <li>other: specify?</li>
+        </ul>
+      </li>
+      <h2>No-sequence events</h2>
+      <ul>
+        <li>comment</li>
+      </ul>
     </RequireLogin>
   );
 };
