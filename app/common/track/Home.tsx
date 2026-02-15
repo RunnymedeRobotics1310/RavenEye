@@ -1,5 +1,4 @@
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
-import DebugEventSyncForm from "~/common/track/DebugEventSyncForm.tsx";
 
 const Home = ({ navigate }: TrackScreenProps) => {
   return (
@@ -14,8 +13,6 @@ const Home = ({ navigate }: TrackScreenProps) => {
         <button onClick={() => navigate("drill-setup")}>Drill</button>{" "}
         <button onClick={() => navigate("comp-tournament")}>Comp</button>
       </div>
-
-      <DebugEventSyncForm />
     </main>
   );
 };
