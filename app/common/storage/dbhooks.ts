@@ -36,6 +36,19 @@ export function useTournamentList() {
   return { list, loading };
 }
 
+export function useRecentTournamentList() {
+  const { list, loading } = useTournamentList();
+  const twoWeeksAgo = new Date();
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+  const recentList = list
+    .filter((t) => new Date(t.endTime) >= twoWeeksAgo)
+    .sort(
+      (a, b) =>
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+    );
+  return { list: recentList, loading };
+}
+
 export function useStrategyAreaList() {
   const [list, setList] = useState<StrategyArea[]>([]);
   const [loading, setLoading] = useState(true);

@@ -1,7 +1,10 @@
-const EndgamePage = () => {
+import type { TrackScreenProps } from "~/routes/track/track-home-page";
+
+const EndgamePage = ({ goBack }: TrackScreenProps) => {
   return (
     <main>
       <div>
+        <button onClick={goBack}>Back</button>
         <h2>Endgame</h2>
         <p>map?</p>
         <button>Start Climb</button>

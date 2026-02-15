@@ -1,103 +1,76 @@
-import { useState } from "react";
-import AreaStart from "~/common/track/AreaStart.tsx";
+import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import {
+  getScoutingSession,
+  setScoutingSession,
+} from "~/common/storage/track.ts";
+import { useTournamentList } from "~/common/storage/dbhooks.ts";
+import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
 
-type EnvelopeProps = {
-  closeFunction: () => void;
-  children: React.ReactNode;
-};
-const Envelope = (props: EnvelopeProps) => {
-  return (
-    <div>
-      {props.children}
-      <button onClick={props.closeFunction}>Close</button>
-    </div>
-  );
-};
+const MatchForm = ({ navigate, goBack }: TrackScreenProps) => {
+  const session = getScoutingSession();
+  const { list: tournaments } = useTournamentList();
+  const { list: schedule } = useMatchSchedule();
 
-const MatchForm = () => {
-  const [match, setMatch] = useState(0);
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [clickTeam, setClickTeam] = useState(false);
-  const [team, setTeam] = useState(0);
-  //const [team2, setTeam2] = useState(2222);
+  const tournamentName =
+    tournaments.find((t) => t.id === session.tournamentId)?.name ??
+    session.tournamentId;
 
-  const handleArea = () => {
-    setClickTeam(true);
+  const matches = schedule
+    .filter(
+      (s) =>
+        s.tournamentId === session.tournamentId && s.level === session.level,
+    )
+    .sort((a, b) => a.match - b.match);
+
+  const selectMatch = (matchId: number) => {
+    setScoutingSession({
+      ...session,
+      matchId,
+    });
+    navigate("comp-teams");
   };
-
-  // if (match == 1) {
-  //   setTeam(1111);
-  // }
-  // if (match == 1) {
-  //   setTeam(1111);
-  //   setTeam2(2222);
-  // }
-  //
-  // if (match == 2) {
-  //   setTeam(1000);
-  //   setTeam2(2000);
-  // }
-
-  const ChooseTeam = () => {
-    return (
-      <div>
-        {clickTeam && (
-          <Envelope closeFunction={() => setClickTeam(false)}>
-            <AreaStart />
-          </Envelope>
-        )}
-        Team: <button onClick={handleArea}>1111</button>
-        <button onClick={handleArea} onChange={(e) => setTeam(2222)}>
-          2222
-        </button>
-        <button onClick={handleArea} value={team}>
-          3333
-        </button>
-        <button>4444</button>
-        <button>5555</button>
-        <button>6666</button>
-        <p></p>
-      </div>
-    );
-  };
-
-  const handleMatch = () => {
-    if (match > 0) {
-      setSubmitted(true);
-    }
-  };
-
-  const MatchSet = () => {
-    return (
-      <>
-        <section>
-          <h2>Match {match}</h2>
-          <p>Team {team}</p>
-        </section>
-        <ChooseTeam />
-      </>
-    );
-  };
-
-  const disabled = match === 0;
-
-  if (submitted) {
-    return <MatchSet />;
-  }
 
   return (
-    <div>
-      Match:{" "}
-      <input
-        type="number"
-        name="match"
-        value={match}
-        onChange={(e) => setMatch(e.target.value as unknown as number)}
-      />
-      <button disabled={disabled} onClick={handleMatch}>
-        Yes
-      </button>
-    </div>
+    <main>
+      <button onClick={goBack}>Back</button>
+      <h2>
+        {tournamentName} – {session.level}
+      </h2>
+      {matches.length === 0 ? (
+        <p>No matches found for this level.</p>
+      ) : (
+        <table className="tools">
+          <thead>
+            <tr>
+              <th>Match</th>
+              <th colSpan={3} style={{ color: "var(--alliance-red)" }}>
+                Red
+              </th>
+              <th colSpan={3} style={{ color: "var(--alliance-blue)" }}>
+                Blue
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {matches.map((m) => (
+              <tr key={m.match}>
+                <td>
+                  <button onClick={() => selectMatch(m.match)}>
+                    {m.match}
+                  </button>
+                </td>
+                <td style={{ color: "var(--alliance-red)" }}>{m.red1}</td>
+                <td style={{ color: "var(--alliance-red)" }}>{m.red2}</td>
+                <td style={{ color: "var(--alliance-red)" }}>{m.red3}</td>
+                <td style={{ color: "var(--alliance-blue)" }}>{m.blue1}</td>
+                <td style={{ color: "var(--alliance-blue)" }}>{m.blue2}</td>
+                <td style={{ color: "var(--alliance-blue)" }}>{m.blue3}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </main>
   );
 };
 export default MatchForm;

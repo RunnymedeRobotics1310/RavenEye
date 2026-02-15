@@ -1,6 +1,9 @@
-const AutoPage = () => {
+import type { TrackScreenProps } from "~/routes/track/track-home-page";
+
+const AutoPage = ({ goBack }: TrackScreenProps) => {
   return (
     <main>
+      <button onClick={goBack}>Back</button>
       <h2>Auto</h2>
       <p>map</p>
       <p></p>
