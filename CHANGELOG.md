@@ -1,3 +1,21 @@
+# [3.5.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.3...v3.5.0) (2026-02-17)
+
+
+### Bug Fixes
+
+* Remove debug component ([19c9a83](https://github.com/RunnymedeRobotics1310/RavenEye/commit/19c9a8396220e25c68954e94a111d893727faa57))
+* Restore reference data ([ae6c34a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ae6c34a3ac0a135591acd0b5c6d786bf069368a1))
+* Restore reference data ([fa5bcab](https://github.com/RunnymedeRobotics1310/RavenEye/commit/fa5bcab89519b87f04a049ce0827110c34dc417c))
+
+
+### Features
+
+* Better formatting of eventtype page ([bebebc0](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bebebc04a5594a73e0ab90b7fa11088d9e76865d))
+* Dynamic wiring for event recording ([cbefb13](https://github.com/RunnymedeRobotics1310/RavenEye/commit/cbefb13bcde08629e3aad4a6cbb75e1c2746324a))
+* Force-sync data with FRC ([c292d8e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c292d8e91374d0fbd2e785a42e90335645670ba2))
+* Show note and quantity on event type if necessary ([128f0a2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/128f0a25b8c9ea14248f20534cd688a119c9ea02))
+* Wire track UI's session selection to back-end functions. Track UI framework. ([a31e614](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a31e614d72a2cc70ad43400415cb04f00be3ab13))
+
 ## [3.4.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.2...v3.4.3) (2026-02-14)
 
 
