@@ -114,6 +114,32 @@ button {
     background-image: url("../2025/fields/automap-blue.png");
 }
 
+.event-type-button button {
+    transition: background-color 0.3s ease;
+}
+.event-type-button button.event-tracked {
+    background-color: #2a2;
+    transition: background-color 0.05s ease;
+}
+.event-type-button button.event-error {
+    background-color: #b33;
+    color: #fff;
+    font-size: 0.6rem;
+}
+.event-type-button .event-count {
+    margin-left: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+.event-type-button .event-type-quantity {
+    width: 3rem;
+    margin-left: 0.25rem;
+}
+.event-type-button .event-type-note {
+    width: 5rem;
+    margin-left: 0.25rem;
+}
+
 .camoButton{
     background: none;
     outline: none;

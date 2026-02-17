@@ -1,6 +1,7 @@
 import { useState } from "react";
+import type { TrackScreenProps } from "~/routes/track/track-home-page";
 
-const DefensePage = () => {
+const DefensePage = ({ goBack }: TrackScreenProps) => {
   const [defense, setDefense] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
   async function handleSubmit(e: { preventDefault: () => void }) {
@@ -30,6 +31,7 @@ const DefensePage = () => {
   return (
     <main>
       <div>
+        <button onClick={goBack}>Back</button>
         <h2>Defense</h2>
         <p>map drawings</p>
         <button>Start</button>

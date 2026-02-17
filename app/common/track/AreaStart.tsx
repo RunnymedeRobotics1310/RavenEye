@@ -1,121 +1,52 @@
-import AutoPage from "~/common/track/AutoPage.tsx";
-import { useState } from "react";
-import ScorePage from "~/common/track/ScorePage.tsx";
-import PickupPage from "~/common/track/PickupPage.tsx";
-import DefensePage from "~/common/track/DefensePage.tsx";
-import EndgamePage from "~/common/track/EndgamePage.tsx";
-import PitScoutPage from "~/common/track/PitScoutPage.tsx";
+import { useMemo } from "react";
+import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import {
+  useStrategyAreaList,
+  useTournamentList,
+} from "~/common/storage/dbhooks.ts";
+import { getScoutingSession } from "~/common/storage/track.ts";
+import Spinner from "~/common/Spinner.tsx";
 
-type EnvelopeProps = {
-  closeFunction: () => void;
-  children: React.ReactNode;
-};
-const Envelope = (props: EnvelopeProps) => {
-  return (
-    <div>
-      {props.children}
-      <button onClick={props.closeFunction}>Close</button>
-    </div>
+const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
+  const { list: allAreas, loading: areasLoading } = useStrategyAreaList();
+  const { list: tournaments, loading: tournamentsLoading } =
+    useTournamentList();
+  const loading = areasLoading || tournamentsLoading;
+
+  const frcyear = useMemo(() => {
+    const session = getScoutingSession();
+    const tournament = tournaments.find(
+      (t) => t.id === session.tournamentId,
+    );
+    return tournament
+      ? new Date(tournament.startTime).getFullYear()
+      : new Date().getFullYear();
+  }, [tournaments]);
+
+  const areas = useMemo(
+    () => allAreas.filter((a) => a.frcyear === frcyear),
+    [allAreas, frcyear],
   );
-};
 
-const AreaStart = () => {
-  const [showAuto, setShowAuto] = useState(false);
-  const [showScore, setShowScore] = useState(false);
-  const [showPickup, setShowPickup] = useState(false);
-  const [showDefense, setShowDefense] = useState(false);
-  const [showEndgame, setShowEndgame] = useState(false);
-  const [showPit, setShowPit] = useState(false);
+  if (loading) {
+    return (
+      <main>
+        <Spinner />
+      </main>
+    );
+  }
 
-  const handleShowAuto = () => {
-    setShowAuto(true);
-    setShowScore(false);
-    setShowPickup(false);
-    setShowDefense(false);
-    setShowEndgame(false);
-    setShowPit(false);
-  };
-  const handleShowScore = () => {
-    setShowAuto(false);
-    setShowScore(true);
-    setShowPickup(false);
-    setShowDefense(false);
-    setShowEndgame(false);
-    setShowPit(false);
-  };
-  const handleShowPickup = () => {
-    setShowAuto(false);
-    setShowScore(false);
-    setShowPickup(true);
-    setShowDefense(false);
-    setShowEndgame(false);
-    setShowPit(false);
-  };
-  const handleShowDefense = () => {
-    setShowAuto(false);
-    setShowScore(false);
-    setShowPickup(false);
-    setShowDefense(true);
-    setShowEndgame(false);
-    setShowPit(false);
-  };
-  const handleShowEndgame = () => {
-    setShowAuto(false);
-    setShowScore(false);
-    setShowPickup(false);
-    setShowDefense(false);
-    setShowEndgame(true);
-    setShowPit(false);
-  };
-  const handleShowPit = () => {
-    setShowAuto(false);
-    setShowScore(false);
-    setShowPickup(false);
-    setShowDefense(false);
-    setShowEndgame(false);
-    setShowPit(true);
-  };
   return (
-    <div>
-      <p> Which area are you scouting? </p>
-      {showAuto && (
-        <Envelope closeFunction={() => setShowAuto(false)}>
-          <AutoPage />
-        </Envelope>
-      )}
-      {showScore && (
-        <Envelope closeFunction={() => setShowScore(false)}>
-          <ScorePage />
-        </Envelope>
-      )}
-      {showPickup && (
-        <Envelope closeFunction={() => setShowPickup(false)}>
-          <PickupPage />
-        </Envelope>
-      )}
-      {showDefense && (
-        <Envelope closeFunction={() => setShowDefense(false)}>
-          <DefensePage />
-        </Envelope>
-      )}
-      {showEndgame && (
-        <Envelope closeFunction={() => setShowEndgame(false)}>
-          <EndgamePage />
-        </Envelope>
-      )}
-      {showPit && (
-        <Envelope closeFunction={() => setShowPit(false)}>
-          <PitScoutPage />
-        </Envelope>
-      )}
-      <button onClick={handleShowAuto}>Auto</button>{" "}
-      <button onClick={handleShowScore}>Scoring</button>{" "}
-      <button onClick={handleShowPickup}>Pickup</button>{" "}
-      <button onClick={handleShowDefense}>Defence</button>{" "}
-      <button onClick={handleShowEndgame}>Endgame</button>{" "}
-      <button onClick={handleShowPit}>I'm a Pit Scout</button>
-      <p></p>{" "}
-    </div>
+    <main>
+      <button onClick={goBack}>Back</button>
+      <p>Which area are you scouting?</p>
+      {areas.map((area) => (
+        <span key={area.id}>
+          <button onClick={() => navigate(area.code)}>{area.name}</button>{" "}
+        </span>
+      ))}
+      <button onClick={() => navigate("pit")}>I'm a Pit Scout</button>
+    </main>
   );
 };
 export default AreaStart;

@@ -1,79 +1,81 @@
-import MatchForm from "~/common/track/MatchForm.tsx";
-import { useState } from "react";
+import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import { useRecentTournamentList } from "~/common/storage/dbhooks.ts";
+import {
+  getScoutingSession,
+  setScoutingSession,
+} from "~/common/storage/track.ts";
+import { getUserid } from "~/common/storage/rbauth.ts";
+import Spinner from "~/common/Spinner.tsx";
+import { useTournamentList } from "~/common/storage/dbhooks.ts";
 
-type EnvelopeProps = {
-  closeFunction: () => void;
-  children: React.ReactNode;
-};
-const Envelope = (props: EnvelopeProps) => {
-  return (
-    <div>
-      {props.children}
-      <button onClick={props.closeFunction}>Close</button>
-    </div>
+// TODO: Remove after dev — include past event for testing
+const DEV_TOURNAMENT_ID = "2025ONCMP2";
+
+const CompStart = ({ navigate, goBack }: TrackScreenProps) => {
+  const { list: recentTournaments, loading: recentLoading } =
+    useRecentTournamentList();
+  const { list: allTournaments, loading: allLoading } = useTournamentList();
+  const loading = recentLoading || allLoading;
+  const devTournament = allTournaments.find(
+    (t) => t.id === DEV_TOURNAMENT_ID,
   );
-};
+  const tournaments = [
+    ...(devTournament ? [devTournament] : []),
+    ...recentTournaments.filter((t) => t.id !== DEV_TOURNAMENT_ID),
+  ];
 
-const CompStart = () => {
-  const [showHumber, setShowHumber] = useState(false);
-  const [showGeorgian, setShowGeorgian] = useState(false);
-  const [testClose, setTestClose] = useState(false);
+  const formatDate = (date: Date) =>
+    new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 
-  const handleTestClose = () => {
-    setTestClose(true);
+  const selectTournament = (tournamentId: string) => {
+    setScoutingSession({
+      ...getScoutingSession(),
+      userId: getUserid(),
+      tournamentId,
+    });
+    navigate("comp-level");
   };
 
-  const handleShowHumber = () => {
-    setShowGeorgian(false);
-    setShowHumber(true);
-  };
-
-  const handleShowGeorgian = () => {
-    setShowHumber(false);
-    setShowGeorgian(true);
-  };
-
-  const ButtonsClose = () => {
-    if (!testClose) {
-      return (
-        <div>
-          <button
-            onClick={() => {
-              handleShowHumber();
-              handleTestClose();
-            }}
-          >
-            Humber
-          </button>
-          <button
-            onClick={() => {
-              handleShowGeorgian();
-              handleTestClose();
-            }}
-          >
-            Georgian
-          </button>
-        </div>
-      );
-    }
-  };
+  if (loading) {
+    return (
+      <main>
+        <Spinner />
+      </main>
+    );
+  }
 
   return (
-    <div>
-      <p>Comp</p>
-      {showHumber && (
-        <Envelope closeFunction={() => setShowHumber(false)}>
-          <MatchForm />
-        </Envelope>
-      )}
-      {showGeorgian && (
-        <Envelope closeFunction={() => setShowGeorgian(false)}>
-          <MatchForm />
-        </Envelope>
-      )}
-      <ButtonsClose></ButtonsClose>
-      <p></p>
-    </div>
+    <main className="scout-select">
+      <div>
+        <button onClick={goBack}>Back</button>
+        <h2>{new Date().getFullYear()} Tournaments</h2>
+        <p>Select a tournament:</p>
+        <table className="tools">
+          <tbody>
+            {tournaments.map((t) => (
+              <tr key={t.id}>
+                <td>
+                  <button
+                    style={{ width: "100%" }}
+                    onClick={() => selectTournament(t.id)}
+                  >
+                    {t.name}
+                  </button>
+                </td>
+                <td
+                  style={{
+                    color: "var(--thirdendary-text)",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </main>
   );
 };
 

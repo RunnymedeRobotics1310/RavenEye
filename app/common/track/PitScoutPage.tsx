@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { recordComment } from "~/common/storage/track.ts";
+import type { TrackScreenProps } from "~/routes/track/track-home-page";
 
-const PitScoutPage = () => {
+const PitScoutPage = ({ goBack }: TrackScreenProps) => {
   const [team, setTeam] = useState(0);
   const [entry, setEntry] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
@@ -19,7 +19,7 @@ const PitScoutPage = () => {
     return (
       <section>
         <p>Thanks for your entry</p>
-        <button onClick={(e) => setSubmitted(false)}>Add Another</button>
+        <button onClick={() => setSubmitted(false)}>Add Another</button>
         <p></p>
       </section>
     );
@@ -28,11 +28,12 @@ const PitScoutPage = () => {
   const disabled = team === 0 || entry === "";
 
   if (submitted) {
-    return <Submit />;
+    return <main><Submit /></main>;
   }
 
   return (
-    <div>
+    <main>
+      <button onClick={goBack}>Back</button>
       <h4>Hello I'm a Pit Scout</h4>
       <p>make an editable document?</p>
       Team:{" "}
@@ -48,7 +49,7 @@ const PitScoutPage = () => {
         Submit
       </button>
       <p></p>
-    </div>
+    </main>
   );
 };
 

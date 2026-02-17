@@ -45,7 +45,7 @@ const List = () => {
         </thead>
         <tbody>
           {sorted.map((item) => (
-            <tr key={item.eventtype}>
+            <tr key={item.eventtype} className={item.frcyear < new Date().getFullYear() ? "disabled-item" : ""}>
               <td>{item.frcyear}</td>
               <td>{item.eventtype}</td>
               <td>{item.name}</td>

@@ -1,10 +1,22 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import { NavLink } from "react-router";
-import { useSequenceTypeList } from "~/common/storage/dbhooks.ts";
+import {
+  useSequenceTypeList,
+  useStrategyAreaList,
+} from "~/common/storage/dbhooks.ts";
+import { useMemo } from "react";
 
 const List = () => {
   const { list: data, loading } = useSequenceTypeList();
+  const { list: strategyAreas } = useStrategyAreaList();
+
+  const strategyAreaMap = useMemo(() => {
+    const map = new Map<number, string>();
+    strategyAreas?.forEach((sa) => map.set(sa.id, sa.name));
+    return map;
+  }, [strategyAreas]);
+
   if (loading) return <Spinner />;
 
   const addButton = (
@@ -21,6 +33,8 @@ const List = () => {
           <tr>
             <th>ID</th>
             <th>Season</th>
+            <th>Code</th>
+            <th>Strategy Area</th>
             <th>Disabled</th>
             <th>Name</th>
             <th>Description</th>
@@ -36,6 +50,8 @@ const List = () => {
             >
               <td>{item.id}</td>
               <td>{item.frcyear}</td>
+              <td>{item.code}</td>
+              <td>{strategyAreaMap.get(item.strategyareaId) || item.strategyareaId}</td>
               <td>{item.disabled ? "Yes" : "No"}</td>
               <td>{item.name}</td>
               <td>{item.description}</td>

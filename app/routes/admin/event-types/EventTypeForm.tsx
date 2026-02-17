@@ -20,6 +20,8 @@ export const EventTypeForm = ({
     description: "",
     frcyear: new Date().getFullYear(),
     strategyareaId: 0,
+    showQuantity: false,
+    showNote: false,
   });
 
   const { list: strategyAreas } = useStrategyAreaList();
@@ -120,6 +122,28 @@ export const EventTypeForm = ({
             </option>
           ))}
         </select>
+      </p>
+      <p>
+        <label className="checkbox-and-label">
+          <input
+            type="checkbox"
+            checked={item.showQuantity}
+            onChange={(e) =>
+              setItem({ ...item, showQuantity: e.target.checked })
+            }
+          />
+          <span>Show Quantity</span>
+        </label>
+      </p>
+      <p>
+        <label className="checkbox-and-label">
+          <input
+            type="checkbox"
+            checked={item.showNote}
+            onChange={(e) => setItem({ ...item, showNote: e.target.checked })}
+          />
+          <span>Show Note</span>
+        </label>
       </p>
       <button type={"submit"} disabled={disabled}>
         Save

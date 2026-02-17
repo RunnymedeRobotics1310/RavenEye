@@ -4,31 +4,43 @@ import type { SequenceType } from "~/types/SequenceType.ts";
 import type { SequenceEvent } from "~/types/SequenceEvent.ts";
 import type { EventType } from "~/types/EventType.ts";
 
-import { useEventTypeList } from "~/common/storage/dbhooks.ts";
+import {
+  useEventTypeList,
+  useStrategyAreaList,
+} from "~/common/storage/dbhooks.ts";
 
 export const SequenceTypeForm = ({
   submitFunction,
   disabled,
   initialData,
+  isEdit,
 }: {
   submitFunction: (item: SequenceType) => void;
   disabled: boolean;
   initialData?: SequenceType;
+  isEdit?: boolean;
 }) => {
   const [item, setItem] = useState<SequenceType>({
     id: 0,
+    code: "",
     name: "",
     description: "",
     frcyear: new Date().getFullYear(),
+    strategyareaId: 0,
     disabled: false,
     events: [],
   });
 
   const { list: eventTypes } = useEventTypeList();
+  const { list: strategyAreas } = useStrategyAreaList();
 
   const filteredEventTypes = useMemo(() => {
     return eventTypes?.filter((et) => et.frcyear === item.frcyear) || [];
   }, [eventTypes, item.frcyear]);
+
+  const filteredStrategyAreas = useMemo(() => {
+    return strategyAreas?.filter((sa) => sa.frcyear === item.frcyear) || [];
+  }, [strategyAreas, item.frcyear]);
 
   useEffect(() => {
     if (initialData) {
@@ -94,6 +106,46 @@ export const SequenceTypeForm = ({
             setItem({ ...item, frcyear: parseInt(e.target.value) || 0 })
           }
         />
+      </p>
+      <p>
+        <label id={"code-label"}>Code:</label>
+        <br />
+        <input
+          aria-labelledby={"code-label"}
+          type="text"
+          name="code"
+          required
+          pattern="^[0-9a-zA-Z-]+$"
+          title="Letters, numbers, and hyphens only"
+          readOnly={isEdit}
+          value={item.code}
+          onChange={(e) => setItem({ ...item, code: e.target.value })}
+        />
+        {!isEdit && (
+          <small> (letters, numbers, and hyphens only)</small>
+        )}
+      </p>
+      <p>
+        <label id={"strategyarea-label"}>Strategy Area:</label>
+        <br />
+        <select
+          aria-labelledby={"strategyarea-label"}
+          name="strategyareaId"
+          required
+          value={item.strategyareaId || ""}
+          onChange={(e) =>
+            setItem({ ...item, strategyareaId: parseInt(e.target.value) || 0 })
+          }
+        >
+          <option value="" disabled>
+            -- Select a strategy area --
+          </option>
+          {filteredStrategyAreas.map((sa) => (
+            <option key={sa.id} value={sa.id}>
+              {sa.name}
+            </option>
+          ))}
+        </select>
       </p>
       <p>
         <label id={"disabled-label"}>Disabled:</label>

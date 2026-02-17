@@ -62,6 +62,7 @@ const EditPage = () => {
             submitFunction={handleSubmit}
             disabled={success}
             initialData={data || undefined}
+            isEdit
           />
         )}
       </RequireLogin>

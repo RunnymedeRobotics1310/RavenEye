@@ -69,7 +69,11 @@ export async function recordComment(team: number, comment: string) {
  * @param {string} eventType - The type of event being recorded.
  * @return {Promise<void>} A promise that resolves once the event is recorded and the unsynchronized count is updated.
  */
-export async function recordEvent(eventType: string) {
+export async function recordEvent(
+  eventType: string,
+  amount: number = 0,
+  note: string = "",
+) {
   const session = getScoutingSession();
   if (
     session.userId === -1 ||
@@ -88,8 +92,8 @@ export async function recordEvent(eventType: string) {
     alliance: session.alliance,
     teamNumber: session.teamNumber,
     eventType: eventType,
-    amount: 0, // Not needed in 2026 and later
-    note: "", // not (yet?) supported
+    amount,
+    note,
   };
   await repository.captureEvent(event);
   await updateEventUnsyncCount();
