@@ -1,3 +1,10 @@
+# [3.6.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.5.0...v3.6.0) (2026-02-18)
+
+
+### Features
+
+* red ui ([81572fd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/81572fd19aa8b94a772af2f00a9971ab07b585b9))
+
 # [3.5.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.3...v3.5.0) (2026-02-17)
 
 
