@@ -8,9 +8,7 @@ const List = () => {
   if (loading) return <Spinner />;
 
   const addButton = (
-    <NavLink to="/admin/strategy-areas/add">
-      <button>Add</button>
-    </NavLink>
+    <NavLink to="/admin/strategy-areas/add" className="btn">Add</NavLink>
   );
 
   return (
@@ -36,9 +34,7 @@ const List = () => {
               <td>{item.name}</td>
               <td>{item.description}</td>
               <td>
-                <NavLink to={`/admin/strategy-areas/${item.id}`}>
-                  <button>Edit</button>
-                </NavLink>
+                <NavLink to={`/admin/strategy-areas/${item.id}`} className="btn">Edit</NavLink>
               </td>
             </tr>
           ))}

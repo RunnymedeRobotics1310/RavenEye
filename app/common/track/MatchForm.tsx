@@ -32,7 +32,7 @@ const MatchForm = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main>
-      <button onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>Back</button>
       <h2>
         {tournamentName} – {session.level}
       </h2>
@@ -43,10 +43,10 @@ const MatchForm = ({ navigate, goBack }: TrackScreenProps) => {
           <thead>
             <tr>
               <th>Match</th>
-              <th colSpan={3} style={{ color: "var(--alliance-red)" }}>
+              <th colSpan={3} className="alliance-red-text">
                 Red
               </th>
-              <th colSpan={3} style={{ color: "var(--alliance-blue)" }}>
+              <th colSpan={3} className="alliance-blue-text">
                 Blue
               </th>
             </tr>
@@ -59,12 +59,12 @@ const MatchForm = ({ navigate, goBack }: TrackScreenProps) => {
                     {m.match}
                   </button>
                 </td>
-                <td style={{ color: "var(--alliance-red)" }}>{m.red1}</td>
-                <td style={{ color: "var(--alliance-red)" }}>{m.red2}</td>
-                <td style={{ color: "var(--alliance-red)" }}>{m.red3}</td>
-                <td style={{ color: "var(--alliance-blue)" }}>{m.blue1}</td>
-                <td style={{ color: "var(--alliance-blue)" }}>{m.blue2}</td>
-                <td style={{ color: "var(--alliance-blue)" }}>{m.blue3}</td>
+                <td className="alliance-red-text">{m.red1}</td>
+                <td className="alliance-red-text">{m.red2}</td>
+                <td className="alliance-red-text">{m.red3}</td>
+                <td className="alliance-blue-text">{m.blue1}</td>
+                <td className="alliance-blue-text">{m.blue2}</td>
+                <td className="alliance-blue-text">{m.blue3}</td>
               </tr>
             ))}
           </tbody>

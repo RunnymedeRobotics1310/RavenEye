@@ -38,7 +38,7 @@ const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main>
-      <button onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>Back</button>
       <p>Which area are you scouting?</p>
       {areas.map((area) => (
         <span key={area.id}>

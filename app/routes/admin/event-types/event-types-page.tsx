@@ -25,9 +25,7 @@ const List = () => {
   if (loading) return <Spinner />;
 
   const addButton = (
-    <NavLink to="/admin/event-types/add">
-      <button>Add</button>
-    </NavLink>
+    <NavLink to="/admin/event-types/add" className="btn">Add</NavLink>
   );
 
   return (
@@ -51,9 +49,7 @@ const List = () => {
               <td>{item.name}</td>
               <td>{strategyAreaMap.get(item.strategyareaId) || item.strategyareaId}</td>
               <td>
-                <NavLink to={`/admin/event-types/${item.eventtype}`}>
-                  <button>Edit</button>
-                </NavLink>
+                <NavLink to={`/admin/event-types/${item.eventtype}`} className="btn">Edit</NavLink>
               </td>
             </tr>
           ))}

@@ -54,7 +54,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
   if (!area) {
     return (
       <main>
-        <button onClick={goBack}>Back</button>
+        <button className="secondary" onClick={goBack}>Back</button>
         <p>Strategy area not found.</p>
       </main>
     );
@@ -62,7 +62,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
 
   return (
     <main>
-      <button onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>Back</button>
       <h2>{area.name}</h2>
       {areaSequences.map((seq) => (
         <span key={seq.id}>

@@ -70,11 +70,10 @@ export const UserForm = ({
 
   return (
     <form onSubmit={handleFormSubmit}>
-      <p>
-        <label id={"login-label"}>Login:</label>
-        <br />
+      <div className="form-field">
+        <label htmlFor="login">Login</label>
         <input
-          aria-labelledby={"login-label"}
+          id="login"
           type="text"
           name="login"
           required
@@ -82,12 +81,11 @@ export const UserForm = ({
           value={item.login}
           onChange={(e) => setItem({ ...item, login: e.target.value })}
         />
-      </p>
-      <p>
-        <label id={"displayName-label"}>Display Name:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="displayName">Display Name</label>
         <input
-          aria-labelledby={"displayName-label"}
+          id="displayName"
           type="text"
           name="displayName"
           required
@@ -95,22 +93,21 @@ export const UserForm = ({
           value={item.displayName}
           onChange={(e) => setItem({ ...item, displayName: e.target.value })}
         />
-      </p>
-      <p>
-        <label id={"password-label"}>
-          Password:{isEdit && " (leave blank to keep current)"}
+      </div>
+      <div className="form-field">
+        <label htmlFor="password">
+          Password{isEdit && " (leave blank to keep current)"}
         </label>
-        <br />
         <input
-          aria-labelledby={"password-label"}
+          id="password"
           type="password"
           name="password"
           required={!isEdit}
           autoComplete="new-password"
           onChange={(e) => setItem({ ...item, passwordHash: e.target.value })}
         />
-      </p>
-      <p>
+      </div>
+      <div className="form-field">
         <label>
           <input
             type="checkbox"
@@ -120,8 +117,8 @@ export const UserForm = ({
           />{" "}
           Enabled
         </label>
-      </p>
-      <p>
+      </div>
+      <div className="form-field">
         <label>
           <input
             type="checkbox"
@@ -133,11 +130,11 @@ export const UserForm = ({
           />{" "}
           Forgot Password (require password reset on next login)
         </label>
-      </p>
+      </div>
       <fieldset>
         <legend>Roles:</legend>
         {AVAILABLE_ROLES.map((role) => (
-          <p key={role}>
+          <div className="form-field" key={role}>
             <label>
               <input
                 type="checkbox"
@@ -147,17 +144,15 @@ export const UserForm = ({
               />{" "}
               {role.replace("ROLE_", "")}
             </label>
-          </p>
+          </div>
         ))}
       </fieldset>
-      <p>
+      <div className="form-actions">
         <button type={"submit"} disabled={disabled}>
           Save
         </button>
-        <NavLink to={"/admin/users"}>
-          <button type="button">Cancel</button>
-        </NavLink>
-      </p>
+        <NavLink to={"/admin/users"} className="btn-secondary">Cancel</NavLink>
+      </div>
     </form>
   );
 };

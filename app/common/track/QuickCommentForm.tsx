@@ -25,10 +25,12 @@ function QuickCommentForm({ goBack }: TrackScreenProps) {
         <section>
           <h2>Quick Comment</h2>
           <p>Comment recorded successfully!</p>
-          <button onClick={() => setSubmitted(false)}>Add Another</button>{" "}
-          <button type="button" onClick={goBack}>
-            Back to Track Home
-          </button>
+          <div className="form-actions">
+            <button onClick={() => setSubmitted(false)}>Add Another</button>
+            <button type="button" className="secondary" onClick={goBack}>
+              Back to Track Home
+            </button>
+          </div>
         </section>
       </main>
     );
@@ -42,9 +44,8 @@ function QuickCommentForm({ goBack }: TrackScreenProps) {
         number.
       </p>
       <form>
-        <p>
+        <div className="form-field">
           <label htmlFor="quick-comment-team">Team</label>
-          <br />
           <input
             id="quick-comment-team"
             type="number"
@@ -55,25 +56,24 @@ function QuickCommentForm({ goBack }: TrackScreenProps) {
               setTeam(e.target.value === "" ? -1 : Number(e.target.value))
             }
           />
-        </p>
-        <p>
+        </div>
+        <div className="form-field">
           <label htmlFor="quick-comment-comment">Comment</label>
-          <br />
           <textarea
             id="quick-comment-comment"
             placeholder="What did you observe?"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
-        </p>
-        <p>
+        </div>
+        <div className="form-actions">
           <button disabled={disabled} onClick={handleSubmit}>
             Record Comment
-          </button>{" "}
-          <button type="button" onClick={goBack}>
+          </button>
+          <button type="button" className="secondary" onClick={goBack}>
             Back to Track Home
           </button>
-        </p>
+        </div>
       </form>
     </main>
   );

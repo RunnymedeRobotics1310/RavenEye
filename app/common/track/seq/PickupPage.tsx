@@ -4,7 +4,7 @@ const PickupPage = ({ goBack }: TrackScreenProps) => {
   return (
     <main>
       <div>
-        <button onClick={goBack}>Back</button>
+        <button className="secondary" onClick={goBack}>Back</button>
         <h2>Pickup</h2>
         <p>map</p>
         <button>Start</button>

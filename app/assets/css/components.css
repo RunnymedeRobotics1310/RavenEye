@@ -2,18 +2,283 @@
     display: inline-block;
     width: 2rem;
     height: 1.75rem;
-    fill: var(--primary-text);
+    fill: var(--color-text-primary);
     margin-top: 0.5rem;
 }
 
 footer {
-    menu li{
+    menu li {
         list-style: none;
         display: inline-block;
         padding: 0 .6rem;
     }
 }
 
+/*
+ *
+ * BUTTONS
+ *
+ */
+button {
+    border-radius: var(--btn-border-radius);
+    background-color: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.85rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+}
+button:hover {
+    background-color: var(--color-btn-primary-hover);
+    transform: translateY(-1px);
+}
+button:active {
+    background-color: var(--color-btn-primary-active);
+    transform: translateY(0);
+}
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+button:disabled:hover {
+    transform: none;
+}
+
+button[type="submit"] {
+    background-color: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+}
+
+button.secondary {
+    background: var(--color-btn-secondary-bg);
+    color: var(--color-btn-secondary-text);
+    border: 2px solid var(--color-btn-secondary-border);
+}
+button.secondary:hover {
+    background: var(--color-btn-secondary-hover-bg);
+}
+
+/* NavLink styled as button */
+.btn {
+    display: inline-block;
+    text-decoration: none;
+    border-radius: var(--btn-border-radius);
+    background-color: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.85rem;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+}
+.btn:hover {
+    background-color: var(--color-btn-primary-hover);
+    color: var(--color-btn-primary-text);
+    transform: translateY(-1px);
+}
+.btn:active {
+    background-color: var(--color-btn-primary-active);
+    transform: translateY(0);
+}
+.btn:visited {
+    color: var(--color-btn-primary-text);
+}
+
+.btn-secondary {
+    display: inline-block;
+    text-decoration: none;
+    border-radius: var(--btn-border-radius);
+    background: var(--color-btn-secondary-bg);
+    color: var(--color-btn-secondary-text);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.85rem;
+    border: 2px solid var(--color-btn-secondary-border);
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+}
+.btn-secondary:hover {
+    background: var(--color-btn-secondary-hover-bg);
+    color: var(--color-btn-secondary-text);
+}
+.btn-secondary:visited {
+    color: var(--color-btn-secondary-text);
+}
+
+/*
+ *
+ * BUTTON OVERRIDE ZONES
+ *
+ */
+.event-type-button button {
+    text-transform: none;
+    letter-spacing: normal;
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--border-radius);
+}
+.camoButton {
+    background: none;
+    outline: none;
+    border: none;
+    text-transform: none;
+    font-weight: 400;
+    color: var(--color-text-primary);
+}
+.camoButton:hover {
+    background: none;
+    transform: none;
+}
+.phase-selector-switch button {
+    border-radius: 0;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/*
+ *
+ * GLOBAL INPUTS
+ *
+ */
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+    font-size: inherit;
+}
+input,
+textarea,
+select {
+    border: 2px solid var(--color-input-border);
+    border-radius: var(--border-radius);
+    padding: 0.35rem .75rem;
+    background-color: var(--color-input-bg);
+    color: var(--color-text-primary);
+}
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 3px var(--color-input-focus-shadow);
+}
+input:read-only {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/*
+ *
+ * ADMIN TABLES
+ *
+ */
+section.tournamentAdmin,
+section.scheduleAdmin,
+section.strategyareasAdmin,
+section.sequencetypesAdmin,
+section.eventtypesAdmin,
+section.usersAdmin {
+    table {
+        border: 2px solid var(--color-border-accent);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        border-collapse: collapse;
+        width: 100%;
+    }
+    thead {
+        background: var(--color-table-header-bg);
+        color: var(--color-table-header-text);
+    }
+    th {
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        font-size: 0.75rem;
+    }
+    table td,
+    table th {
+        padding: 0.25rem .5rem;
+    }
+    table tbody tr:nth-child(odd) {
+        background-color: var(--color-table-stripe);
+    }
+    table tbody tr:nth-child(even) {
+        background-color: var(--color-bg-secondary);
+    }
+    table tbody tr:hover {
+        background-color: var(--color-table-hover);
+    }
+    .btn {
+        font-size: .65rem;
+        padding: 0.2rem .6rem;
+    }
+}
+
+/*
+ *
+ * FORM FIELDS
+ *
+ */
+.form-field {
+    margin-bottom: 0.75rem;
+}
+.form-field label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.25rem;
+}
+.form-field input,
+.form-field textarea,
+.form-field select {
+    display: block;
+    width: 100%;
+    max-width: 24rem;
+}
+.form-actions {
+    display: flex;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+    align-items: center;
+}
+
+/*
+ *
+ * BANNERS
+ *
+ */
+.banner {
+    padding: 0.75rem 1rem;
+    margin: 0;
+    text-align: center;
+    font-weight: bold;
+}
+.banner a {
+    text-decoration: underline;
+}
+.banner-warning {
+    background-color: var(--color-error);
+    color: var(--color-text-inverse);
+}
+.banner-warning a { color: var(--color-text-inverse); }
+
+/*
+ *
+ * MISC COMPONENTS
+ *
+ */
 .red-auto-map,
 .blue-auto-map {
     justify-self: center;
@@ -22,7 +287,7 @@ footer {
     grid-template-areas: "left center right";
     aspect-ratio: 1376/494;
     width: 100%;
-    div{
+    div {
         margin-top: 2rem;
         justify-self: center;
         align-self: center;
@@ -42,7 +307,7 @@ footer {
 
 .external-team-number {
     justify-self: center;
-    width:100%;
+    width: 100%;
     span {
         justify-self: center;
         align-self: center;
@@ -54,16 +319,12 @@ footer {
     font-weight: 900;
     color: lightseagreen;
     text-decoration: none;
-
 }
 .coral {
     font-weight: 900;
     color: lightgrey;
 }
-button {
-    font-size: 0.8rem;
-    border-radius: var(--border-radius);
-}
+
 .team {
     font-size: 1.5rem;
     padding: 0.3rem;
@@ -71,7 +332,7 @@ button {
     justify-self: center;
 }
 
-.phase-selector-switch{
+.phase-selector-switch {
     border-style: solid;
     border-radius: var(--border-radius);
     border-width: 1px;
@@ -82,23 +343,24 @@ button {
         padding: 0;
     }
 }
-
-.phase-selector-switch span{
+.phase-selector-switch span {
     padding: 0 0.5rem;
 }
 
 .red-field-container,
-.blue-field-container{
-    max-height: calc(var(--min-main-height) - var(--header-height));/*todo: fixme it doesn't work*/
+.blue-field-container {
+    max-height: calc(var(--min-main-height) - var(--header-height));
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
 }
-.red-field-container{
+.red-field-container {
     background-image: url("../2025/fields/reefscape-red.png");
+    border: 3px solid var(--alliance-red);
 }
-.blue-field-container{
+.blue-field-container {
     background-image: url("../2025/fields/reefscape-blue.png");
+    border: 3px solid var(--alliance-blue);
 }
 
 .red-auto-map,
@@ -107,10 +369,10 @@ button {
     background-repeat: no-repeat;
     background-position: center;
 }
-.red-auto-map{
+.red-auto-map {
     background-image: url("../2025/fields/automap-red.png");
 }
-.blue-auto-map{
+.blue-auto-map {
     background-image: url("../2025/fields/automap-blue.png");
 }
 
@@ -138,12 +400,6 @@ button {
 .event-type-button .event-type-note {
     width: 5rem;
     margin-left: 0.25rem;
-}
-
-.camoButton{
-    background: none;
-    outline: none;
-    border: none;
 }
 
 .disabled-button {
@@ -206,7 +462,7 @@ button {
     height: 1.5rem;
     width: 1.5rem;
     border: 6px solid;
-    border-color: var(--alliance-red) transparent var(--primary-text) transparent;
+    border-color: var(--color-accent) transparent var(--color-text-primary) transparent;
     border-radius: 50%;
     animation: spin 1.3s linear infinite;
 }
@@ -220,7 +476,6 @@ button {
     animation: spin 1.3s linear infinite;
 }
 
-
 .googleExampleContentPreStyle {
     white-space: pre-wrap;
 }
@@ -233,47 +488,10 @@ table.tools {
         }
     }
 }
-/*
- *
- * FORMS
- *
- */
-button,
-input,
-textarea,
-select {
-    border-style: solid;
-    border-radius: var(--border-radius);
-    padding: 0.35rem .75rem;
-}
-input:read-only {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
+
 #quick-comment-comment {
     width: 90%;
     height: 5rem;
-}
-section.tournamentAdmin,
-section.scheduleAdmin,
-section.strategyareasAdmin,
-section.sequencetypesAdmin,
-section.eventtypesAdmin,
-section.usersAdmin{
-    table td,
-    table th {
-        padding: 0.25rem .5rem;
-    }
-    table tbody tr:nth-child(odd) {
-        background-color: #777;
-        color: #fff;
-    }
-    button.adminListViewDetailsButton {
-        margin-left: .4rem;
-        font-size: .4rem;
-        padding: 0.25rem .5rem;
-        text-transform: uppercase;
-    }
 }
 
 .disabled-item {
@@ -321,24 +539,48 @@ section.sync-status {
     }
 }
 
-.banner {
-    padding: 0.75rem 1rem;
-    margin: 0;
-    text-align: center;
-    font-weight: bold;
-}
-.banner a {
-    text-decoration: underline;
-}
-.banner-warning {
-    background-color: #b33;
-    color: #fff;
-}
-.banner-warning a { color: #fff; }
-
+/* Forgot password row */
 table tbody tr.forgot-password-row {
-    background-color: #d99;
+    background-color: rgba(204, 0, 0, 0.08);
 }
 table tbody tr:nth-child(odd).forgot-password-row {
-    background-color: #b88 !important;
+    background-color: rgba(204, 0, 0, 0.12) !important;
+}
+
+/*
+ *
+ * PAGE UTILITIES
+ *
+ */
+.status-table {
+    border-collapse: collapse;
+}
+.status-table td,
+.status-table th {
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--color-border);
+}
+
+.nav-list {
+    list-style: none;
+    padding: 0;
+}
+.nav-list li {
+    margin-bottom: var(--space-sm);
+}
+
+.tournament-btn {
+    width: 100%;
+}
+
+.tournament-date {
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+}
+
+.alliance-red-text {
+    color: var(--alliance-red);
+}
+.alliance-blue-text {
+    color: var(--alliance-blue);
 }

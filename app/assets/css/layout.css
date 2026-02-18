@@ -10,6 +10,8 @@ html {
         display: grid;
         grid-template-columns: 2fr 5fr 2fr;
         height: var(--header-height);
+        color: var(--color-text-inverse);
+        border-bottom: 3px solid rgba(0, 0, 0, 0.2);
         #logo {
             img {
                 max-height: 3.5rem;
@@ -50,7 +52,7 @@ html {
 }
 
 main {
-    padding: 0 25px;
+    padding: 0 var(--space-lg);
     min-height: var(--min-main-height);
 }
 
@@ -58,8 +60,8 @@ main {
     #layout > header,
     main,
     footer {
-        padding-left: calc(10% + 25px);
-        padding-right: calc(10% + 25px);
+        padding-left: calc(10% + var(--space-lg));
+        padding-right: calc(10% + var(--space-lg));
     }
 }
 

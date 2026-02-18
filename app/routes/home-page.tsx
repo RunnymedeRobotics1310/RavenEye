@@ -67,7 +67,7 @@ const NotLoggedIn = (props: any) => {
       <br />
       <NavLink to={"/login"}>Log in</NavLink>
       <h3>Login Status</h3>
-      <table>
+      <table className="status-table">
         <thead>
           <tr>
             <th>Step</th>

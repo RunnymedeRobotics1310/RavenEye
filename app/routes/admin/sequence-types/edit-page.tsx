@@ -13,9 +13,7 @@ const Success = () => {
     <section>
       <h1>Success!</h1>
       <p>Sequence type updated successfully.</p>
-      <NavLink to={"/admin/sequence-types"}>
-        <button>Return to Sequence Types</button>
-      </NavLink>
+      <NavLink to={"/admin/sequence-types"} className="btn">Return to Sequence Types</NavLink>
     </section>
   );
 };

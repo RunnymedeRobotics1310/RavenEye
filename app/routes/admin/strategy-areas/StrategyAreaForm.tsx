@@ -34,11 +34,10 @@ export const StrategyAreaForm = ({
 
   return (
     <form onSubmit={handleFormSubmit}>
-      <p>
-        <label id={"season-label"}>Season:</label>
-        <br />
+      <div className="form-field">
+        <label htmlFor="season">Season</label>
         <input
-          aria-labelledby={"season-label"}
+          id="season"
           type="number"
           name="season"
           required
@@ -47,12 +46,11 @@ export const StrategyAreaForm = ({
             setItem({ ...item, frcyear: parseInt(e.target.value) || 0 })
           }
         />
-      </p>
-      <p>
-        <label id={"code-label"}>Code:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="code">Code</label>
         <input
-          aria-labelledby={"code-label"}
+          id="code"
           type="text"
           name="code"
           required
@@ -65,24 +63,22 @@ export const StrategyAreaForm = ({
         {!isEdit && (
           <small> (letters, numbers, and hyphens only)</small>
         )}
-      </p>
-      <p>
-        <label id={"name-label"}>Name:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="name">Name</label>
         <input
-          aria-labelledby={"name-label"}
+          id="name"
           type="text"
           name="name"
           required
           value={item.name}
           onChange={(e) => setItem({ ...item, name: e.target.value })}
         />
-      </p>
-      <p>
-        <label id={"description-label"}>Description:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="description">Description</label>
         <textarea
-          aria-labelledby={"description-label"}
+          id="description"
           name="description"
           required
           rows={3}
@@ -90,13 +86,13 @@ export const StrategyAreaForm = ({
           value={item.description}
           onChange={(e) => setItem({ ...item, description: e.target.value })}
         />
-      </p>
-      <button type={"submit"} disabled={disabled}>
-        Save
-      </button>
-      <NavLink to={"/admin/strategy-areas"}>
-        <button type="button">Cancel</button>
-      </NavLink>
+      </div>
+      <div className="form-actions">
+        <button type={"submit"} disabled={disabled}>
+          Save
+        </button>
+        <NavLink to={"/admin/strategy-areas"} className="btn-secondary">Cancel</NavLink>
+      </div>
     </form>
   );
 };

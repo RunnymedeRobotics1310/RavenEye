@@ -48,11 +48,10 @@ export const ProfileForm = ({
 
   return (
     <form onSubmit={handleFormSubmit}>
-      <p>
-        <label id={"login-label"}>Login:</label>
-        <br />
+      <div className="form-field">
+        <label htmlFor="login">Login</label>
         <input
-          aria-labelledby={"login-label"}
+          id="login"
           type="text"
           name="login"
           required
@@ -60,12 +59,11 @@ export const ProfileForm = ({
           value={item.login}
           onChange={(e) => setItem({ ...item, login: e.target.value })}
         />
-      </p>
-      <p>
-        <label id={"displayName-label"}>Display Name:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="displayName">Display Name</label>
         <input
-          aria-labelledby={"displayName-label"}
+          id="displayName"
           type="text"
           name="displayName"
           required
@@ -73,20 +71,19 @@ export const ProfileForm = ({
           value={item.displayName}
           onChange={(e) => setItem({ ...item, displayName: e.target.value })}
         />
-      </p>
+      </div>
       {!changingPassword ? (
-        <p>
-          <button type="button" onClick={() => setChangingPassword(true)}>
+        <div className="form-field">
+          <button type="button" className="secondary" onClick={() => setChangingPassword(true)}>
             Change Password
           </button>
-        </p>
+        </div>
       ) : (
         <>
-          <p>
-            <label id={"password-label"}>New Password:</label>
-            <br />
+          <div className="form-field">
+            <label htmlFor="password">New Password</label>
             <input
-              aria-labelledby={"password-label"}
+              id="password"
               type="password"
               name="password"
               required
@@ -95,29 +92,28 @@ export const ProfileForm = ({
                 setItem({ ...item, passwordHash: e.target.value })
               }
             />
-          </p>
-          <p>
-            <label id={"confirm-password-label"}>Confirm Password:</label>
-            <br />
+          </div>
+          <div className="form-field">
+            <label htmlFor="confirmPassword">Confirm Password</label>
             <input
-              aria-labelledby={"confirm-password-label"}
+              id="confirmPassword"
               type="password"
               name="confirmPassword"
               required
               autoComplete="new-password"
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
-          </p>
+          </div>
           {passwordError && (
             <p className={"errorMessage"}>{passwordError}</p>
           )}
         </>
       )}
-      <p>
+      <div className="form-actions">
         <button type={"submit"} disabled={disabled || !passwordsMatch}>
           Save
         </button>
-      </p>
+      </div>
     </form>
   );
 };
