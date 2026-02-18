@@ -17,7 +17,7 @@ const SequencePage = ({ goBack, sequenceCode }: TrackScreenProps) => {
   if (!sequence) {
     return (
       <main>
-        <button onClick={goBack}>Back</button>
+        <button className="secondary" onClick={goBack}>Back</button>
         <p>Sequence not found.</p>
       </main>
     );
@@ -25,7 +25,7 @@ const SequencePage = ({ goBack, sequenceCode }: TrackScreenProps) => {
 
   return (
     <main>
-      <button onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>Back</button>
       <h2>{sequence.name}</h2>
       {(sequence.events || []).map((ev) => (
         <span key={ev.id || ev.eventtype.eventtype}>

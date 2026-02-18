@@ -93,11 +93,10 @@ export const SequenceTypeForm = ({
 
   return (
     <form onSubmit={handleFormSubmit}>
-      <p>
-        <label id={"season-label"}>Season:</label>
-        <br />
+      <div className="form-field">
+        <label htmlFor="season">Season</label>
         <input
-          aria-labelledby={"season-label"}
+          id="season"
           type="number"
           name="season"
           required
@@ -106,12 +105,11 @@ export const SequenceTypeForm = ({
             setItem({ ...item, frcyear: parseInt(e.target.value) || 0 })
           }
         />
-      </p>
-      <p>
-        <label id={"code-label"}>Code:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="code">Code</label>
         <input
-          aria-labelledby={"code-label"}
+          id="code"
           type="text"
           name="code"
           required
@@ -124,12 +122,11 @@ export const SequenceTypeForm = ({
         {!isEdit && (
           <small> (letters, numbers, and hyphens only)</small>
         )}
-      </p>
-      <p>
-        <label id={"strategyarea-label"}>Strategy Area:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="strategyareaId">Strategy Area</label>
         <select
-          aria-labelledby={"strategyarea-label"}
+          id="strategyareaId"
           name="strategyareaId"
           required
           value={item.strategyareaId || ""}
@@ -146,35 +143,33 @@ export const SequenceTypeForm = ({
             </option>
           ))}
         </select>
-      </p>
-      <p>
-        <label id={"disabled-label"}>Disabled:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label>
+          <input
+            type="checkbox"
+            name="disabled"
+            checked={item.disabled}
+            onChange={(e) => setItem({ ...item, disabled: e.target.checked })}
+          />{" "}
+          Disabled
+        </label>
+      </div>
+      <div className="form-field">
+        <label htmlFor="name">Name</label>
         <input
-          aria-labelledby={"disabled-label"}
-          type="checkbox"
-          name="disabled"
-          checked={item.disabled}
-          onChange={(e) => setItem({ ...item, disabled: e.target.checked })}
-        />
-      </p>
-      <p>
-        <label id={"name-label"}>Name:</label>
-        <br />
-        <input
-          aria-labelledby={"name-label"}
+          id="name"
           type="text"
           name="name"
           required
           value={item.name}
           onChange={(e) => setItem({ ...item, name: e.target.value })}
         />
-      </p>
-      <p>
-        <label id={"description-label"}>Description:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="description">Description</label>
         <textarea
-          aria-labelledby={"description-label"}
+          id="description"
           name="description"
           required
           rows={3}
@@ -182,7 +177,7 @@ export const SequenceTypeForm = ({
           value={item.description}
           onChange={(e) => setItem({ ...item, description: e.target.value })}
         />
-      </p>
+      </div>
       {item && (
         <div>
           <h3>Events</h3>
@@ -250,12 +245,12 @@ export const SequenceTypeForm = ({
         </div>
       )}
       <hr />
-      <button type={"submit"} disabled={disabled}>
-        Save
-      </button>
-      <NavLink to={"/admin/sequence-types"}>
-        <button type="button">Cancel</button>
-      </NavLink>
+      <div className="form-actions">
+        <button type={"submit"} disabled={disabled}>
+          Save
+        </button>
+        <NavLink to={"/admin/sequence-types"} className="btn-secondary">Cancel</NavLink>
+      </div>
     </form>
   );
 };

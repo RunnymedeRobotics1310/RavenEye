@@ -11,9 +11,7 @@ const Success = () => {
     <section>
       <h1>Success!</h1>
       <p>User updated successfully.</p>
-      <NavLink to={"/admin/users"}>
-        <button>Return to Users</button>
-      </NavLink>
+      <NavLink to={"/admin/users"} className="btn">Return to Users</NavLink>
     </section>
   );
 };

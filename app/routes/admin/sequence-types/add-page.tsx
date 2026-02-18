@@ -10,9 +10,7 @@ const Success = () => {
   return (
     <section>
       <h1>Success!</h1>
-      <NavLink to={"/admin/sequence-types"}>
-        <button>Return to Sequence Types</button>
-      </NavLink>
+      <NavLink to={"/admin/sequence-types"} className="btn">Return to Sequence Types</NavLink>
     </section>
   );
 };

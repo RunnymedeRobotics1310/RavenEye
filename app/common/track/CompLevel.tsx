@@ -24,7 +24,7 @@ const CompLevel = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main>
-      <button onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>Back</button>
       <h2>{tournamentName}</h2>
       <p>Select match level:</p>
       <div>

@@ -47,7 +47,7 @@ const CompStart = ({ navigate, goBack }: TrackScreenProps) => {
   return (
     <main className="scout-select">
       <div>
-        <button onClick={goBack}>Back</button>
+        <button className="secondary" onClick={goBack}>Back</button>
         <h2>{new Date().getFullYear()} Tournaments</h2>
         <p>Select a tournament:</p>
         <table className="tools">
@@ -56,18 +56,13 @@ const CompStart = ({ navigate, goBack }: TrackScreenProps) => {
               <tr key={t.id}>
                 <td>
                   <button
-                    style={{ width: "100%" }}
+                    className="tournament-btn"
                     onClick={() => selectTournament(t.id)}
                   >
                     {t.name}
                   </button>
                 </td>
-                <td
-                  style={{
-                    color: "var(--thirdendary-text)",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <td className="tournament-date">
                   {formatDate(t.startTime)} – {formatDate(t.endTime)}
                 </td>
               </tr>

@@ -5,80 +5,117 @@
  */
 
 html {
-    color: var(--primary-text);
-    background-color: var(--primary-background);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
 }
+
 a,
-a:visited,
+a:visited {
+    text-decoration: none;
+    color: var(--color-text-link);
+}
 a:hover,
 a:active {
-    text-decoration: none;
-    color: var(--secondary-text)
+    color: var(--color-text-link-hover);
 }
+a:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Header */
+#layout > header {
+    background-color: var(--color-bg-header);
+    color: var(--color-text-inverse);
+}
+#layout > header a,
+#layout > header a:visited,
+#layout > header a:hover,
+#layout > header a:active {
+    color: var(--color-text-inverse);
+}
+#layout > header .icon {
+    fill: var(--color-text-inverse);
+}
+#layout > header .syncError {
+    fill: var(--color-text-inverse);
+}
+
+/* Alliance */
 .allianceRed {
     color: var(--alliance-red);
-    border: var(--alliance-red) solid medium;
+    border: 3px solid var(--alliance-red);
     border-radius: var(--border-radius);
     margin: 0.25rem;
+    background-color: var(--alliance-red-bg);
+    font-weight: 700;
 }
 .allianceBlue {
     color: var(--alliance-blue);
-    border: var(--alliance-blue) solid medium;
+    border: 3px solid var(--alliance-blue);
     border-radius: var(--border-radius);
     margin: 0.25rem;
+    background-color: var(--alliance-blue-bg);
+    font-weight: 700;
 }
+
+/* Error */
 .errorMessage {
-    color: var(--alliance-red);
+    color: var(--color-error);
+    font-weight: 700;
 }
-#layout > header{
-    background-color: var(--title-bar-background);
-}
+
+/* Stars */
 .gold {
     fill: goldenrod;
 }
-
-.star-outline{
-    fill: var(--primary-text);
+.star-outline {
+    fill: var(--color-text-primary);
 }
-.star-filled{
+.star-filled {
     fill: goldenrod;
 }
-.star-empty{
-    fill: var(--primary-background);
+.star-empty {
+    fill: var(--color-bg-primary);
 }
 
+/* Track inputs */
 .human-feedback,
-.match-select{
+.match-select {
     input {
-        background-color: var(--title-bar-background);
-        color: var(--primary-text);
+        background-color: var(--color-input-bg);
+        color: var(--color-text-primary);
         &::placeholder {
-            color: var(--thirdendary-text);
+            color: var(--color-text-tertiary);
         }
     }
 }
+
+/* Sync status */
 .syncLoading {
-    color: grey;
-    fill: grey;
+    color: var(--color-text-tertiary);
+    fill: var(--color-text-tertiary);
 }
 .syncError {
-    color: red;
-    fill: red;
+    color: var(--color-error);
+    fill: var(--color-error);
 }
 .syncHappening {
-    color: cadetblue;
-    fill: cadetblue;
+    color: var(--color-info);
+    fill: var(--color-info);
 }
 .syncToDo {
-    color: orange;
-    fill: orange;
+    color: var(--color-warning);
+    fill: var(--color-warning);
 }
 .syncComplete {
-    color: green;
-    fill: green;
+    color: var(--color-success);
+    fill: var(--color-success);
 }
 
+/* Disabled team button */
 .match-select .team-select button:disabled {
-    color:gray;
-    background-color: darkgray
+    color: var(--color-text-tertiary);
+    background-color: var(--color-bg-tertiary);
 }

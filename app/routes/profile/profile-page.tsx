@@ -41,9 +41,7 @@ const Success = () => {
     <section>
       <h1>Success!</h1>
       <p>Profile updated successfully.</p>
-      <NavLink to={"/"}>
-        <button>Back to Home</button>
-      </NavLink>
+      <NavLink to={"/"} className="btn">Back to Home</NavLink>
     </section>
   );
 };

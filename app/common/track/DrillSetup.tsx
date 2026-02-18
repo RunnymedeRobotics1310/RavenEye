@@ -25,7 +25,7 @@ const DrillSetup = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main>
-      <button onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>Back</button>
       <h2>Drill Setup</h2>
 
       <p>Alliance:</p>

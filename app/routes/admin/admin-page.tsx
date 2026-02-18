@@ -4,7 +4,7 @@ const AdminPage = () => {
   return (
     <main>
       <h1>Administer System</h1>
-      <ul>
+      <ul className="nav-list">
         <li>
           <NavLink to={"/admin/users"}>Users</NavLink>
         </li>

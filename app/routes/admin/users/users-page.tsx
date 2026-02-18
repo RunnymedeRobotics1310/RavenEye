@@ -14,11 +14,7 @@ const List = () => {
 
   return (
     <section className={"usersAdmin"}>
-      <p>
-        <NavLink to={"/admin/users/add"}>
-          <button>Add User</button>
-        </NavLink>
-      </p>
+      <NavLink to={"/admin/users/add"} className="btn">Add User</NavLink>
       <table>
         <thead>
           <tr>
@@ -44,9 +40,7 @@ const List = () => {
               <td>{user.forgotPassword ? "Yes" : "No"}</td>
               <td>{user.roles.join(", ")}</td>
               <td>
-                <NavLink to={`/admin/users/${user.id}`}>
-                  <button className="adminListViewDetailsButton">Edit</button>
-                </NavLink>
+                <NavLink to={`/admin/users/${user.id}`} className="btn">Edit</NavLink>
               </td>
             </tr>
           ))}

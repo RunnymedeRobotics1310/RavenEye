@@ -73,76 +73,44 @@ function LoginForm() {
       <div>
         <h3>Login</h3>
         <form>
-          <table className={"tools"}>
-            <tbody>
-              <tr>
-                <td>
-                  <label>
-                    <input
-                      className={"center"}
-                      type={"text"}
-                      id={"name"}
-                      autoComplete="username"
-                      placeholder={formName == "" ? "Name" : formName}
-                      onChange={(e) => {
-                        setFormName(e.target.value);
-                      }}
-                    />
-                  </label>
-                </td>
-                <td>Please enter your username.</td>
-              </tr>
-              <tr>
-                <td>
-                  <label>
-                    <input
-                      className={"center"}
-                      type={"password"}
-                      id={"password"}
-                      autoComplete={"current-password"}
-                      placeholder={"Password"}
-                      onChange={(e) => {
-                        setFormPassword(e.target.value);
-                      }}
-                    />
-                  </label>
-                </td>
-                <td>
-                  Enter the password that you received from the strategy lead.
-                  Do not share your password.
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button
-                    disabled={formName == "" || formPassword == ""}
-                    onClick={() => {
-                      handleLoginClick();
-                    }}
-                  >
-                    Log in
-                  </button>
-                </td>
-                <td>
-                  Log in. You need to be connected to the internet to log in.
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button
-                    type="button"
-                    disabled={forgotLoading}
-                    onClick={handleForgotPassword}
-                  >
-                    Forgot Password
-                  </button>
-                </td>
-                <td>
-                  Flag your account for a password reset by an administrator.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="form-field">
+            <label htmlFor="name">Username</label>
+            <input
+              id="name"
+              type="text"
+              autoComplete="username"
+              placeholder="Name"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Password"
+              value={formPassword}
+              onChange={(e) => setFormPassword(e.target.value)}
+            />
+          </div>
+          <div className="form-actions">
+            <button
+              disabled={formName === "" || formPassword === ""}
+              onClick={() => handleLoginClick()}
+            >
+              Log in
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={forgotLoading}
+              onClick={handleForgotPassword}
+            >
+              Forgot Password
+            </button>
+          </div>
         </form>
         {forgotLoading && <Spinner />}
         {forgotMsg && <p>{forgotMsg}</p>}

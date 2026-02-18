@@ -43,11 +43,10 @@ export const EventTypeForm = ({
 
   return (
     <form onSubmit={handleFormSubmit}>
-      <p>
-        <label id={"eventtype-label"}>Event Type (key):</label>
-        <br />
+      <div className="form-field">
+        <label htmlFor="eventtype">Event Type (key)</label>
         <input
-          aria-labelledby={"eventtype-label"}
+          id="eventtype"
           type="text"
           name="eventtype"
           required
@@ -60,12 +59,11 @@ export const EventTypeForm = ({
         {!isEdit && (
           <small> (letters, numbers, and hyphens only)</small>
         )}
-      </p>
-      <p>
-        <label id={"season-label"}>Season:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="season">Season</label>
         <input
-          aria-labelledby={"season-label"}
+          id="season"
           type="number"
           name="season"
           required
@@ -75,24 +73,22 @@ export const EventTypeForm = ({
             setItem({ ...item, frcyear: parseInt(e.target.value) || 0 })
           }
         />
-      </p>
-      <p>
-        <label id={"name-label"}>Name:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="name">Name</label>
         <input
-          aria-labelledby={"name-label"}
+          id="name"
           type="text"
           name="name"
           required
           value={item.name}
           onChange={(e) => setItem({ ...item, name: e.target.value })}
         />
-      </p>
-      <p>
-        <label id={"description-label"}>Description:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="description">Description</label>
         <textarea
-          aria-labelledby={"description-label"}
+          id="description"
           name="description"
           required
           rows={3}
@@ -100,12 +96,11 @@ export const EventTypeForm = ({
           value={item.description}
           onChange={(e) => setItem({ ...item, description: e.target.value })}
         />
-      </p>
-      <p>
-        <label id={"strategyarea-label"}>Strategy Area:</label>
-        <br />
+      </div>
+      <div className="form-field">
+        <label htmlFor="strategyareaId">Strategy Area</label>
         <select
-          aria-labelledby={"strategyarea-label"}
+          id="strategyareaId"
           name="strategyareaId"
           required
           value={item.strategyareaId || ""}
@@ -122,8 +117,8 @@ export const EventTypeForm = ({
             </option>
           ))}
         </select>
-      </p>
-      <p>
+      </div>
+      <div className="form-field">
         <label className="checkbox-and-label">
           <input
             type="checkbox"
@@ -134,8 +129,8 @@ export const EventTypeForm = ({
           />
           <span>Show Quantity</span>
         </label>
-      </p>
-      <p>
+      </div>
+      <div className="form-field">
         <label className="checkbox-and-label">
           <input
             type="checkbox"
@@ -144,13 +139,13 @@ export const EventTypeForm = ({
           />
           <span>Show Note</span>
         </label>
-      </p>
-      <button type={"submit"} disabled={disabled}>
-        Save
-      </button>
-      <NavLink to={"/admin/event-types"}>
-        <button type="button">Cancel</button>
-      </NavLink>
+      </div>
+      <div className="form-actions">
+        <button type={"submit"} disabled={disabled}>
+          Save
+        </button>
+        <NavLink to={"/admin/event-types"} className="btn-secondary">Cancel</NavLink>
+      </div>
     </form>
   );
 };

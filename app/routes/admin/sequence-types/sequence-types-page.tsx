@@ -20,9 +20,7 @@ const List = () => {
   if (loading) return <Spinner />;
 
   const addButton = (
-    <NavLink to="/admin/sequence-types/add">
-      <button>Add</button>
-    </NavLink>
+    <NavLink to="/admin/sequence-types/add" className="btn">Add</NavLink>
   );
 
   return (
@@ -57,9 +55,7 @@ const List = () => {
               <td>{item.description}</td>
               <td>{item.events?.length || 0}</td>
               <td>
-                <NavLink to={`/admin/sequence-types/${item.id}`}>
-                  <button>Edit</button>
-                </NavLink>
+                <NavLink to={`/admin/sequence-types/${item.id}`} className="btn">Edit</NavLink>
               </td>
             </tr>
           ))}

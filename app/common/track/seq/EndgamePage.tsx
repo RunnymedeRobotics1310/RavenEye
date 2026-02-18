@@ -8,7 +8,7 @@ const EndgamePage = ({ goBack }: TrackScreenProps) => {
   return (
     <main>
       <div>
-        <button onClick={goBack}>Back</button>
+        <button className="secondary" onClick={goBack}>Back</button>
         <h2>Endgame</h2>
         <p>map?</p>
         <button>Start Climb</button>
