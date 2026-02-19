@@ -30,15 +30,15 @@ button {
     font-size: 0.85rem;
     border: 2px solid transparent;
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.1s;
+    transition: background-color 0.15s, transform 0.2s;
 }
 button:hover {
     background-color: var(--color-btn-primary-hover);
-    transform: translateY(-1px);
+    transform: scale(1.04);
 }
 button:active {
     background-color: var(--color-btn-primary-active);
-    transform: translateY(0);
+    transform: scale(1);
 }
 button:disabled {
     opacity: 0.4;
@@ -77,16 +77,16 @@ button.secondary:hover {
     font-size: 0.85rem;
     border: 2px solid transparent;
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.1s;
+    transition: background-color 0.15s, transform 0.2s;
 }
 .btn:hover {
     background-color: var(--color-btn-primary-hover);
     color: var(--color-btn-primary-text);
-    transform: translateY(-1px);
+    transform: scale(1.04);
 }
 .btn:active {
     background-color: var(--color-btn-primary-active);
-    transform: translateY(0);
+    transform: scale(1);
 }
 .btn:visited {
     color: var(--color-btn-primary-text);
@@ -105,7 +105,7 @@ button.secondary:hover {
     font-size: 0.85rem;
     border: 2px solid var(--color-btn-secondary-border);
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.1s;
+    transition: background-color 0.15s, transform 0.2s;
 }
 .btn-secondary:hover {
     background: var(--color-btn-secondary-hover-bg);
@@ -120,12 +120,6 @@ button.secondary:hover {
  * BUTTON OVERRIDE ZONES
  *
  */
-.event-type-button button {
-    text-transform: none;
-    letter-spacing: normal;
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--border-radius);
-}
 .camoButton {
     background: none;
     outline: none;
@@ -156,7 +150,7 @@ select {
     font-family: inherit;
     font-size: inherit;
 }
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
     border: 2px solid var(--color-input-border);
@@ -165,7 +159,7 @@ select {
     background-color: var(--color-input-bg);
     color: var(--color-text-primary);
 }
-input:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus,
 select:focus {
     outline: none;
@@ -239,6 +233,18 @@ section.usersAdmin {
     text-transform: uppercase;
     letter-spacing: 0.03em;
     margin-bottom: 0.25rem;
+}
+.form-field label:has(input[type="checkbox"]) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-transform: none;
+    font-weight: 400;
+    font-size: inherit;
+}
+.form-field label:has(input[type="checkbox"]) input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
 }
 .form-field input,
 .form-field textarea,
@@ -377,11 +383,11 @@ section.usersAdmin {
 }
 
 .event-type-button button {
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s;
 }
 .event-type-button button.event-tracked {
-    background-color: #2a2;
-    transition: background-color 0.05s ease;
+    background-color: #f5a0a0;
+    transition: background-color 0.05s ease, transform 0.2s;
 }
 .event-type-button button.event-error {
     background-color: #b33;
@@ -426,8 +432,8 @@ section.usersAdmin {
 
     input {
         vertical-align: middle;
-        width: 1.25rem;
-        height: 1.25rem;
+        width: 1rem;
+        height: 1rem;
         border-radius: var(--border-radius);
     }
 

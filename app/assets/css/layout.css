@@ -39,8 +39,9 @@ html {
     footer {
         display: grid;
         grid-template-columns: 1fr;
-        height: var(--footer-height);
+        min-height: var(--footer-height);
         margin-top: 0.5rem;
+        padding-bottom: var(--space-sm);
         div, menu {
             justify-self: center;
             align-self: center;

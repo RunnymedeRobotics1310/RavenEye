@@ -17,6 +17,9 @@ const AdminPage = () => {
         <li>
           <NavLink to={"/admin/sequence-types"}>Sequence Types</NavLink>
         </li>
+        <li>
+          <NavLink to={"/admin/design-system"}>Design System</NavLink>
+        </li>
       </ul>
     </main>
   );
