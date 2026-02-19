@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { NavLink } from "react-router";
+import Sync from "~/common/icons/Sync.tsx";
+import type { SyncStatus } from "~/types/SyncStatus.ts";
 
 const colorVars = [
   {
@@ -386,34 +388,43 @@ const DesignSystemPage = () => {
           <h3>Error Message</h3>
           <p className="errorMessage">Something went wrong!</p>
 
-          <h3>Sync Status Colors</h3>
+          <h3>Sync Status Icons</h3>
           <div
             style={{
               display: "flex",
               flexWrap: "wrap",
-              gap: "1rem",
+              gap: "1.5rem",
               alignItems: "center",
             }}
           >
-            {[
-              { cls: "syncLoading", label: "Loading" },
-              { cls: "syncError", label: "Error" },
-              { cls: "syncHappening", label: "Happening" },
-              { cls: "syncToDo", label: "To Do" },
-              { cls: "syncComplete", label: "Complete" },
-            ].map(({ cls, label }) => (
-              <div key={cls} style={{ textAlign: "center" }}>
-                <div
-                  className={cls}
-                  style={{
-                    width: "2.5rem",
-                    height: "2.5rem",
-                    borderRadius: "var(--border-radius)",
-                    backgroundColor: "currentColor",
-                    margin: "0 auto 0.25rem",
-                  }}
-                />
-                <small className={cls}>{label}</small>
+            {(
+              [
+                {
+                  label: "Loading",
+                  status: { loading: true, component: "Demo", lastSync: new Date(), inProgress: false, isComplete: false, remaining: 0, error: null },
+                },
+                {
+                  label: "In Progress",
+                  status: { loading: false, component: "Demo", lastSync: new Date(), inProgress: true, isComplete: false, remaining: 5, error: null },
+                },
+                {
+                  label: "Error",
+                  status: { loading: false, component: "Demo", lastSync: new Date(), inProgress: false, isComplete: false, remaining: 0, error: new Error("Sync failed") },
+                },
+                {
+                  label: "To Do",
+                  status: { loading: false, component: "Demo", lastSync: new Date(), inProgress: false, isComplete: false, remaining: 3, error: null },
+                },
+                {
+                  label: "Complete",
+                  status: { loading: false, component: "Demo", lastSync: new Date(), inProgress: false, isComplete: true, remaining: 0, error: null },
+                },
+              ] as { label: string; status: SyncStatus }[]
+            ).map(({ label, status }) => (
+              <div key={label} style={{ textAlign: "center" }}>
+                <Sync status={status} />
+                <br />
+                <small>{label}</small>
               </div>
             ))}
           </div>
