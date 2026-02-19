@@ -57,6 +57,8 @@
     --color-error: #cc0000;
     --color-warning: #e67e00;
     --color-info: #2196f3;
+    --color-event-tracked: #f5a0a0;
+    --color-event-error: #992222;
 
     --alliance-red: #d40000;
     --alliance-blue: #0044aa;
@@ -112,6 +114,8 @@
         --color-error: #ef4444;
         --color-warning: #ffb74d;
         --color-info: #64b5f6;
+        --color-event-tracked: #7a3333;
+        --color-event-error: #5c1a1a;
 
         --alliance-red: #ef4444;
         --alliance-blue: #4488ff;

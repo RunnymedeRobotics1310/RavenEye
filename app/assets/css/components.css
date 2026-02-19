@@ -383,15 +383,17 @@ section.usersAdmin {
 }
 
 .event-type-button button {
+    font-size: 1.4rem;
+    padding: 0.6rem 2rem;
     transition: background-color 0.3s ease, transform 0.2s;
 }
 .event-type-button button.event-tracked {
-    background-color: #f5a0a0;
+    background-color: var(--color-event-tracked);
     transition: background-color 0.05s ease, transform 0.2s;
 }
 .event-type-button button.event-error {
-    background-color: #b33;
-    color: #fff;
+    background-color: var(--color-event-error);
+    color: var(--color-text-inverse);
     font-size: 0.6rem;
 }
 .event-type-button .event-count {
