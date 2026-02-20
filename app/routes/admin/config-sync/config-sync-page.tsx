@@ -76,7 +76,7 @@ const ConfigSyncForm = () => {
             id="sourceUrl"
             type="text"
             required
-            placeholder="http://source-server:8888"
+            placeholder="https://ravenbrain.team1310.ca"
             value={sourceUrl}
             onChange={(e) => setSourceUrl(e.target.value)}
           />
