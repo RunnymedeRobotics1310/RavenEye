@@ -487,7 +487,9 @@ export async function configSync(
   } else if (resp.status === 401) {
     throw new Error("Authentication failed");
   } else if (resp.status === 403) {
-    throw new Error("Access denied — superuser role required");
+    throw new Error(
+      "Access denied — insufficient privileges to perform this operation",
+    );
   } else {
     let detail = "Server error: " + resp.status;
     try {
