@@ -14,7 +14,6 @@ import "~/assets/css/typography.css";
 import "~/assets/css/colors.css";
 import "~/assets/css/layout.css";
 import "~/assets/css/components.css";
-import "~/assets/css/report.css";
 import logoUrl from "~/assets/images/logo.png";
 import titleUrl from "~/assets/images/title.png";
 import Sync from "~/common/icons/Sync.tsx";
