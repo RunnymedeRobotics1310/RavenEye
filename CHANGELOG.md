@@ -1,3 +1,10 @@
+# [3.7.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.6.1...v3.7.0) (2026-02-20)
+
+
+### Features
+
+* Sync from server ([#169](https://github.com/RunnymedeRobotics1310/RavenEye/issues/169)) ([d5b488b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d5b488bfabf33aed4494da8e346cac0b4583645c))
+
 ## [3.6.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.6.0...v3.6.1) (2026-02-19)
 
 
