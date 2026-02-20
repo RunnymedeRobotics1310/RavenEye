@@ -57,8 +57,6 @@
     --color-error: #cc0000;
     --color-warning: #e67e00;
     --color-info: #2196f3;
-    --color-event-tracked: #f5a0a0;
-    --color-event-error: #992222;
 
     --alliance-red: #d40000;
     --alliance-blue: #0044aa;
@@ -81,45 +79,43 @@
         --color-text-secondary: #aaaaaa;
         --color-text-tertiary: #888888;
         --color-text-inverse: #ffffff;
-        --color-text-link: #ef4444;
-        --color-text-link-hover: #f87171;
+        --color-text-link: #e03030;
+        --color-text-link-hover: #f06060;
 
-        --color-accent: #ef4444;
-        --color-accent-hover: #f87171;
-        --color-accent-active: #dc2626;
-        --color-accent-light: #3f1a1a;
+        --color-accent: #e03030;
+        --color-accent-hover: #f06060;
+        --color-accent-active: #b30000;
+        --color-accent-light: #3a1515;
 
-        --color-btn-primary-bg: #dc2626;
+        --color-btn-primary-bg: #cc0000;
         --color-btn-primary-text: #ffffff;
-        --color-btn-primary-hover: #ef4444;
-        --color-btn-primary-active: #b91c1c;
+        --color-btn-primary-hover: #e03030;
+        --color-btn-primary-active: #b30000;
         --color-btn-secondary-bg: transparent;
-        --color-btn-secondary-text: #ef4444;
-        --color-btn-secondary-border: #ef4444;
-        --color-btn-secondary-hover-bg: #3f1a1a;
+        --color-btn-secondary-text: #e03030;
+        --color-btn-secondary-border: #e03030;
+        --color-btn-secondary-hover-bg: #3a1515;
 
         --color-border: #444444;
-        --color-border-accent: #ef4444;
-        --color-border-focus: #ef4444;
+        --color-border-accent: #e03030;
+        --color-border-focus: #e03030;
         --color-input-bg: #2a2a2a;
         --color-input-border: #555555;
-        --color-input-focus-shadow: rgba(239, 68, 68, 0.2);
+        --color-input-focus-shadow: rgba(224, 48, 48, 0.2);
 
-        --color-table-header-bg: #dc2626;
+        --color-table-header-bg: #cc0000;
         --color-table-header-text: #ffffff;
         --color-table-stripe: #2a2a2a;
-        --color-table-hover: #3f1a1a;
+        --color-table-hover: #3a1515;
 
         --color-success: #66bb6a;
-        --color-error: #ef4444;
+        --color-error: #e03030;
         --color-warning: #ffb74d;
         --color-info: #64b5f6;
-        --color-event-tracked: #7a3333;
-        --color-event-error: #5c1a1a;
 
-        --alliance-red: #ef4444;
+        --alliance-red: #e03030;
         --alliance-blue: #4488ff;
-        --alliance-red-bg: #3f1a1a;
+        --alliance-red-bg: #3a1515;
         --alliance-blue-bg: #152040;
 
         --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);

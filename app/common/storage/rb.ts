@@ -459,49 +459,6 @@ export async function updateStrategyArea(
   });
 }
 
-export interface ConfigSyncRequest {
-  sourceUrl: string;
-  sourceUser: string;
-  sourcePassword: string;
-}
-
-export interface ConfigSyncResult {
-  strategyAreas: number;
-  eventTypes: number;
-  sequenceTypes: number;
-  sequenceEvents: number;
-  tournaments: number;
-  schedules: number;
-  message: string;
-}
-
-export async function configSync(
-  request: ConfigSyncRequest,
-): Promise<ConfigSyncResult> {
-  const resp = await rbfetch("/api/config-sync", {
-    method: "POST",
-    body: JSON.stringify(request),
-  });
-  if (resp.ok) {
-    return resp.json() as unknown as ConfigSyncResult;
-  } else if (resp.status === 401) {
-    throw new Error("Authentication failed");
-  } else if (resp.status === 403) {
-    throw new Error(
-      "Access denied — insufficient privileges to perform this operation",
-    );
-  } else {
-    let detail = "Server error: " + resp.status;
-    try {
-      const body = await resp.text();
-      if (body) detail = "Server error: " + body;
-    } catch {
-      // ignore
-    }
-    throw new Error(detail);
-  }
-}
-
 /**
  * Fetches a sequence type based on a given identifier.
  *

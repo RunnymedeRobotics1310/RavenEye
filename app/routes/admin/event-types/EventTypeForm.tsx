@@ -119,25 +119,25 @@ export const EventTypeForm = ({
         </select>
       </div>
       <div className="form-field">
-        <label>
+        <label className="checkbox-and-label">
           <input
             type="checkbox"
             checked={item.showQuantity}
             onChange={(e) =>
               setItem({ ...item, showQuantity: e.target.checked })
             }
-          />{" "}
-          Show Quantity
+          />
+          <span>Show Quantity</span>
         </label>
       </div>
       <div className="form-field">
-        <label>
+        <label className="checkbox-and-label">
           <input
             type="checkbox"
             checked={item.showNote}
             onChange={(e) => setItem({ ...item, showNote: e.target.checked })}
-          />{" "}
-          Show Note
+          />
+          <span>Show Note</span>
         </label>
       </div>
       <div className="form-actions">

@@ -80,6 +80,18 @@ a:focus-visible {
     fill: var(--color-bg-primary);
 }
 
+/* Track inputs */
+.human-feedback,
+.match-select {
+    input {
+        background-color: var(--color-input-bg);
+        color: var(--color-text-primary);
+        &::placeholder {
+            color: var(--color-text-tertiary);
+        }
+    }
+}
+
 /* Sync status */
 .syncLoading {
     color: var(--color-text-tertiary);
@@ -102,3 +114,8 @@ a:focus-visible {
     fill: var(--color-success);
 }
 
+/* Disabled team button */
+.match-select .team-select button:disabled {
+    color: var(--color-text-tertiary);
+    background-color: var(--color-bg-tertiary);
+}
