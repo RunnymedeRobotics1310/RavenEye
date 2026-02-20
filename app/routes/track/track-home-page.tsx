@@ -13,6 +13,11 @@ import areaRegistry from "~/common/track/strat-area/areaRegistry.ts";
 import AreaPage from "~/common/track/strat-area/AreaPage.tsx";
 import seqRegistry from "~/common/track/seq/seqRegistry.ts";
 import SequencePage from "~/common/track/seq/SequencePage.tsx";
+import AutoPage from "~/common/track/seq/AutoPage.tsx";
+import ScorePage from "~/common/track/seq/ScorePage.tsx";
+import PickupPage from "~/common/track/seq/PickupPage.tsx";
+import DefensePage from "~/common/track/seq/DefensePage.tsx";
+import EndgamePage from "~/common/track/seq/EndgamePage.tsx";
 
 export type TrackScreenProps = {
   navigate: (to: string) => void;
@@ -67,6 +72,11 @@ const TrackHomePage = () => {
       {activeScreen === "drill-setup" && <DrillSetup {...props} />}
       {activeScreen === "area-menu" && <AreaStart {...props} />}
       {activeScreen === "pit" && <PitScoutPage {...props} />}
+      {activeScreen === "auto" && <AutoPage {...props} />}
+      {activeScreen === "scoring" && <ScorePage {...props} />}
+      {activeScreen === "pickup" && <PickupPage {...props} />}
+      {activeScreen === "defence" && <DefensePage {...props} />}
+      {activeScreen === "endgame" && <EndgamePage {...props} />}
       {activeScreen === "comp-tournament" && <CompStart {...props} />}
       {activeScreen === "comp-level" && <CompLevel {...props} />}
       {activeScreen === "comp-match" && <MatchForm {...props} />}
