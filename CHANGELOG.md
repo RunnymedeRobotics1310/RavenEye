@@ -1,3 +1,10 @@
+## [3.7.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.0...v3.7.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* Remove unused styles ([6abaf39](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6abaf397b4d2016374137109e6e256f021fcf704))
+
 # [3.7.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.6.1...v3.7.0) (2026-02-20)
 
 
