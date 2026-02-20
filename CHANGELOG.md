@@ -1,3 +1,26 @@
+## [3.7.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.0...v3.7.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* Remove unused styles ([6abaf39](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6abaf397b4d2016374137109e6e256f021fcf704))
+
+# [3.7.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.6.1...v3.7.0) (2026-02-20)
+
+
+### Features
+
+* Sync from server ([#169](https://github.com/RunnymedeRobotics1310/RavenEye/issues/169)) ([d5b488b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d5b488bfabf33aed4494da8e346cac0b4583645c))
+
+## [3.6.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.6.0...v3.6.1) (2026-02-19)
+
+
+### Bug Fixes
+
+* Design system renders sync colors ([f408f00](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f408f001c06a7ee95eba6c2df819ed58457697c3))
+* Look and feel fixes: ([bfae715](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bfae715b9c0515fc59fd2b5587db62eba36e0f7b))
+* Standardize form field usage ([be74067](https://github.com/RunnymedeRobotics1310/RavenEye/commit/be740677ff538a0a7e3d34c5042ec2830d2a79b6))
+
 # [3.6.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.5.0...v3.6.0) (2026-02-18)
 
 

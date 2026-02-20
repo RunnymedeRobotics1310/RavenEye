@@ -30,15 +30,15 @@ button {
     font-size: 0.85rem;
     border: 2px solid transparent;
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.1s;
+    transition: background-color 0.15s, transform 0.2s;
 }
 button:hover {
     background-color: var(--color-btn-primary-hover);
-    transform: translateY(-1px);
+    transform: scale(1.04);
 }
 button:active {
     background-color: var(--color-btn-primary-active);
-    transform: translateY(0);
+    transform: scale(1);
 }
 button:disabled {
     opacity: 0.4;
@@ -77,16 +77,16 @@ button.secondary:hover {
     font-size: 0.85rem;
     border: 2px solid transparent;
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.1s;
+    transition: background-color 0.15s, transform 0.2s;
 }
 .btn:hover {
     background-color: var(--color-btn-primary-hover);
     color: var(--color-btn-primary-text);
-    transform: translateY(-1px);
+    transform: scale(1.04);
 }
 .btn:active {
     background-color: var(--color-btn-primary-active);
-    transform: translateY(0);
+    transform: scale(1);
 }
 .btn:visited {
     color: var(--color-btn-primary-text);
@@ -105,7 +105,7 @@ button.secondary:hover {
     font-size: 0.85rem;
     border: 2px solid var(--color-btn-secondary-border);
     cursor: pointer;
-    transition: background-color 0.15s, transform 0.1s;
+    transition: background-color 0.15s, transform 0.2s;
 }
 .btn-secondary:hover {
     background: var(--color-btn-secondary-hover-bg);
@@ -120,12 +120,6 @@ button.secondary:hover {
  * BUTTON OVERRIDE ZONES
  *
  */
-.event-type-button button {
-    text-transform: none;
-    letter-spacing: normal;
-    padding: 0.3rem 0.6rem;
-    border-radius: var(--border-radius);
-}
 .camoButton {
     background: none;
     outline: none;
@@ -137,11 +131,6 @@ button.secondary:hover {
 .camoButton:hover {
     background: none;
     transform: none;
-}
-.phase-selector-switch button {
-    border-radius: 0;
-    text-transform: none;
-    letter-spacing: normal;
 }
 
 /*
@@ -156,7 +145,7 @@ select {
     font-family: inherit;
     font-size: inherit;
 }
-input,
+input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
     border: 2px solid var(--color-input-border);
@@ -165,7 +154,7 @@ select {
     background-color: var(--color-input-bg);
     color: var(--color-text-primary);
 }
-input:focus,
+input:not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus,
 select:focus {
     outline: none;
@@ -182,8 +171,6 @@ input:read-only {
  * ADMIN TABLES
  *
  */
-section.tournamentAdmin,
-section.scheduleAdmin,
 section.strategyareasAdmin,
 section.sequencetypesAdmin,
 section.eventtypesAdmin,
@@ -240,6 +227,19 @@ section.usersAdmin {
     letter-spacing: 0.03em;
     margin-bottom: 0.25rem;
 }
+.form-field label:has(input[type="checkbox"]) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-transform: none;
+    font-weight: 400;
+    font-size: inherit;
+}
+.form-field label:has(input[type="checkbox"]) input[type="checkbox"] {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--color-accent);
+}
 .form-field input,
 .form-field textarea,
 .form-field select {
@@ -279,113 +279,18 @@ section.usersAdmin {
  * MISC COMPONENTS
  *
  */
-.red-auto-map,
-.blue-auto-map {
-    justify-self: center;
-    align-self: center;
-    display: grid;
-    grid-template-areas: "left center right";
-    aspect-ratio: 1376/494;
-    width: 100%;
-    div {
-        margin-top: 2rem;
-        justify-self: center;
-        align-self: center;
-        button {
-            margin: 0.35rem;
-        }
-    }
-}
-
-#start-button,
-.next-button {
-    width: 10rem;
-    button {
-        width: 100%;
-    }
-}
-
-.external-team-number {
-    justify-self: center;
-    width: 100%;
-    span {
-        justify-self: center;
-        align-self: center;
-        display: block;
-    }
-}
-
-.algae {
-    font-weight: 900;
-    color: lightseagreen;
-    text-decoration: none;
-}
-.coral {
-    font-weight: 900;
-    color: lightgrey;
-}
-
-.team {
-    font-size: 1.5rem;
-    padding: 0.3rem;
-    align-self: center;
-    justify-self: center;
-}
-
-.phase-selector-switch {
-    border-style: solid;
-    border-radius: var(--border-radius);
-    border-width: 1px;
-    width: 100%;
-    button {
-        margin: 0;
-        border-width: 0;
-        padding: 0;
-    }
-}
-.phase-selector-switch span {
-    padding: 0 0.5rem;
-}
-
-.red-field-container,
-.blue-field-container {
-    max-height: calc(var(--min-main-height) - var(--header-height));
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-.red-field-container {
-    background-image: url("../2025/fields/reefscape-red.png");
-    border: 3px solid var(--alliance-red);
-}
-.blue-field-container {
-    background-image: url("../2025/fields/reefscape-blue.png");
-    border: 3px solid var(--alliance-blue);
-}
-
-.red-auto-map,
-.blue-auto-map {
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-}
-.red-auto-map {
-    background-image: url("../2025/fields/automap-red.png");
-}
-.blue-auto-map {
-    background-image: url("../2025/fields/automap-blue.png");
-}
-
 .event-type-button button {
-    transition: background-color 0.3s ease;
+    font-size: 1.4rem;
+    padding: 0.6rem 2rem;
+    transition: background-color 0.3s ease, transform 0.2s;
 }
 .event-type-button button.event-tracked {
-    background-color: #2a2;
-    transition: background-color 0.05s ease;
+    background-color: var(--color-event-tracked);
+    transition: background-color 0.05s ease, transform 0.2s;
 }
 .event-type-button button.event-error {
-    background-color: #b33;
-    color: #fff;
+    background-color: var(--color-event-error);
+    color: var(--color-text-inverse);
     font-size: 0.6rem;
 }
 .event-type-button .event-count {
@@ -400,62 +305,6 @@ section.usersAdmin {
 .event-type-button .event-type-note {
     width: 5rem;
     margin-left: 0.25rem;
-}
-
-.disabled-button {
-    background: var(--alliance-red);
-}
-
-.starButton {
-    padding: 0;
-    max-width: 3rem;
-    height: 3rem;
-}
-
-.sub-title {
-    margin: 0.5rem;
-}
-
-.rp-label {
-    padding: 0 1rem;
-}
-
-.checkbox-and-label {
-    display: inline-block;
-    white-space: nowrap;
-
-    input {
-        vertical-align: middle;
-        width: 1.25rem;
-        height: 1.25rem;
-        border-radius: var(--border-radius);
-    }
-
-    span {
-        vertical-align: middle;
-        margin-left: .5rem;
-    }
-}
-
-.checklist {
-    width: 100%;
-    padding-left: 4rem;
-    padding-bottom: 0.5rem;
-
-    label {
-        display: inline-block;
-        width: 80%;
-        margin-right: 1rem;
-    }
-
-    label.shared {
-        width: 45%;
-    }
-
-    label span,
-    label input {
-        line-height: 1.5rem;
-    }
 }
 
 .spinner {
@@ -476,9 +325,6 @@ section.usersAdmin {
     animation: spin 1.3s linear infinite;
 }
 
-.googleExampleContentPreStyle {
-    white-space: pre-wrap;
-}
 table.tools {
     td {
         padding: 0.25rem;

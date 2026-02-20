@@ -6,6 +6,7 @@ export default [
   route("login", "./routes/auth/login-page.tsx"),
   route("logout", "./routes/auth/logout-page.tsx"),
   route("admin", "./routes/admin/admin-page.tsx"),
+  route("admin/design-system", "./routes/admin/design-system-page.tsx"),
   route("admin/users", "./routes/admin/users/users-page.tsx"),
   route("admin/users/add", "./routes/admin/users/add-page.tsx"),
   route("admin/users/:id", "./routes/admin/users/edit-page.tsx"),
@@ -44,6 +45,10 @@ export default [
   route(
     "admin/event-types/:eventtype",
     "./routes/admin/event-types/edit-page.tsx",
+  ),
+  route(
+    "admin/config-sync",
+    "./routes/admin/config-sync/config-sync-page.tsx",
   ),
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
