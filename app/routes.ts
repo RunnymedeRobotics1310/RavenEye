@@ -46,6 +46,10 @@ export default [
     "admin/event-types/:eventtype",
     "./routes/admin/event-types/edit-page.tsx",
   ),
+  route(
+    "admin/config-sync",
+    "./routes/admin/config-sync/config-sync-page.tsx",
+  ),
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
   route("track", "./routes/track/track-home-page.tsx"),
