@@ -11,8 +11,12 @@ import { doManualSync } from "~/common/sync/sync.ts";
 
 const LOCALSTORAGE_KEY = "raveneye_config_sync_source_url";
 
+const isProduction = (import.meta.env.VITE_API_HOST || "").includes(
+  "ravenbrain.team1310.ca",
+);
+
 const ConfigSyncForm = () => {
-  const { isSuperuser, isAdmin, loading: roleLoading } = useRole();
+  const { isSuperuser, loading: roleLoading } = useRole();
   const [sourceUrl, setSourceUrl] = useState(
     () => localStorage.getItem(LOCALSTORAGE_KEY) || "",
   );
@@ -21,11 +25,12 @@ const ConfigSyncForm = () => {
   const [syncing, setSyncing] = useState(false);
   const [result, setResult] = useState<ConfigSyncResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [prodAcknowledged, setProdAcknowledged] = useState(false);
 
   if (roleLoading) return <Spinner />;
 
-  if (!isSuperuser && !isAdmin) {
-    return <p>This page is restricted to administrators.</p>;
+  if (!isSuperuser) {
+    return <p>This page is restricted to superusers.</p>;
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -100,8 +105,25 @@ const ConfigSyncForm = () => {
           />
         </div>
 
+        {isProduction && (
+          <div className="form-field">
+            <label>
+              <input
+                type="checkbox"
+                checked={prodAcknowledged}
+                onChange={(e) => setProdAcknowledged(e.target.checked)}
+              />{" "}
+              I understand I am about to replace PRODUCTION DATA with data from
+              another system
+            </label>
+          </div>
+        )}
+
         <div className="form-actions">
-          <button type="submit" disabled={syncing}>
+          <button
+            type="submit"
+            disabled={syncing || (isProduction && !prodAcknowledged)}
+          >
             Sync Now
           </button>
         </div>

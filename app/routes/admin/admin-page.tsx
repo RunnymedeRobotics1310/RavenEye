@@ -2,11 +2,10 @@ import { NavLink } from "react-router";
 import { getRoles } from "~/common/storage/rbauth.ts";
 
 const AdminPage = () => {
-  let isAdminOrSuperuser = false;
+  let isSuperuser = false;
   try {
     const roles = getRoles();
-    isAdminOrSuperuser =
-      roles.includes("ROLE_ADMIN") || roles.includes("ROLE_SUPERUSER");
+    isSuperuser = roles.includes("ROLE_SUPERUSER");
   } catch {
     // not logged in
   }
@@ -30,7 +29,7 @@ const AdminPage = () => {
         <li>
           <NavLink to={"/admin/design-system"}>Design System</NavLink>
         </li>
-        {isAdminOrSuperuser && (
+        {isSuperuser && (
           <li>
             <NavLink to={"/admin/config-sync"}>Sync from Source</NavLink>
           </li>
