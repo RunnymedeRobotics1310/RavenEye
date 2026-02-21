@@ -2,7 +2,7 @@ import type { TrackScreenProps } from "~/routes/track/track-home-page";
 
 const Home = ({ navigate }: TrackScreenProps) => {
   return (
-    <main>
+    <main className="track">
       <h1>Track</h1>
       <p>
         Scouts and team members - you're in the right place to track robots!

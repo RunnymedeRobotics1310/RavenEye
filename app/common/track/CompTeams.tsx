@@ -31,7 +31,7 @@ const CompTeams = ({ navigate, goBack }: TrackScreenProps) => {
   const blueTeams = match ? [match.blue1, match.blue2, match.blue3] : [];
 
   return (
-    <main>
+    <main className="track">
       <button className="secondary" onClick={goBack}>Back</button>
       <h2>Match {session.matchId}</h2>
       <p>Select a team to scout:</p>

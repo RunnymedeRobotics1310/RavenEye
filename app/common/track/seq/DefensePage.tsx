@@ -29,7 +29,7 @@ const DefensePage = ({ goBack }: TrackScreenProps) => {
   };
 
   return (
-    <main>
+    <main className="track">
       <div>
         <button className="secondary" onClick={goBack}>Back</button>
         <h2>Defense</h2>

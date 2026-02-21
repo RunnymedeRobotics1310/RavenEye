@@ -279,32 +279,47 @@ section.usersAdmin {
  * MISC COMPONENTS
  *
  */
-.event-type-button button {
+main.track button {
     font-size: 1.4rem;
     padding: 0.6rem 2rem;
     transition: background-color 0.3s ease, transform 0.2s;
+    margin: 2px;
 }
-.event-type-button button.event-tracked {
+main.track button.event-tracked {
     background-color: var(--color-event-tracked);
     transition: background-color 0.05s ease, transform 0.2s;
 }
-.event-type-button button.event-error {
+main.track button.event-error {
     background-color: var(--color-event-error);
     color: var(--color-text-inverse);
     font-size: 0.6rem;
 }
-.event-type-button .event-count {
+main.track .event-count {
     margin-left: 0.25rem;
     font-size: 0.7rem;
     font-weight: bold;
 }
-.event-type-button .event-type-quantity {
+main.track .event-type-quantity {
     width: 3rem;
     margin-left: 0.25rem;
 }
-.event-type-button .event-type-note {
+main.track .event-type-note {
     width: 5rem;
     margin-left: 0.25rem;
+}
+.score-fuel-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.score-fuel-label {
+    font-size: 0.9rem;
+    font-weight: bold;
+    min-width: 6rem;
+}
+.score-fuel-slider {
+    flex: 1;
+    max-width: 12rem;
 }
 
 .spinner {
