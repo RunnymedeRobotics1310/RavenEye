@@ -1,3 +1,12 @@
+## [3.7.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.1...v3.7.2) (2026-02-21)
+
+
+### Bug Fixes
+
+* Better formatting for sequencew type checkboxes ([1bda0ad](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1bda0ad9f5a58e5bf5412efe26d557fa597974c3))
+* don't allow _ in codes. ([172df1a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/172df1a8d4c2acd895b1a1d125741f89547bec6a))
+* Safe delete support ([71a6ba2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/71a6ba2ec38f59e20f385f11f8783a2fda0b4541))
+
 ## [3.7.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.0...v3.7.1) (2026-02-20)
 
 
