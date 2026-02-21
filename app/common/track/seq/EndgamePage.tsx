@@ -6,7 +6,7 @@ const EndgamePage = ({ goBack }: TrackScreenProps) => {
     recordEvent("climb-fail");
   };
   return (
-    <main>
+    <main className="track">
       <div>
         <button className="secondary" onClick={goBack}>Back</button>
         <h2>Endgame</h2>

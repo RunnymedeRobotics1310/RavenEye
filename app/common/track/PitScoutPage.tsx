@@ -32,7 +32,7 @@ const PitScoutPage = ({ goBack }: TrackScreenProps) => {
   }
 
   return (
-    <main>
+    <main className="track">
       <button className="secondary" onClick={goBack}>Back</button>
       <h4>Hello I'm a Pit Scout</h4>
       <p>make an editable document?</p>

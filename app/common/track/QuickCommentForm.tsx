@@ -21,7 +21,7 @@ function QuickCommentForm({ goBack }: TrackScreenProps) {
 
   if (submitted) {
     return (
-      <main>
+      <main className="track">
         <section>
           <h2>Quick Comment</h2>
           <p>Comment recorded successfully!</p>
@@ -37,7 +37,7 @@ function QuickCommentForm({ goBack }: TrackScreenProps) {
   }
 
   return (
-    <main>
+    <main className="track">
       <h2>Quick Comment</h2>
       <p>
         Record a quick comment about a team. Start by entering their team

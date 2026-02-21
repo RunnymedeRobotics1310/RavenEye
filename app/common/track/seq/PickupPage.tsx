@@ -2,7 +2,7 @@ import type { TrackScreenProps } from "~/routes/track/track-home-page";
 
 const PickupPage = ({ goBack }: TrackScreenProps) => {
   return (
-    <main>
+    <main className="track">
       <div>
         <button className="secondary" onClick={goBack}>Back</button>
         <h2>Pickup</h2>

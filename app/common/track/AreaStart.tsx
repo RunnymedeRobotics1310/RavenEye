@@ -30,14 +30,14 @@ const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
 
   if (loading) {
     return (
-      <main>
+      <main className="track">
         <Spinner />
       </main>
     );
   }
 
   return (
-    <main>
+    <main className="track">
       <button className="secondary" onClick={goBack}>Back</button>
       <p>Which area are you scouting?</p>
       {areas.map((area) => (

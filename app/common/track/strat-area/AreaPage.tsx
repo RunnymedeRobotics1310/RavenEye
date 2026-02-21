@@ -6,7 +6,7 @@ import {
   useEventTypeList,
 } from "~/common/storage/dbhooks.ts";
 import Spinner from "~/common/Spinner.tsx";
-import EventTypeButton from "~/common/track/EventTypeButton.tsx";
+import EventTypeControl from "~/common/track/event-type/EventTypeControl.tsx";
 
 const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
   const { list: areas, loading: areasLoading } = useStrategyAreaList();
@@ -53,7 +53,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
 
   if (!area) {
     return (
-      <main>
+      <main className="track">
         <button className="secondary" onClick={goBack}>Back</button>
         <p>Strategy area not found.</p>
       </main>
@@ -61,22 +61,22 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
   }
 
   return (
-    <main>
+    <main className="track">
       <button className="secondary" onClick={goBack}>Back</button>
-      <h2>{area.name}</h2>
+      <h2>Strategy Area: {area.name}</h2>
       {areaSequences.map((seq) => (
         <span key={seq.id}>
           <button onClick={() => navigate("seq:" + seq.code)}>
-            {seq.name}
+            {seq.name} (Sequence)
           </button>{" "}
         </span>
       ))}
       {standaloneEvents.length > 0 && (
         <>
-          <h3>Events</h3>
+          <h3>Stand-Alone Events</h3>
           {standaloneEvents.map((et) => (
             <span key={et.eventtype}>
-              <EventTypeButton eventType={et} />{" "}
+              <EventTypeControl eventType={et} />{" "}
             </span>
           ))}
         </>

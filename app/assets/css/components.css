@@ -279,32 +279,99 @@ section.usersAdmin {
  * MISC COMPONENTS
  *
  */
-.event-type-button button {
+main.track button {
     font-size: 1.4rem;
     padding: 0.6rem 2rem;
     transition: background-color 0.3s ease, transform 0.2s;
+    margin: 2px;
 }
-.event-type-button button.event-tracked {
+main.track button.event-tracked {
     background-color: var(--color-event-tracked);
     transition: background-color 0.05s ease, transform 0.2s;
 }
-.event-type-button button.event-error {
+main.track button.event-error {
     background-color: var(--color-event-error);
     color: var(--color-text-inverse);
     font-size: 0.6rem;
 }
-.event-type-button .event-count {
+main.track .event-count {
     margin-left: 0.25rem;
     font-size: 0.7rem;
     font-weight: bold;
 }
-.event-type-button .event-type-quantity {
+main.track .event-type-quantity {
     width: 3rem;
     margin-left: 0.25rem;
 }
-.event-type-button .event-type-note {
+main.track .event-type-note {
     width: 5rem;
     margin-left: 0.25rem;
+}
+.score-fuel-control {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.6rem 0;
+    width: 100%;
+}
+.score-fuel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+.score-fuel-label {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+.score-fuel-value {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--color-accent);
+}
+.score-fuel-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+}
+.score-fuel-bound {
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+}
+.score-fuel-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--color-bg-tertiary);
+    outline: none;
+}
+.score-fuel-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    border: 2px solid var(--color-bg-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+}
+.score-fuel-slider::-moz-range-thumb {
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    border: 2px solid var(--color-bg-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+}
+.score-fuel-slider::-moz-range-track {
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--color-bg-tertiary);
 }
 
 .spinner {

@@ -118,7 +118,7 @@ const EventTypeDemo = ({
   };
 
   return (
-    <div className="event-type-button">
+    <div>
       <button
         type="button"
         className={flash ? "event-tracked" : undefined}
@@ -211,7 +211,7 @@ const DesignSystemPage = () => {
                 placeholder="note"
               />
             </EventTypeDemo>
-            <div className="event-type-button">
+            <div>
               <button type="button" className="event-error">
                 Error
               </button>

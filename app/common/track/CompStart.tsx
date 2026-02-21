@@ -45,7 +45,7 @@ const CompStart = ({ navigate, goBack }: TrackScreenProps) => {
   }
 
   return (
-    <main className="scout-select">
+    <main className="track scout-select">
       <div>
         <button className="secondary" onClick={goBack}>Back</button>
         <h2>{new Date().getFullYear()} Tournaments</h2>

@@ -2,7 +2,7 @@ import type { TrackScreenProps } from "~/routes/track/track-home-page";
 
 const AutoPage = ({ goBack }: TrackScreenProps) => {
   return (
-    <main>
+    <main className="track">
       <button className="secondary" onClick={goBack}>Back</button>
       <h2>Auto</h2>
       <p>map</p>
