@@ -21,51 +21,52 @@
     --color-bg-primary: #f5f5f5;
     --color-bg-secondary: #ffffff;
     --color-bg-tertiary: #eaeaea;
-    --color-bg-header: #cc0000;
+    --color-bg-header: var(--runnymede-red);
+    --color-text-header: #1a1a1a;
 
     --color-text-primary: #1a1a1a;
     --color-text-secondary: #555555;
     --color-text-tertiary: #777777;
     --color-text-inverse: #ffffff;
-    --color-text-link: #cc0000;
-    --color-text-link-hover: #a30000;
+    --color-text-link: #E53218;
+    --color-text-link-hover: #BF2812;
 
-    --color-accent: #cc0000;
-    --color-accent-hover: #a30000;
-    --color-accent-active: #8a0000;
-    --color-accent-light: #fce8e8;
+    --color-accent: var(--runnymede-red);
+    --color-accent-hover: #D93018;
+    --color-accent-active: #B32716;
+    --color-accent-light: #FFEDEA;
 
-    --color-btn-primary-bg: #cc0000;
+    --color-btn-primary-bg: var(--runnymede-red);
     --color-btn-primary-text: #ffffff;
-    --color-btn-primary-hover: #a30000;
-    --color-btn-primary-active: #8a0000;
+    --color-btn-primary-hover: #D93018;
+    --color-btn-primary-active: #B32716;
     --color-btn-secondary-bg: transparent;
-    --color-btn-secondary-text: #cc0000;
-    --color-btn-secondary-border: #cc0000;
-    --color-btn-secondary-hover-bg: #fce8e8;
+    --color-btn-secondary-text: var(--runnymede-red);
+    --color-btn-secondary-border: var(--runnymede-red);
+    --color-btn-secondary-hover-bg: #FFEDEA;
 
     --color-border: #dddddd;
-    --color-border-accent: #cc0000;
-    --color-border-focus: #cc0000;
+    --color-border-accent: var(--runnymede-red);
+    --color-border-focus: var(--runnymede-red);
     --color-input-bg: #ffffff;
     --color-input-border: #cccccc;
-    --color-input-focus-shadow: rgba(204, 0, 0, 0.15);
+    --color-input-focus-shadow: rgba(255, 56, 32, 0.15);
 
-    --color-table-header-bg: #cc0000;
+    --color-table-header-bg: var(--runnymede-red);
     --color-table-header-text: #ffffff;
     --color-table-stripe: #f0f0f0;
-    --color-table-hover: #fce8e8;
+    --color-table-hover: #FFEDEA;
 
     --color-success: #2e7d32;
-    --color-error: #cc0000;
+    --color-error: #DC2626;
     --color-warning: #e67e00;
     --color-info: #2196f3;
-    --color-event-tracked: #f5a0a0;
-    --color-event-error: #992222;
+    --color-event-tracked: #FFB8B0;
+    --color-event-error: #8C1F12;
 
     --alliance-red: #d40000;
     --alliance-blue: #0044aa;
-    --alliance-red-bg: #fde8e8;
+    --alliance-red-bg: #FFEDEA;
     --alliance-blue-bg: #e8eefb;
 
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -78,51 +79,52 @@
         --color-bg-primary: #1a1a1a;
         --color-bg-secondary: #242424;
         --color-bg-tertiary: #2e2e2e;
-        --color-bg-header: #cc0000;
+        --color-bg-header: var(--runnymede-red);
+        --color-text-header: #ffffff;
 
         --color-text-primary: #f0f0f0;
         --color-text-secondary: #aaaaaa;
         --color-text-tertiary: #888888;
         --color-text-inverse: #ffffff;
-        --color-text-link: #ef4444;
-        --color-text-link-hover: #f87171;
+        --color-text-link: #FF5A47;
+        --color-text-link-hover: #FF7A6B;
 
-        --color-accent: #ef4444;
-        --color-accent-hover: #f87171;
-        --color-accent-active: #dc2626;
-        --color-accent-light: #3f1a1a;
+        --color-accent: #FF5A47;
+        --color-accent-hover: #FF7A6B;
+        --color-accent-active: #E53520;
+        --color-accent-light: #3D1A15;
 
-        --color-btn-primary-bg: #dc2626;
+        --color-btn-primary-bg: #E53520;
         --color-btn-primary-text: #ffffff;
-        --color-btn-primary-hover: #ef4444;
-        --color-btn-primary-active: #b91c1c;
+        --color-btn-primary-hover: #FF4D38;
+        --color-btn-primary-active: #BF2812;
         --color-btn-secondary-bg: transparent;
-        --color-btn-secondary-text: #ef4444;
-        --color-btn-secondary-border: #ef4444;
-        --color-btn-secondary-hover-bg: #3f1a1a;
+        --color-btn-secondary-text: #FF5A47;
+        --color-btn-secondary-border: #FF5A47;
+        --color-btn-secondary-hover-bg: #3D1A15;
 
         --color-border: #444444;
-        --color-border-accent: #ef4444;
-        --color-border-focus: #ef4444;
+        --color-border-accent: #FF5A47;
+        --color-border-focus: #FF5A47;
         --color-input-bg: #2a2a2a;
         --color-input-border: #555555;
-        --color-input-focus-shadow: rgba(239, 68, 68, 0.2);
+        --color-input-focus-shadow: rgba(255, 90, 71, 0.2);
 
-        --color-table-header-bg: #dc2626;
+        --color-table-header-bg: #E53520;
         --color-table-header-text: #ffffff;
         --color-table-stripe: #2a2a2a;
-        --color-table-hover: #3f1a1a;
+        --color-table-hover: #3D1A15;
 
         --color-success: #66bb6a;
-        --color-error: #ef4444;
+        --color-error: #FF5A47;
         --color-warning: #ffb74d;
         --color-info: #64b5f6;
-        --color-event-tracked: #7a3333;
-        --color-event-error: #5c1a1a;
+        --color-event-tracked: #6B2A22;
+        --color-event-error: #4A1510;
 
-        --alliance-red: #ef4444;
+        --alliance-red: #FF5A47;
         --alliance-blue: #4488ff;
-        --alliance-red-bg: #3f1a1a;
+        --alliance-red-bg: #3D1A15;
         --alliance-blue-bg: #152040;
 
         --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);

@@ -15,7 +15,7 @@ import "~/assets/css/colors.css";
 import "~/assets/css/layout.css";
 import "~/assets/css/components.css";
 import logoUrl from "~/assets/images/logo.png";
-import titleUrl from "~/assets/images/title.png";
+import Title from "~/common/icons/Title.tsx";
 import Sync from "~/common/icons/Sync.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import {
@@ -29,7 +29,6 @@ import AdminMenu from "~/common/AdminMenu.tsx";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
-  { rel: "preload", href: titleUrl, as: "image" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -68,7 +67,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </NavLink>
             </div>
             <div id="title">
-              <img src={titleUrl} alt="1310 Raven Eye" />
+              <Title />
             </div>
             <div className="header-actions">
               <AdminMenu />

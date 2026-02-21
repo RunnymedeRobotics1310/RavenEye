@@ -27,19 +27,22 @@ a:focus-visible {
 /* Header */
 #layout > header {
     background-color: var(--color-bg-header);
-    color: var(--color-text-inverse);
+    color: var(--color-text-header);
 }
 #layout > header a,
 #layout > header a:visited,
 #layout > header a:hover,
 #layout > header a:active {
-    color: var(--color-text-inverse);
+    color: var(--color-text-header);
 }
 #layout > header .icon {
-    fill: var(--color-text-inverse);
+    fill: var(--color-text-header);
+}
+#layout > header #title svg {
+    fill: var(--color-text-header);
 }
 #layout > header .syncError {
-    fill: var(--color-text-inverse);
+    fill: var(--color-text-header);
 }
 
 /* Admin menu dropdown (uses page colors, not header inverse) */
