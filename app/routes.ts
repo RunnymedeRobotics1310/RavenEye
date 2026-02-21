@@ -5,7 +5,6 @@ export default [
   route("sync", "./routes/sync-page.tsx"),
   route("login", "./routes/auth/login-page.tsx"),
   route("logout", "./routes/auth/logout-page.tsx"),
-  route("admin", "./routes/admin/admin-page.tsx"),
   route("admin/design-system", "./routes/admin/design-system-page.tsx"),
   route("admin/users", "./routes/admin/users/users-page.tsx"),
   route("admin/users/add", "./routes/admin/users/add-page.tsx"),
