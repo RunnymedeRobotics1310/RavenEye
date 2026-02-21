@@ -25,7 +25,7 @@ const GenericEventTypeButton = ({ eventType }: { eventType: EventType }) => {
     };
 
     return (
-        <div className="event-type-button">
+        <div>
             <button type="button"
                     className={flashing ? "event-tracked" : error ? "event-error" : ""}
                     onClick={handleClick}

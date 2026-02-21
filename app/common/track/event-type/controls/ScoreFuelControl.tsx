@@ -25,7 +25,7 @@ const ScoreFuelControl = ({ eventType }: EventTypeControlProps) => {
   };
 
   return (
-    <div className="event-type-button score-fuel-control">
+    <div className="score-fuel-control">
       <label className="score-fuel-label">
         {eventType.name}: {quantity}
       </label>
