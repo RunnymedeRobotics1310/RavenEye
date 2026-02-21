@@ -1,3 +1,10 @@
+# [3.10.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.9.0...v3.10.0) (2026-02-21)
+
+
+### Features
+
+* configurable buttons by eventtype. ([#178](https://github.com/RunnymedeRobotics1310/RavenEye/issues/178)) ([f1747ec](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f1747ec7763f12df2587ab67564b2f946b453b9e))
+
 # [3.9.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.8.0...v3.9.0) (2026-02-21)
 
 
