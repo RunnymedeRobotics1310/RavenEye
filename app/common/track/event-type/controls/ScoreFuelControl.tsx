@@ -26,17 +26,22 @@ const ScoreFuelControl = ({ eventType }: EventTypeControlProps) => {
 
   return (
     <div className="score-fuel-control">
-      <label className="score-fuel-label">
-        {eventType.name}: {quantity}
-      </label>
-      <input
-        className="score-fuel-slider"
-        type="range"
-        min={0}
-        max={50}
-        value={quantity}
-        onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-      />
+      <div className="score-fuel-header">
+        <span className="score-fuel-label">{eventType.name}</span>
+        <span className="score-fuel-value">{quantity}</span>
+      </div>
+      <div className="score-fuel-slider-row">
+        <span className="score-fuel-bound">0</span>
+        <input
+          className="score-fuel-slider"
+          type="range"
+          min={0}
+          max={50}
+          value={quantity}
+          onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
+        />
+        <span className="score-fuel-bound">50</span>
+      </div>
       <button
         className={flashing ? "event-tracked" : error ? "event-error" : ""}
         disabled={quantity === 0}
