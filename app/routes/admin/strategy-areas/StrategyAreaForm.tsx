@@ -54,8 +54,8 @@ export const StrategyAreaForm = ({
           type="text"
           name="code"
           required
-          pattern="^[0-9a-z_-]+$"
-          title="Lowercase letters, numbers, hyphens, and underscores only"
+          pattern="^[0-9a-z-]+$"
+          title="Lowercase letters, numbers, and hyphens only"
           readOnly={isEdit}
           value={item.code}
           onChange={(e) => setItem({ ...item, code: e.target.value })}
