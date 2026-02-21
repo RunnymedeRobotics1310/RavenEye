@@ -25,6 +25,7 @@ import {
 import { useEffect, useState } from "react";
 import { getRavenBrainVersion } from "~/common/storage/rbauth.ts";
 import Banners from "~/common/banners/Banners.tsx";
+import AdminMenu from "~/common/AdminMenu.tsx";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
@@ -69,7 +70,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div id="title">
               <img src={titleUrl} alt="1310 Raven Eye" />
             </div>
-            <div className={"sync-button"}>
+            <div className="header-actions">
+              <AdminMenu />
               <NavLink to={"/sync"} className={"button"}>
                 <Sync status={syncStatus} />
               </NavLink>

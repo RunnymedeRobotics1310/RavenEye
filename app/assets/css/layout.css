@@ -27,12 +27,16 @@ html {
             }
 
         }
-        .sync-button {
+        .header-actions {
             justify-self: end;
             align-self: center;
-            width: 1.75rem;
-            margin-bottom: 0.85rem;
-            padding: 0.5rem 0.75rem 0 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding-right: 0.5rem;
+        }
+        .header-actions .icon {
+            margin-top: 0;
         }
     }
 

@@ -42,6 +42,16 @@ a:focus-visible {
     fill: var(--color-text-inverse);
 }
 
+/* Admin menu dropdown (uses page colors, not header inverse) */
+#layout > header .admin-menu-dropdown a,
+#layout > header .admin-menu-dropdown a:visited {
+    color: var(--color-text-primary);
+}
+#layout > header .admin-menu-dropdown a:hover,
+#layout > header .admin-menu-dropdown a:active {
+    color: var(--color-text-link);
+}
+
 /* Alliance */
 .allianceRed {
     color: var(--alliance-red);
