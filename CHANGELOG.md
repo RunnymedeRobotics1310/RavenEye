@@ -1,3 +1,10 @@
+# [3.9.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.8.0...v3.9.0) (2026-02-21)
+
+
+### Features
+
+* Refresh token support ([#177](https://github.com/RunnymedeRobotics1310/RavenEye/issues/177)) ([1d47c09](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1d47c09902e4a421d18da9d960a2dcbaef32dcf1))
+
 # [3.8.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.2...v3.8.0) (2026-02-21)
 
 
