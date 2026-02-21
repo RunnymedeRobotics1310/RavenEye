@@ -448,6 +448,10 @@ table tbody tr:nth-child(odd).forgot-password-row {
     display: flex;
     align-items: center;
 }
+.admin-menu-toggle .icon {
+    width: 2.25rem;
+    height: 2rem;
+}
 .admin-menu-toggle:hover {
     background: none;
     transform: none;
