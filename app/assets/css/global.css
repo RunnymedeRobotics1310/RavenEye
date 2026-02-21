@@ -1,10 +1,13 @@
 :root {
     /* Layout */
-    --header-height: 5rem;
+    --header-height: 3.5rem;
     --footer-height: 4rem;
     --border-radius: 0.75rem;
     --btn-border-radius: 999px;
     --min-main-height: calc(100vh - var(--header-height) - var(--footer-height));
+
+    /* Brand */
+    --runnymede-red: #FF3820;
 
     /* Spacing */
     --space-xs: 0.25rem;
