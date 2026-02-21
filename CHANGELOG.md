@@ -1,3 +1,20 @@
+# [3.8.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.2...v3.8.0) (2026-02-21)
+
+
+### Bug Fixes
+
+* Don't require login for design system page ([f9fd86b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f9fd86bf6e85b2d203c719f1455a240034afd020))
+* icon alignment ([0054f43](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0054f43ea6d7159a7c7e8b7d75b861e8bec66134))
+* Look and feel updates for light mode and mobile view ([c70c0ef](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c70c0ef1d43e2fcecf130a16ccd79ec4ad87d9b4))
+* merge conflict resolution ([df87106](https://github.com/RunnymedeRobotics1310/RavenEye/commit/df8710637608f33c723d91f600b66303e6deca4f))
+* Minor look and feel refinements for top nav ([606e6a3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/606e6a353a02b4208d20500f4b8a5cd96e390d50))
+
+
+### Features
+
+* admin menu ([dbada62](https://github.com/RunnymedeRobotics1310/RavenEye/commit/dbada62d920234b48639030e7e5882dc861573bf))
+* admin menu ([9355ecb](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9355ecb7268faf322305d65fd1798b308aef5989))
+
 ## [3.7.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.1...v3.7.2) (2026-02-21)
 
 
