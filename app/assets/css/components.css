@@ -458,7 +458,7 @@ table tbody tr:nth-child(odd).forgot-password-row {
     opacity: 0.8;
 }
 .admin-menu-toggle:focus-visible {
-    outline: 2px solid var(--color-text-inverse);
+    outline: 2px solid var(--color-text-header);
     outline-offset: 2px;
     border-radius: 2px;
 }

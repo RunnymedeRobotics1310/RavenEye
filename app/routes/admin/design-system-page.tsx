@@ -141,7 +141,6 @@ const DesignSystemPage = () => {
         mode to verify both themes.
       </p>
 
-      <RequireLogin>
         {/* ==================== TYPOGRAPHY ==================== */}
         <section>
           <h2>Typography</h2>
@@ -496,7 +495,6 @@ const DesignSystemPage = () => {
             </div>
           ))}
         </section>
-      </RequireLogin>
     </main>
   );
 };
