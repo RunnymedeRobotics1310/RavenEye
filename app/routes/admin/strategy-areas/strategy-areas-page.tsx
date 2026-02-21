@@ -1,10 +1,33 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import { NavLink } from "react-router";
-import { useStrategyAreaList } from "~/common/storage/dbhooks.ts";
+import { useStrategyAreaList, useTournamentList } from "~/common/storage/dbhooks.ts";
+import { useEffect, useState } from "react";
+import { ping, deleteStrategyArea } from "~/common/storage/rb.ts";
+import { syncStrategyAreaList } from "~/common/sync/sync.ts";
 
 const List = () => {
   const { list: data, loading } = useStrategyAreaList();
+  const { list: tournaments } = useTournamentList();
+  const [online, setOnline] = useState(false);
+  useEffect(() => { ping().then(setOnline); }, []);
+  const now = new Date();
+  const tournamentActive = tournaments.some(
+    (t) => new Date(t.startTime) <= now && now <= new Date(t.endTime),
+  );
+  const canDelete = online && !tournamentActive;
+
+  const handleDelete = async (id: number, name: string) => {
+    if (!window.confirm(`Delete "${name}"?`)) return;
+    try {
+      await deleteStrategyArea(id);
+      await syncStrategyAreaList();
+      window.location.reload();
+    } catch (err) {
+      alert("Cannot delete: " + (err instanceof Error ? err.message : String(err)));
+    }
+  };
+
   if (loading) return <Spinner />;
 
   const addButton = (
@@ -35,6 +58,7 @@ const List = () => {
               <td>{item.description}</td>
               <td>
                 <NavLink to={`/admin/strategy-areas/${item.id}`} className="btn">Edit</NavLink>
+                {canDelete && <button className="btn" onClick={() => handleDelete(item.id, item.name)}>Delete</button>}
               </td>
             </tr>
           ))}
@@ -54,12 +78,11 @@ const StrategyAreasPage = () => {
         year, but in 2027 this UI will need to be updated.
       </p>
       <p>
-        At this time, deleting strategy areas is not possible. A future
-        enhancement will allow this. In the meantime, do not re-use strategy
-        areas. Once a strategy area has been created, it will start to be used
-        with event types. Changing the meaning of a strategy area that is
-        already connected to an event type will result in corrupt data. Keep the
-        meaning of a strategy area consistent once created.
+        Do not re-use strategy areas. Once a strategy area has been created, it
+        will start to be used with event types. Changing the meaning of a
+        strategy area that is already connected to an event type will result in
+        corrupt data. Keep the meaning of a strategy area consistent once
+        created.
       </p>
       <RequireLogin>
         <List />

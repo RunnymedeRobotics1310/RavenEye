@@ -4,12 +4,34 @@ import { NavLink } from "react-router";
 import {
   useSequenceTypeList,
   useStrategyAreaList,
+  useTournamentList,
 } from "~/common/storage/dbhooks.ts";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { ping, deleteSequenceType } from "~/common/storage/rb.ts";
+import { syncSequenceTypeList } from "~/common/sync/sync.ts";
 
 const List = () => {
   const { list: data, loading } = useSequenceTypeList();
   const { list: strategyAreas } = useStrategyAreaList();
+  const { list: tournaments } = useTournamentList();
+  const [online, setOnline] = useState(false);
+  useEffect(() => { ping().then(setOnline); }, []);
+  const now = new Date();
+  const tournamentActive = tournaments.some(
+    (t) => new Date(t.startTime) <= now && now <= new Date(t.endTime),
+  );
+  const canDelete = online && !tournamentActive;
+
+  const handleDelete = async (id: number, name: string) => {
+    if (!window.confirm(`Delete "${name}"?`)) return;
+    try {
+      await deleteSequenceType(id);
+      await syncSequenceTypeList();
+      window.location.reload();
+    } catch (err) {
+      alert("Cannot delete: " + (err instanceof Error ? err.message : String(err)));
+    }
+  };
 
   const strategyAreaMap = useMemo(() => {
     const map = new Map<number, string>();
@@ -56,6 +78,7 @@ const List = () => {
               <td>{item.events?.length || 0}</td>
               <td>
                 <NavLink to={`/admin/sequence-types/${item.id}`} className="btn">Edit</NavLink>
+                {canDelete && <button className="btn" onClick={() => handleDelete(item.id, item.name)}>Delete</button>}
               </td>
             </tr>
           ))}

@@ -113,14 +113,14 @@ export const SequenceTypeForm = ({
           type="text"
           name="code"
           required
-          pattern="^[0-9a-zA-Z-]+$"
-          title="Letters, numbers, and hyphens only"
+          pattern="^[0-9a-z-]+$"
+          title="Lowercase letters, numbers, and hyphens only"
           readOnly={isEdit}
           value={item.code}
           onChange={(e) => setItem({ ...item, code: e.target.value })}
         />
         {!isEdit && (
-          <small> (letters, numbers, and hyphens only)</small>
+          <small> (lowercase letters, numbers, hyphens, and underscores only)</small>
         )}
       </div>
       <div className="form-field">
@@ -211,24 +211,34 @@ export const SequenceTypeForm = ({
                     </select>
                   </td>
                   <td>
-                    <input
-                      type="checkbox"
-                      checked={ev.startOfSequence}
-                      onChange={(e) =>
-                        updateEvent(index, {
-                          startOfSequence: e.target.checked,
-                        })
-                      }
-                    />
+                    <div className="form-field">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={ev.startOfSequence}
+                          aria-label="Start of sequence"
+                          onChange={(e) =>
+                            updateEvent(index, {
+                              startOfSequence: e.target.checked,
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
                   </td>
                   <td>
-                    <input
-                      type="checkbox"
-                      checked={ev.endOfSequence}
-                      onChange={(e) =>
-                        updateEvent(index, { endOfSequence: e.target.checked })
-                      }
-                    />
+                    <div className="form-field">
+                      <label>
+                        <input
+                          type="checkbox"
+                          checked={ev.endOfSequence}
+                          aria-label="End of sequence"
+                          onChange={(e) =>
+                            updateEvent(index, { endOfSequence: e.target.checked })
+                          }
+                        />
+                      </label>
+                    </div>
                   </td>
                   <td>
                     <button type="button" onClick={() => removeEvent(index)}>

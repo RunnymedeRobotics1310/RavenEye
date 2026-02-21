@@ -50,14 +50,14 @@ export const EventTypeForm = ({
           type="text"
           name="eventtype"
           required
-          pattern="^[0-9a-zA-Z-]+$"
-          title="Letters, numbers, and hyphens only"
+          pattern="^[0-9a-z-]+$"
+          title="Lowercase letters, numbers, and hyphens only"
           readOnly={isEdit}
           value={item.eventtype}
           onChange={(e) => setItem({ ...item, eventtype: e.target.value })}
         />
         {!isEdit && (
-          <small> (letters, numbers, and hyphens only)</small>
+          <small> (lowercase letters, numbers, hyphens, and underscores only)</small>
         )}
       </div>
       <div className="form-field">

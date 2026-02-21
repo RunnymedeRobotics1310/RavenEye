@@ -160,13 +160,19 @@ export async function updateEventType(item: EventType): Promise<EventType> {
  * @param {string} eventtype - The event type key to delete.
  */
 export async function deleteEventType(eventtype: string): Promise<void> {
-  return rbfetch("/api/event-types/" + eventtype, {
+  const resp = await rbfetch("/api/event-types/" + eventtype, {
     method: "DELETE",
-  }).then((resp) => {
-    if (!resp.ok) {
-      throw new Error("Failed to delete event type: " + resp.status);
-    }
   });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
 }
 
 /**
@@ -457,6 +463,54 @@ export async function updateStrategyArea(
     }
     return resp.json();
   });
+}
+
+export async function deleteStrategyArea(id: number): Promise<void> {
+  const resp = await rbfetch("/api/strategy-areas/" + id, {
+    method: "DELETE",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+}
+
+export async function deleteSequenceType(id: number): Promise<void> {
+  const resp = await rbfetch("/api/sequence-types/" + id, {
+    method: "DELETE",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+}
+
+export async function deleteUser(id: number): Promise<void> {
+  const resp = await rbfetch("/api/users/" + id, {
+    method: "DELETE",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
 }
 
 export interface ConfigSyncRequest {
