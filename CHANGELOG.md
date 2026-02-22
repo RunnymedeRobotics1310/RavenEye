@@ -1,3 +1,10 @@
+## [3.10.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.1...v3.10.2) (2026-02-22)
+
+
+### Bug Fixes
+
+* iOS bug re title graphic ([#180](https://github.com/RunnymedeRobotics1310/RavenEye/issues/180)) ([1f8607b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1f8607b5225e2476e46a84ce6c6aca9dd6538aa1))
+
 ## [3.10.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.0...v3.10.1) (2026-02-22)
 
 
