@@ -1,3 +1,10 @@
+## [3.10.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.0...v3.10.1) (2026-02-22)
+
+
+### Bug Fixes
+
+* Score fuel formatting cleanup ([#179](https://github.com/RunnymedeRobotics1310/RavenEye/issues/179)) ([e534ed4](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e534ed4869f555de9db1c8df81dff982fc1b13a0))
+
 # [3.10.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.9.0...v3.10.0) (2026-02-21)
 
 
