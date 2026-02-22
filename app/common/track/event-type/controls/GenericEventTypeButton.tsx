@@ -1,8 +1,8 @@
-import type {EventType} from "~/types/EventType.ts";
 import {useRef, useState} from "react";
 import {recordEvent} from "~/common/storage/track.ts";
+import type {EventTypeControlProps} from "~/common/track/event-type/eventTypeRegistry.ts";
 
-const GenericEventTypeButton = ({ eventType }: { eventType: EventType }) => {
+const GenericEventTypeButton = ({ eventType }: EventTypeControlProps) => {
     const [count, setCount] = useState(0);
     const [flashing, setFlashing] = useState(false);
     const [error, setError] = useState<string>();
