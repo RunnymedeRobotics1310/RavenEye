@@ -42,10 +42,9 @@ const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
       <p>Which area are you scouting?</p>
       {areas.map((area) => (
         <span key={area.id}>
-          <button onClick={() => navigate(area.code)}>{area.name}</button>{" "}
+          <button onClick={() => navigate("area:"+area.code)}>{area.name}</button>{" "}
         </span>
       ))}
-      <button onClick={() => navigate("pit")}>I'm a Pit Scout</button>
     </main>
   );
 };

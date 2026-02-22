@@ -4,6 +4,7 @@ import ScoreFuelControl from "./controls/ScoreFuelControl.tsx";
 
 export interface EventTypeControlProps {
   eventType: EventType;
+  sequenceEnd: boolean;
 }
 
 /**
