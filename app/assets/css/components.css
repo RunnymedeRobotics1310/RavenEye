@@ -32,19 +32,23 @@ button {
     cursor: pointer;
     transition: background-color 0.15s, transform 0.2s;
 }
+
 button:hover {
     background-color: var(--color-btn-primary-hover);
     transform: scale(1.04);
 }
+
 button:active {
     background-color: var(--color-btn-primary-active);
     transform: scale(1);
 }
+
 button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
     transform: none;
 }
+
 button:disabled:hover {
     transform: none;
 }
@@ -59,6 +63,7 @@ button.secondary {
     color: var(--color-btn-secondary-text);
     border: 2px solid var(--color-btn-secondary-border);
 }
+
 button.secondary:hover {
     background: var(--color-btn-secondary-hover-bg);
 }
@@ -79,15 +84,18 @@ button.secondary:hover {
     cursor: pointer;
     transition: background-color 0.15s, transform 0.2s;
 }
+
 .btn:hover {
     background-color: var(--color-btn-primary-hover);
     color: var(--color-btn-primary-text);
     transform: scale(1.04);
 }
+
 .btn:active {
     background-color: var(--color-btn-primary-active);
     transform: scale(1);
 }
+
 .btn:visited {
     color: var(--color-btn-primary-text);
 }
@@ -107,10 +115,12 @@ button.secondary:hover {
     cursor: pointer;
     transition: background-color 0.15s, transform 0.2s;
 }
+
 .btn-secondary:hover {
     background: var(--color-btn-secondary-hover-bg);
     color: var(--color-btn-secondary-text);
 }
+
 .btn-secondary:visited {
     color: var(--color-btn-secondary-text);
 }
@@ -128,6 +138,7 @@ button.secondary:hover {
     font-weight: 400;
     color: var(--color-text-primary);
 }
+
 .camoButton:hover {
     background: none;
     transform: none;
@@ -145,6 +156,7 @@ select {
     font-family: inherit;
     font-size: inherit;
 }
+
 input:not([type="checkbox"]):not([type="radio"]),
 textarea,
 select {
@@ -154,6 +166,7 @@ select {
     background-color: var(--color-input-bg);
     color: var(--color-text-primary);
 }
+
 input:not([type="checkbox"]):not([type="radio"]):focus,
 textarea:focus,
 select:focus {
@@ -161,6 +174,7 @@ select:focus {
     border-color: var(--color-border-focus);
     box-shadow: 0 0 0 3px var(--color-input-focus-shadow);
 }
+
 input:read-only {
     opacity: 0.5;
     cursor: not-allowed;
@@ -182,29 +196,36 @@ section.usersAdmin {
         border-collapse: collapse;
         width: 100%;
     }
+
     thead {
         background: var(--color-table-header-bg);
         color: var(--color-table-header-text);
     }
+
     th {
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         font-size: 0.75rem;
     }
+
     table td,
     table th {
         padding: 0.25rem .5rem;
     }
+
     table tbody tr:nth-child(odd) {
         background-color: var(--color-table-stripe);
     }
+
     table tbody tr:nth-child(even) {
         background-color: var(--color-bg-secondary);
     }
+
     table tbody tr:hover {
         background-color: var(--color-table-hover);
     }
+
     .btn {
         font-size: .65rem;
         padding: 0.2rem .6rem;
@@ -219,6 +240,7 @@ section.usersAdmin {
 .form-field {
     margin-bottom: 0.75rem;
 }
+
 .form-field label {
     display: block;
     font-weight: 700;
@@ -227,6 +249,7 @@ section.usersAdmin {
     letter-spacing: 0.03em;
     margin-bottom: 0.25rem;
 }
+
 .form-field label:has(input[type="checkbox"]) {
     display: inline-flex;
     align-items: center;
@@ -235,11 +258,13 @@ section.usersAdmin {
     font-weight: 400;
     font-size: inherit;
 }
+
 .form-field label:has(input[type="checkbox"]) input[type="checkbox"] {
     width: 1rem;
     height: 1rem;
     accent-color: var(--color-accent);
 }
+
 .form-field input,
 .form-field textarea,
 .form-field select {
@@ -247,6 +272,7 @@ section.usersAdmin {
     width: 100%;
     max-width: 24rem;
 }
+
 .form-actions {
     display: flex;
     gap: var(--space-sm);
@@ -265,14 +291,19 @@ section.usersAdmin {
     text-align: center;
     font-weight: bold;
 }
+
 .banner a {
     text-decoration: underline;
 }
+
 .banner-warning {
     background-color: var(--color-error);
     color: var(--color-text-inverse);
 }
-.banner-warning a { color: var(--color-text-inverse); }
+
+.banner-warning a {
+    color: var(--color-text-inverse);
+}
 
 /*
  *
@@ -285,28 +316,34 @@ main.track button {
     transition: background-color 0.3s ease, transform 0.2s;
     margin: 2px;
 }
+
 main.track button.event-tracked {
     background-color: var(--color-event-tracked);
     transition: background-color 0.05s ease, transform 0.2s;
 }
+
 main.track button.event-error {
     background-color: var(--color-event-error);
     color: var(--color-text-inverse);
     font-size: 0.6rem;
 }
+
 main.track .event-count {
     margin-left: 0.25rem;
     font-size: 0.7rem;
     font-weight: bold;
 }
+
 main.track .event-type-quantity {
     width: 3rem;
     margin-left: 0.25rem;
 }
+
 main.track .event-type-note {
     width: 5rem;
     margin-left: 0.25rem;
 }
+
 .score-fuel-control {
     display: flex;
     flex-direction: column;
@@ -314,31 +351,37 @@ main.track .event-type-note {
     padding: 0.6rem 0;
     width: 100%;
 }
+
 .score-fuel-header {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
 }
+
 .score-fuel-label {
     font-size: 0.9rem;
     font-weight: bold;
 }
+
 .score-fuel-value {
     font-size: 1.4rem;
     font-weight: bold;
     color: var(--color-accent);
 }
+
 .score-fuel-slider-row {
     display: flex;
     align-items: center;
     gap: 0.4rem;
     width: 100%;
 }
+
 .score-fuel-bound {
     font-size: 0.7rem;
     color: var(--color-text-secondary);
     flex-shrink: 0;
 }
+
 .score-fuel-slider {
     flex: 1;
     -webkit-appearance: none;
@@ -348,6 +391,7 @@ main.track .event-type-note {
     background: var(--color-bg-tertiary);
     outline: none;
 }
+
 .score-fuel-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
@@ -359,6 +403,7 @@ main.track .event-type-note {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     cursor: pointer;
 }
+
 .score-fuel-slider::-moz-range-thumb {
     width: 1.4rem;
     height: 1.4rem;
@@ -368,6 +413,7 @@ main.track .event-type-note {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     cursor: pointer;
 }
+
 .score-fuel-slider::-moz-range-track {
     height: 0.5rem;
     border-radius: 0.25rem;
@@ -382,6 +428,7 @@ main.track .event-type-note {
     border-radius: 50%;
     animation: spin 1.3s linear infinite;
 }
+
 @keyframes spin {
     to {
         transform: rotate(-360deg)
@@ -396,6 +443,7 @@ table.tools {
     td {
         padding: 0.25rem;
         vertical-align: top;
+
         p:first-of-type {
             margin-top: 0;
         }
@@ -419,16 +467,19 @@ table.tools {
 
 section.sync-status {
     margin-bottom: 0.5rem;
+
     .sync-status-component,
     .sync-status-completion,
     .sync-status-error {
         display: inline-block;
     }
+
     .sync-status-last-sync-long,
     .sync-status-last-sync-ultra-short {
         display: none;
         margin: 0 .5rem;
     }
+
     @media screen and (min-width: 400px) {
         .sync-status-last-sync-long {
             display: inline-block;
@@ -439,9 +490,11 @@ section.sync-status {
             display: inline-block;
         }
     }
+
     .sync-status-component {
         width: 9rem;
     }
+
     .sync-status-completion {
         span.icon {
             height: .8rem;
@@ -456,6 +509,7 @@ section.sync-status {
 table tbody tr.forgot-password-row {
     background-color: rgba(204, 0, 0, 0.08);
 }
+
 table tbody tr:nth-child(odd).forgot-password-row {
     background-color: rgba(204, 0, 0, 0.12) !important;
 }
@@ -468,6 +522,7 @@ table tbody tr:nth-child(odd).forgot-password-row {
 .status-table {
     border-collapse: collapse;
 }
+
 .status-table td,
 .status-table th {
     padding: 0.25rem 0.75rem;
@@ -478,6 +533,7 @@ table tbody tr:nth-child(odd).forgot-password-row {
     list-style: none;
     padding: 0;
 }
+
 .nav-list li {
     margin-bottom: var(--space-sm);
 }
@@ -494,6 +550,7 @@ table tbody tr:nth-child(odd).forgot-password-row {
 .alliance-red-text {
     color: var(--alliance-red);
 }
+
 .alliance-blue-text {
     color: var(--alliance-blue);
 }
@@ -506,6 +563,7 @@ table tbody tr:nth-child(odd).forgot-password-row {
 .admin-menu {
     position: relative;
 }
+
 .admin-menu-toggle {
     background: none;
     border: none;
@@ -515,20 +573,24 @@ table tbody tr:nth-child(odd).forgot-password-row {
     display: flex;
     align-items: center;
 }
+
 .admin-menu-toggle .icon {
     width: 2.25rem;
     height: 2rem;
 }
+
 .admin-menu-toggle:hover {
     background: none;
     transform: none;
     opacity: 0.8;
 }
+
 .admin-menu-toggle:focus-visible {
     outline: 2px solid var(--color-text-header);
     outline-offset: 2px;
     border-radius: 2px;
 }
+
 .admin-menu-dropdown {
     position: absolute;
     top: 100%;
@@ -541,20 +603,24 @@ table tbody tr:nth-child(odd).forgot-password-row {
     box-shadow: var(--shadow-md);
     margin-top: 0.5rem;
 }
+
 .admin-menu-dropdown ul {
     list-style: none;
     margin: 0;
     padding: 0.5rem 0;
 }
+
 .admin-menu-dropdown li a {
     display: block;
     padding: 0.5rem 1rem;
     text-decoration: none;
     white-space: nowrap;
 }
+
 .admin-menu-dropdown li a:hover {
     background-color: var(--color-accent-light);
 }
+
 .admin-menu-dropdown li a:focus-visible {
     outline: 2px solid var(--color-border-focus);
     outline-offset: -2px;

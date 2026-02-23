@@ -1,10 +1,8 @@
 import { useRef, useState } from "react";
 import type { EventTypeControlProps } from "../eventTypeRegistry.ts";
 import { recordEvent } from "~/common/storage/track.ts";
-import type { SequenceEvent } from "~/types/SequenceEvent.ts";
-import SequencePage from "~/common/track/seq/SequencePage.tsx";
 
-const ScoreFuelControl = ({ eventType }: EventTypeControlProps) => {
+const PickupFuelControl = ({ eventType }: EventTypeControlProps) => {
   const [quantity, setQuantity] = useState(0);
   const [count, setCount] = useState(0);
   const [flashing, setFlashing] = useState(false);
@@ -57,11 +55,11 @@ const ScoreFuelControl = ({ eventType }: EventTypeControlProps) => {
           Check();
         }}
       >
-        {error ?? "Score"}
+        {error ?? "Pickup"}
       </button>
       {count > 1 && !error && <span className="event-count">x{count}</span>}
     </div>
   );
 };
 
-export default ScoreFuelControl;
+export default PickupFuelControl;

@@ -15,10 +15,12 @@ const SequencePage = ({ goBack, sequenceCode }: TrackScreenProps) => {
   if (loading) return <Spinner />;
 
   if (!sequence) {
-    console.log("Sequence not found", sequenceCode)
+    console.log("Sequence not found", sequenceCode);
     return (
       <main className="track">
-        <button className="secondary" onClick={goBack}>Back</button>
+        <button className="secondary" onClick={goBack}>
+          Back
+        </button>
         <p>Sequence not found.</p>
       </main>
     );
@@ -26,13 +28,16 @@ const SequencePage = ({ goBack, sequenceCode }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>
+        Back
+      </button>
       <h2>Sequence: {sequence.name}</h2>
       {(sequence.events || []).map((ev) => (
         <span key={ev.id || ev.eventtype.eventtype}>
           <EventTypeControl
-              eventType={ev.eventtype}
-              sequenceEnd={ev.endOfSequence}/>
+            eventType={ev.eventtype}
+            sequenceEnd={ev.endOfSequence}
+          />
         </span>
       ))}
     </main>

@@ -13,7 +13,9 @@ const Success = () => {
     <section>
       <h1>Success!</h1>
       <p>Event type updated successfully.</p>
-      <NavLink to={"/admin/event-types"} className="btn">Return to Event Types</NavLink>
+      <NavLink to={"/admin/event-types"} className="btn">
+        Return to Event Types
+      </NavLink>
     </section>
   );
 };

@@ -2,7 +2,7 @@
     /* Layout */
     --header-height: 3.5rem;
     --footer-height: 4rem;
-    --border-radius: 0.75rem;
+    --border-radius: 1.0rem;
     --btn-border-radius: 999px;
     --min-main-height: calc(100vh - var(--header-height) - var(--footer-height));
 
@@ -66,6 +66,8 @@
 
     --alliance-red: #d40000;
     --alliance-blue: #0044aa;
+    --alliance-blue-hover: #5A73E2;
+    --alliance-red-hover: #FF3734;
     --alliance-red-bg: #FFEDEA;
     --alliance-blue-bg: #e8eefb;
 
