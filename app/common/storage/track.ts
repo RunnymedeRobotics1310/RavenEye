@@ -97,4 +97,5 @@ export async function recordEvent(
   };
   await repository.captureEvent(event);
   await updateEventUnsyncCount();
+  console.log(eventType);
 }

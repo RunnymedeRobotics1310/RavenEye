@@ -1,8 +1,13 @@
 import { useRef, useState } from "react";
-import type { EventTypeControlProps } from "../eventTypeRegistry.ts";
 import { recordEvent } from "~/common/storage/track.ts";
+import type { RangeEventButtonProps } from "~/routes/profile/RangeEventButtonProps.ts";
 
-const LostFuelControl = ({ eventType }: EventTypeControlProps) => {
+const RangeEventTypeButton = ({
+  eventType,
+  label,
+  start,
+  end,
+}: RangeEventButtonProps) => {
   const [quantity, setQuantity] = useState(0);
   const [count, setCount] = useState(0);
   const [flashing, setFlashing] = useState(false);
@@ -24,11 +29,6 @@ const LostFuelControl = ({ eventType }: EventTypeControlProps) => {
     }
   };
 
-  const Check = () => {
-    console.log(eventType.eventtype);
-    console.log();
-  };
-
   return (
     <div className="score-fuel-control">
       <div className="score-fuel-header">
@@ -40,8 +40,8 @@ const LostFuelControl = ({ eventType }: EventTypeControlProps) => {
         <input
           className="score-fuel-slider"
           type="range"
-          min={0}
-          max={50}
+          min={start}
+          max={end}
           value={quantity}
           onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
         />
@@ -52,14 +52,13 @@ const LostFuelControl = ({ eventType }: EventTypeControlProps) => {
         disabled={quantity === 0}
         onClick={() => {
           handleScore();
-          Check();
         }}
       >
-        {error ?? "Lost"}
+        {error ?? label}
       </button>
       {count > 1 && !error && <span className="event-count">x{count}</span>}
     </div>
   );
 };
 
-export default LostFuelControl;
+export default RangeEventTypeButton;

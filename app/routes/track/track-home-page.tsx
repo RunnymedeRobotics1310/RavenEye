@@ -18,6 +18,7 @@ const TrackHomePage = () => {
   }
 
   function goBack() {
+    console.log("yo");
     setScreenStack((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
   }
 
@@ -27,28 +28,25 @@ const TrackHomePage = () => {
     // console.log("Attempting to render", activeScreen);
     if (activeScreen.startsWith("seq:")) {
       const CustomSeq = trackPageRegistry[activeScreen];
-      if (CustomSeq) return <CustomSeq {...props} sequenceCode={activeScreen.slice(4)} />;
+      if (CustomSeq)
+        return <CustomSeq {...props} sequenceCode={activeScreen.slice(4)} />;
       const DefaultSeq = trackPageRegistry["seq:default"];
       return <DefaultSeq {...props} sequenceCode={activeScreen.slice(4)} />;
     }
 
     if (activeScreen.startsWith("area:")) {
       const CustomArea = trackPageRegistry[activeScreen];
-      if (CustomArea) return <CustomArea {...props} areaCode={activeScreen.slice(5)} />;
+      if (CustomArea)
+        return <CustomArea {...props} areaCode={activeScreen.slice(5)} />;
       const DefaultArea = trackPageRegistry["area:default"];
       return <DefaultArea {...props} areaCode={activeScreen.slice(5)} />;
     }
 
     const ThePage = trackPageRegistry[activeScreen];
     if (ThePage) return <ThePage {...props} />;
-    return <h1>Not found</h1>
-
+    return <h1>Not found</h1>;
   }
 
-  return (
-    <RequireLogin>
-      {renderDynamicScreen()}
-    </RequireLogin>
-  );
+  return <RequireLogin>{renderDynamicScreen()}</RequireLogin>;
 };
 export default TrackHomePage;

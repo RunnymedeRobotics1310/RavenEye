@@ -52,10 +52,12 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
   if (areasLoading || seqLoading || etLoading) return <Spinner />;
 
   if (!area) {
-    console.log("Strategy area not found", areaCode)
+    console.log("Strategy area not found", areaCode);
     return (
       <main className="track">
-        <button className="secondary" onClick={goBack}>Back</button>
+        <button className="secondary" onClick={goBack}>
+          Back
+        </button>
         <p>Strategy area not found.</p>
       </main>
     );
@@ -63,7 +65,9 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>
+        Back
+      </button>
       <h2>Strategy Area: {area.name}</h2>
       {areaSequences.map((seq) => (
         <span key={seq.id}>
@@ -77,7 +81,11 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
           <h3>Stand-Alone Events</h3>
           {standaloneEvents.map((et) => (
             <span key={et.eventtype}>
-              <EventTypeControl eventType={et} sequenceEnd={false} />
+              <EventTypeControl
+                eventType={et}
+                sequenceEnd={false}
+                goBack={goBack}
+              />
             </span>
           ))}
         </>

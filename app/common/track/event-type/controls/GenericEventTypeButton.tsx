@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
 import { recordEvent } from "~/common/storage/track.ts";
 import type { EventTypeControlProps } from "~/common/track/event-type/eventTypeRegistry.ts";
-import EventTypeControl from "~/common/track/event-type/EventTypeControl.tsx";
-import type { SequenceEvent } from "~/types/SequenceEvent.ts";
 
-const GenericEventTypeButton = ({ eventType }: EventTypeControlProps) => {
+const GenericEventTypeButton = ({
+  eventType,
+  sequenceEnd,
+  goBack,
+}: EventTypeControlProps) => {
   const [count, setCount] = useState(0);
   const [flashing, setFlashing] = useState(false);
   const [error, setError] = useState<string>();
@@ -26,18 +28,11 @@ const GenericEventTypeButton = ({ eventType }: EventTypeControlProps) => {
     }
   };
 
-  // const Check = (ev: SequenceEvent) => {
-  //   <EventTypeControl
-  //     eventType={ev.eventtype}
-  //     sequenceEnd={ev.endOfSequence}
-  //   />;
-  //   if (ev.endOfSequence) {
-  //     console.log("it worked");
-  //   }
-  // };
-
-  const Check = () => {
-    console.log(eventType.eventtype);
+  const exitEvent = () => {
+    if (sequenceEnd) {
+      console.log({ goBack });
+      return goBack;
+    }
   };
 
   return (
@@ -47,7 +42,7 @@ const GenericEventTypeButton = ({ eventType }: EventTypeControlProps) => {
         className={flashing ? "event-tracked" : error ? "event-error" : ""}
         onClick={() => {
           handleClick();
-          Check();
+          exitEvent();
         }}
       >
         {error ?? eventType.name}
