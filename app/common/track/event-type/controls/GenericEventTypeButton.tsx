@@ -30,8 +30,10 @@ const GenericEventTypeButton = ({
 
   const exitEvent = () => {
     if (sequenceEnd) {
-      console.log({ goBack });
-      return goBack;
+      console.log("exitEvent at end of sequence - going back");
+      goBack();
+    } else {
+      console.log("exitEvent but not sequence end")
     }
   };
 
