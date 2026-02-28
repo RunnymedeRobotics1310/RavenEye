@@ -6,6 +6,7 @@ import GenericEventTypeButton from "~/common/track/event-type/controls/GenericEv
 const EventTypeControl = ({
   eventType,
   sequenceEnd = false,
+  sequenceStart = true,
   goBack = () => {},
 }: EventTypeControlProps) => {
   const CustomControl = eventTypeRegistry[eventType.eventtype];
@@ -15,6 +16,7 @@ const EventTypeControl = ({
         eventType={eventType}
         sequenceEnd={sequenceEnd}
         goBack={goBack}
+        sequenceStart={sequenceStart}
       />
     );
   return (
@@ -22,6 +24,7 @@ const EventTypeControl = ({
       eventType={eventType}
       sequenceEnd={sequenceEnd}
       goBack={goBack}
+      sequenceStart={sequenceStart}
     />
   );
 };

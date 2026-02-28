@@ -5,6 +5,7 @@ import type { EventTypeControlProps } from "~/common/track/event-type/eventTypeR
 const GenericEventTypeButton = ({
   eventType,
   sequenceEnd,
+  sequenceStart,
   goBack,
 }: EventTypeControlProps) => {
   const [count, setCount] = useState(0);
@@ -12,6 +13,7 @@ const GenericEventTypeButton = ({
   const [error, setError] = useState<string>();
   const [quantity, setQuantity] = useState(0);
   const [note, setNote] = useState("");
+  const [disabled, setDisabled] = useState(false);
   const countTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const handleClick = async () => {
@@ -28,12 +30,18 @@ const GenericEventTypeButton = ({
     }
   };
 
-  const exitEvent = () => {
+  const disableFirst = () => {
+    if (sequenceStart) {
+      console.log("sequenceEnd");
+      setDisabled(true);
+    }
+  };
+
+  const enableFirst = () => {
     if (sequenceEnd) {
-      console.log("exitEvent at end of sequence - going back");
+      console.log("sequenceEnd");
       goBack();
-    } else {
-      console.log("exitEvent but not sequence end")
+      setDisabled(false);
     }
   };
 
@@ -44,8 +52,10 @@ const GenericEventTypeButton = ({
         className={flashing ? "event-tracked" : error ? "event-error" : ""}
         onClick={() => {
           handleClick();
-          exitEvent();
+          disableFirst();
+          enableFirst();
         }}
+        disabled={disabled}
       >
         {error ?? eventType.name}
       </button>

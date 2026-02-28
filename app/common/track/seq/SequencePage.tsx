@@ -37,6 +37,7 @@ const SequencePage = ({ goBack, sequenceCode }: TrackScreenProps) => {
           <EventTypeControl
             eventType={ev.eventtype}
             sequenceEnd={ev.endOfSequence}
+            sequenceStart={ev.startOfSequence}
             goBack={goBack}
           />
         </span>

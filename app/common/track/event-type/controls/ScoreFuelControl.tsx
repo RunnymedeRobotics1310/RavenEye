@@ -6,6 +6,7 @@ const ScoreFuelControl = ({ eventType, goBack }: EventTypeControlProps) => {
     <RangeEventTypeButton
       eventType={eventType}
       sequenceEnd={false}
+      sequenceStart={false}
       goBack={goBack}
       label="Score"
       start={0}

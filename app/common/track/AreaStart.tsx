@@ -15,9 +15,7 @@ const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
 
   const frcyear = useMemo(() => {
     const session = getScoutingSession();
-    const tournament = tournaments.find(
-      (t) => t.id === session.tournamentId,
-    );
+    const tournament = tournaments.find((t) => t.id === session.tournamentId);
     return tournament
       ? new Date(tournament.startTime).getFullYear()
       : new Date().getFullYear();
@@ -38,11 +36,16 @@ const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <button className="secondary" onClick={goBack}>
+        Back
+      </button>
       <p>Which area are you scouting?</p>
       {areas.map((area) => (
         <span key={area.id}>
-          <button onClick={() => navigate("area:"+area.code)}>{area.name}</button>{" "}
+          <button onClick={() => navigate("area:" + area.code)}>
+            {area.name}
+          </button>{" "}
+          <p></p>
         </span>
       ))}
     </main>

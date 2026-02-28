@@ -238,6 +238,7 @@ export const SequenceTypeForm = ({
                           onChange={(e) =>
                             updateEvent(index, {
                               endOfSequence: e.target.checked,
+                              startOfSequence: e.target.checked,
                             })
                           }
                         />

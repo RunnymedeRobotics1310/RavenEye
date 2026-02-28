@@ -7,6 +7,7 @@ import MissedFuelControl from "~/common/track/event-type/controls/MissedFuelCont
 export interface EventTypeControlProps {
   eventType: EventType;
   sequenceEnd: boolean;
+  sequenceStart: boolean;
   goBack: () => void;
 }
 

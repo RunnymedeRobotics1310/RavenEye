@@ -6,6 +6,7 @@ const PickupFuelControl = ({ eventType, goBack }: EventTypeControlProps) => {
     <RangeEventTypeButton
       eventType={eventType}
       sequenceEnd={false}
+      sequenceStart={false}
       goBack={goBack}
       label="Pickup"
       start={0}

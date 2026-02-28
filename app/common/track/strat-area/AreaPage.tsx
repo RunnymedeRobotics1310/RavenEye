@@ -74,6 +74,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
           <button onClick={() => navigate("seq:" + seq.code)}>
             {seq.name} (Sequence)
           </button>
+          <p></p>
         </span>
       ))}
       {standaloneEvents.length > 0 && (
@@ -85,6 +86,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
                 eventType={et}
                 sequenceEnd={false}
                 goBack={goBack}
+                sequenceStart={true}
               />
             </span>
           ))}
