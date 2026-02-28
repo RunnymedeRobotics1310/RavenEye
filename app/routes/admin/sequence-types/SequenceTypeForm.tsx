@@ -207,7 +207,7 @@ export const SequenceTypeForm = ({
                     >
                       {filteredEventTypes?.map((et) => (
                         <option key={et.eventtype} value={et.eventtype}>
-                          {et.name}
+                          {et.name} ({et.eventtype})
                         </option>
                       ))}
                     </select>
@@ -238,7 +238,6 @@ export const SequenceTypeForm = ({
                           onChange={(e) =>
                             updateEvent(index, {
                               endOfSequence: e.target.checked,
-                              startOfSequence: e.target.checked,
                             })
                           }
                         />

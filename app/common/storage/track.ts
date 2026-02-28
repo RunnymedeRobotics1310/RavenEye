@@ -75,6 +75,7 @@ export async function recordEvent(
   note: string = "",
 ) {
   const session = getScoutingSession();
+  console.log("Recording event '"+eventType+"' for scouting session", session)
   if (
     session.userId === -1 ||
     session.matchId === -1 ||
@@ -97,5 +98,5 @@ export async function recordEvent(
   };
   await repository.captureEvent(event);
   await updateEventUnsyncCount();
-  console.log(eventType);
+  // console.log("Recorded event ",eventType);
 }

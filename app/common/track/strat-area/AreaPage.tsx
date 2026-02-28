@@ -9,9 +9,11 @@ import Spinner from "~/common/Spinner.tsx";
 import EventTypeControl from "~/common/track/event-type/EventTypeControl.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
+import {recordEvent} from "~/common/storage/track.ts";
+import type {SequenceType} from "~/types/SequenceType.ts";
 
 const AreaPage = ({ areaCode }: TrackScreenProps) => {
-  const { navigate, goBack } = useTrackNav();
+  const { navigate } = useTrackNav();
   const { list: areas, loading: areasLoading } = useStrategyAreaList();
   const { list: sequences, loading: seqLoading } = useSequenceTypeList();
   const { list: eventTypes, loading: etLoading } = useEventTypeList();
@@ -64,13 +66,25 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
     );
   }
 
+  function startSequence(seq: SequenceType) {
+    console.log("Starting sequence "+seq.name);
+    const firstSeqEvent = seq.events[0];
+    if (firstSeqEvent) {
+      const firstEvent = firstSeqEvent.eventtype;
+      recordEvent(firstEvent.eventtype, 0, "")
+      navigate("seq:" + seq.code)
+    } else {
+      console.log("Sequence "+seq.name+" has no events")
+    }
+  }
+
   return (
     <main className="track">
       <TrackNav />
       <h2>Strategy Area: {area.name}</h2>
       {areaSequences.map((seq) => (
         <span key={seq.id}>
-          <button onClick={() => navigate("seq:" + seq.code)}>
+          <button onClick={() => startSequence(seq)}>
             {seq.name} (Sequence)
           </button>
           <p></p>
@@ -81,7 +95,7 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
           <h3>Stand-Alone Events</h3>
           {standaloneEvents.map((et) => (
             <span key={et.eventtype}>
-              <EventTypeControl eventType={et} sequenceEnd={false} />
+              <EventTypeControl eventType={et} sequenceStart={false} sequenceEnd={false} />
             </span>
           ))}
         </>

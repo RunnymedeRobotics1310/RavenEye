@@ -1,47 +1,37 @@
 import { useRef, useState } from "react";
 import { recordEvent } from "~/common/storage/track.ts";
 import type { EventTypeControlProps } from "~/common/track/event-type/eventTypeRegistry.ts";
+import {useTrackNav} from "~/common/track/TrackNavContext.tsx";
 
 const GenericEventTypeButton = ({
   eventType,
   sequenceEnd,
   sequenceStart,
-  goBack,
 }: EventTypeControlProps) => {
+  const {goBack} = useTrackNav()
   const [count, setCount] = useState(0);
   const [flashing, setFlashing] = useState(false);
   const [error, setError] = useState<string>();
   const [quantity, setQuantity] = useState(0);
   const [note, setNote] = useState("");
-  const [disabled, setDisabled] = useState(false);
   const countTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const handleClick = async () => {
     setCount((c) => c + 1);
     setFlashing(true);
-    setError(undefined);
     setTimeout(() => setFlashing(false), 300);
     clearTimeout(countTimer.current);
     countTimer.current = setTimeout(() => setCount(0), 2000);
+
+
+    setError(undefined);
     try {
       await recordEvent(eventType.eventtype, quantity, note);
+      if (sequenceEnd) {
+        goBack();
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
-    }
-  };
-
-  const disableFirst = () => {
-    if (sequenceStart) {
-      console.log("sequenceEnd");
-      setDisabled(true);
-    }
-  };
-
-  const enableFirst = () => {
-    if (sequenceEnd) {
-      console.log("sequenceEnd");
-      goBack();
-      setDisabled(false);
     }
   };
 
@@ -52,10 +42,8 @@ const GenericEventTypeButton = ({
         className={flashing ? "event-tracked" : error ? "event-error" : ""}
         onClick={() => {
           handleClick();
-          disableFirst();
-          enableFirst();
         }}
-        disabled={disabled}
+        disabled={sequenceStart}
       >
         {error ?? eventType.name}
       </button>

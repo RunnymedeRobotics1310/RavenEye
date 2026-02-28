@@ -8,7 +8,6 @@ export interface EventTypeControlProps {
   eventType: EventType;
   sequenceEnd: boolean;
   sequenceStart: boolean;
-  goBack: () => void;
 }
 
 /**

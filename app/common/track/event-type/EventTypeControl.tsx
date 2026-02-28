@@ -7,7 +7,6 @@ const EventTypeControl = ({
   eventType,
   sequenceEnd = false,
   sequenceStart = true,
-  goBack = () => {},
 }: EventTypeControlProps) => {
   const CustomControl = eventTypeRegistry[eventType.eventtype];
   if (CustomControl)
@@ -15,7 +14,6 @@ const EventTypeControl = ({
       <CustomControl
         eventType={eventType}
         sequenceEnd={sequenceEnd}
-        goBack={goBack}
         sequenceStart={sequenceStart}
       />
     );
@@ -23,7 +21,6 @@ const EventTypeControl = ({
     <GenericEventTypeButton
       eventType={eventType}
       sequenceEnd={sequenceEnd}
-      goBack={goBack}
       sequenceStart={sequenceStart}
     />
   );
