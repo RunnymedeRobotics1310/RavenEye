@@ -18,9 +18,7 @@ const AreaStart = ({}: TrackScreenProps) => {
 
   const frcyear = useMemo(() => {
     const session = getScoutingSession();
-    const tournament = tournaments.find(
-      (t) => t.id === session.tournamentId,
-    );
+    const tournament = tournaments.find((t) => t.id === session.tournamentId);
     return tournament
       ? new Date(tournament.startTime).getFullYear()
       : new Date().getFullYear();
@@ -46,6 +44,7 @@ const AreaStart = ({}: TrackScreenProps) => {
       {areas.map((area) => (
         <span key={area.id}>
           <button onClick={() => navigate("area:"+area.code)}>{area.name}</button>{" "}
+          <p></p>
         </span>
       ))}
     </main>

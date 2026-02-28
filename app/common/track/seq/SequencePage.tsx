@@ -16,7 +16,7 @@ const SequencePage = ({ sequenceCode }: TrackScreenProps) => {
   if (loading) return <Spinner />;
 
   if (!sequence) {
-    console.log("Sequence not found", sequenceCode)
+    console.log("Sequence not found", sequenceCode);
     return (
       <main className="track">
         <TrackNav />
@@ -32,8 +32,10 @@ const SequencePage = ({ sequenceCode }: TrackScreenProps) => {
       {(sequence.events || []).map((ev) => (
         <span key={ev.id || ev.eventtype.eventtype}>
           <EventTypeControl
-              eventType={ev.eventtype}
-              sequenceEnd={ev.endOfSequence}/>
+            eventType={ev.eventtype}
+            sequenceEnd={ev.endOfSequence}
+            sequenceStart={ev.startOfSequence}
+          />
         </span>
       ))}
     </main>

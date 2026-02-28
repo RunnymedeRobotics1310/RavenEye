@@ -2,7 +2,6 @@ import { type FormEvent, useState, useEffect, useMemo } from "react";
 import { NavLink } from "react-router";
 import type { SequenceType } from "~/types/SequenceType.ts";
 import type { SequenceEvent } from "~/types/SequenceEvent.ts";
-import type { EventType } from "~/types/EventType.ts";
 
 import {
   useEventTypeList,
@@ -120,7 +119,10 @@ export const SequenceTypeForm = ({
           onChange={(e) => setItem({ ...item, code: e.target.value })}
         />
         {!isEdit && (
-          <small> (lowercase letters, numbers, hyphens, and underscores only)</small>
+          <small>
+            {" "}
+            (lowercase letters, numbers, hyphens, and underscores only)
+          </small>
         )}
       </div>
       <div className="form-field">
@@ -205,7 +207,7 @@ export const SequenceTypeForm = ({
                     >
                       {filteredEventTypes?.map((et) => (
                         <option key={et.eventtype} value={et.eventtype}>
-                          {et.name}
+                          {et.name} ({et.eventtype})
                         </option>
                       ))}
                     </select>
@@ -234,7 +236,9 @@ export const SequenceTypeForm = ({
                           checked={ev.endOfSequence}
                           aria-label="End of sequence"
                           onChange={(e) =>
-                            updateEvent(index, { endOfSequence: e.target.checked })
+                            updateEvent(index, {
+                              endOfSequence: e.target.checked,
+                            })
                           }
                         />
                       </label>
@@ -259,7 +263,9 @@ export const SequenceTypeForm = ({
         <button type={"submit"} disabled={disabled}>
           Save
         </button>
-        <NavLink to={"/admin/sequence-types"} className="btn-secondary">Cancel</NavLink>
+        <NavLink to={"/admin/sequence-types"} className="btn-secondary">
+          Cancel
+        </NavLink>
       </div>
     </form>
   );

@@ -14,10 +14,12 @@ a:visited {
     text-decoration: none;
     color: var(--color-text-link);
 }
+
 a:hover,
 a:active {
     color: var(--color-text-link-hover);
 }
+
 a:focus-visible {
     outline: 2px solid var(--color-border-focus);
     outline-offset: 2px;
@@ -29,18 +31,22 @@ a:focus-visible {
     background-color: var(--color-bg-header);
     color: var(--color-text-header);
 }
+
 #layout > header a,
 #layout > header a:visited,
 #layout > header a:hover,
 #layout > header a:active {
     color: var(--color-text-header);
 }
+
 #layout > header .icon {
     fill: var(--color-text-header);
 }
+
 #layout > header #title svg {
     fill: var(--color-text-header);
 }
+
 #layout > header .syncError {
     fill: var(--color-text-header);
 }
@@ -50,6 +56,7 @@ a:focus-visible {
 #layout > header .admin-menu-dropdown a:visited {
     color: var(--color-text-primary);
 }
+
 #layout > header .admin-menu-dropdown a:hover,
 #layout > header .admin-menu-dropdown a:active {
     color: var(--color-text-link);
@@ -60,6 +67,7 @@ a:focus-visible {
 #layout > header .admin-menu-dropdown a:visited {
     color: var(--color-text-primary);
 }
+
 #layout > header .admin-menu-dropdown a:hover,
 #layout > header .admin-menu-dropdown a:active {
     color: var(--color-text-link);
@@ -74,6 +82,24 @@ a:focus-visible {
     background-color: var(--alliance-red-bg);
     font-weight: 700;
 }
+
+.allianceRedClicked {
+    color: var(--alliance-red);
+    border: 3px solid var(--alliance-red);
+    border-radius: var(--border-radius);
+    margin: 0.25rem;
+    background-color: var(--alliance-red-hover);
+    font-weight: 700;
+}
+
+.allianceRed:hover {
+    background: var(--alliance-red-hover)
+}
+
+.allianceRedClicked:hover {
+    background: var(--alliance-red-hover)
+}
+
 .allianceBlue {
     color: var(--alliance-blue);
     border: 3px solid var(--alliance-blue);
@@ -81,6 +107,23 @@ a:focus-visible {
     margin: 0.25rem;
     background-color: var(--alliance-blue-bg);
     font-weight: 700;
+}
+
+.allianceBlueClicked {
+    color: var(--alliance-blue);
+    border: 3px solid var(--alliance-blue);
+    border-radius: var(--border-radius);
+    margin: 0.25rem;
+    background-color: var(--alliance-blue-hover);
+    font-weight: 700;
+}
+
+.allianceBlue:hover {
+    background: var(--alliance-blue-hover)
+}
+
+.allianceBlueClicked:hover {
+    background: var(--alliance-blue-hover)
 }
 
 /* Error */
@@ -93,12 +136,15 @@ a:focus-visible {
 .gold {
     fill: goldenrod;
 }
+
 .star-outline {
     fill: var(--color-text-primary);
 }
+
 .star-filled {
     fill: goldenrod;
 }
+
 .star-empty {
     fill: var(--color-bg-primary);
 }
@@ -108,18 +154,22 @@ a:focus-visible {
     color: var(--color-text-tertiary);
     fill: var(--color-text-tertiary);
 }
+
 .syncError {
     color: var(--color-error);
     fill: var(--color-error);
 }
+
 .syncHappening {
     color: var(--color-info);
     fill: var(--color-info);
 }
+
 .syncToDo {
     color: var(--color-warning);
     fill: var(--color-warning);
 }
+
 .syncComplete {
     color: var(--color-success);
     fill: var(--color-success);
