@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
 import { setScoutingSession } from "~/common/storage/track.ts";
 import { getUserid } from "~/common/storage/rbauth.ts";
+import TrackNav from "~/common/track/TrackNav.tsx";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-const DrillSetup = ({ navigate, goBack }: TrackScreenProps) => {
+const DrillSetup = ({}: TrackScreenProps) => {
+  const { navigate } = useTrackNav();
   const [alliance, setAlliance] = useState<"red" | "blue">("red");
   const [teamNumber, setTeamNumber] = useState(1310);
 
@@ -29,9 +32,7 @@ const DrillSetup = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>
-        Back
-      </button>
+      <TrackNav />
       <h2>Drill Setup</h2>
 
       <p>Alliance:</p>

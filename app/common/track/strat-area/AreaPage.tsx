@@ -7,8 +7,11 @@ import {
 } from "~/common/storage/dbhooks.ts";
 import Spinner from "~/common/Spinner.tsx";
 import EventTypeControl from "~/common/track/event-type/EventTypeControl.tsx";
+import TrackNav from "~/common/track/TrackNav.tsx";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
+const AreaPage = ({ areaCode }: TrackScreenProps) => {
+  const { navigate, goBack } = useTrackNav();
   const { list: areas, loading: areasLoading } = useStrategyAreaList();
   const { list: sequences, loading: seqLoading } = useSequenceTypeList();
   const { list: eventTypes, loading: etLoading } = useEventTypeList();
@@ -52,12 +55,10 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
   if (areasLoading || seqLoading || etLoading) return <Spinner />;
 
   if (!area) {
-    console.log("Strategy area not found", areaCode);
+    console.log("Strategy area not found", areaCode)
     return (
       <main className="track">
-        <button className="secondary" onClick={goBack}>
-          Back
-        </button>
+        <TrackNav />
         <p>Strategy area not found.</p>
       </main>
     );
@@ -65,9 +66,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>
-        Back
-      </button>
+      <TrackNav />
       <h2>Strategy Area: {area.name}</h2>
       {areaSequences.map((seq) => (
         <span key={seq.id}>
@@ -82,12 +81,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
           <h3>Stand-Alone Events</h3>
           {standaloneEvents.map((et) => (
             <span key={et.eventtype}>
-              <EventTypeControl
-                eventType={et}
-                sequenceEnd={false}
-                goBack={goBack}
-                sequenceStart={true}
-              />
+              <EventTypeControl eventType={et} sequenceEnd={false} />
             </span>
           ))}
         </>
