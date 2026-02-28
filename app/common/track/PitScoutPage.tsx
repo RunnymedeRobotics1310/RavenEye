@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import TrackNav from "~/common/track/TrackNav.tsx";
 
-const PitScoutPage = ({ goBack }: TrackScreenProps) => {
+const PitScoutPage = ({ navigate, goBack }: TrackScreenProps) => {
   const [team, setTeam] = useState(0);
   const [entry, setEntry] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
@@ -33,7 +34,7 @@ const PitScoutPage = ({ goBack }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <TrackNav navigate={navigate} goBack={goBack} />
       <h4>Hello I'm a Pit Scout</h4>
       <p>make an editable document?</p>
       Team:{" "}

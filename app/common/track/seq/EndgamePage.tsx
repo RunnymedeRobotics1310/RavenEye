@@ -1,14 +1,15 @@
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
 import { recordEvent } from "~/common/storage/track.ts";
+import TrackNav from "~/common/track/TrackNav.tsx";
 
-const EndgamePage = ({ goBack }: TrackScreenProps) => {
+const EndgamePage = ({ navigate, goBack }: TrackScreenProps) => {
   const buttonTest = () => {
     recordEvent("climb-fail");
   };
   return (
     <main className="track">
       <div>
-        <button className="secondary" onClick={goBack}>Back</button>
+        <TrackNav navigate={navigate} goBack={goBack} />
         <h2>Endgame</h2>
         <p>map?</p>
         <button>Start Climb</button>

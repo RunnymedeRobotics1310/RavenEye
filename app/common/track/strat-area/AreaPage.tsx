@@ -7,6 +7,7 @@ import {
 } from "~/common/storage/dbhooks.ts";
 import Spinner from "~/common/Spinner.tsx";
 import EventTypeControl from "~/common/track/event-type/EventTypeControl.tsx";
+import TrackNav from "~/common/track/TrackNav.tsx";
 
 const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
   const { list: areas, loading: areasLoading } = useStrategyAreaList();
@@ -55,7 +56,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
     console.log("Strategy area not found", areaCode)
     return (
       <main className="track">
-        <button className="secondary" onClick={goBack}>Back</button>
+        <TrackNav navigate={navigate} goBack={goBack} />
         <p>Strategy area not found.</p>
       </main>
     );
@@ -63,7 +64,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <TrackNav navigate={navigate} goBack={goBack} />
       <h2>Strategy Area: {area.name}</h2>
       {areaSequences.map((seq) => (
         <span key={seq.id}>

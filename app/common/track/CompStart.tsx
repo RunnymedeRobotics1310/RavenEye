@@ -7,6 +7,7 @@ import {
 import { getUserid } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
+import TrackNav from "~/common/track/TrackNav.tsx";
 
 // TODO: Remove after dev — include past event for testing
 const DEV_TOURNAMENT_ID = "2025ONCMP2";
@@ -47,7 +48,7 @@ const CompStart = ({ navigate, goBack }: TrackScreenProps) => {
   return (
     <main className="track scout-select">
       <div>
-        <button className="secondary" onClick={goBack}>Back</button>
+        <TrackNav navigate={navigate} goBack={goBack} />
         <h2>{new Date().getFullYear()} Tournaments</h2>
         <p>Select a tournament:</p>
         <table className="tools">

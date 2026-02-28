@@ -5,6 +5,7 @@ import {
 } from "~/common/storage/track.ts";
 import { getUserid } from "~/common/storage/rbauth.ts";
 import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
+import TrackNav from "~/common/track/TrackNav.tsx";
 
 const CompTeams = ({ navigate, goBack }: TrackScreenProps) => {
   const session = getScoutingSession();
@@ -32,7 +33,7 @@ const CompTeams = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <TrackNav navigate={navigate} goBack={goBack} />
       <h2>Match {session.matchId}</h2>
       <p>Select a team to scout:</p>
       {match ? (
