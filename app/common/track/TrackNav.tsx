@@ -1,11 +1,9 @@
-import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import BackButton from "~/common/track/BackButton.tsx";
 
-type TrackNavProps = Pick<TrackScreenProps, "navigate" | "goBack">;
-
-const TrackNav = ({ goBack }: TrackNavProps) => {
+const TrackNav = () => {
   return (
     <nav className="track-nav">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <BackButton />
     </nav>
   );
 };

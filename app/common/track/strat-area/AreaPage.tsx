@@ -8,8 +8,10 @@ import {
 import Spinner from "~/common/Spinner.tsx";
 import EventTypeControl from "~/common/track/event-type/EventTypeControl.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
+const AreaPage = ({ areaCode }: TrackScreenProps) => {
+  const { navigate, goBack } = useTrackNav();
   const { list: areas, loading: areasLoading } = useStrategyAreaList();
   const { list: sequences, loading: seqLoading } = useSequenceTypeList();
   const { list: eventTypes, loading: etLoading } = useEventTypeList();
@@ -56,7 +58,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
     console.log("Strategy area not found", areaCode)
     return (
       <main className="track">
-        <TrackNav navigate={navigate} goBack={goBack} />
+        <TrackNav />
         <p>Strategy area not found.</p>
       </main>
     );
@@ -64,7 +66,7 @@ const AreaPage = ({ navigate, goBack, areaCode }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <TrackNav navigate={navigate} goBack={goBack} />
+      <TrackNav />
       <h2>Strategy Area: {area.name}</h2>
       {areaSequences.map((seq) => (
         <span key={seq.id}>

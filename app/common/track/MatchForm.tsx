@@ -6,8 +6,10 @@ import {
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
 import TrackNav from "~/common/track/TrackNav.tsx";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-const MatchForm = ({ navigate, goBack }: TrackScreenProps) => {
+const MatchForm = ({}: TrackScreenProps) => {
+  const { navigate } = useTrackNav();
   const session = getScoutingSession();
   const { list: tournaments } = useTournamentList();
   const { list: schedule } = useMatchSchedule();
@@ -33,7 +35,7 @@ const MatchForm = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <TrackNav navigate={navigate} goBack={goBack} />
+      <TrackNav />
       <h2>
         {tournamentName} – {session.level}
       </h2>

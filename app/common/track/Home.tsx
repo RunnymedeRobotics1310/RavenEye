@@ -1,6 +1,8 @@
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-const Home = ({ navigate }: TrackScreenProps) => {
+const Home = ({}: TrackScreenProps) => {
+  const { navigate } = useTrackNav();
   return (
     <main className="track">
       <h1>Track</h1>
