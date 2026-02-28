@@ -6,8 +6,11 @@ import {
 } from "~/common/storage/dbhooks.ts";
 import { getScoutingSession } from "~/common/storage/track.ts";
 import Spinner from "~/common/Spinner.tsx";
+import TrackNav from "~/common/track/TrackNav.tsx";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
+const AreaStart = ({}: TrackScreenProps) => {
+  const { navigate } = useTrackNav();
   const { list: allAreas, loading: areasLoading } = useStrategyAreaList();
   const { list: tournaments, loading: tournamentsLoading } =
     useTournamentList();
@@ -38,7 +41,7 @@ const AreaStart = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <TrackNav />
       <p>Which area are you scouting?</p>
       {areas.map((area) => (
         <span key={area.id}>

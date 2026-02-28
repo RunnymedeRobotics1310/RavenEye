@@ -1,10 +1,11 @@
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import TrackNav from "~/common/track/TrackNav.tsx";
 
-const PickupPage = ({ goBack }: TrackScreenProps) => {
+const PickupPage = ({}: TrackScreenProps) => {
   return (
     <main className="track">
       <div>
-        <button className="secondary" onClick={goBack}>Back</button>
+        <TrackNav />
         <h2>Pickup</h2>
         <p>map</p>
         <button>Start</button>

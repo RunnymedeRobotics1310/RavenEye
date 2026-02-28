@@ -1,9 +1,10 @@
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import TrackNav from "~/common/track/TrackNav.tsx";
 
-const AutoPage = ({ goBack }: TrackScreenProps) => {
+const AutoPage = ({}: TrackScreenProps) => {
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <TrackNav />
       <h2>Auto</h2>
       <p>map</p>
       <p></p>

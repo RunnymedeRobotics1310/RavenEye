@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { recordComment } from "~/common/storage/track.ts";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-function QuickCommentForm({ goBack }: TrackScreenProps) {
+function QuickCommentForm({}: TrackScreenProps) {
+  const { goBack } = useTrackNav();
   const [team, setTeam] = useState(-1);
   const [comment, setComment] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);

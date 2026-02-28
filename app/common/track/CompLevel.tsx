@@ -4,10 +4,13 @@ import {
   setScoutingSession,
 } from "~/common/storage/track.ts";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
+import TrackNav from "~/common/track/TrackNav.tsx";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
 const LEVELS = ["Practice", "Qualification", "Playoff"];
 
-const CompLevel = ({ navigate, goBack }: TrackScreenProps) => {
+const CompLevel = ({}: TrackScreenProps) => {
+  const { navigate } = useTrackNav();
   const session = getScoutingSession();
   const { list: tournaments } = useTournamentList();
   const tournamentName =
@@ -24,7 +27,7 @@ const CompLevel = ({ navigate, goBack }: TrackScreenProps) => {
 
   return (
     <main className="track">
-      <button className="secondary" onClick={goBack}>Back</button>
+      <TrackNav />
       <h2>{tournamentName}</h2>
       <p>Select match level:</p>
       <div>
