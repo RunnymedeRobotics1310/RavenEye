@@ -1,3 +1,13 @@
+## [3.10.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.2...v3.10.3) (2026-03-01)
+
+
+### Bug Fixes
+
+* invoke goBack() function instead of returning it. Add debug statements ([09434e9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/09434e90e004d52aa3fb81dd9dea69fabd397f97))
+* Proper enablement of sequence buttons ([18474b8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/18474b8f976ea86864f206eb81a427ef3e88e5a1))
+* Typecheck fixes ([5fe4805](https://github.com/RunnymedeRobotics1310/RavenEye/commit/5fe4805a30d93678e4618242e7e6251087928190))
+* Typecheck fixes ([dd3ed0d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/dd3ed0dc1a71df9865672005c8504db0e39f5b46))
+
 ## [3.10.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.1...v3.10.2) (2026-02-22)
 
 
