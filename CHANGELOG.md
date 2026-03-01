@@ -1,3 +1,10 @@
+# [3.11.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.5...v3.11.0) (2026-03-01)
+
+
+### Features
+
+* Add CI workflow for pull request checks ([35fbd06](https://github.com/RunnymedeRobotics1310/RavenEye/commit/35fbd060c61894f3bcedcde02a080b619bf755cc))
+
 ## [3.10.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.4...v3.10.5) (2026-03-01)
 
 
