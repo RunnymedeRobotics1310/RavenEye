@@ -1,3 +1,10 @@
+## [3.10.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.3...v3.10.4) (2026-03-01)
+
+
+### Bug Fixes
+
+* Update Dependencies ([f86f77a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f86f77a555e4a1b378dde187d3a364edc80b6328))
+
 ## [3.10.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.2...v3.10.3) (2026-03-01)
 
 
