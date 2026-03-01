@@ -1,3 +1,10 @@
+## [3.10.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.4...v3.10.5) (2026-03-01)
+
+
+### Bug Fixes
+
+* Bump Docker Node image from 22 to 24 ([cfee462](https://github.com/RunnymedeRobotics1310/RavenEye/commit/cfee4628fbcb750d4c90c092fbe4abd47a7d0f85))
+
 ## [3.10.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.3...v3.10.4) (2026-03-01)
 
 
