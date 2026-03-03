@@ -5,7 +5,11 @@ import {
 } from "~/common/storage/track.ts";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import TrackNav from "~/common/track/TrackNav.tsx";
-import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
+import {
+  TrackNavProvider,
+  useTrackNav,
+} from "~/common/track/TrackNavContext.tsx";
+import Spinner from "~/common/Spinner.tsx";
 
 const LEVELS = ["Practice", "Qualification", "Playoff"];
 
@@ -25,6 +29,11 @@ const CompLevel = ({}: TrackScreenProps) => {
     navigate("comp-match");
   };
 
+  const pitScout = () => {
+    navigate("pit-scout");
+    console.log("pit-scout-page");
+  };
+
   return (
     <main className="track">
       <TrackNav />
@@ -36,6 +45,7 @@ const CompLevel = ({}: TrackScreenProps) => {
             <button onClick={() => selectLevel(level)}>{level}</button>{" "}
           </span>
         ))}
+        <button onClick={pitScout}>I'm a Pit Scout</button>
       </div>
     </main>
   );

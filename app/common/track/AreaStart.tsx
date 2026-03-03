@@ -8,6 +8,7 @@ import { getScoutingSession } from "~/common/storage/track.ts";
 import Spinner from "~/common/Spinner.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
+import PitScoutPage from "~/common/track/PitScoutPage.tsx";
 
 const AreaStart = ({}: TrackScreenProps) => {
   const { navigate } = useTrackNav();
@@ -43,7 +44,9 @@ const AreaStart = ({}: TrackScreenProps) => {
       <p>Which area are you scouting?</p>
       {areas.map((area) => (
         <span key={area.id}>
-          <button onClick={() => navigate("area:"+area.code)}>{area.name}</button>{" "}
+          <button onClick={() => navigate("area:" + area.code)}>
+            {area.name}
+          </button>{" "}
           <p></p>
         </span>
       ))}
