@@ -4,9 +4,11 @@ import { repository } from "~/common/storage/db.ts";
 import {
   updateCommentUnsyncCount,
   updateEventUnsyncCount,
+  updateRobotAlertUnsyncCount,
 } from "~/common/sync/sync.ts";
 import type { ScoutingSessionId } from "~/types/ScoutingSessionId.ts";
 import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
+import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
 
 /**
  * Get the current scouting session details. If no session is found,
@@ -99,4 +101,23 @@ export async function recordEvent(
   await repository.captureEvent(event);
   await updateEventUnsyncCount();
   // console.log("Recorded event ",eventType);
+}
+
+export async function recordRobotAlert(
+  tournamentId: string,
+  teamNumber: number,
+  alert: string,
+) {
+  const userId = getUserid();
+
+  const ra: RBRobotAlert = {
+    id: 0,
+    tournamentId: tournamentId,
+    teamNumber: teamNumber,
+    userId: userId,
+    createdAt: new Date(),
+    alert: alert,
+  };
+  await repository.captureRobotAlert(ra);
+  await updateRobotAlertUnsyncCount();
 }

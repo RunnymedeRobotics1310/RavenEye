@@ -13,6 +13,8 @@ import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 import type { RBEventLogPostResult } from "~/types/RBEventLogPostResult.ts";
 import type { RBQuickCommentPostResult } from "~/types/RBQuickCommentPostResult.ts";
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
+import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
+import type { RBRobotAlertPostResult } from "~/types/RBRobotAlertPostResult.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -636,6 +638,33 @@ export async function saveQuickCommentRecords(
     }
     return resp.json();
   });
+}
+
+export async function saveRobotAlertRecords(
+  records: RBRobotAlert[],
+): Promise<RBRobotAlertPostResult[]> {
+  return rbfetch("/api/robot-alert", {
+    method: "POST",
+    body: JSON.stringify(records),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to save robot alert records: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+export async function getRobotAlertList(
+  tournamentId: string,
+): Promise<RBRobotAlert[]> {
+  const resp = await rbfetch("/api/robot-alert/" + tournamentId, {});
+  if (resp.ok) {
+    return resp.json() as unknown as RBRobotAlert[];
+  } else {
+    throw new Error(
+      "Failure fetching robot alerts for tournament " + tournamentId,
+    );
+  }
 }
 
 /**
