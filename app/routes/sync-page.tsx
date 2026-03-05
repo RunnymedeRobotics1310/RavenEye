@@ -7,6 +7,8 @@ import SyncEventTypes from "~/common/sync/SyncEventTypes.tsx";
 import SyncSequenceTypes from "~/common/sync/SyncSequenceTypes.tsx";
 import SyncQuickComments from "~/common/sync/SyncQuickComments.tsx";
 import SyncTrackingData from "~/common/sync/SyncTrackingData.tsx";
+import SyncRobotAlerts from "~/common/sync/SyncRobotAlerts.tsx";
+import SyncRobotAlertList from "~/common/sync/SyncRobotAlertList.tsx";
 import SyncDashboardData from "~/common/sync/SyncDashboardData.tsx";
 import SyncNowButton from "~/common/sync/SyncNowButton.tsx";
 import FrcSyncButton from "~/common/sync/FrcSyncButton.tsx";
@@ -34,15 +36,17 @@ const SyncPage = () => {
           initiated by you.
         </p>
         <SyncNowButton />
-        <h2>Manual Sync</h2>
+        <h2>My Tracking Data (manual)</h2>
         <SyncQuickComments />
         <SyncTrackingData />
-        <h2>Background Sync</h2>
+        <SyncRobotAlerts />
+        <h2>Team Data from Server (automatic)</h2>
         <SyncTournamentList />
         <SyncStrategyAreas />
         <SyncMatchSchedule />
         <SyncEventTypes />
         <SyncSequenceTypes />
+        <SyncRobotAlertList />
         <SyncDashboardData />
         {isSuperuser && (
           <>

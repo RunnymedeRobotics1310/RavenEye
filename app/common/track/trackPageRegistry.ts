@@ -2,6 +2,7 @@ import type {ComponentType} from "react";
 import type {TrackScreenProps} from "~/routes/track/track-home-page.tsx";
 import Home from "~/common/track/Home.tsx";
 import QuickCommentForm from "~/common/track/QuickCommentForm.tsx";
+import RobotAlertForm from "~/common/track/RobotAlertForm.tsx";
 import DrillSetup from "~/common/track/DrillSetup.tsx";
 import AreaStart from "~/common/track/AreaStart.tsx";
 import PitScoutPage from "~/common/track/PitScoutPage.tsx";
@@ -23,6 +24,8 @@ const trackPageRegistry: Record<string, ComponentType<TrackScreenProps>> = {
     "home": Home,
     // quick comment
     "comment": QuickCommentForm,
+    // robot alert
+    "robot-alert": RobotAlertForm,
     // drill
     "drill-setup": DrillSetup,
     // competition

@@ -12,6 +12,7 @@ const Home = ({}: TrackScreenProps) => {
 
       <div>
         <button onClick={() => navigate("comment")}>Quick Comment</button>{" "}
+        <button onClick={() => navigate("robot-alert")}>Robot Alert</button>{" "}
         <button onClick={() => navigate("drill-setup")}>Drill</button>{" "}
         <button onClick={() => navigate("comp-tournament")}>Comp</button>
       </div>
