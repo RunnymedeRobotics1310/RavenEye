@@ -22,6 +22,7 @@ const MATCH_SCHEDULE = "Match Schedule";
 const QUICK_COMMENTS = "Quick Comments";
 const TRACKING_DATA = "Tracking Data";
 const ROBOT_ALERTS = "Robot Alerts";
+const ROBOT_ALERT_LIST = "Robot Alert List";
 const DASHBOARD_DATA = "Dashboard Data";
 
 function log(msg: string): void {
@@ -510,7 +511,17 @@ export async function syncRobotAlerts() {
 }
 
 export async function syncRobotAlertList() {
-  log("Robot Alert List");
+  log(ROBOT_ALERT_LIST);
+  await repository.putSyncStatus({
+    loading: false,
+    component: ROBOT_ALERT_LIST,
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
   try {
     const tournaments = await repository.getTournamentList();
     const alertLists = await Promise.all(
@@ -518,8 +529,26 @@ export async function syncRobotAlertList() {
     );
     const data = alertLists.flat();
     await repository.putRobotAlerts(data);
+    await repository.putSyncStatus({
+      loading: false,
+      component: ROBOT_ALERT_LIST,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: true,
+      remaining: 0,
+      error: null,
+    });
   } catch (e) {
-    console.error("Failed to sync robot alert list", e);
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: ROBOT_ALERT_LIST,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
   }
 }
 
@@ -545,6 +574,10 @@ export async function updateRobotAlertUnsyncCount() {
 
 export const useRobotAlertsSyncStatus = (): SyncStatus => {
   return useSyncStatus(ROBOT_ALERTS);
+};
+
+export const useRobotAlertListSyncStatus = (): SyncStatus => {
+  return useSyncStatus(ROBOT_ALERT_LIST);
 };
 
 export const useDashboardDataSyncStatus = (): SyncStatus => {
@@ -644,6 +677,7 @@ export const useOverallSyncStatus = (): SyncStatus => {
   const tournament = useTournamentListSyncStatus();
   const track = useTrackingDataSyncStatus();
   const alerts = useRobotAlertsSyncStatus();
+  const alertList = useRobotAlertListSyncStatus();
 
   const statuses: SyncStatus[] = [
     dashboard,
@@ -655,6 +689,7 @@ export const useOverallSyncStatus = (): SyncStatus => {
     tournament,
     track,
     alerts,
+    alertList,
   ];
 
   const loading = statuses.some((s) => s.loading);
