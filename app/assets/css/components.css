@@ -625,3 +625,62 @@ table tbody tr:nth-child(odd).forgot-password-row {
     outline: 2px solid var(--color-border-focus);
     outline-offset: -2px;
 }
+
+/*
+ *
+ * DRILL REPORTS
+ *
+ */
+.drill-summary {
+    margin-bottom: 1.5rem;
+}
+
+.drill-shot-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.drill-shot-table th,
+.drill-shot-table td {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--color-border);
+    text-align: left;
+}
+
+.drill-shot-table thead {
+    background: var(--color-table-header-bg);
+    color: var(--color-table-header-text);
+}
+
+.drill-shot-table th {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.75rem;
+}
+
+.drill-shot-table tbody tr:nth-child(odd) {
+    background-color: var(--color-table-stripe);
+}
+
+.drill-shot-table tbody tr:nth-child(even) {
+    background-color: var(--color-bg-secondary);
+}
+
+.shot-score {
+    color: var(--color-success, #22c55e);
+    font-weight: 700;
+}
+
+.shot-miss {
+    color: var(--color-error);
+    font-weight: 700;
+}
+
+.trend-improving {
+    color: var(--color-success, #22c55e);
+}
+
+.trend-degrading {
+    color: var(--color-error);
+}
