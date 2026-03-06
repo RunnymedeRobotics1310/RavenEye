@@ -1,3 +1,18 @@
+# [3.12.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.11.0...v3.12.0) (2026-03-06)
+
+
+### Bug Fixes
+
+* Switch to PAT for releases ([60f28ab](https://github.com/RunnymedeRobotics1310/RavenEye/commit/60f28abf68337dc115fe748688bb0e384a648464))
+* Switch to PAT for releases ([#189](https://github.com/RunnymedeRobotics1310/RavenEye/issues/189)) ([0529103](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0529103c35b3f9186ff2cf6a04cacb280659b999))
+* Sync status screen updates ([31c7597](https://github.com/RunnymedeRobotics1310/RavenEye/commit/31c75973620d54e40ef3a24e712888ee405e3cc4))
+* Trigger build ([c8495ac](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c8495acfdae6a75a080b746800990b143b465de0))
+
+
+### Features
+
+* Implement robot alerts ([9b4f567](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9b4f567dd0b41278570ced420328177c1dc8afc7))
+
 # [3.11.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.5...v3.11.0) (2026-03-01)
 
 
