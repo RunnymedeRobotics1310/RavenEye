@@ -1,24 +1,71 @@
 import { useState } from "react";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
 import TrackNav from "~/common/track/TrackNav.tsx";
+import {
+  getScoutingSession,
+  recordComment,
+  recordEvent,
+  setScoutingSession,
+} from "~/common/storage/track.ts";
+import { useEventTypeList } from "~/common/storage/dbhooks.ts";
 
 const PitScoutPage = ({}: TrackScreenProps) => {
-  const [team, setTeam] = useState(1310);
   const [entry, setEntry] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [climbAuto, setClimbAuto] = useState<boolean>(false);
+  const [preload, setPreload] = useState<boolean>(false);
+  const [drive, setDrive] = useState<string>("");
+  const [numberAutos, setNumberAutos] = useState<number>(0);
+  const [maxFuel, setMaxFuel] = useState<number>(0);
+
+  const session = getScoutingSession(); //sets up scouting session
+  const [team, setTeam] = useState(1310);
+  setScoutingSession({
+    ...session,
+    level: "pitScoutPage",
+    matchId: 1000000,
+    teamNumber: team,
+  });
+  const [eventData, setEventData] = useState<string | undefined>();
+  const allEvents = useEventTypeList();
+  const getEvent = (eventCode: string) => {
+    return allEvents.list.find((event) => event.eventtype == eventCode);
+  };
+  //event types
+  const driveEvent = getEvent("drive-event");
+  const climbEvent = getEvent("climb-auto-true");
+  const preloadEvent = getEvent("preload-true");
+  const numberAutoEvent = getEvent("number-of-autos");
+  const maxFuelHoldEvent = getEvent("max-fuel-hold");
+
+  const isDisabled = () => {
+    return eventData === undefined;
+  };
+
   async function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
+    // set up scouting session
+    // record drive event
+    await recordEvent("number-of-autos", numberAutos, "");
+    if (climbAuto) {
+      await recordEvent("climb-in-auto", 0, "");
+    }
+    if (preload) {
+      await recordEvent("preload-true", 0, "");
+    }
+    await recordEvent("drive-event", 0, drive);
+    await recordEvent("max-fuel-hold", maxFuel, "");
+    // record maxFuel
+    // record numberAutos
+    // navigate somewhere
     if (entry !== "") {
-      //await recordComment(team, entry);
+      await recordComment(team, entry); //or recordEvent?
       setSubmitted(true);
       setTeam(0);
       setEntry("");
+      setMaxFuel(0);
     }
   }
-
-  const checkCool = (message: string) => {
-    console.log({ message });
-  };
 
   const Submit = () => {
     return (
@@ -30,7 +77,7 @@ const PitScoutPage = ({}: TrackScreenProps) => {
     );
   };
 
-  const disabled = team === 0 || entry === "";
+  const disabled = team === 0 || entry === "" || maxFuel === 0;
 
   if (submitted) {
     return (
@@ -52,29 +99,71 @@ const PitScoutPage = ({}: TrackScreenProps) => {
         onChange={(e) => setTeam(e.target.value as unknown as number)}
       />
       <p></p>
+      <p>how many Autos?</p>
+      {numberAutoEvent && (
+        <input
+          type="number"
+          name="number autos"
+          value={numberAutos}
+          onChange={(e) => setNumberAutos(e.target.value as unknown as number)}
+        />
+      )}
       <div className="form-field">
         <label>
-          <input
-            type="checkbox"
-            onChange={() => {
-              checkCool("this robot is frickin cool");
-            }}
-          />
-          <p>is the robot frickin cool</p>
+          {climbEvent && (
+            <input
+              type={"checkbox"}
+              onChange={(e) => setClimbAuto(e.target.checked)}
+            />
+          )}
+          <p>Do they climb in auto?</p>
         </label>
       </div>
       <div className="form-field">
         <label>
-          <input type="checkbox" onChange={() => {}} />
-          <p>would the robot be MORE frickin cool if it was yknow DONE???</p>
+          {preloadEvent && (
+            <input
+              type="checkbox"
+              onChange={(e) => {
+                setPreload(e.target.checked);
+              }}
+            />
+          )}
+          <p>Do they preload their robot?</p>
         </label>
       </div>
-      <p>Type of drive?</p>
+      <div className={"form-field"}>
+        <p>Type of drive?</p>
+        {driveEvent && (
+          <select value={drive} onChange={(e) => setDrive(e.target.value)}>
+            <option value="">--select--</option>
+            <option value="swerve">Swerve</option>
+            <option value="tank">Tank</option>
+            <option value="the weird one">Mecanum</option>
+          </select>
+        )}
+      </div>
+      <p>how much fuel can the hopper hold?</p>
+      {maxFuelHoldEvent && (
+        <input
+          type="number"
+          name="max fuel"
+          value={maxFuel}
+          onChange={(e) => setMaxFuel(e.target.value as unknown as number)}
+        />
+      )}
+      <p>Strat Notes?</p>
       <textarea value={entry} onChange={(e) => setEntry(e.target.value)} />
-      <button disabled={disabled} onClick={handleSubmit}>
+      <p></p>
+      <button type="submit" disabled={disabled} onClick={handleSubmit}>
         Submit
       </button>
       <p></p>
+      debug output
+      <pre>{team}</pre>
+      <pre>{preload}</pre>
+      <pre>{numberAutos}</pre>
+      <pre>{drive}</pre>
     </main>
   );
 };
