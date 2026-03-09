@@ -1,3 +1,10 @@
+# [3.13.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.12.0...v3.13.0) (2026-03-09)
+
+
+### Features
+
+* Drill sequence report ([#193](https://github.com/RunnymedeRobotics1310/RavenEye/issues/193)) ([30fc09f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/30fc09fb44cda48389f702706d56d8b5dad7ca2a))
+
 # [3.12.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.11.0...v3.12.0) (2026-03-06)
 
 
