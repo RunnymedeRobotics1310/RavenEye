@@ -1,7 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
-import { setScoutingSession } from "~/common/storage/track.ts";
-import { getUserid } from "~/common/storage/rbauth.ts";
+import { newDrillSession } from "~/common/storage/track.ts";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
@@ -11,23 +10,8 @@ const DrillSetup = ({}: TrackScreenProps) => {
   const [teamNumber, setTeamNumber] = useState(1310);
 
   const handleStart = () => {
-    const now = new Date();
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const tournamentId = `DRILL-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
-
-    setScoutingSession({
-      userId: getUserid(),
-      tournamentId,
-      level: "Practice",
-      matchId: 1,
-      alliance,
-      teamNumber,
-    });
+    newDrillSession(alliance, teamNumber);
     navigate("area-menu");
-  };
-
-  const testAlliance = (words: string) => {
-    console.log(words);
   };
 
   return (
@@ -39,10 +23,7 @@ const DrillSetup = ({}: TrackScreenProps) => {
       <div>
         <button
           className={alliance === "red" ? "allianceRedClicked" : "allianceRed"}
-          onClick={() => {
-            setAlliance("red");
-            testAlliance(alliance); //WEIRD AS HELL
-          }}
+          onClick={() => setAlliance("red")}
         >
           Red
         </button>{" "}
@@ -50,10 +31,7 @@ const DrillSetup = ({}: TrackScreenProps) => {
           className={
             alliance === "blue" ? "allianceBlueClicked" : "allianceBlue"
           }
-          onClick={() => {
-            setAlliance("blue");
-            testAlliance(alliance);
-          }}
+          onClick={() => setAlliance("blue")}
         >
           Blue
         </button>
