@@ -19,15 +19,14 @@ import AreaPage from "~/common/track/strat-area/AreaPage.tsx";
  * without requiring an internet connection.
  */
 const trackPageRegistry: Record<string, ComponentType<TrackScreenProps>> = {
-
-    // setup screens
-    "home": Home,
-    // quick comment
-    "comment": QuickCommentForm,
-    // robot alert
-    "robot-alert": RobotAlertForm,
+  // setup screens
+  home: Home,
+  // quick comment
+  comment: QuickCommentForm,
     // drill
     "drill-setup": DrillSetup,
+    // robot alert
+    "robot-alert": RobotAlertForm,
     // competition
     "comp-tournament": CompStart,
     "comp-level": CompLevel,
