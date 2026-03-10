@@ -16,7 +16,8 @@ function parseDrillDate(tournamentId: string): string {
 
 function isScore(seq: SequenceInfo): boolean {
   if (seq.events.length === 0) return false;
-  return seq.events[seq.events.length - 1].eventtype.eventtype === "drill-score";
+  const endType = seq.events[seq.events.length - 1].eventtype.eventtype;
+  return endType !== seq.events[0].eventtype.eventtype && !endType.includes("miss");
 }
 
 function msToSeconds(ms: number): string {
