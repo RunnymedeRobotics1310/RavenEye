@@ -1,3 +1,10 @@
+## [3.13.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.0...v3.13.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* Proper drill sequence end event type ([1ee9dfe](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1ee9dfe4ebc5bdb609de8653779e64ef750ff379))
+
 # [3.13.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.12.0...v3.13.0) (2026-03-09)
 
 
