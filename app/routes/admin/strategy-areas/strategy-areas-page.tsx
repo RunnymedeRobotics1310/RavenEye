@@ -71,19 +71,13 @@ const List = () => {
 const StrategyAreasPage = () => {
   return (
     <main>
-      <h1>Manage Strategy Areas</h1>
-      <p>
-        This page lists all strategy areas. There is no ability to suppress
-        strategy areas not related to this year. This will not be necessary this
-        year, but in 2027 this UI will need to be updated.
-      </p>
-      <p>
-        Do not re-use strategy areas. Once a strategy area has been created, it
-        will start to be used with event types. Changing the meaning of a
-        strategy area that is already connected to an event type will result in
-        corrupt data. Keep the meaning of a strategy area consistent once
-        created.
-      </p>
+      <div className="page-header">
+        <h1>Manage Strategy Areas</h1>
+        <p>
+          Do not re-use strategy areas &mdash; changing the meaning of one that
+          is connected to event types will corrupt data.
+        </p>
+      </div>
       <RequireLogin>
         <List />
       </RequireLogin>

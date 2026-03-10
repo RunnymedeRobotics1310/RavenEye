@@ -127,9 +127,79 @@ button.secondary:hover {
 
 .home-nav {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1rem;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: var(--space-lg);
+}
+
+.home-nav .btn,
+.home-nav .btn-secondary {
+    display: block;
+    text-align: center;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+}
+
+.home-nav-primary {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.home-nav-secondary {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.home-nav-secondary .btn-secondary {
+    flex: 1;
+}
+
+/*
+ *
+ * PAGE STRUCTURE
+ *
+ */
+.page-header {
+    margin-bottom: var(--space-lg);
+    padding-bottom: var(--space-base);
+    border-bottom: 3px solid var(--color-accent);
+}
+
+.page-header h1 {
+    margin-bottom: var(--space-xs);
+}
+
+.page-header p {
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.card {
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-base);
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+.page-section {
+    margin-bottom: var(--space-xl);
+}
+
+.page-section h2 {
+    margin-bottom: var(--space-sm);
+    padding-bottom: var(--space-xs);
+    border-bottom: 2px solid var(--color-border);
 }
 
 /*
@@ -468,8 +538,34 @@ table.tools {
     font-style: italic;
 }
 
+.login-card {
+    max-width: 20rem;
+    margin: var(--space-xl) auto;
+    background-color: var(--color-bg-secondary);
+    border-radius: var(--border-radius);
+    padding: var(--space-xl) var(--space-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.login-card h3 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.login-card .form-field input {
+    max-width: none;
+}
+
+.login-card .form-actions {
+    flex-direction: column;
+}
+
+.login-card .form-actions button {
+    width: 100%;
+}
+
 .sync-now-button {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-lg);
 }
 
 section.sync-status {
@@ -528,12 +624,40 @@ table tbody tr:nth-child(odd).forgot-password-row {
  */
 .status-table {
     border-collapse: collapse;
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 
 .status-table td,
 .status-table th {
-    padding: 0.25rem 0.75rem;
+    padding: 0.4rem 0.75rem;
     border: 1px solid var(--color-border);
+}
+
+.status-table thead {
+    background: var(--color-table-header-bg);
+    color: var(--color-table-header-text);
+}
+
+.status-table th {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.75rem;
+}
+
+.status-table tbody tr:nth-child(odd) {
+    background-color: var(--color-table-stripe);
+}
+
+.status-table tbody tr:nth-child(even) {
+    background-color: var(--color-bg-secondary);
+}
+
+.status-table td:first-child {
+    font-weight: 600;
+    color: var(--color-text-secondary);
 }
 
 .nav-list {

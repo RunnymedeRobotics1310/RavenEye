@@ -74,8 +74,10 @@ const List = () => {
 const UsersPage = () => {
   return (
     <main>
-      <h1>Manage Users</h1>
-      <p>Administrator tool to manage users.</p>
+      <div className="page-header">
+        <h1>Manage Users</h1>
+        <p>Administrator tool to manage users.</p>
+      </div>
       <RequireLogin>
         <List />
       </RequireLogin>

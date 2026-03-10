@@ -20,18 +20,21 @@ const LoggedIn = () => {
   const fullName = getDisplayName();
   return (
     <main>
-      <h1>Welcome to Raven Eye!</h1>
-      <p>
-        You are logged in as{" "}
-        <em>
-          <strong>{fullName}</strong>
-        </em>
-      </p>
+      <div className="page-header">
+        <h1>Welcome to Raven Eye!</h1>
+        <p>
+          Logged in as <strong>{fullName}</strong>
+        </p>
+      </div>
       <nav className="home-nav">
-        <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
-        <NavLink to={"/report"} className="btn">View Reports</NavLink>
-        <NavLink to={"/profile"} className="btn-secondary">My Profile</NavLink>
-        <NavLink to={"/logout"} className="btn-secondary">Log out</NavLink>
+        <div className="home-nav-primary">
+          <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
+          <NavLink to={"/report"} className="btn">View Reports</NavLink>
+        </div>
+        <div className="home-nav-secondary">
+          <NavLink to={"/profile"} className="btn-secondary">My Profile</NavLink>
+          <NavLink to={"/logout"} className="btn-secondary">Log out</NavLink>
+        </div>
       </nav>
     </main>
   );
@@ -39,42 +42,45 @@ const LoggedIn = () => {
 const NotLoggedIn = (props: any) => {
   return (
     <main>
-      <h1>Welcome to Raven Eye!</h1>
-      <p>
-        To use this app, you need to log in first. The app is designed to allow
-        scouting and logging activity without an internet connection, but to
-        sync data to the server, you will need to be online. To sync, simply
-        click on the sync icon in the top right of the page. Do not reload if
-        you are not online.
-      </p>
-      <NavLink to={"/login"} className="btn">Log in</NavLink>
-      <h3>Login Status</h3>
-      <table className="status-table">
-        <thead>
-          <tr>
-            <th>Step</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Server Accessible</td>
-            <td>{props.status.debug_alive ? "yes" : "no"}</td>
-          </tr>
-          <tr>
-            <td>Previously Authenticated</td>
-            <td>{props.status.debug_hasToken ? "yes" : "no"}</td>
-          </tr>
-          <tr>
-            <td>Authentication Expired</td>
-            <td>{props.status.debug_expired ? "yes" : "no"}</td>
-          </tr>
-          <tr>
-            <td>Logged In</td>
-            <td>{props.status.loggedIn ? "yes" : "no"}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="page-header">
+        <h1>Welcome to Raven Eye!</h1>
+        <p>
+          To use this app, you need to log in first. The app works offline after
+          initial sync &mdash; use the sync icon in the top right to sync data.
+        </p>
+      </div>
+      <div className="page-section">
+        <NavLink to={"/login"} className="btn">Log in</NavLink>
+      </div>
+      <section className="card">
+        <h3>Login Status</h3>
+        <table className="status-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Server Accessible</td>
+              <td>{props.status.debug_alive ? "yes" : "no"}</td>
+            </tr>
+            <tr>
+              <td>Previously Authenticated</td>
+              <td>{props.status.debug_hasToken ? "yes" : "no"}</td>
+            </tr>
+            <tr>
+              <td>Authentication Expired</td>
+              <td>{props.status.debug_expired ? "yes" : "no"}</td>
+            </tr>
+            <tr>
+              <td>Logged In</td>
+              <td>{props.status.loggedIn ? "yes" : "no"}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
     </main>
   );
 };

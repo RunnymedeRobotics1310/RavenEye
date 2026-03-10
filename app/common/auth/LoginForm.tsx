@@ -70,7 +70,7 @@ function LoginForm() {
 
   if (!submitted) {
     return (
-      <div>
+      <div className="login-card">
         <h3>Login</h3>
         <form>
           <div className="form-field">

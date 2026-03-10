@@ -92,7 +92,9 @@ const List = () => {
 const SequenceTypesPage = () => {
   return (
     <main>
-      <h1>Manage Sequence Types</h1>
+      <div className="page-header">
+        <h1>Manage Sequence Types</h1>
+      </div>
       <RequireLogin>
         <List />
       </RequireLogin>

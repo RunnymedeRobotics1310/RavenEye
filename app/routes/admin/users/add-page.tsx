@@ -34,16 +34,19 @@ const AddPage = () => {
 
   return (
     <main>
-      <h1>Manage Users</h1>
-      <p>Create a new user.</p>
-      <RequireLogin>
-        {error && <p className={"errorMessage"}>{msg}</p>}
-        {success ? (
-          <Success />
-        ) : (
-          <UserForm submitFunction={handleSubmit} disabled={success} />
-        )}
-      </RequireLogin>
+      <div className="page-header">
+        <h1>Add User</h1>
+      </div>
+      <section className="card">
+        <RequireLogin>
+          {error && <p className={"errorMessage"}>{msg}</p>}
+          {success ? (
+            <Success />
+          ) : (
+            <UserForm submitFunction={handleSubmit} disabled={success} />
+          )}
+        </RequireLogin>
+      </section>
     </main>
   );
 };

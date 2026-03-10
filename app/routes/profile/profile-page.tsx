@@ -99,10 +99,14 @@ const ProfileContent = () => {
 const ProfilePage = () => {
   return (
     <main>
-      <h1>My Profile</h1>
-      <RequireLogin>
-        <ProfileContent />
-      </RequireLogin>
+      <div className="page-header">
+        <h1>My Profile</h1>
+      </div>
+      <section className="card">
+        <RequireLogin>
+          <ProfileContent />
+        </RequireLogin>
+      </section>
     </main>
   );
 };
