@@ -8,7 +8,6 @@ import { getScoutingSession } from "~/common/storage/track.ts";
 import Spinner from "~/common/Spinner.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
-import PitScoutPage from "~/common/track/PitScoutPage.tsx";
 
 const AreaStart = ({}: TrackScreenProps) => {
   const { navigate } = useTrackNav();
