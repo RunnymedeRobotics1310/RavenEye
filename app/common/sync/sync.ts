@@ -9,6 +9,8 @@ import {
   ping,
   saveQuickCommentRecords,
   saveEventLogRecords,
+  saveRobotAlertRecords,
+  getRobotAlertList,
 } from "~/common/storage/rb.ts";
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
 
@@ -19,6 +21,8 @@ const SEQUENCE_TYPES = "Sequence Types";
 const MATCH_SCHEDULE = "Match Schedule";
 const QUICK_COMMENTS = "Quick Comments";
 const TRACKING_DATA = "Tracking Data";
+const ROBOT_ALERTS = "Robot Alerts";
+const ROBOT_ALERT_LIST = "Robot Alert List";
 const DASHBOARD_DATA = "Dashboard Data";
 
 function log(msg: string): void {
@@ -42,6 +46,7 @@ export function initializeSyncSchedule() {
 
   updateCommentUnsyncCount();
   updateEventUnsyncCount();
+  updateRobotAlertUnsyncCount();
   doSync();
   setInterval(
     () => {
@@ -54,7 +59,11 @@ export function initializeSyncSchedule() {
 export async function doManualSync() {
   const alive = await ping();
   if (alive) {
-    await Promise.all([syncQuickComments(), syncTrackingData()]);
+    await Promise.all([
+      syncQuickComments(),
+      syncTrackingData(),
+      syncRobotAlerts(),
+    ]);
   } else {
     log("Skipping Manual Sync - not connected");
   }
@@ -69,6 +78,7 @@ async function doSync() {
       syncEventTypeList(),
       syncSequenceTypeList(),
       syncMatchSchedule(),
+      syncRobotAlertList(),
     ]);
   } else {
     log("Skipping - not connected");
@@ -424,6 +434,152 @@ export async function syncTrackingData() {
   }
 }
 
+export async function syncRobotAlerts() {
+  log(ROBOT_ALERTS);
+  await repository.putSyncStatus({
+    loading: false,
+    component: ROBOT_ALERTS,
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const data = await repository.getUnsynchronizedRobotAlerts();
+    if (data != null && data.length > 0) {
+      await repository.putSyncStatus({
+        loading: false,
+        component: ROBOT_ALERTS,
+        lastSync: new Date(),
+        inProgress: true,
+        isComplete: false,
+        remaining: data.length,
+        error: null,
+      });
+      const result = await saveRobotAlertRecords(data);
+      const successful = result.filter((r) => r.success).map((r) => r.alert);
+      await repository.markRobotAlertSynchronized(successful);
+      const failureReasons = result
+        .filter((r) => !r.success)
+        .map((r) => r.reason);
+      if (failureReasons.length > 0) {
+        await repository.putSyncStatus({
+          loading: false,
+          component: ROBOT_ALERTS,
+          lastSync: new Date(),
+          inProgress: false,
+          isComplete: false,
+          remaining: 0,
+          error: new Error(JSON.stringify(failureReasons)),
+        });
+      } else {
+        await repository.putSyncStatus({
+          loading: false,
+          component: ROBOT_ALERTS,
+          lastSync: new Date(),
+          inProgress: false,
+          isComplete: true,
+          remaining: 0,
+          error: null,
+        });
+      }
+    } else {
+      await repository.putSyncStatus({
+        loading: false,
+        component: ROBOT_ALERTS,
+        lastSync: new Date(),
+        inProgress: false,
+        isComplete: true,
+        remaining: 0,
+        error: null,
+      });
+    }
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: ROBOT_ALERTS,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
+export async function syncRobotAlertList() {
+  log(ROBOT_ALERT_LIST);
+  await repository.putSyncStatus({
+    loading: false,
+    component: ROBOT_ALERT_LIST,
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+
+  try {
+    const tournaments = await repository.getTournamentList();
+    const alertLists = await Promise.all(
+      tournaments.map((t) => getRobotAlertList(t.id)),
+    );
+    const data = alertLists.flat();
+    await repository.putRobotAlerts(data);
+    await repository.putSyncStatus({
+      loading: false,
+      component: ROBOT_ALERT_LIST,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: true,
+      remaining: 0,
+      error: null,
+    });
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component: ROBOT_ALERT_LIST,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
+export async function updateRobotAlertUnsyncCount() {
+  const data = await repository.getUnsynchronizedRobotAlerts();
+  const stat = await repository.getSyncStatus(ROBOT_ALERTS);
+  if (stat) {
+    stat.remaining = data.length;
+    stat.isComplete = data.length === 0;
+    await repository.putSyncStatus(stat);
+  } else {
+    await repository.putSyncStatus({
+      loading: false,
+      component: ROBOT_ALERTS,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: data.length === 0,
+      remaining: 0,
+      error: null,
+    });
+  }
+}
+
+export const useRobotAlertsSyncStatus = (): SyncStatus => {
+  return useSyncStatus(ROBOT_ALERTS);
+};
+
+export const useRobotAlertListSyncStatus = (): SyncStatus => {
+  return useSyncStatus(ROBOT_ALERT_LIST);
+};
+
 export const useDashboardDataSyncStatus = (): SyncStatus => {
   const dummy: SyncStatus = {
     loading: false,
@@ -520,6 +676,8 @@ export const useOverallSyncStatus = (): SyncStatus => {
   const stratarea = useStrategyAreasSyncStatus();
   const tournament = useTournamentListSyncStatus();
   const track = useTrackingDataSyncStatus();
+  const alerts = useRobotAlertsSyncStatus();
+  const alertList = useRobotAlertListSyncStatus();
 
   const statuses: SyncStatus[] = [
     dashboard,
@@ -530,6 +688,8 @@ export const useOverallSyncStatus = (): SyncStatus => {
     stratarea,
     tournament,
     track,
+    alerts,
+    alertList,
   ];
 
   const loading = statuses.some((s) => s.loading);

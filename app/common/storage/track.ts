@@ -4,9 +4,39 @@ import { repository } from "~/common/storage/db.ts";
 import {
   updateCommentUnsyncCount,
   updateEventUnsyncCount,
+  updateRobotAlertUnsyncCount,
 } from "~/common/sync/sync.ts";
 import type { ScoutingSessionId } from "~/types/ScoutingSessionId.ts";
 import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
+import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
+
+let lastDrillEventTime = 0;
+
+function generateDrillTournamentId(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `DRILL-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+}
+
+/**
+ * Creates a new drill scouting session with a fresh tournament ID.
+ */
+export function newDrillSession(
+  alliance: "red" | "blue",
+  teamNumber: number,
+): ScoutingSessionId {
+  const session: ScoutingSessionId = {
+    userId: getUserid(),
+    tournamentId: generateDrillTournamentId(),
+    level: "Practice",
+    matchId: 1,
+    alliance,
+    teamNumber,
+  };
+  setScoutingSession(session);
+  lastDrillEventTime = 0;
+  return session;
+}
 
 /**
  * Get the current scouting session details. If no session is found,
@@ -75,6 +105,16 @@ export async function recordEvent(
   note: string = "",
 ) {
   const session = getScoutingSession();
+
+  // Auto-rotate drill session after 10-minute gap
+  if (session.tournamentId.startsWith("DRILL-")) {
+    if (lastDrillEventTime > 0 && Date.now() - lastDrillEventTime > 600_000) {
+      session.tournamentId = generateDrillTournamentId();
+      setScoutingSession(session);
+    }
+    lastDrillEventTime = Date.now();
+  }
+
   console.log("Recording event '"+eventType+"' for scouting session", session)
   if (
     session.userId === -1 ||
@@ -98,5 +138,23 @@ export async function recordEvent(
   };
   await repository.captureEvent(event);
   await updateEventUnsyncCount();
-  // console.log("Recorded event ",eventType);
+}
+
+export async function recordRobotAlert(
+  tournamentId: string,
+  teamNumber: number,
+  alert: string,
+) {
+  const userId = getUserid();
+
+  const ra: RBRobotAlert = {
+    id: 0,
+    tournamentId: tournamentId,
+    teamNumber: teamNumber,
+    userId: userId,
+    createdAt: new Date(),
+    alert: alert,
+  };
+  await repository.captureRobotAlert(ra);
+  await updateRobotAlertUnsyncCount();
 }

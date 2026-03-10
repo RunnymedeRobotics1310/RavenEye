@@ -13,6 +13,9 @@ import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 import type { RBEventLogPostResult } from "~/types/RBEventLogPostResult.ts";
 import type { RBQuickCommentPostResult } from "~/types/RBQuickCommentPostResult.ts";
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
+import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
+import type { RBRobotAlertPostResult } from "~/types/RBRobotAlertPostResult.ts";
+import type { DrillReportResponse } from "~/types/SequenceReport.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -638,6 +641,33 @@ export async function saveQuickCommentRecords(
   });
 }
 
+export async function saveRobotAlertRecords(
+  records: RBRobotAlert[],
+): Promise<RBRobotAlertPostResult[]> {
+  return rbfetch("/api/robot-alert", {
+    method: "POST",
+    body: JSON.stringify(records),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to save robot alert records: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+export async function getRobotAlertList(
+  tournamentId: string,
+): Promise<RBRobotAlert[]> {
+  const resp = await rbfetch("/api/robot-alert/" + tournamentId, {});
+  if (resp.ok) {
+    return resp.json() as unknown as RBRobotAlert[];
+  } else {
+    throw new Error(
+      "Failure fetching robot alerts for tournament " + tournamentId,
+    );
+  }
+}
+
 /**
  * A custom hook that fetches users who have requested a password reset.
  * Only returns users with forgotPassword=true. Requires ADMIN/SUPERUSER role.
@@ -681,6 +711,31 @@ export function useForgotPasswordUsers() {
  * @param {string} login - The login/username of the user who forgot their password.
  * @throws {Error} If the server responds with a non-OK status.
  */
+export async function getDrillSessions(): Promise<string[]> {
+  const resp = await rbfetch("/api/report/drill-sessions", {});
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching drill sessions");
+  }
+}
+
+export async function getDrillReport(
+  teamId: number,
+  tournamentId: string,
+  frcYear: number,
+): Promise<DrillReportResponse> {
+  const resp = await rbfetch(
+    `/api/report/drill/${tournamentId}?team=${teamId}&year=${frcYear}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as DrillReportResponse;
+  } else {
+    throw new Error("Failure fetching drill report");
+  }
+}
+
 export async function forgotPassword(login: string): Promise<void> {
   const resp = await fetch(
     import.meta.env.VITE_API_HOST +
