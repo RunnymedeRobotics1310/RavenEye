@@ -11,7 +11,6 @@ import MatchForm from "~/common/track/MatchForm.tsx";
 import CompTeams from "~/common/track/CompTeams.tsx";
 import SequencePage from "~/common/track/seq/SequencePage.tsx";
 import AreaPage from "~/common/track/strat-area/AreaPage.tsx";
-
 /**
  * Maps navigation strings to custom components. This is effectively
  * a custom router that ensures that all components remain loaded,
