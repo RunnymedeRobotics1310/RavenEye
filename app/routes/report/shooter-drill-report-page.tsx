@@ -55,16 +55,18 @@ const ShooterDrillReportPage = () => {
 
   return (
     <main>
-      <h1>Shooter Drill Report</h1>
-      <RequireLogin>
+      <div className="page-header">
+        <h1>Shooter Drill Report</h1>
         <p>
           <NavLink to="/report/drill">&larr; Back to Drill Sessions</NavLink>
         </p>
+      </div>
+      <RequireLogin>
         {loading && <Spinner />}
         {error && <p className="banner banner-warning">{error}</p>}
         {report && (
           <>
-            <section className="drill-summary">
+            <section className="card drill-summary">
               <h2>Summary</h2>
               <table className="status-table">
                 <tbody>
@@ -89,7 +91,7 @@ const ShooterDrillReportPage = () => {
             </section>
 
             {total > 0 && (
-              <section className="drill-summary">
+              <section className="card drill-summary">
                 <h2>Timing Stats</h2>
                 <table className="status-table">
                   <tbody>
@@ -111,7 +113,7 @@ const ShooterDrillReportPage = () => {
             )}
 
             {total > 0 && (
-              <section>
+              <section className="card">
                 <h2>Shot-by-Shot</h2>
                 <table className="drill-shot-table">
                   <thead>

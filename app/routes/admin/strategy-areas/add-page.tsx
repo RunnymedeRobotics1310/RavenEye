@@ -36,16 +36,19 @@ const AddPage = () => {
 
   return (
     <main>
-      <h1>Manage Strategy Areas</h1>
-      <p>Create a new strategy area.</p>
-      <RequireLogin>
-        {error && <p className={"errorMessage"}>{msg}</p>}
-        {success ? (
-          <Success />
-        ) : (
-          <StrategyAreaForm submitFunction={handleSubmit} disabled={success} />
-        )}
-      </RequireLogin>
+      <div className="page-header">
+        <h1>Add Strategy Area</h1>
+      </div>
+      <section className="card">
+        <RequireLogin>
+          {error && <p className={"errorMessage"}>{msg}</p>}
+          {success ? (
+            <Success />
+          ) : (
+            <StrategyAreaForm submitFunction={handleSubmit} disabled={success} />
+          )}
+        </RequireLogin>
+      </section>
     </main>
   );
 };

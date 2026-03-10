@@ -186,11 +186,13 @@ const ConfigSyncForm = () => {
 const ConfigSyncPage = () => {
   return (
     <main>
-      <h1>Sync from Source</h1>
-      <p>
-        Pull configuration data from a source RavenBrain server. This will
-        replace all local config data and clear scouting events and comments.
-      </p>
+      <div className="page-header">
+        <h1>Sync from Source</h1>
+        <p>
+          Pull configuration data from a source RavenBrain server. This will
+          replace all local config data and clear scouting events and comments.
+        </p>
+      </div>
       <RequireLogin>
         <ConfigSyncForm />
       </RequireLogin>

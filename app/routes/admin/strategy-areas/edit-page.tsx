@@ -49,21 +49,24 @@ const EditPage = () => {
 
   return (
     <main>
-      <h1>Manage Strategy Areas</h1>
-      <p>Edit strategy area.</p>
-      <RequireLogin>
-        {error && <p className={"errorMessage"}>{msg}</p>}
-        {success ? (
-          <Success />
-        ) : (
-          <StrategyAreaForm
-            submitFunction={handleSubmit}
-            disabled={success}
-            initialData={data || undefined}
-            isEdit
-          />
-        )}
-      </RequireLogin>
+      <div className="page-header">
+        <h1>Edit Strategy Area</h1>
+      </div>
+      <section className="card">
+        <RequireLogin>
+          {error && <p className={"errorMessage"}>{msg}</p>}
+          {success ? (
+            <Success />
+          ) : (
+            <StrategyAreaForm
+              submitFunction={handleSubmit}
+              disabled={success}
+              initialData={data || undefined}
+              isEdit
+            />
+          )}
+        </RequireLogin>
+      </section>
     </main>
   );
 };

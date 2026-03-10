@@ -31,27 +31,35 @@ const DrillReportPage = () => {
 
   return (
     <main>
-      <h1>Drill Sessions</h1>
-      <RequireLogin>
+      <div className="page-header">
+        <h1>Drill Sessions</h1>
         <p>
           <NavLink to="/report">&larr; Back to Reports</NavLink>
         </p>
+      </div>
+      <RequireLogin>
         {loading && <Spinner />}
         {error && <p className="banner banner-warning">{error}</p>}
-        {sessions && sessions.length === 0 && <p>No drill sessions found.</p>}
+        {sessions && sessions.length === 0 && (
+          <section className="card">
+            <p>No drill sessions found.</p>
+          </section>
+        )}
         {sessions && sessions.length > 0 && (
-          <ul className="nav-list">
-            {sessions.map((id) => (
-              <li key={id}>
-                <NavLink
-                  to={`/report/drill/shooter/${id}`}
-                  className="btn-secondary"
-                >
-                  {formatDrillId(id)}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
+          <section className="card">
+            <ul className="nav-list">
+              {sessions.map((id) => (
+                <li key={id}>
+                  <NavLink
+                    to={`/report/drill/shooter/${id}`}
+                    className="btn-secondary"
+                  >
+                    {formatDrillId(id)}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </section>
         )}
       </RequireLogin>
     </main>

@@ -85,11 +85,10 @@ const List = () => {
 const EventTypesPage = () => {
   return (
     <main>
-      <h1>Manage Event Types</h1>
-      <p>
-        This page lists all event types. Event types define the kinds of events
-        that can be tracked during a match.
-      </p>
+      <div className="page-header">
+        <h1>Manage Event Types</h1>
+        <p>Event types define the kinds of events that can be tracked during a match.</p>
+      </div>
       <RequireLogin>
         <List />
       </RequireLogin>

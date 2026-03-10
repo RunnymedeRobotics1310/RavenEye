@@ -29,27 +29,32 @@ const SyncPage = () => {
   return (
     <main>
       <RequireLogin>
-        <h1>Sync Central</h1>
-        <p>
-          The following dashboard displays the sync status of your environment.
-          Some actions happen in the background, while others need to be
-          initiated by you.
-        </p>
+        <div className="page-header">
+          <h1>Sync Central</h1>
+          <p>
+            Sync status for your environment. Some actions happen in the
+            background, others need to be initiated by you.
+          </p>
+        </div>
         <SyncNowButton />
-        <h2>My Tracking Data (manual)</h2>
-        <SyncQuickComments />
-        <SyncTrackingData />
-        <SyncRobotAlerts />
-        <h2>Team Data from Server (automatic)</h2>
-        <SyncTournamentList />
-        <SyncStrategyAreas />
-        <SyncMatchSchedule />
-        <SyncEventTypes />
-        <SyncSequenceTypes />
-        <SyncRobotAlertList />
-        <SyncDashboardData />
+        <section className="card">
+          <h2>My Tracking Data (manual)</h2>
+          <SyncQuickComments />
+          <SyncTrackingData />
+          <SyncRobotAlerts />
+        </section>
+        <section className="card">
+          <h2>Team Data from Server (automatic)</h2>
+          <SyncTournamentList />
+          <SyncStrategyAreas />
+          <SyncMatchSchedule />
+          <SyncEventTypes />
+          <SyncSequenceTypes />
+          <SyncRobotAlertList />
+          <SyncDashboardData />
+        </section>
         {isSuperuser && (
-          <>
+          <section className="card">
             <h2>Force Sync with FRC</h2>
             <p>
               Forces RavenBrain to immediately re-sync with FRC, without waiting
@@ -57,7 +62,7 @@ const SyncPage = () => {
               the updated data from RavenBrain.
             </p>
             <FrcSyncButton />
-          </>
+          </section>
         )}
       </RequireLogin>
     </main>

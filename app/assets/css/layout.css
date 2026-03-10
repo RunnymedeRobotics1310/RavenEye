@@ -79,7 +79,7 @@ html {
 }
 
 main {
-    padding: 0 var(--space-lg);
+    padding: var(--space-base) var(--space-lg) 0;
     min-height: var(--min-main-height);
 }
 
