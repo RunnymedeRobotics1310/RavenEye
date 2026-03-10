@@ -27,20 +27,12 @@ const LoggedIn = () => {
           <strong>{fullName}</strong>
         </em>
       </p>
-      <ul>
-        <li>
-          <NavLink to={"/profile"}>My Profile</NavLink>
-        </li>
-        <li>
-          <NavLink to={"/logout"}>Log out</NavLink>
-        </li>
-        <li>
-          <NavLink to={"/track"}>Track a Robot</NavLink>
-        </li>
-        <li>
-          <NavLink to={"/report"}>View Reports</NavLink>
-        </li>
-      </ul>
+      <nav className="home-nav">
+        <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
+        <NavLink to={"/report"} className="btn">View Reports</NavLink>
+        <NavLink to={"/profile"} className="btn-secondary">My Profile</NavLink>
+        <NavLink to={"/logout"} className="btn-secondary">Log out</NavLink>
+      </nav>
     </main>
   );
 };
@@ -55,8 +47,7 @@ const NotLoggedIn = (props: any) => {
         click on the sync icon in the top right of the page. Do not reload if
         you are not online.
       </p>
-      <br />
-      <NavLink to={"/login"}>Log in</NavLink>
+      <NavLink to={"/login"} className="btn">Log in</NavLink>
       <h3>Login Status</h3>
       <table className="status-table">
         <thead>
