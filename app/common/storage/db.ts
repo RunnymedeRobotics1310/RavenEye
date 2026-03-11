@@ -280,6 +280,19 @@ export class Repository {
     });
   }
 
+  async mergeMatchSchedule(list: RBScheduleRecord[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([MATCH_SCHEDULE_STORE], "readwrite");
+      const store = transaction.objectStore(MATCH_SCHEDULE_STORE);
+      for (const item of list) {
+        store.put(item);
+      }
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
   async getMatchSchedule(): Promise<RBScheduleRecord[]> {
     const db = await this.getDB();
     return new Promise((resolve, reject) => {
