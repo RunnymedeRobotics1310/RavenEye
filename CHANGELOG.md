@@ -1,3 +1,10 @@
+## [3.13.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.2...v3.13.3) (2026-03-11)
+
+
+### Bug Fixes
+
+* Clean up tournament list rendering for mobile and update sync process to split manual and bulk due to very slow tournament sync ([#199](https://github.com/RunnymedeRobotics1310/RavenEye/issues/199)) ([f163dd9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f163dd917ac3c3b4a0ac074caffa0c015c9459ee))
+
 ## [3.13.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.1...v3.13.2) (2026-03-11)
 
 
