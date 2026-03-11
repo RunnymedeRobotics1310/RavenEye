@@ -1,3 +1,16 @@
+## [3.13.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.1...v3.13.2) (2026-03-11)
+
+
+### Bug Fixes
+
+* Fetch schedules on-demand without requiring a force-sync ([168466d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/168466d7a1d2a53672e7df7be80af49968c1b793))
+* Merge main into home-links ([6daf9b8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6daf9b895e7cbac8caad16d9c976b78523e4f91b))
+* Merge main into report-outline ([e61af42](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e61af4230e6c79bc45a443ba8f05443d4ba3fea7))
+* Refresh look and feel ([3bed957](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3bed957c1717eff02dc7409a7ad9f02ebd77b493))
+* Show all tournaments in comp scouting list to facilitate video-based tracking ([bb066e8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bb066e8998b98f81cf27b07e65f606978a5be58a))
+* Switch to release bot for better branch protection controls. ([1863df7](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1863df7cc5b21a1bea379cda6df1140f168a73c9))
+* Tidy up home page ([aa3e7ac](https://github.com/RunnymedeRobotics1310/RavenEye/commit/aa3e7ac174a1244e22acf5d9b73a238b574fd39b))
+
 ## [3.13.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.0...v3.13.1) (2026-03-10)
 
 
