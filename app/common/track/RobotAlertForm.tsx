@@ -2,11 +2,11 @@ import { useState } from "react";
 import { recordRobotAlert } from "~/common/storage/track.ts";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
-import { useRecentTournamentList } from "~/common/storage/dbhooks.ts";
+import { useActiveTeamTournaments } from "~/common/storage/dbhooks.ts";
 
 function RobotAlertForm({}: TrackScreenProps) {
   const { goBack } = useTrackNav();
-  const { list: tournaments, loading } = useRecentTournamentList();
+  const { list: tournaments, loading } = useActiveTeamTournaments();
   const [tournamentId, setTournamentId] = useState("");
   const [team, setTeam] = useState(-1);
   const [alert, setAlert] = useState("");

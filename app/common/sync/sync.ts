@@ -252,11 +252,11 @@ export async function syncMatchSchedule() {
 
   try {
     const tournaments = await repository.getTournamentList();
-    const schedules = await Promise.all(
-      tournaments.map((t) => getScheduleForTournament(t.id)),
-    );
-    const data = schedules.flat();
-    await repository.putMatchSchedule(data);
+    const schedules = [];
+    for (const t of tournaments) {
+      schedules.push(...(await getScheduleForTournament(t.id)));
+    }
+    await repository.putMatchSchedule(schedules);
     await repository.putSyncStatus({
       loading: false,
       component: MATCH_SCHEDULE,
@@ -524,10 +524,10 @@ export async function syncRobotAlertList() {
 
   try {
     const tournaments = await repository.getTournamentList();
-    const alertLists = await Promise.all(
-      tournaments.map((t) => getRobotAlertList(t.id)),
-    );
-    const data = alertLists.flat();
+    const data = [];
+    for (const t of tournaments) {
+      data.push(...(await getRobotAlertList(t.id)));
+    }
     await repository.putRobotAlerts(data);
     await repository.putSyncStatus({
       loading: false,
