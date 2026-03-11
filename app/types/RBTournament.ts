@@ -4,4 +4,5 @@ export type RBTournament = {
   name: string;
   startTime: Date;
   endTime: Date;
+  weekNumber: number;
 };
