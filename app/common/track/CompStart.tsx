@@ -1,34 +1,41 @@
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
-import { useRecentTournamentList } from "~/common/storage/dbhooks.ts";
+import {
+  useActiveTeamTournaments,
+  useTournamentList,
+} from "~/common/storage/dbhooks.ts";
 import {
   getScoutingSession,
   setScoutingSession,
 } from "~/common/storage/track.ts";
 import { getUserid } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
-import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-// TODO: Remove after dev — include past event for testing
-const DEV_TOURNAMENT_ID = "2025ONCMP2";
-
 const CompStart = ({}: TrackScreenProps) => {
   const { navigate } = useTrackNav();
-  const { list: recentTournaments, loading: recentLoading } =
-    useRecentTournamentList();
+  const { list: activeTeamTournaments, loading: activeLoading } =
+    useActiveTeamTournaments();
   const { list: allTournaments, loading: allLoading } = useTournamentList();
-  const loading = recentLoading || allLoading;
-  const devTournament = allTournaments.find(
-    (t) => t.id === DEV_TOURNAMENT_ID,
-  );
-  const tournaments = [
-    ...(devTournament ? [devTournament] : []),
-    ...recentTournaments.filter((t) => t.id !== DEV_TOURNAMENT_ID),
-  ];
+  const loading = activeLoading || allLoading;
+
+  const currentYear = new Date().getFullYear();
+  const seasonTournaments = allTournaments
+    .filter((t) => t.season === currentYear)
+    .sort(
+      (a, b) =>
+        new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+    );
+
+  const now = new Date();
+
+  const isFuture = (t: { startTime: Date }) => new Date(t.startTime) > now;
 
   const formatDate = (date: Date) =>
-    new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
 
   const selectTournament = (tournamentId: string) => {
     setScoutingSession({
@@ -51,27 +58,55 @@ const CompStart = ({}: TrackScreenProps) => {
     <main className="track scout-select">
       <div>
         <TrackNav />
-        <h2>{new Date().getFullYear()} Tournaments</h2>
-        <p>Select a tournament:</p>
-        <table className="tools">
-          <tbody>
-            {tournaments.map((t) => (
-              <tr key={t.id}>
-                <td>
-                  <button
-                    className="tournament-btn"
-                    onClick={() => selectTournament(t.id)}
-                  >
-                    {t.name}
-                  </button>
-                </td>
-                <td className="tournament-date">
-                  {formatDate(t.startTime)} – {formatDate(t.endTime)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+        {activeTeamTournaments.length > 0 && (
+          <div className="card">
+            <h2>Active Competition</h2>
+            <table className="tools">
+              <tbody>
+                {activeTeamTournaments.map((t) => (
+                  <tr key={t.id}>
+                    <td>
+                      <button
+                        className="tournament-btn"
+                        onClick={() => selectTournament(t.id)}
+                      >
+                        {t.name}
+                      </button>
+                    </td>
+                    <td className="tournament-date">
+                      {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div className="card">
+          <h2>All {currentYear} Events</h2>
+          <table className="tools">
+            <tbody>
+              {seasonTournaments.map((t) => (
+                <tr key={t.id}>
+                  <td>
+                    <button
+                      className="tournament-btn"
+                      onClick={() => selectTournament(t.id)}
+                      disabled={isFuture(t)}
+                    >
+                      {t.name}
+                    </button>
+                  </td>
+                  <td className="tournament-date">
+                    {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </main>
   );

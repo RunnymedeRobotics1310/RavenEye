@@ -6,6 +6,7 @@ import type { SequenceType } from "~/types/SequenceType.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository } from "~/common/storage/db.ts";
+import { getActiveTeamTournaments } from "~/common/storage/rb.ts";
 
 export function useTournamentList() {
   const [list, setList] = useState<RBTournament[]>([]);
@@ -36,17 +37,26 @@ export function useTournamentList() {
   return { list, loading };
 }
 
-export function useRecentTournamentList() {
-  const { list, loading } = useTournamentList();
-  const twoWeeksAgo = new Date();
-  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-  const recentList = list
-    .filter((t) => new Date(t.endTime) >= twoWeeksAgo)
-    .sort(
-      (a, b) =>
-        new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-    );
-  return { list: recentList, loading };
+export function useActiveTeamTournaments() {
+  const [list, setList] = useState<RBTournament[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    getActiveTeamTournaments()
+      .then((data) => {
+        if (isMounted) setList(data);
+      })
+      .catch((err) => console.error("Failed to load active team tournaments", err))
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return { list, loading };
 }
 
 export function useStrategyAreaList() {

@@ -52,6 +52,38 @@ export async function getTournamentList() {
 }
 
 /**
+ * Fetches active tournaments where team 1310 has scheduled matches.
+ *
+ * @return {Promise<RBTournament[]>} A promise that resolves to an array of active team tournaments.
+ * @throws {Error} If the request fails or the server responds with an error status.
+ */
+export async function getActiveTeamTournaments() {
+  const resp = await rbfetch("/api/tournament/active-team", {});
+  if (resp.ok) {
+    return resp.json() as unknown as RBTournament[];
+  } else {
+    throw new Error("Failure fetching active team tournaments");
+  }
+}
+
+/**
+ * Triggers RavenBrain to fetch schedule data for a tournament from the FRC API.
+ *
+ * @param {string} tournamentId - The tournament ID to fetch schedule data for.
+ * @throws {Error} If the request fails.
+ */
+export async function fetchTournamentSchedule(
+  tournamentId: string,
+): Promise<void> {
+  const resp = await rbfetch("/api/frc-sync/schedule/" + tournamentId, {
+    method: "POST",
+  });
+  if (!resp.ok && resp.status !== 404) {
+    throw new Error("Failed to fetch tournament schedule: " + resp.status);
+  }
+}
+
+/**
  * Fetches the entire list of strategy areas from the server.
  *
  * @return {Promise<StrategyArea[]>} A promise that resolves to an array of strategy area objects.
