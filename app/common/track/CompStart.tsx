@@ -1,4 +1,5 @@
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import type { RBTournament } from "~/types/RBTournament.ts";
 import {
   useActiveTeamTournaments,
   useTournamentList,
@@ -11,6 +12,18 @@ import { getUserid } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
+
+function groupByWeek(
+  tournaments: RBTournament[],
+): Map<number, RBTournament[]> {
+  const groups = new Map<number, RBTournament[]>();
+  for (const t of tournaments) {
+    const list = groups.get(t.weekNumber) ?? [];
+    list.push(t);
+    groups.set(t.weekNumber, list);
+  }
+  return groups;
+}
 
 const CompStart = ({}: TrackScreenProps) => {
   const { navigate } = useTrackNav();
@@ -46,6 +59,8 @@ const CompStart = ({}: TrackScreenProps) => {
     navigate("comp-level");
   };
 
+  const weekGroups = groupByWeek(seasonTournaments);
+
   if (loading) {
     return (
       <main>
@@ -62,35 +77,36 @@ const CompStart = ({}: TrackScreenProps) => {
         {activeTeamTournaments.length > 0 && (
           <div className="card">
             <h2>Active Competition</h2>
-            <table className="tools">
-              <tbody>
-                {activeTeamTournaments.map((t) => (
-                  <tr key={t.id}>
-                    <td>
-                      <button
-                        className="tournament-btn"
-                        onClick={() => selectTournament(t.id)}
-                      >
-                        {t.name}
-                      </button>
-                    </td>
-                    <td className="tournament-date">
-                      {formatDate(t.startTime)} – {formatDate(t.endTime)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {activeTeamTournaments.map((t) => (
+              <div key={t.id} className="tournament-row">
+                <button
+                  className="tournament-btn"
+                  onClick={() => selectTournament(t.id)}
+                >
+                  {t.name}
+                </button>
+                <span className="tournament-date">
+                  {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                </span>
+              </div>
+            ))}
           </div>
         )}
 
         <div className="card">
           <h2>All {currentYear} Events</h2>
-          <table className="tools">
-            <tbody>
-              {seasonTournaments.map((t) => (
-                <tr key={t.id}>
-                  <td>
+          {[...weekGroups.entries()].map(([weekNum, tournaments]) => {
+            const firstStart = new Date(tournaments[0].startTime);
+            const weekLabel = `Week ${weekNum} — ${formatDate(firstStart)}`;
+            return (
+              <details
+                key={weekNum}
+                className="tournament-week-group"
+                open={tournaments.some((t) => !isFuture(t))}
+              >
+                <summary>{weekLabel}</summary>
+                {tournaments.map((t) => (
+                  <div key={t.id} className="tournament-row">
                     <button
                       className="tournament-btn"
                       onClick={() => selectTournament(t.id)}
@@ -98,14 +114,14 @@ const CompStart = ({}: TrackScreenProps) => {
                     >
                       {t.name}
                     </button>
-                  </td>
-                  <td className="tournament-date">
-                    {formatDate(t.startTime)} – {formatDate(t.endTime)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <span className="tournament-date">
+                      {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                    </span>
+                  </div>
+                ))}
+              </details>
+            );
+          })}
         </div>
       </div>
     </main>

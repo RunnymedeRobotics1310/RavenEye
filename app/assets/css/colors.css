@@ -47,8 +47,20 @@ a:focus-visible {
     fill: var(--color-text-header);
 }
 
-#layout > header .syncError {
+#layout > header .syncComplete {
     fill: var(--color-text-header);
+}
+
+#layout > header .syncToDo {
+    fill: #FFD600;
+}
+
+#layout > header .syncHappening {
+    fill: var(--color-text-header);
+}
+
+#layout > header .syncError {
+    fill: #FFD600;
 }
 
 /* Admin menu dropdown (uses page colors, not header inverse) */

@@ -565,7 +565,7 @@ table.tools {
 }
 
 .sync-now-button {
-    margin-bottom: var(--space-lg);
+    margin-top: var(--space-md);
 }
 
 section.sync-status {
@@ -669,13 +669,43 @@ table tbody tr:nth-child(odd).forgot-password-row {
     margin-bottom: var(--space-sm);
 }
 
+.tournament-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem;
+}
+
 .tournament-btn {
     width: 100%;
+    flex: 1;
 }
 
 .tournament-date {
     color: var(--color-text-tertiary);
     white-space: nowrap;
+}
+
+.tournament-week-group {
+    margin-bottom: 0.25rem;
+}
+
+.tournament-week-group summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.35rem 0;
+    color: var(--color-text-secondary);
+}
+
+.tournament-week-group[open] summary {
+    margin-bottom: 0.25rem;
+}
+
+@media (max-width: 480px) {
+    .tournament-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
 .alliance-red-text {

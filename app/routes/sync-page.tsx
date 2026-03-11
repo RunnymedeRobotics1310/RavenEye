@@ -11,6 +11,7 @@ import SyncRobotAlerts from "~/common/sync/SyncRobotAlerts.tsx";
 import SyncRobotAlertList from "~/common/sync/SyncRobotAlertList.tsx";
 import SyncDashboardData from "~/common/sync/SyncDashboardData.tsx";
 import SyncNowButton from "~/common/sync/SyncNowButton.tsx";
+import SyncServerDataButton from "~/common/sync/SyncServerDataButton.tsx";
 import FrcSyncButton from "~/common/sync/FrcSyncButton.tsx";
 import { useRole } from "~/common/storage/rbauth.ts";
 
@@ -36,22 +37,23 @@ const SyncPage = () => {
             background, others need to be initiated by you.
           </p>
         </div>
-        <SyncNowButton />
         <section className="card">
-          <h2>My Tracking Data (manual)</h2>
+          <h2>My Tracking Data</h2>
           <SyncQuickComments />
           <SyncTrackingData />
           <SyncRobotAlerts />
+          <SyncNowButton />
         </section>
         <section className="card">
-          <h2>Team Data from Server (automatic)</h2>
+          <h2>Team Data from Server</h2>
           <SyncTournamentList />
           <SyncStrategyAreas />
           <SyncMatchSchedule />
           <SyncEventTypes />
           <SyncSequenceTypes />
           <SyncRobotAlertList />
-          <SyncDashboardData />
+          {/* <SyncDashboardData /> — not yet implemented */}
+          <SyncServerDataButton />
         </section>
         {isSuperuser && (
           <section className="card">

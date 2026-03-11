@@ -47,13 +47,6 @@ export function initializeSyncSchedule() {
   updateCommentUnsyncCount();
   updateEventUnsyncCount();
   updateRobotAlertUnsyncCount();
-  doSync();
-  setInterval(
-    () => {
-      doSync();
-    },
-    60 * 60 * 1000,
-  );
 }
 
 export async function doManualSync() {
@@ -67,9 +60,9 @@ export async function doManualSync() {
   } else {
     log("Skipping Manual Sync - not connected");
   }
-  await doSync();
 }
-async function doSync() {
+
+export async function doServerDataSync() {
   const alive = await ping();
   if (alive) {
     await Promise.all([
@@ -81,7 +74,7 @@ async function doSync() {
       syncRobotAlertList(),
     ]);
   } else {
-    log("Skipping - not connected");
+    log("Skipping Server Data Sync - not connected");
   }
 }
 
@@ -667,46 +660,50 @@ export const useTrackingDataSyncStatus = (): SyncStatus => {
   return useSyncStatus(TRACKING_DATA);
 };
 
-export const useOverallSyncStatus = (): SyncStatus => {
-  const dashboard = useDashboardDataSyncStatus();
+function aggregateStatuses(
+  component: string,
+  statuses: SyncStatus[],
+): SyncStatus {
+  return {
+    loading: statuses.some((s) => s.loading),
+    component,
+    lastSync: new Date(
+      Math.min(...statuses.map((s) => s.lastSync.getTime())),
+    ),
+    inProgress: statuses.some((s) => s.inProgress),
+    isComplete: statuses.every((s) => s.isComplete),
+    remaining: statuses.reduce((acc, s) => acc + s.remaining, 0),
+    error: statuses.find((s) => s.error !== null)?.error || null,
+  };
+}
+
+export const useManualSyncStatus = (): SyncStatus => {
+  const comments = useQuickCommentsSyncStatus();
+  const track = useTrackingDataSyncStatus();
+  const alerts = useRobotAlertsSyncStatus();
+  return aggregateStatuses("Manual Sync", [comments, track, alerts]);
+};
+
+export const useServerDataSyncStatus = (): SyncStatus => {
+  // const dashboard = useDashboardDataSyncStatus(); — not yet implemented
   const eventtype = useEventTypesSyncStatus();
   const schedule = useMatchScheduleSyncStatus();
-  const comments = useQuickCommentsSyncStatus();
   const seqtype = useSequenceTypesSyncStatus();
   const stratarea = useStrategyAreasSyncStatus();
   const tournament = useTournamentListSyncStatus();
-  const track = useTrackingDataSyncStatus();
-  const alerts = useRobotAlertsSyncStatus();
   const alertList = useRobotAlertListSyncStatus();
-
-  const statuses: SyncStatus[] = [
-    dashboard,
+  return aggregateStatuses("Server Data", [
     eventtype,
     schedule,
-    comments,
     seqtype,
     stratarea,
     tournament,
-    track,
-    alerts,
     alertList,
-  ];
+  ]);
+};
 
-  const loading = statuses.some((s) => s.loading);
-  const lastSync = new Date(
-    Math.min(...statuses.map((s) => s.lastSync.getTime())),
-  );
-  const inProgress = statuses.some((s) => s.inProgress);
-  const isComplete = statuses.every((s) => s.isComplete);
-  const remaining = statuses.reduce((acc, s) => acc + s.remaining, 0);
-  const error = statuses.find((s) => s.error !== null)?.error || null;
-  return {
-    loading: loading,
-    component: "Overall",
-    lastSync: lastSync,
-    inProgress: inProgress,
-    isComplete: isComplete,
-    remaining: remaining,
-    error: error,
-  };
+export const useOverallSyncStatus = (): SyncStatus => {
+  const manual = useManualSyncStatus();
+  const server = useServerDataSyncStatus();
+  return aggregateStatuses("Overall", [manual, server]);
 };
