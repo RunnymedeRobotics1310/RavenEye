@@ -28,6 +28,11 @@ const ReportHomePage = () => {
                       Mega Report
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink to="/report/chrono" className="btn-secondary">
+                      Chronological Event Report
+                    </NavLink>
+                  </li>
                 </ul>
               </section>
 

@@ -76,6 +76,15 @@ export default [
     "report/tournament/:sequenceTypeCode/:teamId/:tournamentId",
     "./routes/report/sequence-tournament-report-page.tsx",
   ),
+  route("report/chrono", "./routes/report/chrono-report-tournaments-page.tsx"),
+  route(
+    "report/chrono/:tournamentId",
+    "./routes/report/chrono-report-teams-page.tsx",
+  ),
+  route(
+    "report/chrono/:tournamentId/:teamId",
+    "./routes/report/chrono-report-page.tsx",
+  ),
   route("report/mega", "./routes/report/mega-report-tournaments-page.tsx"),
   route(
     "report/mega/:tournamentId",

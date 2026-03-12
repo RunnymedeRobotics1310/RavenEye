@@ -19,6 +19,7 @@ import type {
   DrillReportResponse,
   TournamentSequenceReportResponse,
 } from "~/types/SequenceReport.ts";
+import type { ChronoReportResponse } from "~/types/ChronoReport.ts";
 import type { MegaReportResponse } from "~/types/MegaReport.ts";
 
 /**
@@ -883,6 +884,22 @@ export async function getMegaReport(
     return resp.json() as unknown as MegaReportResponse;
   } else {
     throw new Error("Failure fetching mega report");
+  }
+}
+
+export async function getChronoReport(
+  tournamentId: string,
+  teamId: number,
+  frcYear: number,
+): Promise<ChronoReportResponse> {
+  const resp = await rbfetch(
+    `/api/report/chrono/${tournamentId}?team=${teamId}&year=${frcYear}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as ChronoReportResponse;
+  } else {
+    throw new Error("Failure fetching chronological event report");
   }
 }
 
