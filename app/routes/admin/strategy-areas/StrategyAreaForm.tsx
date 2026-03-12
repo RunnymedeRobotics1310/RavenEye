@@ -19,6 +19,7 @@ export const StrategyAreaForm = ({
     frcyear: new Date().getFullYear(),
     name: "",
     description: "",
+    disabled: false,
   });
 
   useEffect(() => {
@@ -86,6 +87,17 @@ export const StrategyAreaForm = ({
           value={item.description}
           onChange={(e) => setItem({ ...item, description: e.target.value })}
         />
+      </div>
+      <div className="form-field">
+        <label>
+          <input
+            type="checkbox"
+            name="disabled"
+            checked={item.disabled}
+            onChange={(e) => setItem({ ...item, disabled: e.target.checked })}
+          />{" "}
+          Disabled
+        </label>
       </div>
       <div className="form-actions">
         <button type={"submit"} disabled={disabled}>

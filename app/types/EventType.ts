@@ -6,4 +6,5 @@ export interface EventType {
   strategyareaId: number;
   showQuantity: boolean;
   showNote: boolean;
+  disabled: boolean;
 }

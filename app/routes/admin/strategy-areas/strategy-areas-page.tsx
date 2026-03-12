@@ -45,17 +45,19 @@ const List = () => {
             <th>Code</th>
             <th>Name</th>
             <th>Description</th>
+            <th>Disabled</th>
             <th>Commands</th>
           </tr>
         </thead>
         <tbody>
           {data?.map((item) => (
-            <tr key={item.id}>
+            <tr key={item.id} className={item.disabled ? "disabled-item" : undefined}>
               <td>{item.id}</td>
               <td>{item.frcyear}</td>
               <td>{item.code}</td>
               <td>{item.name}</td>
               <td>{item.description}</td>
+              <td>{item.disabled ? "Yes" : "No"}</td>
               <td>
                 <NavLink to={`/admin/strategy-areas/${item.id}`} className="btn">Edit</NavLink>
                 {canDelete && <button className="btn" onClick={() => handleDelete(item.id, item.name)}>Delete</button>}

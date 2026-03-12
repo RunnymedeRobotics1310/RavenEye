@@ -59,16 +59,18 @@ const List = () => {
             <th>Event Type</th>
             <th>Name</th>
             <th>Strategy Area</th>
+            <th>Disabled</th>
             <th>Commands</th>
           </tr>
         </thead>
         <tbody>
           {sorted.map((item) => (
-            <tr key={item.eventtype} className={item.frcyear < new Date().getFullYear() ? "disabled-item" : ""}>
+            <tr key={item.eventtype} className={item.disabled || item.frcyear < new Date().getFullYear() ? "disabled-item" : ""}>
               <td>{item.frcyear}</td>
               <td>{item.eventtype}</td>
               <td>{item.name}</td>
               <td>{strategyAreaMap.get(item.strategyareaId) || item.strategyareaId}</td>
+              <td>{item.disabled ? "Yes" : "No"}</td>
               <td>
                 <NavLink to={`/admin/event-types/${item.eventtype}`} className="btn">Edit</NavLink>
                 {canDelete && <button className="btn" onClick={() => handleDelete(item.eventtype, item.name)}>Delete</button>}
