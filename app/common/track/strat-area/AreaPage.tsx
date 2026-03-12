@@ -84,8 +84,8 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
       <h2>Strategy Area: {area.name}</h2>
       {areaSequences.map((seq) => (
         <span key={seq.id}>
-          <button onClick={() => startSequence(seq)}>
-            {seq.name} (Sequence)
+          <button className="btn-sequence" onClick={() => startSequence(seq)}>
+            {seq.name}
           </button>
           <p></p>
         </span>
