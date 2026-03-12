@@ -3,7 +3,7 @@
   "version": "3.13.5",
   "private": true,
   "type": "module",
-  "description": "1310 Raven Eye - Strategy Web Application ",
+  "description": "1310 Raven Eye - Strategy Web Application",
   "homepage": "https://github.com/RunnymedeRobotics1310/RavenEye",
   "scripts": {
     "build": "react-router build",
