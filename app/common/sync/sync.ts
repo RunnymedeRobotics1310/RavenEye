@@ -123,10 +123,12 @@ export async function doManualSync() {
 }
 
 export async function doServerDataSync() {
+  console.log("doServerDataSync");
   const alive = await ping();
   if (alive) {
+    // Tournaments must sync first — schedules and robot alerts depend on the tournament list
+    await syncTournamentList();
     await Promise.all([
-      syncTournamentList(),
       syncStrategyAreaList(),
       syncEventTypeList(),
       syncSequenceTypeList(),

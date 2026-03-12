@@ -83,11 +83,14 @@ const CompStart = ({}: TrackScreenProps) => {
                   className="tournament-btn"
                   onClick={() => selectTournament(t.id)}
                 >
-                  {t.name}
+                  {t.id.slice(String(t.season).length)}
                 </button>
-                <span className="tournament-date">
-                  {formatDate(t.startTime)} – {formatDate(t.endTime)}
-                </span>
+                <div className="tournament-info">
+                  <span className="tournament-name">{t.name}</span>
+                  <span className="tournament-date">
+                    {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -112,11 +115,14 @@ const CompStart = ({}: TrackScreenProps) => {
                       onClick={() => selectTournament(t.id)}
                       disabled={isFuture(t)}
                     >
-                      {t.name}
+                      {t.id.slice(String(t.season).length)}
                     </button>
-                    <span className="tournament-date">
-                      {formatDate(t.startTime)} – {formatDate(t.endTime)}
-                    </span>
+                    <div className="tournament-info">
+                      <span className="tournament-name">{t.name}</span>
+                      <span className="tournament-date">
+                        {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </details>

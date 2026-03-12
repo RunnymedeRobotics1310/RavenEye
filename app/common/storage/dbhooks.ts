@@ -192,8 +192,12 @@ export function useSyncStatus(component: string): SyncStatus {
     const load = async () => {
       try {
         const data = await repository.getSyncStatus(component);
-        if (isMounted && data) {
-          setStatus(data);
+        if (isMounted) {
+          if (data) {
+            setStatus(data);
+          } else {
+            setStatus((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+          }
         }
       } catch (err) {
         console.error(`Failed to load sync status for ${component}`, err);

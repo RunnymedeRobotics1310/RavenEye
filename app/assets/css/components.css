@@ -677,13 +677,24 @@ table tbody tr:nth-child(odd).forgot-password-row {
 }
 
 .tournament-btn {
-    width: 100%;
-    flex: 1;
+    flex-shrink: 0;
+}
+
+.tournament-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.tournament-name {
+    font-weight: 600;
+    font-size: 0.85rem;
 }
 
 .tournament-date {
     color: var(--color-text-tertiary);
     white-space: nowrap;
+    font-size: 0.8rem;
 }
 
 .tournament-week-group {
