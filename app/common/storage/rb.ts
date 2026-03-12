@@ -21,6 +21,7 @@ import type {
 } from "~/types/SequenceReport.ts";
 import type { ChronoReportResponse } from "~/types/ChronoReport.ts";
 import type { MegaReportResponse } from "~/types/MegaReport.ts";
+import type { TeamSummaryReportResponse } from "~/types/TeamSummaryReport.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -884,6 +885,26 @@ export async function getMegaReport(
     return resp.json() as unknown as MegaReportResponse;
   } else {
     throw new Error("Failure fetching mega report");
+  }
+}
+
+export async function getTeamSummaryTeams(): Promise<number[]> {
+  const resp = await rbfetch("/api/report/team/teams", {});
+  if (resp.ok) {
+    return resp.json() as unknown as number[];
+  } else {
+    throw new Error("Failure fetching team summary teams");
+  }
+}
+
+export async function getTeamSummaryReport(
+  teamId: number,
+): Promise<TeamSummaryReportResponse> {
+  const resp = await rbfetch(`/api/report/team/${teamId}`, {});
+  if (resp.ok) {
+    return resp.json() as unknown as TeamSummaryReportResponse;
+  } else {
+    throw new Error("Failure fetching team summary report");
   }
 }
 

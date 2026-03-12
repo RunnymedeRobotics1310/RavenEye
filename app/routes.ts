@@ -51,6 +51,11 @@ export default [
   ),
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
+  route("report/summary", "./routes/report/summary-report-teams-page.tsx"),
+  route(
+    "report/summary/:teamId",
+    "./routes/report/summary-report-page.tsx",
+  ),
   route("report/drill", "./routes/report/drill-report-page.tsx"),
   route(
     "report/drill/shooter/:tournamentId",
