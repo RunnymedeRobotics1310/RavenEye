@@ -335,7 +335,16 @@ export function useLoginStatus() {
     ping()
       .then((result) => {
         if (!result) {
+          // Offline: trust the local session if we have a non-expired JWT
           setAlive(false);
+          const accessToken =
+            typeof sessionStorage !== "undefined"
+              ? sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN)
+              : null;
+          if (accessToken && !isJwtExpired(accessToken)) {
+            setHasToken(true);
+            setLoggedIn(true);
+          }
           setLoading(false);
           return;
         }
@@ -380,7 +389,16 @@ export function useLoginStatus() {
         }
       })
       .catch(() => {
+        // Offline: trust the local session if we have a non-expired JWT
         setAlive(false);
+        const accessToken =
+          typeof sessionStorage !== "undefined"
+            ? sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN)
+            : null;
+        if (accessToken && !isJwtExpired(accessToken)) {
+          setHasToken(true);
+          setLoggedIn(true);
+        }
         setLoading(false);
       });
   }, []);
