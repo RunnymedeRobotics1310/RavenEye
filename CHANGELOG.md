@@ -1,3 +1,10 @@
+## [3.13.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.4...v3.13.5) (2026-03-12)
+
+
+### Bug Fixes
+
+* Generic sequence report ([#201](https://github.com/RunnymedeRobotics1310/RavenEye/issues/201)) ([ddb88c8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ddb88c89361865a3a7d77953e5b04201fbe3e1e7))
+
 ## [3.13.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.3...v3.13.4) (2026-03-12)
 
 
