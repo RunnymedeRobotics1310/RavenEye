@@ -1,3 +1,10 @@
+## [3.13.8](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.7...v3.13.8) (2026-03-12)
+
+
+### Bug Fixes
+
+* No new window for megareport. ([6169434](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6169434f9b56826ef507f2e481f7cd6547f4cd5d))
+
 ## [3.13.7](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.6...v3.13.7) (2026-03-12)
 
 
