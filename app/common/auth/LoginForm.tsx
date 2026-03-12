@@ -68,6 +68,12 @@ function LoginForm() {
     );
   }
 
+  useEffect(() => {
+    if (success) {
+      navigate(0); // refresh to re-check auth state
+    }
+  }, [success, navigate]);
+
   if (!submitted) {
     return (
       <div className="login-card">
@@ -126,12 +132,6 @@ function LoginForm() {
       </section>
     );
   }
-
-  useEffect(() => {
-    if (success) {
-      navigate(0); // refresh to re-check auth state
-    }
-  }, [success, navigate]);
 
   if (!success) {
     return <LoginFailed />;
