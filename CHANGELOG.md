@@ -1,3 +1,10 @@
+## [3.13.9](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.8...v3.13.9) (2026-03-12)
+
+
+### Bug Fixes
+
+* Add chronological event report ([810a12a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/810a12a384302ce949fa96401fe94444dea910b0))
+
 ## [3.13.8](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.7...v3.13.8) (2026-03-12)
 
 
