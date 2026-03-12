@@ -405,6 +405,15 @@ main.track button.event-error {
     font-size: 0.6rem;
 }
 
+main.track .event-button-row {
+    display: flex;
+    align-items: center;
+}
+
+main.track .event-button-row button {
+    flex: 1;
+}
+
 main.track .event-count {
     margin-left: 0.25rem;
     font-size: 0.7rem;
@@ -419,6 +428,15 @@ main.track .event-type-quantity {
 main.track .event-type-note {
     width: 5rem;
     margin-left: 0.25rem;
+}
+
+main.track .defence-strat .event-type-note {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.25rem;
+    resize: vertical;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 .score-fuel-control {

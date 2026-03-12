@@ -1,4 +1,4 @@
-import RequireLogin from "~/common/auth/RequireLogin.tsx";
+import RequireRole from "~/common/auth/RequireRole.tsx";
 import trackPageRegistry from "~/common/track/trackPageRegistry.ts";
 import { TrackNavProvider, useActiveScreen } from "~/common/track/TrackNavContext.tsx";
 
@@ -33,11 +33,11 @@ const TrackScreen = () => {
 
 const TrackHomePage = () => {
   return (
-    <RequireLogin>
+    <RequireRole roles={["MEMBER", "DATASCOUT", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>
       <TrackNavProvider>
         <TrackScreen />
       </TrackNavProvider>
-    </RequireLogin>
+    </RequireRole>
   );
 };
 export default TrackHomePage;

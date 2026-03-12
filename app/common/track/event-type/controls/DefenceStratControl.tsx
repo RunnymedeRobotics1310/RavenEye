@@ -3,7 +3,7 @@ import { recordEvent } from "~/common/storage/track.ts";
 import type { EventTypeControlProps } from "~/common/track/event-type/eventTypeRegistry.ts";
 import {useTrackNav} from "~/common/track/TrackNavContext.tsx";
 
-const GenericEventTypeButton = ({
+const DefenceStratControl = ({
   eventType,
   sequenceEnd,
   sequenceStart,
@@ -37,7 +37,7 @@ const GenericEventTypeButton = ({
   };
 
   return (
-    <div>
+    <div className="defence-strat">
       <div className="event-button-row">
         <button
           type="button"
@@ -61,10 +61,10 @@ const GenericEventTypeButton = ({
         />
       )}
       {eventType.showNote && (
-        <input
+        <textarea
           className="event-type-note"
-          type="text"
           placeholder="Note"
+          rows={4}
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />
@@ -73,4 +73,4 @@ const GenericEventTypeButton = ({
   );
 };
 
-export default GenericEventTypeButton;
+export default DefenceStratControl;
