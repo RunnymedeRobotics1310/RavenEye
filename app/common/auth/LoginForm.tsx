@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authenticate, useLoginStatus } from "~/common/storage/rbauth.ts";
 import { forgotPassword } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
@@ -127,10 +127,16 @@ function LoginForm() {
     );
   }
 
+  useEffect(() => {
+    if (success) {
+      navigate(0); // refresh to re-check auth state
+    }
+  }, [success, navigate]);
+
   if (!success) {
     return <LoginFailed />;
   }
 
-  navigate(0); // refresh
+  return <Spinner />;
 }
 export default LoginForm;

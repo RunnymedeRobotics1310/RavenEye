@@ -15,7 +15,10 @@ import type { RBQuickCommentPostResult } from "~/types/RBQuickCommentPostResult.
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
 import type { RBRobotAlertPostResult } from "~/types/RBRobotAlertPostResult.ts";
-import type { DrillReportResponse } from "~/types/SequenceReport.ts";
+import type {
+  DrillReportResponse,
+  TournamentSequenceReportResponse,
+} from "~/types/SequenceReport.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -791,15 +794,57 @@ export async function getDrillReport(
   teamId: number,
   tournamentId: string,
   frcYear: number,
+  sequenceTypeId?: number,
 ): Promise<DrillReportResponse> {
-  const resp = await rbfetch(
-    `/api/report/drill/${tournamentId}?team=${teamId}&year=${frcYear}`,
-    {},
-  );
+  let url = `/api/report/drill/${tournamentId}?team=${teamId}&year=${frcYear}`;
+  if (sequenceTypeId) {
+    url += `&sequenceTypeId=${sequenceTypeId}`;
+  }
+  const resp = await rbfetch(url, {});
   if (resp.ok) {
     return resp.json() as unknown as DrillReportResponse;
   } else {
     throw new Error("Failure fetching drill report");
+  }
+}
+
+export async function getSequenceTeams(): Promise<number[]> {
+  const resp = await rbfetch("/api/report/sequence/teams", {});
+  if (resp.ok) {
+    return resp.json() as unknown as number[];
+  } else {
+    throw new Error("Failure fetching sequence teams");
+  }
+}
+
+export async function getSequenceTournaments(
+  teamId: number,
+): Promise<string[]> {
+  const resp = await rbfetch(
+    `/api/report/sequence/tournaments?team=${teamId}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching sequence tournaments");
+  }
+}
+
+export async function getTournamentSequenceReport(
+  teamId: number,
+  tournamentId: string,
+  frcYear: number,
+  sequenceTypeId: number,
+): Promise<TournamentSequenceReportResponse> {
+  const resp = await rbfetch(
+    `/api/report/sequence/tournament/${tournamentId}?team=${teamId}&year=${frcYear}&sequenceTypeId=${sequenceTypeId}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as TournamentSequenceReportResponse;
+  } else {
+    throw new Error("Failure fetching tournament sequence report");
   }
 }
 

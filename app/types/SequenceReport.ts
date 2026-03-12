@@ -44,3 +44,20 @@ export interface DrillReportResponse {
   success: boolean;
   reason: string | null;
 }
+
+export interface MatchSequenceReport {
+  matchId: number;
+  level: string;
+  report: SequenceReport;
+}
+
+export interface TournamentSequenceReport {
+  aggregate: SequenceReport;
+  matches: MatchSequenceReport[];
+}
+
+export interface TournamentSequenceReportResponse {
+  report: TournamentSequenceReport | null;
+  success: boolean;
+  reason: string | null;
+}
