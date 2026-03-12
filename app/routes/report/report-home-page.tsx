@@ -20,7 +20,18 @@ const ReportHomePage = () => {
                 <h1>Reports</h1>
             </div>
             <RequireLogin>
-                {activeTypes.length > 0 && (
+              <section className="card">
+                <h2>Standard Reports</h2>
+                <ul className="nav-list">
+                  <li>
+                    <NavLink to="/report/mega" className="btn-secondary">
+                      Mega Report
+                    </NavLink>
+                  </li>
+                </ul>
+              </section>
+
+              {activeTypes.length > 0 && (
                   <section className="card">
                     <h2>Drill Sequence Reports</h2>
                     <ul className="nav-list">

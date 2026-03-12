@@ -92,6 +92,14 @@ export function initializeSyncSchedule() {
   updateEventUnsyncCount();
   updateRobotAlertUnsyncCount();
 
+  // Sync server data on startup if the user has a session
+  const hasSession =
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem("raveneye_access_token") !== null;
+  if (hasSession) {
+    doServerDataSync();
+  }
+
   setInterval(autoSyncMatchSchedule, SCHEDULE_SYNC_INTERVAL);
 }
 

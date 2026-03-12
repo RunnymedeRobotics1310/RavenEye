@@ -76,5 +76,14 @@ export default [
     "report/tournament/:sequenceTypeCode/:teamId/:tournamentId",
     "./routes/report/sequence-tournament-report-page.tsx",
   ),
+  route("report/mega", "./routes/report/mega-report-tournaments-page.tsx"),
+  route(
+    "report/mega/:tournamentId",
+    "./routes/report/mega-report-teams-page.tsx",
+  ),
+  route(
+    "report/mega/:tournamentId/:teamId",
+    "./routes/report/mega-report-page.tsx",
+  ),
   route("track", "./routes/track/track-home-page.tsx"),
 ] satisfies RouteConfig;

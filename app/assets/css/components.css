@@ -874,3 +874,85 @@ table tbody tr:nth-child(odd).forgot-password-row {
 .trend-degrading {
     color: var(--color-error);
 }
+
+/*
+ *
+ * MEGA REPORT
+ *
+ */
+main.mega-report {
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+}
+
+.mega-report-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.mega-report-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: max-content;
+}
+
+.mega-report-table th,
+.mega-report-table td {
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--color-border);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.mega-report-table th:first-child,
+.mega-report-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    position: sticky;
+    left: 0;
+    background-color: var(--color-bg-secondary);
+    z-index: 1;
+}
+
+.mega-report-table thead {
+    background: var(--color-table-header-bg);
+    color: var(--color-table-header-text);
+}
+
+.mega-report-table thead th {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.7rem;
+    background: var(--color-table-header-bg);
+}
+
+.mega-report-table tbody tr:nth-child(odd) {
+    background-color: var(--color-table-stripe);
+}
+
+.mega-report-table tbody tr:nth-child(even) {
+    background-color: var(--color-bg-secondary);
+}
+
+.mega-report-table tbody tr:nth-child(odd) td:first-child {
+    background-color: var(--color-table-stripe);
+}
+
+.mega-report-table tbody tr:nth-child(even) td:first-child {
+    background-color: var(--color-bg-secondary);
+}
+
+.mega-report-compact thead th:not(:first-child) {
+    vertical-align: bottom;
+    padding: 0.2rem 0;
+    width: 1.2em;
+}
+
+.mega-report-compact thead th:not(:first-child) span {
+    display: block;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    font-size: 0.65rem;
+}
