@@ -56,5 +56,25 @@ export default [
     "report/drill/shooter/:tournamentId",
     "./routes/report/shooter-drill-report-page.tsx",
   ),
+  route(
+    "report/drill/sessions/:sequenceTypeCode",
+    "./routes/report/sequence-drill-sessions-page.tsx",
+  ),
+  route(
+    "report/drill/:sequenceTypeCode/:tournamentId",
+    "./routes/report/sequence-drill-report-page.tsx",
+  ),
+  route(
+    "report/tournament/:sequenceTypeCode/teams",
+    "./routes/report/sequence-tournament-teams-page.tsx",
+  ),
+  route(
+    "report/tournament/:sequenceTypeCode/:teamId",
+    "./routes/report/sequence-tournament-tournaments-page.tsx",
+  ),
+  route(
+    "report/tournament/:sequenceTypeCode/:teamId/:tournamentId",
+    "./routes/report/sequence-tournament-report-page.tsx",
+  ),
   route("track", "./routes/track/track-home-page.tsx"),
 ] satisfies RouteConfig;

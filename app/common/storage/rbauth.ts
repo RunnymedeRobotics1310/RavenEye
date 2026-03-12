@@ -432,13 +432,15 @@ export function useRole() {
   const [isMember, setIsMember] = useState(false);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const roles = getRoles();
-    if (roles) {
+    try {
+      const roles = getRoles();
       setIsSuperuser(roles.includes("ROLE_SUPERUSER"));
       setIsAdmin(roles.includes("ROLE_ADMIN"));
       setIsExpertScout(roles.includes("ROLE_EXPERTSCOUT"));
       setIsDataScout(roles.includes("ROLE_DATASCOUT"));
       setIsMember(roles.includes("ROLE_MEMBER"));
+    } catch {
+      // Not logged in — all roles remain false
     }
     setLoading(false);
   }, []);

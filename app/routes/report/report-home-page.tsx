@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
+import { useSequenceTypeList } from "~/common/storage/dbhooks.ts";
 
 const ReportHomePage = () => {
+  const { list: sequenceTypes } = useSequenceTypeList();
+  const currentYear = new Date().getFullYear();
+  const activeTypes = sequenceTypes.filter(
+    (st) => !st.disabled && st.frcyear === currentYear,
+  );
   const [team, setTeam] = useState<number>(1310);
   const time = 7;
   const number = 10;
@@ -14,17 +20,48 @@ const ReportHomePage = () => {
                 <h1>Reports</h1>
             </div>
             <RequireLogin>
-                <section className="card">
-                    <h2>Tournament Reports</h2>
-                    <p>Coming soon</p>
-                </section>
+                {activeTypes.length > 0 && (
+                  <section className="card">
+                    <h2>Drill Sequence Reports</h2>
+                    <ul className="nav-list">
+                      {activeTypes.map((st) => (
+                        <li key={st.id}>
+                          <NavLink
+                            to={`/report/drill/sessions/${st.code}`}
+                            className="btn-secondary"
+                          >
+                            {st.name}
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+
+                {activeTypes.length > 0 && (
+                  <section className="card">
+                    <h2>Tournament Sequence Reports</h2>
+                    <ul className="nav-list">
+                      {activeTypes.map((st) => (
+                        <li key={st.id}>
+                          <NavLink
+                            to={`/report/tournament/${st.code}/teams`}
+                            className="btn-secondary"
+                          >
+                            {st.name}
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
 
                 <section className="card">
-                    <h2>Drill Reports</h2>
+                    <h2>Custom Reports</h2>
                     <ul className="nav-list">
                         <li>
                             <NavLink to="/report/drill" className="btn">
-                                Drill Sessions
+                                Shooter Drill Sessions
                             </NavLink>
                         </li>
                     </ul>

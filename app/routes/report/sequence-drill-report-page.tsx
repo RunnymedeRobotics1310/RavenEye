@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { getDrillReport } from "~/common/storage/rb.ts";
+import { useSequenceTypeList } from "~/common/storage/dbhooks.ts";
 import Spinner from "~/common/Spinner.tsx";
 import type { SequenceReport, SequenceInfo } from "~/types/SequenceReport.ts";
 
@@ -14,26 +15,31 @@ function parseDrillDate(tournamentId: string): string {
   return `${year}-${month}-${day} ${hour}:${minute}`;
 }
 
-function isScore(seq: SequenceInfo): boolean {
-  if (seq.events.length === 0) return false;
-  const endType = seq.events[seq.events.length - 1].eventtype.eventtype;
-  return endType !== seq.events[0].eventtype.eventtype && !endType.includes("miss");
-}
-
 function msToSeconds(ms: number): string {
   return (ms / 1000).toFixed(2);
 }
 
-const ShooterDrillReportPage = () => {
-  const { tournamentId } = useParams<{ tournamentId: string }>();
+function endEventName(seq: SequenceInfo): string {
+  if (seq.events.length === 0) return "—";
+  return seq.events[seq.events.length - 1].eventtype.name;
+}
+
+const SequenceDrillReportPage = () => {
+  const { sequenceTypeCode, tournamentId } = useParams<{
+    sequenceTypeCode: string;
+    tournamentId: string;
+  }>();
+  const { list: sequenceTypes } = useSequenceTypeList();
   const [report, setReport] = useState<SequenceReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const sequenceType = sequenceTypes.find((st) => st.code === sequenceTypeCode);
+
   useEffect(() => {
-    if (!tournamentId) return;
-    // Default to team 1310 and current year
-    getDrillReport(1310, tournamentId, new Date().getFullYear())
+    if (!tournamentId || !sequenceType) return;
+    setLoading(true);
+    getDrillReport(1310, tournamentId, new Date().getFullYear(), sequenceType.id)
       .then((resp) => {
         if (resp.success && resp.report) {
           setReport(resp.report);
@@ -46,23 +52,22 @@ const ShooterDrillReportPage = () => {
         setError(e.message);
         setLoading(false);
       });
-  }, [tournamentId]);
+  }, [tournamentId, sequenceType?.id]);
 
-  const scores = report?.sequences
-    ? report.sequences.filter(isScore).length
-    : 0;
   const total = report?.sequences?.length ?? 0;
 
   return (
     <main>
       <div className="page-header">
-        <h1>Shooter Drill Report</h1>
+        <h1>{sequenceType?.name ?? sequenceTypeCode} — Drill Report</h1>
         <p>
-          <NavLink to="/report/drill">&larr; Back to Drill Sessions</NavLink>
+          <NavLink to={`/report/drill/sessions/${sequenceTypeCode}`}>
+            &larr; Back to Drill Sessions
+          </NavLink>
         </p>
       </div>
       <RequireLogin>
-        {loading && <Spinner />}
+        {(loading || !sequenceType) && <Spinner />}
         {error && <p className="banner banner-warning">{error}</p>}
         {report && (
           <>
@@ -75,16 +80,8 @@ const ShooterDrillReportPage = () => {
                     <td>{parseDrillDate(tournamentId!)}</td>
                   </tr>
                   <tr>
-                    <td>Total shots</td>
+                    <td>Total sequences</td>
                     <td>{total}</td>
-                  </tr>
-                  <tr>
-                    <td>Success ratio</td>
-                    <td>
-                      {total > 0
-                        ? `${scores}/${total} (${Math.round((scores / total) * 100)}%)`
-                        : "N/A"}
-                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -114,7 +111,7 @@ const ShooterDrillReportPage = () => {
 
             {total > 0 && (
               <section className="card">
-                <h2>Shot-by-Shot</h2>
+                <h2>Sequence-by-Sequence</h2>
                 <table className="drill-shot-table">
                   <thead>
                     <tr>
@@ -133,7 +130,6 @@ const ShooterDrillReportPage = () => {
                         prevDuration !== null
                           ? seq.duration - prevDuration
                           : null;
-                      const score = isScore(seq);
                       const startTime = seq.events[0]?.timestamp;
                       const timeStr = startTime
                         ? new Date(startTime).toLocaleTimeString()
@@ -144,11 +140,7 @@ const ShooterDrillReportPage = () => {
                           <td>{i + 1}</td>
                           <td>{timeStr}</td>
                           <td>{msToSeconds(seq.duration)}s</td>
-                          <td>
-                            <span className={score ? "shot-score" : "shot-miss"}>
-                              {score ? "Score" : "Miss"}
-                            </span>
-                          </td>
+                          <td>{endEventName(seq)}</td>
                           <td>
                             {delta !== null && (
                               <span
@@ -181,4 +173,4 @@ const ShooterDrillReportPage = () => {
   );
 };
 
-export default ShooterDrillReportPage;
+export default SequenceDrillReportPage;
