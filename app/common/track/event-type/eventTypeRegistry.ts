@@ -3,6 +3,7 @@ import type { EventType } from "~/types/EventType.ts";
 import ScoreFuelControl from "~/common/track/event-type/controls/ScoreFuelControl.tsx";
 import PickupFuelControl from "~/common/track/event-type/controls/PickupFuelControl.tsx";
 import MissedFuelControl from "~/common/track/event-type/controls/MissedFuelControl.tsx";
+import DefenceStratControl from "~/common/track/event-type/controls/DefenceStratControl.tsx";
 
 export interface EventTypeControlProps {
   eventType: EventType;
@@ -24,6 +25,7 @@ const eventTypeRegistry: Record<
   "pickup-number": PickupFuelControl,
   "scoring-number-success": ScoreFuelControl,
   "scoring-number-miss": MissedFuelControl,
+  "defence-strat": DefenceStratControl,
 };
 
 export default eventTypeRegistry;

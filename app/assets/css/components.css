@@ -430,6 +430,15 @@ main.track .event-type-note {
     margin-left: 0.25rem;
 }
 
+main.track .defence-strat .event-type-note {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.25rem;
+    resize: vertical;
+    font-family: inherit;
+    font-size: inherit;
+}
+
 .score-fuel-control {
     display: flex;
     flex-direction: column;
