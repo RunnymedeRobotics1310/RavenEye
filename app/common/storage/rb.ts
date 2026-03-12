@@ -19,6 +19,7 @@ import type {
   DrillReportResponse,
   TournamentSequenceReportResponse,
 } from "~/types/SequenceReport.ts";
+import type { MegaReportResponse } from "~/types/MegaReport.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -846,6 +847,42 @@ export async function getTournamentSequenceReport(
     return resp.json() as unknown as TournamentSequenceReportResponse;
   } else {
     throw new Error("Failure fetching tournament sequence report");
+  }
+}
+
+export async function getMegaReportTournaments(): Promise<string[]> {
+  const resp = await rbfetch("/api/report/mega/tournaments", {});
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching mega report tournaments");
+  }
+}
+
+export async function getMegaReportTeams(
+  tournamentId: string,
+): Promise<number[]> {
+  const resp = await rbfetch(`/api/report/mega/teams/${tournamentId}`, {});
+  if (resp.ok) {
+    return resp.json() as unknown as number[];
+  } else {
+    throw new Error("Failure fetching mega report teams");
+  }
+}
+
+export async function getMegaReport(
+  tournamentId: string,
+  teamId: number,
+  frcYear: number,
+): Promise<MegaReportResponse> {
+  const resp = await rbfetch(
+    `/api/report/mega/${tournamentId}?team=${teamId}&year=${frcYear}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as MegaReportResponse;
+  } else {
+    throw new Error("Failure fetching mega report");
   }
 }
 

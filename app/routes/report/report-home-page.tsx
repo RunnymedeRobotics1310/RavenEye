@@ -60,6 +60,11 @@ const ReportHomePage = () => {
                     <h2>Custom Reports</h2>
                     <ul className="nav-list">
                         <li>
+                            <NavLink to="/report/mega" className="btn-secondary">
+                                Mega Report
+                            </NavLink>
+                        </li>
+                        <li>
                             <NavLink to="/report/drill" className="btn">
                                 Shooter Drill Sessions
                             </NavLink>

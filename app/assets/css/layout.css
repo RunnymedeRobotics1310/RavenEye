@@ -90,6 +90,11 @@ main {
         padding-left: calc(10% + var(--space-lg));
         padding-right: calc(10% + var(--space-lg));
     }
+
+    main.mega-report {
+        padding-left: var(--space-sm);
+        padding-right: var(--space-sm);
+    }
 }
 
 .scout-select {
