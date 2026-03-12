@@ -1,20 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router";
 import Gear from "~/common/icons/Gear.tsx";
-import { getRoles } from "~/common/storage/rbauth.ts";
+import { useRole } from "~/common/storage/rbauth.ts";
 
 const AdminMenu = () => {
-  let isAdmin = false;
-  let isSuperuser = false;
-  try {
-    const roles = getRoles();
-    isAdmin =
-      roles.includes("ROLE_ADMIN") || roles.includes("ROLE_SUPERUSER");
-    isSuperuser = roles.includes("ROLE_SUPERUSER");
-  } catch {
-    // not logged in
-  }
-
+  const { isAdmin, isSuperuser } = useRole();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
