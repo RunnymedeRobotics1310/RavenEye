@@ -5,6 +5,7 @@ export interface TimedSequenceEvent {
   timestamp: string;
   elapsedSincePrecedingEvent: number;
   elapsedSinceStartOfSequence: number;
+  note: string | null;
 }
 
 export interface IntervalDuration {

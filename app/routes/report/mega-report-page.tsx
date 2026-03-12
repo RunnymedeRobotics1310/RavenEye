@@ -56,10 +56,10 @@ const MegaReportPage = () => {
       <RequireLogin>
         {loading && <Spinner />}
         {error && <p className="banner banner-warning">{error}</p>}
-        {report && report.columns.length === 0 && (
+        {report && (!report.columns || report.columns.length === 0) && (
           <p>No event data found for this team at this tournament.</p>
         )}
-        {report && report.columns.length > 0 && (
+        {report && report.columns && report.columns.length > 0 && (
           <section className="card">
             <div className="form-field">
               <label>

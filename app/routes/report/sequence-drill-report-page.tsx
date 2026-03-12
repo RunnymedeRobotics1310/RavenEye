@@ -24,6 +24,13 @@ function endEventName(seq: SequenceInfo): string {
   return seq.events[seq.events.length - 1].eventtype.name;
 }
 
+function sequenceNotes(seq: SequenceInfo): string {
+  return seq.events
+    .map((e) => e.note?.trim())
+    .filter((n): n is string => !!n)
+    .join("; ");
+}
+
 const SequenceDrillReportPage = () => {
   const { sequenceTypeCode, tournamentId } = useParams<{
     sequenceTypeCode: string;
@@ -120,6 +127,7 @@ const SequenceDrillReportPage = () => {
                       <th>Duration</th>
                       <th>Result</th>
                       <th>Delta</th>
+                      <th>Note</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -159,6 +167,7 @@ const SequenceDrillReportPage = () => {
                               </span>
                             )}
                           </td>
+                          <td>{sequenceNotes(seq)}</td>
                         </tr>
                       );
                     })}

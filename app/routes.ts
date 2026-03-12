@@ -94,5 +94,21 @@ export default [
     "report/mega/:tournamentId/:teamId",
     "./routes/report/mega-report-page.tsx",
   ),
+  route(
+    "report/drill/areas",
+    "./routes/report/sequence-drill-areas-page.tsx",
+  ),
+  route(
+    "report/drill/areas/:areaCode",
+    "./routes/report/sequence-drill-sequences-page.tsx",
+  ),
+  route(
+    "report/tournament/areas",
+    "./routes/report/sequence-tournament-areas-page.tsx",
+  ),
+  route(
+    "report/tournament/areas/:areaCode",
+    "./routes/report/sequence-tournament-sequences-page.tsx",
+  ),
   route("track", "./routes/track/track-home-page.tsx"),
 ] satisfies RouteConfig;

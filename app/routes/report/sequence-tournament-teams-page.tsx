@@ -31,7 +31,7 @@ const SequenceTournamentTeamsPage = () => {
       <div className="page-header">
         <h1>{sequenceType?.name ?? sequenceTypeCode} — Teams</h1>
         <p>
-          <NavLink to="/report">&larr; Back to Reports</NavLink>
+          <NavLink to="/report/tournament/areas">&larr; Back to Strategy Areas</NavLink>
         </p>
       </div>
       <RequireLogin>

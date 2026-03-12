@@ -19,6 +19,13 @@ function endEventName(seq: SequenceInfo): string {
   return seq.events[seq.events.length - 1].eventtype.name;
 }
 
+function sequenceNotes(seq: SequenceInfo): string {
+  return seq.events
+    .map((e) => e.note?.trim())
+    .filter((n): n is string => !!n)
+    .join("; ");
+}
+
 function SequenceTable({ report }: { report: SequenceReport }) {
   if (!report.sequences || report.sequences.length === 0) {
     return <p>No sequences detected.</p>;
@@ -33,6 +40,7 @@ function SequenceTable({ report }: { report: SequenceReport }) {
           <th>Duration</th>
           <th>Result</th>
           <th>Delta</th>
+          <th>Note</th>
         </tr>
       </thead>
       <tbody>
@@ -70,6 +78,7 @@ function SequenceTable({ report }: { report: SequenceReport }) {
                   </span>
                 )}
               </td>
+              <td>{sequenceNotes(seq)}</td>
             </tr>
           );
         })}

@@ -38,7 +38,7 @@ const SequenceDrillSessionsPage = () => {
       <div className="page-header">
         <h1>{sequenceType?.name ?? sequenceTypeCode} — Drill Sessions</h1>
         <p>
-          <NavLink to="/report">&larr; Back to Reports</NavLink>
+          <NavLink to="/report/drill/areas">&larr; Back to Strategy Areas</NavLink>
         </p>
       </div>
       <RequireLogin>

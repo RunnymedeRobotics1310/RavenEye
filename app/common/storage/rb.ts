@@ -875,11 +875,11 @@ export async function getMegaReport(
   tournamentId: string,
   teamId: number,
   frcYear: number,
+  sequenceTypeId?: number,
 ): Promise<MegaReportResponse> {
-  const resp = await rbfetch(
-    `/api/report/mega/${tournamentId}?team=${teamId}&year=${frcYear}`,
-    {},
-  );
+  let url = `/api/report/mega/${tournamentId}?team=${teamId}&year=${frcYear}`;
+  if (sequenceTypeId) url += `&sequenceTypeId=${sequenceTypeId}`;
+  const resp = await rbfetch(url, {});
   if (resp.ok) {
     return resp.json() as unknown as MegaReportResponse;
   } else {
@@ -891,11 +891,11 @@ export async function getChronoReport(
   tournamentId: string,
   teamId: number,
   frcYear: number,
+  sequenceTypeId?: number,
 ): Promise<ChronoReportResponse> {
-  const resp = await rbfetch(
-    `/api/report/chrono/${tournamentId}?team=${teamId}&year=${frcYear}`,
-    {},
-  );
+  let url = `/api/report/chrono/${tournamentId}?team=${teamId}&year=${frcYear}`;
+  if (sequenceTypeId) url += `&sequenceTypeId=${sequenceTypeId}`;
+  const resp = await rbfetch(url, {});
   if (resp.ok) {
     return resp.json() as unknown as ChronoReportResponse;
   } else {
