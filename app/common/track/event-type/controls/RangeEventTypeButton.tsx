@@ -47,16 +47,18 @@ const RangeEventTypeButton = ({
         />
         <span className="score-fuel-bound">50</span>
       </div>
-      <button
-        className={flashing ? "event-tracked" : error ? "event-error" : ""}
-        disabled={quantity === 0}
-        onClick={() => {
-          handleScore();
-        }}
-      >
-        {error ?? label}
-      </button>
-      {count > 1 && !error && <span className="event-count">x{count}</span>}
+      <div className="event-button-row">
+        <button
+          className={flashing ? "event-tracked" : error ? "event-error" : ""}
+          disabled={quantity === 0}
+          onClick={() => {
+            handleScore();
+          }}
+        >
+          {error ?? label}
+        </button>
+        {count > 1 && !error && <span className="event-count">x{count}</span>}
+      </div>
     </div>
   );
 };

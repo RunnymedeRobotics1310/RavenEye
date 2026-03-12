@@ -27,6 +27,7 @@ const GenericEventTypeButton = ({
     setError(undefined);
     try {
       await recordEvent(eventType.eventtype, quantity, note);
+      setNote("");
       if (sequenceEnd) {
         goBack();
       }
@@ -37,18 +38,19 @@ const GenericEventTypeButton = ({
 
   return (
     <div>
-      <button
-        type="button"
-        className={flashing ? "event-tracked" : error ? "event-error" : ""}
-        onClick={() => {
-          handleClick();
-        }}
-        disabled={sequenceStart}
-      >
-        {error ?? eventType.name}
-      </button>
-      <p></p>
-      {count > 1 && !error && <span className="event-count">x{count}</span>}
+      <div className="event-button-row">
+        <button
+          type="button"
+          className={flashing ? "event-tracked" : error ? "event-error" : ""}
+          onClick={() => {
+            handleClick();
+          }}
+          disabled={sequenceStart}
+        >
+          {error ?? eventType.name}
+        </button>
+        {count > 1 && !error && <span className="event-count">x{count}</span>}
+      </div>
       {eventType.showQuantity && (
         <input
           className="event-type-quantity"
