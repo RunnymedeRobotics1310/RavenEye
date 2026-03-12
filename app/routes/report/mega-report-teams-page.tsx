@@ -42,14 +42,12 @@ const MegaReportTeamsPage = () => {
             <ul className="nav-list">
               {teams.map((team) => (
                 <li key={team}>
-                  <a
-                    href={`/report/mega/${tournamentId}/${team}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <NavLink
+                    to={`/report/mega/${tournamentId}/${team}`}
                     className="btn-secondary"
                   >
                     Team {team}
-                  </a>
+                  </NavLink>
                 </li>
               ))}
             </ul>
