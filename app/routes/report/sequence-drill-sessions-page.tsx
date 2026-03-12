@@ -22,7 +22,8 @@ const SequenceDrillSessionsPage = () => {
   const sequenceType = sequenceTypes.find((st) => st.code === sequenceTypeCode);
 
   useEffect(() => {
-    getDrillSessions()
+    if (!sequenceType) return;
+    getDrillSessions(1310, new Date().getFullYear(), sequenceType.id)
       .then((data) => {
         setSessions(data);
         setLoading(false);
@@ -31,7 +32,7 @@ const SequenceDrillSessionsPage = () => {
         setError(e.message);
         setLoading(false);
       });
-  }, []);
+  }, [sequenceType?.id]);
 
   return (
     <main>

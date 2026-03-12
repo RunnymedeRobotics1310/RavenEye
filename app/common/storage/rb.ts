@@ -785,8 +785,18 @@ export function useForgotPasswordUsers() {
  * @param {string} login - The login/username of the user who forgot their password.
  * @throws {Error} If the server responds with a non-OK status.
  */
-export async function getDrillSessions(): Promise<string[]> {
-  const resp = await rbfetch("/api/report/drill-sessions", {});
+export async function getDrillSessions(
+  teamId?: number,
+  year?: number,
+  sequenceTypeId?: number,
+): Promise<string[]> {
+  const params = new URLSearchParams();
+  if (teamId) params.set("team", String(teamId));
+  if (year) params.set("year", String(year));
+  if (sequenceTypeId) params.set("sequenceTypeId", String(sequenceTypeId));
+  const query = params.toString();
+  const url = `/api/report/drill-sessions${query ? `?${query}` : ""}`;
+  const resp = await rbfetch(url, {});
   if (resp.ok) {
     return resp.json() as unknown as string[];
   } else {
