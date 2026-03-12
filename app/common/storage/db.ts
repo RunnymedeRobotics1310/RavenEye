@@ -10,7 +10,7 @@ import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 10;
+const DB_VERSION = 11;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -24,6 +24,7 @@ const SYNC_EVENT_STORE = "eventsSynced";
 const NEW_ALERT_STORE = "robotAlertsNew";
 const SYNC_ALERT_STORE = "robotAlertsSynced";
 const ROBOT_ALERTS_STORE = "robotAlerts";
+const TEAM_TOURNAMENT_IDS_STORE = "teamTournamentIds";
 
 export class Repository {
   private db: IDBDatabase | null = null;
@@ -80,6 +81,9 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(ROBOT_ALERTS_STORE)) {
           db.createObjectStore(ROBOT_ALERTS_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(TEAM_TOURNAMENT_IDS_STORE)) {
+          db.createObjectStore(TEAM_TOURNAMENT_IDS_STORE, { autoIncrement: true });
         }
       };
     });
@@ -496,6 +500,44 @@ export class Repository {
   async getRobotAlertsForTeam(teamNumber: number): Promise<RBRobotAlert[]> {
     const all = await this.getRobotAlerts();
     return all.filter((a) => a.teamNumber === teamNumber);
+  }
+
+  async putTeamTournamentIds(ids: string[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [TEAM_TOURNAMENT_IDS_STORE],
+        "readwrite",
+      );
+      const store = transaction.objectStore(TEAM_TOURNAMENT_IDS_STORE);
+
+      const clearRequest = store.clear();
+      clearRequest.onsuccess = () => {
+        for (const id of ids) {
+          store.add(id);
+        }
+        resolve();
+      };
+      clearRequest.onerror = () => reject(clearRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getTeamTournamentIds(): Promise<string[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [TEAM_TOURNAMENT_IDS_STORE],
+        "readonly",
+      );
+      const store = transaction.objectStore(TEAM_TOURNAMENT_IDS_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result as string[]);
+      request.onerror = () => reject(request.error);
+    });
   }
 }
 

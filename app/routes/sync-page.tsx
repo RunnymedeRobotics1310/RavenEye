@@ -1,6 +1,7 @@
 import type { Route } from "../routes/+types/sync-page";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import SyncTournamentList from "~/common/sync/SyncTournamentList.tsx";
+import SyncTeamTournaments from "~/common/sync/SyncTeamTournaments.tsx";
 import SyncStrategyAreas from "~/common/sync/SyncStrategyAreas.tsx";
 import SyncMatchSchedule from "~/common/sync/SyncMatchSchedule.tsx";
 import SyncEventTypes from "~/common/sync/SyncEventTypes.tsx";
@@ -47,6 +48,7 @@ const SyncPage = () => {
         <section className="card">
           <h2>Team Data from Server</h2>
           <SyncTournamentList />
+          <SyncTeamTournaments />
           <SyncStrategyAreas />
           <SyncMatchSchedule />
           <SyncEventTypes />

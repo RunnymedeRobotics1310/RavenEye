@@ -4,6 +4,7 @@ import {
   getEventTypeList,
   getSequenceTypeList,
   getStrategyAreaList,
+  getTeamTournamentIds,
   getTournamentList,
   getSchedulesForTournaments,
   ping,
@@ -15,6 +16,7 @@ import {
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
 
 const TOURNAMENT_LIST = "Tournament List";
+const TEAM_TOURNAMENTS = "Team Tournaments";
 const STRATEGY_AREAS = "Strategy Areas";
 const EVENT_TYPES = "Event Types";
 const SEQUENCE_TYPES = "Sequence Types";
@@ -129,6 +131,7 @@ export async function doServerDataSync() {
     // Tournaments must sync first — schedules and robot alerts depend on the tournament list
     await syncTournamentList();
     await Promise.all([
+      syncTeamTournamentIds(),
       syncStrategyAreaList(),
       syncEventTypeList(),
       syncSequenceTypeList(),
@@ -144,6 +147,13 @@ export async function syncTournamentList() {
   await runSync(TOURNAMENT_LIST, async () => {
     const data = await getTournamentList();
     await repository.putTournamentList(data);
+  });
+}
+
+export async function syncTeamTournamentIds() {
+  await runSync(TEAM_TOURNAMENTS, async () => {
+    const data = await getTeamTournamentIds();
+    await repository.putTeamTournamentIds(data);
   });
 }
 
@@ -531,6 +541,10 @@ export const useStrategyAreasSyncStatus = (): SyncStatus => {
   return useSyncStatus(STRATEGY_AREAS);
 };
 
+export const useTeamTournamentsSyncStatus = (): SyncStatus => {
+  return useSyncStatus(TEAM_TOURNAMENTS);
+};
+
 export const useTournamentListSyncStatus = (): SyncStatus => {
   return useSyncStatus(TOURNAMENT_LIST);
 };
@@ -570,6 +584,7 @@ export const useServerDataSyncStatus = (): SyncStatus => {
   const seqtype = useSequenceTypesSyncStatus();
   const stratarea = useStrategyAreasSyncStatus();
   const tournament = useTournamentListSyncStatus();
+  const teamTournaments = useTeamTournamentsSyncStatus();
   const alertList = useRobotAlertListSyncStatus();
   return aggregateStatuses("Server Data", [
     eventtype,
@@ -577,6 +592,7 @@ export const useServerDataSyncStatus = (): SyncStatus => {
     seqtype,
     stratarea,
     tournament,
+    teamTournaments,
     alertList,
   ]);
 };

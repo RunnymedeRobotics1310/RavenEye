@@ -6,7 +6,6 @@ import type { SequenceType } from "~/types/SequenceType.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { SyncStatus } from "~/types/SyncStatus.ts";
 import { repository } from "~/common/storage/db.ts";
-import { getActiveTeamTournaments } from "~/common/storage/rb.ts";
 
 export function useTournamentList() {
   const [list, setList] = useState<RBTournament[]>([]);
@@ -37,22 +36,46 @@ export function useTournamentList() {
   return { list, loading };
 }
 
+const UPCOMING_TOURNAMENT_LOOKAHEAD = 24 * 60 * 60 * 1000; // 24 hours
+const ACTIVE_TOURNAMENT_CUTOFF = 36 * 60 * 60 * 1000; // 36 hours
+
 export function useActiveTeamTournaments() {
   const [list, setList] = useState<RBTournament[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
-    getActiveTeamTournaments()
-      .then((data) => {
-        if (isMounted) setList(data);
-      })
-      .catch((err) => console.error("Failed to load active team tournaments", err))
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
+    const load = async () => {
+      try {
+        const [teamIds, tournaments] = await Promise.all([
+          repository.getTeamTournamentIds(),
+          repository.getTournamentList(),
+        ]);
+        if (isMounted) {
+          const teamIdSet = new Set(teamIds);
+          const now = Date.now();
+          const startCutoff = now + UPCOMING_TOURNAMENT_LOOKAHEAD;
+          const endCutoff = now - ACTIVE_TOURNAMENT_CUTOFF;
+          setList(
+            tournaments.filter(
+              (t) =>
+                teamIdSet.has(t.id) &&
+                new Date(t.startTime).getTime() < startCutoff &&
+                new Date(t.endTime).getTime() > endCutoff,
+            ),
+          );
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Failed to load active team tournaments", err);
+      }
+    };
+
+    load();
+    const interval = setInterval(load, 1000);
     return () => {
       isMounted = false;
+      clearInterval(interval);
     };
   }, []);
 

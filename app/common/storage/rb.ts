@@ -55,17 +55,17 @@ export async function getTournamentList() {
 }
 
 /**
- * Fetches active tournaments where team 1310 has scheduled matches.
+ * Fetches the list of tournament IDs where the team is registered.
  *
- * @return {Promise<RBTournament[]>} A promise that resolves to an array of active team tournaments.
+ * @return {Promise<string[]>} A promise that resolves to an array of tournament ID strings.
  * @throws {Error} If the request fails or the server responds with an error status.
  */
-export async function getActiveTeamTournaments() {
-  const resp = await rbfetch("/api/tournament/active-team", {});
+export async function getTeamTournamentIds() {
+  const resp = await rbfetch("/api/tournament/team-ids", {});
   if (resp.ok) {
-    return resp.json() as unknown as RBTournament[];
+    return resp.json() as unknown as string[];
   } else {
-    throw new Error("Failure fetching active team tournaments");
+    throw new Error("Failure fetching team tournament IDs");
   }
 }
 
@@ -584,6 +584,7 @@ export interface ConfigSyncResult {
   sequenceEvents: number;
   tournaments: number;
   schedules: number;
+  teamTournaments: number;
   message: string;
 }
 

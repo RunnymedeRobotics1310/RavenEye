@@ -69,6 +69,18 @@ const CompStart = ({}: TrackScreenProps) => {
     );
   }
 
+  // Temp hack
+  if (activeTeamTournaments.length === 0) {
+    activeTeamTournaments.push({
+      id: 'ONTOR',
+      season: 2026,
+      name: 'ONT District Humber Polytechnic Event *',
+      startTime: new Date('2026-03-12'),
+      endTime: new Date('2026-03-14'),
+      weekNumber: 2,
+    })
+  }
+
   return (
     <main className="track scout-select">
       <div>
