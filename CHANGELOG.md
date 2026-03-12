@@ -1,3 +1,13 @@
+## [3.13.10](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.9...v3.13.10) (2026-03-12)
+
+
+### Bug Fixes
+
+* Add area selection in sequence report selection, and show note in reports ([45b3d64](https://github.com/RunnymedeRobotics1310/RavenEye/commit/45b3d64d043f3d0f0f164870f0d78d891e983050))
+* Add comments and alerts to summary report ([433a347](https://github.com/RunnymedeRobotics1310/RavenEye/commit/433a3478c87657a7cbdec78eca3ff5e95d8223d2))
+* Don't show sequences if no data is present ([3d4e978](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3d4e9785a3abe0fd1090632ceede02815b3d0266))
+* Render graphic for sequence buttons ([14aa427](https://github.com/RunnymedeRobotics1310/RavenEye/commit/14aa427b7b11f09c68e8304c1910b263dd00aada))
+
 ## [3.13.9](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.8...v3.13.9) (2026-03-12)
 
 
