@@ -36,7 +36,7 @@ const AdminMenu = () => {
     setOpen(false);
   };
 
-  if (!isAdmin) return null;
+  if (!isAdmin && !isSuperuser) return null;
 
   return (
     <div className="admin-menu" ref={menuRef}>
