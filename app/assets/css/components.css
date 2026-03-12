@@ -405,6 +405,15 @@ main.track button.event-error {
     font-size: 0.6rem;
 }
 
+main.track .event-button-row {
+    display: flex;
+    align-items: center;
+}
+
+main.track .event-button-row button {
+    flex: 1;
+}
+
 main.track .event-count {
     margin-left: 0.25rem;
     font-size: 0.7rem;
