@@ -282,6 +282,26 @@ export async function getScheduleForTournament(tournamentId: string) {
 }
 
 /**
+ * Fetches schedules for multiple tournaments in a single request.
+ *
+ * @param {string[]} tournamentIds - The tournament IDs to fetch schedules for.
+ * @return {Promise<RBScheduleRecord[]>} A promise that resolves to an array of schedule records.
+ * @throws {Error} If the request fails.
+ */
+export async function getSchedulesForTournaments(tournamentIds: string[]) {
+  if (tournamentIds.length === 0) return [];
+  const resp = await rbfetch("/api/schedule/bulk", {
+    method: "POST",
+    body: JSON.stringify(tournamentIds),
+  });
+  if (resp.ok) {
+    return resp.json() as unknown as RBScheduleRecord[];
+  } else {
+    throw new Error("Failure fetching bulk schedules");
+  }
+}
+
+/**
  * A custom hook that fetches and provides a list of users from RavenBrain.
  *
  * This hook manages the state for data, loading, and error, allowing components to easily make use
@@ -697,6 +717,21 @@ export async function getRobotAlertList(
     throw new Error(
       "Failure fetching robot alerts for tournament " + tournamentId,
     );
+  }
+}
+
+export async function getRobotAlertListBulk(
+  tournamentIds: string[],
+): Promise<RBRobotAlert[]> {
+  if (tournamentIds.length === 0) return [];
+  const resp = await rbfetch("/api/robot-alert/bulk", {
+    method: "POST",
+    body: JSON.stringify(tournamentIds),
+  });
+  if (resp.ok) {
+    return resp.json() as unknown as RBRobotAlert[];
+  } else {
+    throw new Error("Failure fetching bulk robot alerts");
   }
 }
 

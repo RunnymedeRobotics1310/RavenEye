@@ -5,12 +5,12 @@ import {
   getSequenceTypeList,
   getStrategyAreaList,
   getTournamentList,
-  getScheduleForTournament,
+  getSchedulesForTournaments,
   ping,
   saveQuickCommentRecords,
   saveEventLogRecords,
   saveRobotAlertRecords,
-  getRobotAlertList,
+  getRobotAlertListBulk,
 } from "~/common/storage/rb.ts";
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
 
@@ -38,6 +38,48 @@ function log(msg: string): void {
   );
 }
 
+async function runSync(
+  component: string,
+  work: () => Promise<void>,
+): Promise<void> {
+  log(component);
+  await repository.putSyncStatus({
+    loading: false,
+    component,
+    lastSync: new Date(),
+    inProgress: true,
+    isComplete: false,
+    remaining: 0,
+    error: null,
+  });
+  try {
+    await work();
+    await repository.putSyncStatus({
+      loading: false,
+      component,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: true,
+      remaining: 0,
+      error: null,
+    });
+  } catch (e) {
+    const err = e instanceof Error ? e : new Error(String(e));
+    await repository.putSyncStatus({
+      loading: false,
+      component,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: false,
+      remaining: 0,
+      error: err,
+    });
+  }
+}
+
+const SCHEDULE_SYNC_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const ACTIVE_TOURNAMENT_CUTOFF = 36 * 60 * 60 * 1000; // 36 hours
+
 let syncInitialized = false;
 
 export function initializeSyncSchedule() {
@@ -47,6 +89,24 @@ export function initializeSyncSchedule() {
   updateCommentUnsyncCount();
   updateEventUnsyncCount();
   updateRobotAlertUnsyncCount();
+
+  setInterval(autoSyncMatchSchedule, SCHEDULE_SYNC_INTERVAL);
+}
+
+async function hasActiveTournament(): Promise<boolean> {
+  const tournaments = await repository.getTournamentList();
+  const cutoff = Date.now() - ACTIVE_TOURNAMENT_CUTOFF;
+  return tournaments.some((t) => new Date(t.endTime).getTime() > cutoff);
+}
+
+async function autoSyncMatchSchedule(): Promise<void> {
+  const active = await hasActiveTournament();
+  if (!active) return;
+
+  const alive = await ping();
+  if (!alive) return;
+
+  await syncMatchSchedule();
 }
 
 export async function doManualSync() {
@@ -79,198 +139,45 @@ export async function doServerDataSync() {
 }
 
 export async function syncTournamentList() {
-  log(TOURNAMENT_LIST);
-  await repository.putSyncStatus({
-    loading: false,
-    component: TOURNAMENT_LIST,
-    lastSync: new Date(),
-    inProgress: true,
-    isComplete: false,
-    remaining: 0,
-    error: null,
-  });
-
-  try {
+  await runSync(TOURNAMENT_LIST, async () => {
     const data = await getTournamentList();
     await repository.putTournamentList(data);
-    await repository.putSyncStatus({
-      loading: false,
-      component: TOURNAMENT_LIST,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: true,
-      remaining: 0,
-      error: null,
-    });
-  } catch (e) {
-    const err = e instanceof Error ? e : new Error(String(e));
-    await repository.putSyncStatus({
-      loading: false,
-      component: TOURNAMENT_LIST,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: false,
-      remaining: 0,
-      error: err,
-    });
-  }
+  });
 }
 
 export async function syncStrategyAreaList() {
-  log(STRATEGY_AREAS);
-  await repository.putSyncStatus({
-    loading: false,
-    component: STRATEGY_AREAS,
-    lastSync: new Date(),
-    inProgress: true,
-    isComplete: false,
-    remaining: 0,
-    error: null,
-  });
-
-  try {
+  await runSync(STRATEGY_AREAS, async () => {
     const data = await getStrategyAreaList();
     await repository.putStrategyAreaList(data);
-    await repository.putSyncStatus({
-      loading: false,
-      component: STRATEGY_AREAS,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: true,
-      remaining: 0,
-      error: null,
-    });
-  } catch (e) {
-    const err = e instanceof Error ? e : new Error(String(e));
-    await repository.putSyncStatus({
-      loading: false,
-      component: STRATEGY_AREAS,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: false,
-      remaining: 0,
-      error: err,
-    });
-  }
+  });
 }
 
 export async function syncEventTypeList() {
-  log(EVENT_TYPES);
   // todo: fixme: group these in the repository by year so that they can be retrieved by year
-  await repository.putSyncStatus({
-    loading: false,
-    component: EVENT_TYPES,
-    lastSync: new Date(),
-    inProgress: true,
-    isComplete: false,
-    remaining: 0,
-    error: null,
-  });
-
-  try {
+  await runSync(EVENT_TYPES, async () => {
     const data = await getEventTypeList();
     await repository.putEventTypeList(data);
-    await repository.putSyncStatus({
-      loading: false,
-      component: EVENT_TYPES,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: true,
-      remaining: 0,
-      error: null,
-    });
-  } catch (e) {
-    const err = e instanceof Error ? e : new Error(String(e));
-    await repository.putSyncStatus({
-      loading: false,
-      component: EVENT_TYPES,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: false,
-      remaining: 0,
-      error: err,
-    });
-  }
+  });
 }
 
 export async function syncSequenceTypeList() {
-  log(SEQUENCE_TYPES);
-  await repository.putSyncStatus({
-    loading: false,
-    component: SEQUENCE_TYPES,
-    lastSync: new Date(),
-    inProgress: true,
-    isComplete: false,
-    remaining: 0,
-    error: null,
-  });
-
-  try {
+  await runSync(SEQUENCE_TYPES, async () => {
     const data = await getSequenceTypeList();
     await repository.putSequenceTypeList(data);
-    await repository.putSyncStatus({
-      loading: false,
-      component: SEQUENCE_TYPES,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: true,
-      remaining: 0,
-      error: null,
-    });
-  } catch (e) {
-    const err = e instanceof Error ? e : new Error(String(e));
-    await repository.putSyncStatus({
-      loading: false,
-      component: SEQUENCE_TYPES,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: false,
-      remaining: 0,
-      error: err,
-    });
-  }
+  });
 }
 
 export async function syncMatchSchedule() {
-  log(MATCH_SCHEDULE);
-  await repository.putSyncStatus({
-    loading: false,
-    component: MATCH_SCHEDULE,
-    lastSync: new Date(),
-    inProgress: true,
-    isComplete: false,
-    remaining: 0,
-    error: null,
-  });
-
-  try {
+  await runSync(MATCH_SCHEDULE, async () => {
     const tournaments = await repository.getTournamentList();
-    const schedules = [];
-    for (const t of tournaments) {
-      schedules.push(...(await getScheduleForTournament(t.id)));
-    }
-    await repository.putMatchSchedule(schedules);
-    await repository.putSyncStatus({
-      loading: false,
-      component: MATCH_SCHEDULE,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: true,
-      remaining: 0,
-      error: null,
-    });
-  } catch (e) {
-    const err = e instanceof Error ? e : new Error(String(e));
-    await repository.putSyncStatus({
-      loading: false,
-      component: MATCH_SCHEDULE,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: false,
-      remaining: 0,
-      error: err,
-    });
-  }
+
+    const cutoff = Date.now() - ACTIVE_TOURNAMENT_CUTOFF;
+    const activeTournamentIds = tournaments
+      .filter((t) => new Date(t.endTime).getTime() > cutoff)
+      .map((t) => t.id);
+    const schedules = await getSchedulesForTournaments(activeTournamentIds);
+    await repository.mergeMatchSchedule(schedules);
+  });
 }
 
 export async function syncQuickComments() {
@@ -504,45 +411,15 @@ export async function syncRobotAlerts() {
 }
 
 export async function syncRobotAlertList() {
-  log(ROBOT_ALERT_LIST);
-  await repository.putSyncStatus({
-    loading: false,
-    component: ROBOT_ALERT_LIST,
-    lastSync: new Date(),
-    inProgress: true,
-    isComplete: false,
-    remaining: 0,
-    error: null,
-  });
-
-  try {
+  await runSync(ROBOT_ALERT_LIST, async () => {
     const tournaments = await repository.getTournamentList();
-    const data = [];
-    for (const t of tournaments) {
-      data.push(...(await getRobotAlertList(t.id)));
-    }
+    const cutoff = Date.now() - ACTIVE_TOURNAMENT_CUTOFF;
+    const activeTournamentIds = tournaments
+      .filter((t) => new Date(t.endTime).getTime() > cutoff)
+      .map((t) => t.id);
+    const data = await getRobotAlertListBulk(activeTournamentIds);
     await repository.putRobotAlerts(data);
-    await repository.putSyncStatus({
-      loading: false,
-      component: ROBOT_ALERT_LIST,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: true,
-      remaining: 0,
-      error: null,
-    });
-  } catch (e) {
-    const err = e instanceof Error ? e : new Error(String(e));
-    await repository.putSyncStatus({
-      loading: false,
-      component: ROBOT_ALERT_LIST,
-      lastSync: new Date(),
-      inProgress: false,
-      isComplete: false,
-      remaining: 0,
-      error: err,
-    });
-  }
+  });
 }
 
 export async function updateRobotAlertUnsyncCount() {
