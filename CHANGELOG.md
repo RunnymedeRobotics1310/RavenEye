@@ -1,3 +1,10 @@
+## [3.13.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.3...v3.13.4) (2026-03-12)
+
+
+### Bug Fixes
+
+* Rework sync to only sync necessary data, use bulk operations, and handle errors more cleanly. ([#200](https://github.com/RunnymedeRobotics1310/RavenEye/issues/200)) ([101e90e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/101e90e0227e36b5166a9d1b5fb4c68ee895a6dd))
+
 ## [3.13.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.2...v3.13.3) (2026-03-11)
 
 
