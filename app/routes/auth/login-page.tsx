@@ -1,27 +1,26 @@
+import { useEffect } from "react";
 import LoginForm from "~/common/auth/LoginForm.tsx";
 import Spinner from "~/common/Spinner.tsx";
-import { getDisplayName, useLoginStatus } from "~/common/storage/rbauth.ts";
-import { NavLink } from "react-router";
+import { useLoginStatus } from "~/common/storage/rbauth.ts";
+import { useLocation, useNavigate } from "react-router";
 
 const LoginPage = () => {
   const { loading, debug_alive, debug_hasToken, debug_expired, loggedIn } =
     useLoginStatus();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  if (loading) {
+  useEffect(() => {
+    if (loggedIn) {
+      const params = new URLSearchParams(location.search);
+      navigate(params.get("redirect") || "/", { replace: true });
+    }
+  }, [loggedIn, navigate, location.search]);
+
+  if (loading || loggedIn) {
     return (
       <main>
         <Spinner />
-      </main>
-    );
-  }
-
-  if (loggedIn) {
-    const fullName = getDisplayName();
-    return (
-      <main>
-        <h1>Welcome {fullName}</h1>
-        <p>You have logged in successfully</p>
-        <NavLink to={`/`}>Home</NavLink>
       </main>
     );
   }

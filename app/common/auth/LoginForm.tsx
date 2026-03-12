@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { authenticate, useLoginStatus } from "~/common/storage/rbauth.ts";
 import { forgotPassword } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 function LoginForm() {
   const [formName, setFormName] = useState("");
@@ -14,6 +14,7 @@ function LoginForm() {
   const [forgotError, setForgotError] = useState<string | null>(null);
   const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   function handleLoginClick() {
     setLoading(true);
@@ -67,6 +68,19 @@ function LoginForm() {
       </section>
     );
   }
+
+  useEffect(() => {
+    if (success) {
+      if (location.pathname === "/login") {
+        // Redirect to the page they were trying to reach, or home
+        const params = new URLSearchParams(location.search);
+        navigate(params.get("redirect") || "/", { replace: true });
+      } else {
+        // Inline login form (RequireLogin/RequireRole) — refresh to re-check auth
+        navigate(0);
+      }
+    }
+  }, [success, navigate, location]);
 
   if (!submitted) {
     return (
@@ -126,12 +140,6 @@ function LoginForm() {
       </section>
     );
   }
-
-  useEffect(() => {
-    if (success) {
-      navigate(0); // refresh to re-check auth state
-    }
-  }, [success, navigate]);
 
   if (!success) {
     return <LoginFailed />;
