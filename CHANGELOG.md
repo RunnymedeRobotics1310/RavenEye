@@ -1,3 +1,10 @@
+# [3.20.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.19.0...v3.20.0) (2026-03-13)
+
+
+### Features
+
+* add Nexus API integration for match queueing notifications ([b8e1d81](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b8e1d81e44e50e8f0a62fb87f3906e57baa00da9))
+
 # [3.19.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.18.0...v3.19.0) (2026-03-13)
 
 
