@@ -382,6 +382,16 @@ section.usersAdmin {
     color: var(--color-text-inverse);
 }
 
+.banner-queue {
+    background-color: #e67e22;
+    color: #fff;
+    font-size: 0.85rem;
+}
+
+.banner-queue a {
+    color: #fff;
+}
+
 /*
  *
  * MISC COMPONENTS

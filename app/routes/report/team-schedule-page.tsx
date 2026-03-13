@@ -3,11 +3,13 @@ import { NavLink } from "react-router";
 import {
   fetchTournamentSchedule,
   getActiveTeamTournaments,
+  getNexusQueueStatus,
   getTeamSchedulePublic,
 } from "~/common/storage/rb.ts";
 import { useLoginStatus } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import type { RBTournament } from "~/types/RBTournament.ts";
+import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 import type {
   TeamRanking,
   TeamScheduleMatch,
@@ -44,11 +46,11 @@ function AllianceCell({
   match: TeamScheduleMatch;
   ownerTeam: number;
 }) {
-  const alliance = getAllianceForTeam(match, ownerTeam);
-  if (!alliance) return <td className="schedule-col-alliance"></td>;
+  const info = getStationForTeam(match, ownerTeam);
+  if (!info) return <td className="schedule-col-alliance"></td>;
   return (
-    <td className={`schedule-col-alliance alliance-${alliance}-text`}>
-      {alliance === "red" ? "Red" : "Blue"}
+    <td className={`schedule-col-alliance alliance-${info.alliance}-text`}>
+      {info.alliance === "red" ? "Red" : "Blue"}{info.station}
     </td>
   );
 }
@@ -66,27 +68,26 @@ function ScoreCell({ match }: { match: TeamScheduleMatch }) {
   );
 }
 
+function getStationForTeam(
+  match: TeamScheduleMatch,
+  teamNumber: number,
+): { alliance: "red" | "blue"; station: number } | null {
+  if (match.red1 === teamNumber) return { alliance: "red", station: 1 };
+  if (match.red2 === teamNumber) return { alliance: "red", station: 2 };
+  if (match.red3 === teamNumber) return { alliance: "red", station: 3 };
+  if (match.red4 === teamNumber) return { alliance: "red", station: 4 };
+  if (match.blue1 === teamNumber) return { alliance: "blue", station: 1 };
+  if (match.blue2 === teamNumber) return { alliance: "blue", station: 2 };
+  if (match.blue3 === teamNumber) return { alliance: "blue", station: 3 };
+  if (match.blue4 === teamNumber) return { alliance: "blue", station: 4 };
+  return null;
+}
+
 function getAllianceForTeam(
   match: TeamScheduleMatch,
   teamNumber: number,
 ): "red" | "blue" | null {
-  if (
-    match.red1 === teamNumber ||
-    match.red2 === teamNumber ||
-    match.red3 === teamNumber ||
-    match.red4 === teamNumber
-  ) {
-    return "red";
-  }
-  if (
-    match.blue1 === teamNumber ||
-    match.blue2 === teamNumber ||
-    match.blue3 === teamNumber ||
-    match.blue4 === teamNumber
-  ) {
-    return "blue";
-  }
-  return null;
+  return getStationForTeam(match, teamNumber)?.alliance ?? null;
 }
 
 function RpCell({
@@ -115,6 +116,32 @@ function RpCell({
       <span className="alliance-blue-text">{blueRp}</span>
       {won !== null && <> {won ? "W" : "L"}</>}
     </td>
+  );
+}
+
+function formatQueueTime(unixMs: number | null): string | null {
+  if (unixMs == null) return null;
+  const date = new Date(unixMs);
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+function QueueBanner({ queueStatus }: { queueStatus: NexusQueueStatus | null }) {
+  if (!queueStatus || !queueStatus.teamStatus) return null;
+
+  const allianceClass = queueStatus.teamAlliance
+    ? `alliance-${queueStatus.teamAlliance}-text`
+    : "";
+  const startTime = formatQueueTime(queueStatus.estimatedStartTime);
+
+  return (
+    <div className="banner banner-queue">
+      <span className={allianceClass} style={{ fontWeight: 700 }}>
+        {queueStatus.teamMatchLabel}
+      </span>
+      {" — "}
+      {queueStatus.teamStatus}
+      {startTime && <> (est. {startTime})</>}
+    </div>
   );
 }
 
@@ -311,6 +338,7 @@ const TeamScheduleContent = () => {
   const [fetching, setFetching] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [queueStatus, setQueueStatus] = useState<NexusQueueStatus | null>(null);
   const [countdown, setCountdown] = useState(60);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -339,8 +367,11 @@ const TeamScheduleContent = () => {
       } finally {
         if (isRefresh) setRefreshing(false);
       }
+      if (loggedIn) {
+        getNexusQueueStatus(tournamentId).then(setQueueStatus);
+      }
     },
-    [],
+    [loggedIn],
   );
 
   useEffect(() => {
@@ -466,6 +497,7 @@ const TeamScheduleContent = () => {
           </button>
         </p>
       </div>
+      <QueueBanner queueStatus={queueStatus} />
       <ScheduleTable
         label="Practice"
         level="Practice"
@@ -512,6 +544,14 @@ const TeamScheduleContent = () => {
         rankings={schedule.rankings}
         ownerTeam={schedule.teamNumber}
       />
+      {queueStatus && queueStatus.teamStatus && (
+        <p style={{ textAlign: "center", fontSize: "0.75rem", marginTop: "1rem" }}>
+          Queueing data from{" "}
+          <a href="https://frc.nexus" target="_blank" rel="noopener noreferrer">
+            frc.nexus
+          </a>
+        </p>
+      )}
     </main>
   );
 };
