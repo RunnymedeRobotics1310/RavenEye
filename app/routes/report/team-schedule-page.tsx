@@ -8,6 +8,7 @@ import {
 import { useActiveTeamTournaments } from "~/common/storage/dbhooks.ts";
 import Spinner from "~/common/Spinner.tsx";
 import type {
+  TeamRanking,
   TeamScheduleMatch,
   TeamScheduleResponse,
 } from "~/types/TeamSchedule.ts";
@@ -112,6 +113,9 @@ function ScheduleTable({
   onFetchSchedule,
   fetching,
   countdown,
+  ownerRank,
+  ownerRp,
+  avgRp,
 }: {
   label: string;
   level: string;
@@ -123,6 +127,9 @@ function ScheduleTable({
   onFetchSchedule: () => void;
   fetching: boolean;
   countdown: number;
+  ownerRank?: number | null;
+  ownerRp?: number | null;
+  avgRp?: number | null;
 }) {
   const allLevelMatches = matches.filter((m) => m.level === level);
   const levelMatches = showAll
@@ -130,10 +137,18 @@ function ScheduleTable({
     : allLevelMatches.filter((m) => getAllianceForTeam(m, ownerTeam) !== null);
   const showRed4 = hasRed4(levelMatches);
   const showBlue4 = hasBlue4(levelMatches);
-
   return (
     <section className="card schedule-card">
-      <h3>{label} <span className="schedule-countdown">refreshing in {countdown}s</span></h3>
+      <h3>
+        {label}
+        {" "}<span className="schedule-countdown">refreshing in {countdown}s</span>
+        {ownerRank != null && (
+          <span className="schedule-rank">
+            <span className="rank">Rank: {ownerRank}</span><span className="rp">RP: {ownerRp ?? 0}</span><span className="avg">Avg: {avgRp != null ? avgRp.toFixed(1) : "—"}</span>
+            <a href="#rankings" className="schedule-rank-more">Full Rankings</a>
+          </span>
+        )}
+      </h3>
       {!hasData ? (
         <button onClick={onFetchSchedule} disabled={fetching}>
           {fetching ? "Fetching..." : "Fetch Schedule"}
@@ -194,6 +209,45 @@ function ScheduleTable({
           </table>
         </div>
       )}
+    </section>
+  );
+}
+
+function RankingsTable({
+  rankings,
+  ownerTeam,
+}: {
+  rankings: TeamRanking[];
+  ownerTeam: number;
+}) {
+  if (rankings.length === 0) return null;
+
+  return (
+    <section id="rankings" className="card schedule-card">
+      <h3>Rankings</h3>
+      <div className="schedule-table-wrapper">
+        <table className="schedule-table rankings-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>RP</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rankings.map((r, i) => (
+              <tr
+                key={r.teamNumber}
+                className={r.teamNumber === ownerTeam ? "rankings-row-owner" : ""}
+              >
+                <td>{i + 1}</td>
+                <td>{r.teamNumber}</td>
+                <td>{r.rp}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
@@ -275,6 +329,17 @@ const TeamScheduleContent = () => {
     }
   };
 
+  const ownerRankEntry = schedule?.rankings?.find(
+    (r) => r.teamNumber === schedule.teamNumber,
+  );
+  const ownerRank = ownerRankEntry
+    ? schedule!.rankings.indexOf(ownerRankEntry) + 1
+    : null;
+  const ownerRp = ownerRankEntry?.rp ?? null;
+  const avgRp =
+    schedule?.rankings && schedule.rankings.length > 0
+      ? schedule.rankings.reduce((sum, r) => sum + r.rp, 0) / schedule.rankings.length
+      : null;
   const title = schedule?.tournamentName || "Team Schedule";
 
   if (tournamentsLoading) {
@@ -377,6 +442,9 @@ const TeamScheduleContent = () => {
         onFetchSchedule={handleFetchSchedule}
         fetching={fetching}
         countdown={countdown}
+        ownerRank={ownerRank}
+        ownerRp={ownerRp}
+        avgRp={avgRp}
       />
       <ScheduleTable
         label="Elimination"
@@ -389,6 +457,10 @@ const TeamScheduleContent = () => {
         onFetchSchedule={handleFetchSchedule}
         fetching={fetching}
         countdown={countdown}
+      />
+      <RankingsTable
+        rankings={schedule.rankings}
+        ownerTeam={schedule.teamNumber}
       />
     </main>
   );

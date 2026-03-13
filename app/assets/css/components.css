@@ -1072,6 +1072,33 @@ main.mega-report {
     margin-left: 0.5rem;
 }
 
+.schedule-rank {
+    float: right;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.schedule-rank .rank,
+.schedule-rank .rp,
+.schedule-rank .avg {
+    margin-right: 2rem;
+}
+
+.schedule-rank-more {
+    font-size: 0.65rem;
+    font-weight: 400;
+    margin-left: 0.25rem;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    text-decoration: none;
+    color: var(--color-text-secondary);
+}
+
+.schedule-rank-more:hover {
+    background-color: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
+}
+
 .schedule-nav-row {
     display: flex;
     justify-content: space-between;
@@ -1108,4 +1135,12 @@ main.mega-report {
 
 .schedule-row-our-blue {
     background-color: var(--alliance-blue-bg) !important;
+}
+
+.rankings-table {
+    max-width: 300px;
+}
+
+.rankings-row-owner {
+    font-weight: 700;
 }
