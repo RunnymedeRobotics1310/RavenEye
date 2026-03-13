@@ -1,3 +1,11 @@
+# [3.15.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.14.0...v3.15.0) (2026-03-13)
+
+
+### Features
+
+* Add support for disabling items. ([863ffeb](https://github.com/RunnymedeRobotics1310/RavenEye/commit/863ffeb9377fea875cb632f5d95f3630cb9f8e01))
+* Schedule display ([82e820f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/82e820ffafc0c5a463505ab26386dd266494691b))
+
 # [3.14.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.10...v3.14.0) (2026-03-13)
 
 
