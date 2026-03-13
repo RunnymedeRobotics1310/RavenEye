@@ -18,6 +18,11 @@ const ReportHomePage = () => {
                 <h2>Standard Reports</h2>
                 <ul className="nav-list">
                   <li>
+                    <NavLink to="/report/schedule" className="btn-secondary">
+                      Team Schedule
+                    </NavLink>
+                  </li>
+                  <li>
                     <NavLink to="/report/summary" className="btn-secondary">
                       Team Summary Report
                     </NavLink>

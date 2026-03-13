@@ -22,6 +22,7 @@ import type {
 import type { ChronoReportResponse } from "~/types/ChronoReport.ts";
 import type { MegaReportResponse } from "~/types/MegaReport.ts";
 import type { TeamSummaryReportResponse } from "~/types/TeamSummaryReport.ts";
+import type { TeamScheduleResponse } from "~/types/TeamSchedule.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -931,6 +932,20 @@ export async function getChronoReport(
     return resp.json() as unknown as ChronoReportResponse;
   } else {
     throw new Error("Failure fetching chronological event report");
+  }
+}
+
+export async function getTeamSchedule(
+  tournamentId: string,
+): Promise<TeamScheduleResponse> {
+  const resp = await rbfetch(
+    "/api/schedule/team-schedule/" + tournamentId,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as TeamScheduleResponse;
+  } else {
+    throw new Error("Failure fetching team schedule for " + tournamentId);
   }
 }
 

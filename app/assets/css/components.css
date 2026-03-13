@@ -975,3 +975,137 @@ main.mega-report {
     white-space: nowrap;
     font-size: 0.65rem;
 }
+
+/*
+ *
+ * TEAM SCHEDULE
+ *
+ */
+.schedule-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.schedule-table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.8rem;
+}
+
+.schedule-table th,
+.schedule-table td {
+    padding: 0.2rem 0.35rem;
+    border: 1px solid var(--color-border);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.schedule-table thead {
+    background: var(--color-table-header-bg);
+    color: var(--color-table-header-text);
+}
+
+.schedule-table thead th {
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.65rem;
+}
+
+.schedule-table thead th.alliance-red-text {
+    color: #fff;
+    background-color: var(--alliance-red);
+}
+
+.schedule-table thead th.alliance-blue-text {
+    color: #fff;
+    background-color: var(--alliance-blue);
+}
+
+.schedule-table tbody tr:nth-child(odd) {
+    background-color: var(--color-table-stripe);
+}
+
+.schedule-table tbody tr:nth-child(even) {
+    background-color: var(--color-bg-secondary);
+}
+
+.schedule-table .schedule-match-num {
+    font-weight: 600;
+    text-align: right;
+    color: var(--color-text-secondary);
+}
+
+.schedule-table .schedule-time {
+    color: var(--color-text-tertiary);
+    font-size: 0.7rem;
+}
+
+.schedule-table .schedule-score-cell {
+    font-weight: 700;
+}
+
+.schedule-header {
+    margin-bottom: var(--space-xs);
+    padding-bottom: var(--space-xs);
+}
+
+.schedule-header h1 {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.schedule-card {
+    padding: 0.35rem 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.schedule-card h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.85rem;
+}
+
+.schedule-countdown {
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: var(--color-text-tertiary);
+    margin-left: 0.5rem;
+}
+
+.schedule-nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.schedule-toggle-btn {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    background: var(--color-btn-secondary-bg);
+    color: var(--color-btn-secondary-text);
+    border: 1px solid var(--color-btn-secondary-border);
+}
+
+.schedule-toggle-btn:hover {
+    background: var(--color-btn-secondary-hover-bg);
+}
+
+.schedule-refresh-indicator {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+}
+
+.schedule-refresh-indicator .spinner {
+    height: 1rem;
+    width: 1rem;
+    border-width: 3px;
+}
+
+.schedule-row-our-red {
+    background-color: var(--alliance-red-bg) !important;
+}
+
+.schedule-row-our-blue {
+    background-color: var(--alliance-blue-bg) !important;
+}
