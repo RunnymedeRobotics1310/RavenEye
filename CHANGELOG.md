@@ -1,3 +1,10 @@
+# [3.19.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.18.0...v3.19.0) (2026-03-13)
+
+
+### Features
+
+* responsive team schedule for portrait phones ([55ed964](https://github.com/RunnymedeRobotics1310/RavenEye/commit/55ed964d527891a38cd6a4b6e1806de10635c7a4))
+
 # [3.18.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.17.0...v3.18.0) (2026-03-13)
 
 
