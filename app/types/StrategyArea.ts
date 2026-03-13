@@ -4,4 +4,5 @@ export interface StrategyArea {
   frcyear: number;
   name: string;
   description: string;
+  disabled: boolean;
 }

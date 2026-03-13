@@ -25,7 +25,7 @@ const AreaStart = ({}: TrackScreenProps) => {
   }, [tournaments]);
 
   const areas = useMemo(
-    () => allAreas.filter((a) => a.frcyear === frcyear),
+    () => allAreas.filter((a) => a.frcyear === frcyear && !a.disabled),
     [allAreas, frcyear],
   );
 

@@ -29,15 +29,17 @@ const SequencePage = ({ sequenceCode }: TrackScreenProps) => {
     <main className="track">
       <TrackNav />
       <h2>Sequence: {sequence.name}</h2>
-      {(sequence.events || []).map((ev) => (
-        <span key={ev.id || ev.eventtype.eventtype}>
-          <EventTypeControl
-            eventType={ev.eventtype}
-            sequenceEnd={ev.endOfSequence}
-            sequenceStart={ev.startOfSequence}
-          />
-        </span>
-      ))}
+      {(sequence.events || [])
+        .filter((ev) => !ev.eventtype.disabled)
+        .map((ev) => (
+          <span key={ev.id || ev.eventtype.eventtype}>
+            <EventTypeControl
+              eventType={ev.eventtype}
+              sequenceEnd={ev.endOfSequence}
+              sequenceStart={ev.startOfSequence}
+            />
+          </span>
+        ))}
     </main>
   );
 };

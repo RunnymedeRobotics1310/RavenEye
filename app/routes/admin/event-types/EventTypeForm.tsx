@@ -22,6 +22,7 @@ export const EventTypeForm = ({
     strategyareaId: 0,
     showQuantity: false,
     showNote: false,
+    disabled: false,
   });
 
   const { list: strategyAreas } = useStrategyAreaList();
@@ -138,6 +139,16 @@ export const EventTypeForm = ({
             onChange={(e) => setItem({ ...item, showNote: e.target.checked })}
           />{" "}
           Show Note
+        </label>
+      </div>
+      <div className="form-field">
+        <label>
+          <input
+            type="checkbox"
+            checked={item.disabled}
+            onChange={(e) => setItem({ ...item, disabled: e.target.checked })}
+          />{" "}
+          Disabled
         </label>
       </div>
       <div className="form-actions">

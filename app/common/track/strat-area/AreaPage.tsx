@@ -31,24 +31,27 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
     [sequences, area],
   );
 
-  // Collect event type codes that appear in any of this area's sequences
+  // Collect event type codes that appear in any of this area's enabled sequences
   const sequenceEventCodes = useMemo(() => {
     const codes = new Set<string>();
     for (const seq of areaSequences) {
       for (const ev of seq.events || []) {
-        codes.add(ev.eventtype.eventtype);
+        if (!ev.eventtype.disabled) {
+          codes.add(ev.eventtype.eventtype);
+        }
       }
     }
     return codes;
   }, [areaSequences]);
 
-  // Standalone event types: in this area but NOT in any sequence
+  // Standalone event types: in this area, not disabled, and NOT in any enabled sequence
   const standaloneEvents = useMemo(
     () =>
       eventTypes.filter(
         (et) =>
           area &&
           et.strategyareaId === area.id &&
+          !et.disabled &&
           !sequenceEventCodes.has(et.eventtype),
       ),
     [eventTypes, area, sequenceEventCodes],
