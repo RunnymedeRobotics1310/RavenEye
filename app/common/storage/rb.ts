@@ -23,6 +23,7 @@ import type { ChronoReportResponse } from "~/types/ChronoReport.ts";
 import type { MegaReportResponse } from "~/types/MegaReport.ts";
 import type { TeamSummaryReportResponse } from "~/types/TeamSummaryReport.ts";
 import type { TeamScheduleResponse } from "~/types/TeamSchedule.ts";
+import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -980,6 +981,27 @@ export async function getTeamSchedulePublic(
     return resp.json() as unknown as TeamScheduleResponse;
   } else {
     throw new Error("Failure fetching team schedule for " + tournamentId);
+  }
+}
+
+/**
+ * Fetches the Nexus queue status for a tournament.
+ * Returns null on 204 (no data) or any error — never throws.
+ */
+export async function getNexusQueueStatus(
+  tournamentId: string,
+): Promise<NexusQueueStatus | null> {
+  try {
+    const resp = await rbfetch(
+      "/api/nexus/queue-status/" + tournamentId,
+      {},
+    );
+    if (resp.ok) {
+      return resp.json() as unknown as NexusQueueStatus;
+    }
+    return null;
+  } catch {
+    return null;
   }
 }
 
