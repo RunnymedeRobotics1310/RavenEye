@@ -17,6 +17,11 @@ export interface TeamScheduleMatch {
   winningAlliance: number;
 }
 
+export interface TeamRanking {
+  teamNumber: number;
+  rp: number;
+}
+
 export interface TeamScheduleResponse {
   tournamentId: string;
   tournamentName: string;
@@ -25,4 +30,5 @@ export interface TeamScheduleResponse {
   hasQualification: boolean;
   hasPlayoff: boolean;
   matches: TeamScheduleMatch[];
+  rankings: TeamRanking[];
 }
