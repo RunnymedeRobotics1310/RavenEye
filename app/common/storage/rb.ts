@@ -949,6 +949,40 @@ export async function getTeamSchedule(
   }
 }
 
+/**
+ * Fetches active team tournaments directly from the API (no auth required).
+ */
+export async function getActiveTeamTournaments(): Promise<RBTournament[]> {
+  const resp = await fetch(
+    import.meta.env.VITE_API_HOST + "/api/tournament/active-team",
+    { mode: "cors" },
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as RBTournament[];
+  } else {
+    throw new Error("Failure fetching active team tournaments");
+  }
+}
+
+/**
+ * Fetches team schedule directly from the API (no auth required).
+ */
+export async function getTeamSchedulePublic(
+  tournamentId: string,
+): Promise<TeamScheduleResponse> {
+  const resp = await fetch(
+    import.meta.env.VITE_API_HOST +
+      "/api/schedule/team-schedule/" +
+      tournamentId,
+    { mode: "cors" },
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as TeamScheduleResponse;
+  } else {
+    throw new Error("Failure fetching team schedule for " + tournamentId);
+  }
+}
+
 export async function forgotPassword(login: string): Promise<void> {
   const resp = await fetch(
     import.meta.env.VITE_API_HOST +

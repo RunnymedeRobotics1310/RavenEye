@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router";
-import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import {
   fetchTournamentSchedule,
-  getTeamSchedule,
+  getActiveTeamTournaments,
+  getTeamSchedulePublic,
 } from "~/common/storage/rb.ts";
-import { useActiveTeamTournaments } from "~/common/storage/dbhooks.ts";
+import { useLoginStatus } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
+import type { RBTournament } from "~/types/RBTournament.ts";
 import type {
   TeamRanking,
   TeamScheduleMatch,
@@ -83,23 +84,44 @@ function RpCell({
     return <td></td>;
   }
 
+  const redRp = match.redRp ?? 0;
+  const blueRp = match.blueRp ?? 0;
   const alliance = getAllianceForTeam(match, ownerTeam);
-  if (!alliance) {
-    return <td></td>;
-  }
-
-  const rp = alliance === "red" ? match.redRp : match.blueRp;
   const won =
-    (alliance === "red" && match.winningAlliance === 1) ||
-    (alliance === "blue" && match.winningAlliance === 2);
-  const result = won ? "W" : "L";
+    alliance === "red" ? match.winningAlliance === 1 :
+    alliance === "blue" ? match.winningAlliance === 2 :
+    null;
 
   return (
-    <td>
-      <strong>{result}</strong>
-      {rp !== null && rp !== undefined ? ` ${rp}` : ""}
+    <td className="schedule-score-cell">
+      <span className="alliance-red-text">{redRp}</span>
+      {":"}
+      <span className="alliance-blue-text">{blueRp}</span>
+      {won !== null && <> {won ? "W" : "L"}</>}
     </td>
   );
+}
+
+function useActiveTeamTournamentsFromApi() {
+  const [list, setList] = useState<RBTournament[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    getActiveTeamTournaments()
+      .then((data) => {
+        if (isMounted) setList(data);
+      })
+      .catch((err) => console.error("Failed to load active tournaments", err))
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return { list, loading };
 }
 
 function ScheduleTable({
@@ -115,7 +137,8 @@ function ScheduleTable({
   countdown,
   ownerRank,
   ownerRp,
-  avgRp,
+  ownerRs,
+  loggedIn,
 }: {
   label: string;
   level: string;
@@ -129,7 +152,8 @@ function ScheduleTable({
   countdown: number;
   ownerRank?: number | null;
   ownerRp?: number | null;
-  avgRp?: number | null;
+  ownerRs?: number | null;
+  loggedIn: boolean;
 }) {
   const allLevelMatches = matches.filter((m) => m.level === level);
   const levelMatches = showAll
@@ -144,15 +168,19 @@ function ScheduleTable({
         {" "}<span className="schedule-countdown">refreshing in {countdown}s</span>
         {ownerRank != null && (
           <span className="schedule-rank">
-            <span className="rank">Rank: {ownerRank}</span><span className="rp">RP: {ownerRp ?? 0}</span><span className="avg">Avg: {avgRp != null ? avgRp.toFixed(1) : "—"}</span>
+            <span className="rank">Rank: {ownerRank}</span><span className="rp">RP: {ownerRp ?? 0}</span><span className="avg">RS: {ownerRs != null ? ownerRs.toFixed(2) : "—"}</span>
             <a href="#rankings" className="schedule-rank-more">Full Rankings</a>
           </span>
         )}
       </h3>
       {!hasData ? (
-        <button onClick={onFetchSchedule} disabled={fetching}>
-          {fetching ? "Fetching..." : "Fetch Schedule"}
-        </button>
+        loggedIn ? (
+          <button onClick={onFetchSchedule} disabled={fetching}>
+            {fetching ? "Fetching..." : "Fetch Schedule"}
+          </button>
+        ) : (
+          <p>No {label.toLowerCase()} matches scheduled yet.</p>
+        )
       ) : levelMatches.length === 0 ? (
         <p>No {label.toLowerCase()} matches scheduled.</p>
       ) : (
@@ -232,6 +260,7 @@ function RankingsTable({
               <th>Rank</th>
               <th>Team</th>
               <th>RP</th>
+              <th>RS</th>
             </tr>
           </thead>
           <tbody>
@@ -243,6 +272,7 @@ function RankingsTable({
                 <td>{i + 1}</td>
                 <td>{r.teamNumber}</td>
                 <td>{r.rp}</td>
+                <td>{r.rs.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
@@ -254,7 +284,8 @@ function RankingsTable({
 
 const TeamScheduleContent = () => {
   const { list: activeTournaments, loading: tournamentsLoading } =
-    useActiveTeamTournaments();
+    useActiveTeamTournamentsFromApi();
+  const { loggedIn } = useLoginStatus();
   const [schedule, setSchedule] = useState<TeamScheduleResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -281,7 +312,7 @@ const TeamScheduleContent = () => {
     async (tournamentId: string, isRefresh: boolean) => {
       if (isRefresh) setRefreshing(true);
       try {
-        const data = await getTeamSchedule(tournamentId);
+        const data = await getTeamSchedulePublic(tournamentId);
         setSchedule(data);
         setError(null);
       } catch (e) {
@@ -336,10 +367,7 @@ const TeamScheduleContent = () => {
     ? schedule!.rankings.indexOf(ownerRankEntry) + 1
     : null;
   const ownerRp = ownerRankEntry?.rp ?? null;
-  const avgRp =
-    schedule?.rankings && schedule.rankings.length > 0
-      ? schedule.rankings.reduce((sum, r) => sum + r.rp, 0) / schedule.rankings.length
-      : null;
+  const ownerRs = ownerRankEntry?.rs ?? null;
   const title = schedule?.tournamentName || "Team Schedule";
 
   if (tournamentsLoading) {
@@ -430,6 +458,7 @@ const TeamScheduleContent = () => {
         onFetchSchedule={handleFetchSchedule}
         fetching={fetching}
         countdown={countdown}
+        loggedIn={loggedIn}
       />
       <ScheduleTable
         label="Qualification"
@@ -444,7 +473,8 @@ const TeamScheduleContent = () => {
         countdown={countdown}
         ownerRank={ownerRank}
         ownerRp={ownerRp}
-        avgRp={avgRp}
+        ownerRs={ownerRs}
+        loggedIn={loggedIn}
       />
       <ScheduleTable
         label="Elimination"
@@ -457,6 +487,7 @@ const TeamScheduleContent = () => {
         onFetchSchedule={handleFetchSchedule}
         fetching={fetching}
         countdown={countdown}
+        loggedIn={loggedIn}
       />
       <RankingsTable
         rankings={schedule.rankings}
@@ -467,11 +498,7 @@ const TeamScheduleContent = () => {
 };
 
 const TeamSchedulePage = () => {
-  return (
-    <RequireLogin>
-      <TeamScheduleContent />
-    </RequireLogin>
-  );
+  return <TeamScheduleContent />;
 };
 
 export default TeamSchedulePage;

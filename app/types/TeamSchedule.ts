@@ -20,6 +20,8 @@ export interface TeamScheduleMatch {
 export interface TeamRanking {
   teamNumber: number;
   rp: number;
+  matchesPlayed: number;
+  rs: number;
 }
 
 export interface TeamScheduleResponse {
