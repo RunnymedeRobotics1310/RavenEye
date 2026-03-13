@@ -1084,6 +1084,14 @@ main.mega-report {
     margin-right: 2rem;
 }
 
+@media (max-width: 1400px) {
+    .schedule-rank {
+        float: none;
+        display: block;
+        margin-top: 0.25rem;
+    }
+}
+
 .schedule-rank-more {
     font-size: 0.65rem;
     font-weight: 400;
@@ -1135,6 +1143,35 @@ main.mega-report {
 
 .schedule-row-our-blue {
     background-color: var(--alliance-blue-bg) !important;
+}
+
+/* Alliance column: hidden on wide screens, shown on narrow portrait phones */
+.schedule-col-alliance {
+    display: none;
+}
+
+.schedule-rotate-hint {
+    display: none;
+    margin: 0 0 0.25rem 0;
+    font-size: 0.65rem;
+    color: var(--color-text-tertiary);
+    font-style: italic;
+    text-align: center;
+}
+
+@media (max-width: 480px) and (orientation: portrait) {
+    .schedule-col-team {
+        display: none;
+    }
+
+    .schedule-col-alliance {
+        display: table-cell;
+        font-weight: 700;
+    }
+
+    .schedule-rotate-hint {
+        display: block;
+    }
 }
 
 .rankings-table {
