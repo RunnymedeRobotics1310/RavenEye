@@ -13,7 +13,7 @@ import type {
 } from "~/types/TeamSchedule.ts";
 
 const REFRESH_INTERVAL_ACTIVE_MS = 30_000;
-const REFRESH_INTERVAL_IDLE_MS = 60_000;
+const REFRESH_INTERVAL_IDLE_MS = 30_000;
 
 function hasRed4(matches: TeamScheduleMatch[]): boolean {
   return matches.some((m) => m.red4 !== 0);
@@ -214,12 +214,11 @@ const TeamScheduleContent = () => {
   const selectedTournament =
     activeTournaments.length > 0 ? activeTournaments[0] : null;
   const selectedTournamentId = selectedTournament?.id ?? null;
-  const now = Date.now();
-  const isInSession =
-    selectedTournament != null &&
-    new Date(selectedTournament.startTime).getTime() <= now &&
-    new Date(selectedTournament.endTime).getTime() >= now;
-  const refreshInterval = isInSession
+  const matches = schedule?.matches ?? [];
+  const hasScored = matches.some((m) => m.winningAlliance !== 0);
+  const hasUnscored = matches.some((m) => m.winningAlliance === 0);
+  const isActive = hasScored && hasUnscored;
+  const refreshInterval = isActive
     ? REFRESH_INTERVAL_ACTIVE_MS
     : REFRESH_INTERVAL_IDLE_MS;
   const countdownStart = refreshInterval / 1000;

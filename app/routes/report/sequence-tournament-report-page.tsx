@@ -169,12 +169,14 @@ const SequenceTournamentReportPage = () => {
         {error && <p className="banner banner-warning">{error}</p>}
         {data && (
           <>
-            <section className="card drill-summary">
-              <h2>Aggregate Summary</h2>
-              <TimingStats report={data.aggregate} />
-            </section>
+            {data.aggregate && (
+              <section className="card drill-summary">
+                <h2>Aggregate Summary</h2>
+                <TimingStats report={data.aggregate} />
+              </section>
+            )}
 
-            {data.matches.map((m) => (
+            {(data.matches ?? []).map((m) => (
               <section key={m.matchId} className="card">
                 <h2>
                   {m.level} Match {m.matchId}
