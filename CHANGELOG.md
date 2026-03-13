@@ -1,3 +1,10 @@
+## [3.15.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.15.0...v3.15.1) (2026-03-13)
+
+
+### Bug Fixes
+
+* fix null errors on sequence report ([ed3e3d2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ed3e3d20edc5b2646b84e674452fa4601597ac67))
+
 # [3.15.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.14.0...v3.15.0) (2026-03-13)
 
 
