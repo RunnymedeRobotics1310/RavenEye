@@ -30,6 +30,7 @@ const LoggedIn = () => {
         <div className="home-nav-primary">
           <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
           <NavLink to={"/report"} className="btn">View Reports</NavLink>
+          <NavLink to={"/report/schedule"} className="btn-secondary">Team Schedule</NavLink>
         </div>
         <div className="home-nav-secondary">
           <NavLink to={"/profile"} className="btn-secondary">My Profile</NavLink>
