@@ -1,10 +1,30 @@
+import { useEffect, useState } from "react";
 import type { Route } from "../routes/+types/home-page";
 import {
   getDisplayName,
   useLoginStatus,
 } from "~/common/storage/rbauth.ts";
+import { getActiveTeamTournaments } from "~/common/storage/rb.ts";
 import { NavLink } from "react-router";
 import Spinner from "~/common/Spinner.tsx";
+
+function useHasActiveTournament() {
+  const [hasActive, setHasActive] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    getActiveTeamTournaments()
+      .then((list) => {
+        if (isMounted) setHasActive(list.length > 0);
+      })
+      .catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return hasActive;
+}
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -18,6 +38,7 @@ export function meta({}: Route.MetaArgs) {
 }
 const LoggedIn = () => {
   const fullName = getDisplayName();
+  const hasActive = useHasActiveTournament();
   return (
     <main>
       <div className="page-header">
@@ -30,7 +51,7 @@ const LoggedIn = () => {
         <div className="home-nav-primary">
           <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
           <NavLink to={"/report"} className="btn">View Reports</NavLink>
-          <NavLink to={"/report/schedule"} className="btn-secondary">Team Schedule</NavLink>
+          {hasActive && <NavLink to={"/report/schedule"} className="btn-secondary">Schedule & Scores</NavLink>}
         </div>
         <div className="home-nav-secondary">
           <NavLink to={"/profile"} className="btn-secondary">My Profile</NavLink>
@@ -41,6 +62,7 @@ const LoggedIn = () => {
   );
 };
 const NotLoggedIn = (props: any) => {
+  const hasActive = useHasActiveTournament();
   return (
     <main>
       <div className="page-header">
@@ -52,6 +74,7 @@ const NotLoggedIn = (props: any) => {
       </div>
       <div className="page-section">
         <NavLink to={"/login"} className="btn">Log in</NavLink>
+        {hasActive && <NavLink to={"/report/schedule"} className="btn-secondary">Schedule & Scores</NavLink>}
       </div>
       <section className="card">
         <h3>Login Status</h3>
