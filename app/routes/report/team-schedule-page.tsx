@@ -32,9 +32,25 @@ function TeamCell({
   team: number;
   ownerTeam: number;
 }) {
-  if (team === 0) return <td></td>;
+  if (team === 0) return <td className="schedule-col-team"></td>;
   const isOwner = team === ownerTeam;
-  return <td style={isOwner ? { fontWeight: 700 } : undefined}>{team}</td>;
+  return <td className="schedule-col-team" style={isOwner ? { fontWeight: 700 } : undefined}>{team}</td>;
+}
+
+function AllianceCell({
+  match,
+  ownerTeam,
+}: {
+  match: TeamScheduleMatch;
+  ownerTeam: number;
+}) {
+  const alliance = getAllianceForTeam(match, ownerTeam);
+  if (!alliance) return <td className="schedule-col-alliance"></td>;
+  return (
+    <td className={`schedule-col-alliance alliance-${alliance}-text`}>
+      {alliance === "red" ? "Red" : "Blue"}
+    </td>
+  );
 }
 
 function ScoreCell({ match }: { match: TeamScheduleMatch }) {
@@ -185,19 +201,21 @@ function ScheduleTable({
         <p>No {label.toLowerCase()} matches scheduled.</p>
       ) : (
         <div className="schedule-table-wrapper">
+          <p className="schedule-rotate-hint">Rotate device to see full details</p>
           <table className="schedule-table">
             <thead>
               <tr>
                 <th></th>
                 <th></th>
-                <th className="alliance-red-text">R1</th>
-                <th className="alliance-red-text">R2</th>
-                <th className="alliance-red-text">R3</th>
-                {showRed4 && <th className="alliance-red-text">R4</th>}
-                <th className="alliance-blue-text">B1</th>
-                <th className="alliance-blue-text">B2</th>
-                <th className="alliance-blue-text">B3</th>
-                {showBlue4 && <th className="alliance-blue-text">B4</th>}
+                <th className="schedule-col-alliance">Alliance</th>
+                <th className="alliance-red-text schedule-col-team">R1</th>
+                <th className="alliance-red-text schedule-col-team">R2</th>
+                <th className="alliance-red-text schedule-col-team">R3</th>
+                {showRed4 && <th className="alliance-red-text schedule-col-team">R4</th>}
+                <th className="alliance-blue-text schedule-col-team">B1</th>
+                <th className="alliance-blue-text schedule-col-team">B2</th>
+                <th className="alliance-blue-text schedule-col-team">B3</th>
+                {showBlue4 && <th className="alliance-blue-text schedule-col-team">B4</th>}
                 <th>Score</th>
                 <th>RP</th>
               </tr>
@@ -216,6 +234,7 @@ function ScheduleTable({
                     <td className="schedule-time">
                       {m.startTime || ""}
                     </td>
+                    <AllianceCell match={m} ownerTeam={ownerTeam} />
                     <TeamCell team={m.red1} ownerTeam={ownerTeam} />
                     <TeamCell team={m.red2} ownerTeam={ownerTeam} />
                     <TeamCell team={m.red3} ownerTeam={ownerTeam} />
