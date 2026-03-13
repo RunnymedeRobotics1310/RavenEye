@@ -1143,4 +1143,5 @@ main.mega-report {
 
 .rankings-row-owner {
     font-weight: 700;
+    background-color: var(--alliance-red-bg) !important;
 }
