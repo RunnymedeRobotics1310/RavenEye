@@ -1,3 +1,10 @@
+# [3.17.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.16.0...v3.17.0) (2026-03-13)
+
+
+### Features
+
+* highlight own team row in rankings table ([002e1d4](https://github.com/RunnymedeRobotics1310/RavenEye/commit/002e1d429709af5309c065085c8587ae724820c6))
+
 # [3.16.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.15.1...v3.16.0) (2026-03-13)
 
 
