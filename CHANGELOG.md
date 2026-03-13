@@ -1,3 +1,10 @@
+# [3.18.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.17.0...v3.18.0) (2026-03-13)
+
+
+### Features
+
+* make team schedule page public and add ranking strength display ([ea06b6a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ea06b6a139a40a472f5d74e5bed8a3d408fe5e2f))
+
 # [3.17.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.16.0...v3.17.0) (2026-03-13)
 
 
