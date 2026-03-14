@@ -1,3 +1,10 @@
+# [3.21.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.20.0...v3.21.0) (2026-03-14)
+
+
+### Features
+
+* add custom tournament sequence stats to team summary report ([3be1ace](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3be1acea2b7eeb9c887247ce7cf6c647cb203d25))
+
 # [3.20.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.19.0...v3.20.0) (2026-03-13)
 
 
