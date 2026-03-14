@@ -43,6 +43,7 @@ services:
       REGISTRATION_SECRET: ${REGISTRATION_SECRET:-default_registration_secret_123}
       FRC_USER: ${FRC_USER:-frc_api_user_id}
       FRC_KEY: ${FRC_KEY:-frc_api_user_key}
+      NEXUS_KEY: ${NEXUS_KEY:}
     networks:
       - raveneye-network
 
