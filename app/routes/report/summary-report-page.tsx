@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import { getTeamSummaryReport } from "~/common/storage/rb.ts";
+import {
+  getTeamSummaryReport,
+  getCustomTournamentStats,
+} from "~/common/storage/rb.ts";
+import { repository } from "~/common/storage/db.ts";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import Spinner from "~/common/Spinner.tsx";
 import type {
   TeamReportComment,
   TeamReportRobotAlert,
   SequenceReportLink,
+  CustomTournamentStats,
 } from "~/types/TeamSummaryReport.ts";
 
 const SummaryReportPage = () => {
@@ -20,8 +25,24 @@ const SummaryReportPage = () => {
   const [sequenceLinks, setSequenceLinks] = useState<
     SequenceReportLink[] | null
   >(null);
+  const [customStats, setCustomStats] = useState<CustomTournamentStats[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const fetchCustomStats = async (team: number, useCache: boolean) => {
+    if (useCache) {
+      const cached = await repository.getCustomStatsCache(team);
+      if (cached && Date.now() - cached.cachedAt < 24 * 60 * 60 * 1000) {
+        setCustomStats(cached.stats);
+        return;
+      }
+    }
+    const resp = await getCustomTournamentStats(team);
+    if (resp.success && resp.stats) {
+      setCustomStats(resp.stats);
+      await repository.putCustomStatsCache(team, resp.stats);
+    }
+  };
 
   useEffect(() => {
     if (!teamId) return;
@@ -40,6 +61,7 @@ const SummaryReportPage = () => {
         setError(e.message);
         setLoading(false);
       });
+    fetchCustomStats(Number(teamId), true).catch(() => {});
   }, [teamId]);
 
   const tournamentName = (id: string) => {
@@ -147,6 +169,63 @@ const SummaryReportPage = () => {
                 </li>
               ))}
             </ul>
+          </section>
+        )}
+
+        {customStats.length > 0 && (
+          <section className="card">
+            <h2>
+              Custom Tournament Sequence Stats{" "}
+              <button
+                className="btn-secondary"
+                onClick={async () => {
+                  const team = Number(teamId);
+                  await repository.clearCustomStatsCache(team);
+                  await fetchCustomStats(team, false);
+                }}
+              >
+                Refresh
+              </button>
+            </h2>
+            {[...customStats]
+              .sort((a, b) => {
+                const aIdx = allTournaments.findIndex(
+                  (t) => t.id === a.tournamentId,
+                );
+                const bIdx = allTournaments.findIndex(
+                  (t) => t.id === b.tournamentId,
+                );
+                return bIdx - aIdx;
+              })
+              .map((ts) => (
+                <div key={ts.tournamentId}>
+                  <h3>{tournamentName(ts.tournamentId)}</h3>
+                  {ts.stats.length === 0 ? (
+                    <p>No matching events for this tournament.</p>
+                  ) : (
+                    <div className="mega-report-table-wrapper">
+                      <table className="mega-report-table">
+                        <thead>
+                          <tr>
+                            <th>Event Type</th>
+                            <th>Average Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {ts.stats.map((s) => (
+                            <tr key={s.eventType}>
+                              <td>
+                                Average amount per shot of {s.eventTypeName}
+                              </td>
+                              <td>{s.averageAmount.toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ))}
           </section>
         )}
 

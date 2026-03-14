@@ -21,7 +21,10 @@ import type {
 } from "~/types/SequenceReport.ts";
 import type { ChronoReportResponse } from "~/types/ChronoReport.ts";
 import type { MegaReportResponse } from "~/types/MegaReport.ts";
-import type { TeamSummaryReportResponse } from "~/types/TeamSummaryReport.ts";
+import type {
+  TeamSummaryReportResponse,
+  CustomTournamentStatsResponse,
+} from "~/types/TeamSummaryReport.ts";
 import type { TeamScheduleResponse } from "~/types/TeamSchedule.ts";
 import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 
@@ -917,6 +920,17 @@ export async function getTeamSummaryReport(
     return resp.json() as unknown as TeamSummaryReportResponse;
   } else {
     throw new Error("Failure fetching team summary report");
+  }
+}
+
+export async function getCustomTournamentStats(
+  teamId: number,
+): Promise<CustomTournamentStatsResponse> {
+  const resp = await rbfetch(`/api/report/custom-stats?team=${teamId}`, {});
+  if (resp.ok) {
+    return resp.json() as unknown as CustomTournamentStatsResponse;
+  } else {
+    throw new Error("Failure fetching custom tournament stats");
   }
 }
 
