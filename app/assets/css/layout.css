@@ -1,3 +1,7 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 html {
     body {
         margin: 0;
@@ -8,37 +12,62 @@ html {
 #layout {
     > header {
         display: grid;
-        grid-template-columns: 2fr 5fr 2fr;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
         height: var(--header-height);
+        color: var(--color-text-inverse);
+        border-bottom: 3px solid rgba(0, 0, 0, 0.2);
+        padding: 0;
         #logo {
-            img {
-                max-height: 3.5rem;
+            display: flex;
+            align-items: center;
+            padding-left: 0.5rem;
+            a {
+                display: flex;
+                align-items: center;
             }
-            align-self: center;
+            img {
+                max-height: 3rem;
+                display: block;
+            }
         }
         #title{
-            align-self: center;
-            justify-self: center;
-            img {
-                padding-top: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+            min-width: 0;
+            overflow: hidden;
+            svg {
                 width: 100%;
+                height: 2.5rem;
+                display: block;
+                position: relative;
+                top: 0.2rem;
             }
 
         }
-        .sync-button {
-            justify-self: end;
-            align-self: center;
-            width: 1.75rem;
-            margin-bottom: 0.85rem;
-            padding: 0.5rem 0.75rem 0 0.5rem;
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-right: 0.5rem;
+        }
+        .header-actions .icon {
+            margin-top: 0;
+        }
+        .header-actions > a {
+            display: flex;
+            align-items: center;
         }
     }
 
     footer {
         display: grid;
         grid-template-columns: 1fr;
-        height: var(--footer-height);
+        min-height: var(--footer-height);
         margin-top: 0.5rem;
+        padding-bottom: var(--space-sm);
         div, menu {
             justify-self: center;
             align-self: center;
@@ -50,7 +79,7 @@ html {
 }
 
 main {
-    padding: 0 25px;
+    padding: var(--space-base) var(--space-lg) 0;
     min-height: var(--min-main-height);
 }
 
@@ -58,210 +87,15 @@ main {
     #layout > header,
     main,
     footer {
-        padding-left: calc(10% + 25px);
-        padding-right: calc(10% + 25px);
+        padding-left: calc(10% + var(--space-lg));
+        padding-right: calc(10% + var(--space-lg));
+    }
+
+    main.mega-report {
+        padding-left: var(--space-sm);
+        padding-right: var(--space-sm);
     }
 }
-
-
-#field-layout {
-    display: grid;
-    justify-self: center;
-    padding: 1rem 0;
-    > header {
-        padding-bottom: 1rem;
-        display: grid;
-        grid-template-columns: 1.25fr 3fr 1.25fr;
-        height: var(--header-height);
-        .phase-selector {
-            justify-self: center;
-            align-self: center;
-            min-width: 80%;
-        }
-        .penalties-menu {
-            justify-self: center;
-            align-self: center;
-        }
-    }
-    .phase-grid {
-        display: grid;
-        grid-template-areas: "auto teleop endgame";
-        grid-template-columns: 1fr 1fr 1fr;
-        width:100%;
-        button {
-            width: 100%;
-            height: 100%;
-        }
-
-        #auto {
-            grid-area: auto;
-        }
-        #teleop {
-            grid-area: teleop;
-        }
-        #endgame {
-            grid-area: endgame;
-        }
-    }
-
-    .red-field-container,
-    .blue-field-container{
-        display: grid;
-        grid-template-columns: 194fr 441fr 458fr 445fr 198fr;
-        grid-template-rows: 301fr 205fr 206fr 397fr 264fr 408fr;
-        grid-template-areas:
-        "left barge-left barge barge-right right"
-        "left start-zone start-zone start-zone right"
-        "left behind-reef behind-reef behind-reef right"
-        "left reef-left reef reef-right right"
-        "left reef-front-left reef-front reef-front-right right"
-        "left left-station driver-station right-station right";
-        aspect-ratio: 1736/1791;
-        max-width: 100%;
-        justify-self: center;
-        .barge-left{
-            grid-area: barge-left;
-        }
-        .barge{
-            grid-area: barge;
-        }
-        .barge-right{
-            grid-area: barge-right;
-        }
-        .start-zone{
-            grid-area: start-zone;
-        }
-        .behind-reef{
-            grid-area: behind-reef;
-        }
-        .reef-left{
-            grid-area: reef-left;
-        }
-        .reef{
-            grid-area: reef;
-        }
-        .reef-right{
-            grid-area: reef-right;
-        }
-        .reef-front-left{
-            grid-area: reef-front-left;
-        }
-        .reef-front{
-            grid-area: reef-front;
-        }
-        .reef-front-right{
-            grid-area: reef-front-right;
-        }
-        .left-station{
-            grid-area: left-station;
-        }
-        .driver-station{
-            grid-area: driver-station;
-        }
-        .right-station{
-            grid-area: right-station;
-        }
-
-        & > div {
-            min-height: 0;
-            min-width: 0;
-            justify-self: center;
-            align-self: center;
-            overflow: clip;
-        }
-
-    }
-
-
-    .endgame {
-        display: grid;
-
-        h1 {
-            text-align: center;
-        }
-
-        img {
-            margin: auto;
-            height: 8rem;
-            width: auto;
-        }
-
-        div {
-            padding: 1rem;
-            display: grid;
-
-        }
-
-        button {
-            display: block;
-            justify-self: center;
-            width: 8rem;
-            margin-bottom: .25rem;
-
-        }
-
-        > button {
-            width: 10rem;
-        }
-    }
-
-    .penalties{
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        align-content: center;
-        justify-self: center;
-        height: 100%;
-
-        h1 {
-            align-self: center;
-        }
-
-        button{
-            width: 8rem;
-            align-self: center;
-        }
-
-        #back-button{
-            width: 10rem;
-            align-self: center;
-        }
-    }
-
-}
-
-.general-layout {
-    justify-self: center;
-    align-self: center;
-    display: grid;
-    grid-template-areas: "middle";
-    width: 100%;
-    height: var(--min-main-height);
-    * {
-        justify-self: center;
-        align-self: center;
-    }
-    button {
-        width: 6rem;
-    }
-    img {
-        height: auto;
-    }
-    .isNotVisible{
-        visibility: hidden;
-    }
-
-    input{
-        width:10rem;
-    }
-}
-
-/*
- *
- * INDIVIDUAL SCREEN LAYOUTS
- *
- */
-
 
 .scout-select {
     display: flex;
@@ -271,101 +105,4 @@ main {
     justify-content: space-around;
     height: 100%;
     width: 100%;
-}
-
-
-.match-select {
-    align-self: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    height: 100%;
-    width: 100%;
-
-    .team-select {
-        justify-self: center;
-        align-self: center;
-        display: grid;
-        grid-template-areas:
-                "red1 red2 red3"
-                "blue1 blue2 blue3";
-        height: 5rem;
-
-        #red1 {
-            grid-area: red1;
-        }
-
-        #red2 {
-            grid-area: red2;
-        }
-
-        #red3 {
-            grid-area: red3;
-        }
-
-        #blue1 {
-            grid-area: blue1;
-        }
-
-        #blue2 {
-            grid-area: blue2;
-        }
-
-        #blue3 {
-            grid-area: blue3;
-        }
-    }
-}
-
-
-
-.match-config {
-    align-self: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    height: 100%;
-    width: 100%;
-}
-
-.comments-checklist {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    height: 100%;
-    width: 100%;
-
-    div {
-        width: 100%;
-    }
-}
-
-.human-feedback {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    height: 100%;
-    width: 100%;
-}
-
-
-
-
-/*
- *
- * COMMON LAYOUT TOOLS
- *
- */
-.left {
-    justify-self: left !important;
-}
-.right {
-    justify-self: right !important;
-}
-.top {
-    align-self: start !important;
-
-}
-.bottom {
-    align-self: end !important;
 }

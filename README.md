@@ -14,6 +14,10 @@ Follow the instructions on the app.
 
 Deployment instructions can be found in the [DEPLOYMENT.md](DEPLOYMENT.md) file.
 
+## Features
+
+- **Tournament selection** — The tournament selection page highlights the team's active competition (if any) for quick access during events. All FRC events for the current season are also listed, allowing scouts to practice scouting by watching match videos from any tournament on YouTube. This supports strategy team training outside of competition weekends.
+
 ## Development
 
 This app is built as a single-page application using React, React Router, TypeScript, and Vite. To run the app locally, 

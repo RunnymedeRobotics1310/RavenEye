@@ -36,6 +36,52 @@ export function useTournamentList() {
   return { list, loading };
 }
 
+const UPCOMING_TOURNAMENT_LOOKAHEAD = 24 * 60 * 60 * 1000; // 24 hours
+const ACTIVE_TOURNAMENT_CUTOFF = 36 * 60 * 60 * 1000; // 36 hours
+
+export function useActiveTeamTournaments() {
+  const [list, setList] = useState<RBTournament[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      try {
+        const [teamIds, tournaments] = await Promise.all([
+          repository.getTeamTournamentIds(),
+          repository.getTournamentList(),
+        ]);
+        if (isMounted) {
+          const teamIdSet = new Set(teamIds);
+          const now = Date.now();
+          const startCutoff = now + UPCOMING_TOURNAMENT_LOOKAHEAD;
+          const endCutoff = now - ACTIVE_TOURNAMENT_CUTOFF;
+          setList(
+            tournaments.filter(
+              (t) =>
+                teamIdSet.has(t.id) &&
+                new Date(t.startTime).getTime() < startCutoff &&
+                new Date(t.endTime).getTime() > endCutoff,
+            ),
+          );
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Failed to load active team tournaments", err);
+      }
+    };
+
+    load();
+    const interval = setInterval(load, 1000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  return { list, loading };
+}
+
 export function useStrategyAreaList() {
   const [list, setList] = useState<StrategyArea[]>([]);
   const [loading, setLoading] = useState(true);
@@ -169,8 +215,12 @@ export function useSyncStatus(component: string): SyncStatus {
     const load = async () => {
       try {
         const data = await repository.getSyncStatus(component);
-        if (isMounted && data) {
-          setStatus(data);
+        if (isMounted) {
+          if (data) {
+            setStatus(data);
+          } else {
+            setStatus((prev) => (prev.loading ? { ...prev, loading: false } : prev));
+          }
         }
       } catch (err) {
         console.error(`Failed to load sync status for ${component}`, err);

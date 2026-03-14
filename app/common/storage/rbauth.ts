@@ -3,11 +3,12 @@ import { ping } from "~/common/storage/rb.ts";
 import type { RBJWT } from "~/types/RBJWT.ts";
 
 const SESSION_KEY_ACCESS_TOKEN = "raveneye_access_token";
+const SESSION_KEY_REFRESH_TOKEN = "raveneye_refresh_token";
 const SESSION_KEY_USERID = "raveneye_userid";
 const SESSION_KEY_LOGIN = "raveneye_login";
 const SESSION_KEY_DISPLAY_NAME = "raveneye_displayName";
 const SESSION_KEY_ROLES = "raveneye_roles";
-const SESSION_KEY_RAVENBRAIN_VERSION = "raveneye_ravenbrain_version";
+export const SESSION_KEY_RAVENBRAIN_VERSION = "raveneye_ravenbrain_version";
 
 /**
  * Authenticates a user by sending their credentials to the server.
@@ -54,6 +55,9 @@ export async function authenticate(
       sessionStorage.setItem(SESSION_KEY_LOGIN, jwt.login);
       sessionStorage.setItem(SESSION_KEY_DISPLAY_NAME, jwt.displayName);
       sessionStorage.setItem(SESSION_KEY_ROLES, JSON.stringify(jwt.roles));
+      if (json.refresh_token) {
+        sessionStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
+      }
       return;
     });
 }
@@ -90,14 +94,15 @@ function parseJwt(token: string): RBJWT {
  */
 function validateRavenBrainJwt(jwt: RBJWT): void {
   if (jwt.iss !== "raven-brain") {
-    throw new Error("JWT Not from Raven Brain");
+    throw new Error("JWT Not from Raven Brain. iss: " + jwt.iss);
   }
   const currentTime = Date.now() / 1000; // Current time in seconds
   if (jwt.exp < currentTime) {
-    throw new Error("JWT has expired");
+    throw new Error("JWT has expired. Current time: " + currentTime+" exp: "+ jwt.exp);
   }
-  if (jwt.nbf > currentTime) {
-    throw new Error("JWT is not yet valid");
+  if (jwt.nbf - 2 > currentTime) {
+    // allow 2ms grace period
+    throw new Error("JWT is not yet valid. Current time: "+currentTime+" nbf: "+ jwt.nbf);
   }
 }
 
@@ -119,11 +124,86 @@ function isJwtExpired(token: string): boolean {
   }
 }
 
+let refreshInProgress: Promise<boolean> | null = null;
+
 /**
- * Log the user out and forget the userid
+ * Attempts to refresh the access token using the stored refresh token.
+ * Uses a shared promise to prevent concurrent refresh requests.
+ *
+ * @return {Promise<boolean>} true if the token was refreshed successfully, false otherwise.
+ */
+export async function refreshAccessToken(): Promise<boolean> {
+  if (refreshInProgress) {
+    return refreshInProgress;
+  }
+  const refreshToken =
+    typeof sessionStorage !== "undefined"
+      ? sessionStorage.getItem(SESSION_KEY_REFRESH_TOKEN)
+      : null;
+  if (!refreshToken) {
+    return false;
+  }
+  refreshInProgress = doRefresh(refreshToken).finally(() => {
+    refreshInProgress = null;
+  });
+  return refreshInProgress;
+}
+
+async function doRefresh(refreshToken: string): Promise<boolean> {
+  try {
+    const response = await fetch(
+      import.meta.env.VITE_API_HOST + `/oauth/access_token`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        mode: "cors",
+        body: JSON.stringify({
+          grant_type: "refresh_token",
+          refresh_token: refreshToken,
+        }),
+      },
+    );
+    if (!response.ok) {
+      return false;
+    }
+    const json = await response.json();
+    const accessToken = json.access_token;
+    const jwt = parseJwt(accessToken);
+    validateRavenBrainJwt(jwt);
+    sessionStorage.setItem(SESSION_KEY_ACCESS_TOKEN, accessToken);
+    sessionStorage.setItem(SESSION_KEY_USERID, jwt.userid.toString());
+    sessionStorage.setItem(SESSION_KEY_LOGIN, jwt.login);
+    sessionStorage.setItem(SESSION_KEY_DISPLAY_NAME, jwt.displayName);
+    sessionStorage.setItem(SESSION_KEY_ROLES, JSON.stringify(jwt.roles));
+    if (json.refresh_token) {
+      sessionStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Log the user out and forget the userid. Sends the refresh token to the
+ * server for deletion (fire-and-forget — does not block if server is unreachable).
  */
 export function logout() {
   if (typeof sessionStorage !== "undefined") {
+    const accessToken = sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN);
+    if (accessToken) {
+      fetch(import.meta.env.VITE_API_HOST + `/api/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        mode: "cors",
+        body: "{}",
+      }).catch(() => {
+        // fire-and-forget: ignore errors (offline-first)
+      });
+    }
     sessionStorage.clear();
   }
   if (typeof localStorage !== "undefined") {
@@ -147,20 +227,32 @@ export async function validate(): Promise<true> {
         throw Error("Unhandled server error (" + resp.status + ")");
       }
     })
-    .then((json) => {
-      if (json.version && typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, json.version);
-      }
+    .then(() => {
       return true;
     });
 }
 
 /**
- * Fetch with Raven Brain authentication
+ * Fetch with Raven Brain authentication. Automatically retries once on 401
+ * by attempting to refresh the access token.
  * @param urlpath
  * @param options
  */
 export async function rbfetch(
+  urlpath: string,
+  options: RequestInit,
+): Promise<Response> {
+  const response = await doRbFetch(urlpath, options);
+  if (response.status === 401) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed) {
+      return doRbFetch(urlpath, options);
+    }
+  }
+  return response;
+}
+
+async function doRbFetch(
   urlpath: string,
   options: RequestInit,
 ): Promise<Response> {
@@ -243,7 +335,16 @@ export function useLoginStatus() {
     ping()
       .then((result) => {
         if (!result) {
+          // Offline: trust the local session if we have a non-expired JWT
           setAlive(false);
+          const accessToken =
+            typeof sessionStorage !== "undefined"
+              ? sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN)
+              : null;
+          if (accessToken && !isJwtExpired(accessToken)) {
+            setHasToken(true);
+            setLoggedIn(true);
+          }
           setLoading(false);
           return;
         }
@@ -262,7 +363,20 @@ export function useLoginStatus() {
 
         if (isJwtExpired(accessToken)) {
           setExpired(true);
-          setLoading(false);
+          refreshAccessToken()
+            .then((refreshed) => {
+              if (refreshed) {
+                return validate().then(() => {
+                  setExpired(false);
+                  setLoggedIn(true);
+                  setLoading(false);
+                });
+              }
+              setLoading(false);
+            })
+            .catch(() => {
+              setLoading(false);
+            });
         } else {
           validate()
             .then(() => {
@@ -275,7 +389,16 @@ export function useLoginStatus() {
         }
       })
       .catch(() => {
+        // Offline: trust the local session if we have a non-expired JWT
         setAlive(false);
+        const accessToken =
+          typeof sessionStorage !== "undefined"
+            ? sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN)
+            : null;
+        if (accessToken && !isJwtExpired(accessToken)) {
+          setHasToken(true);
+          setLoggedIn(true);
+        }
         setLoading(false);
       });
   }, []);
@@ -327,13 +450,15 @@ export function useRole() {
   const [isMember, setIsMember] = useState(false);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    const roles = getRoles();
-    if (roles) {
+    try {
+      const roles = getRoles();
       setIsSuperuser(roles.includes("ROLE_SUPERUSER"));
       setIsAdmin(roles.includes("ROLE_ADMIN"));
       setIsExpertScout(roles.includes("ROLE_EXPERTSCOUT"));
       setIsDataScout(roles.includes("ROLE_DATASCOUT"));
       setIsMember(roles.includes("ROLE_MEMBER"));
+    } catch {
+      // Not logged in — all roles remain false
     }
     setLoading(false);
   }, []);

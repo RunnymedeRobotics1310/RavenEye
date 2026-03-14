@@ -1,92 +1,43 @@
-import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import QuickCommentForm from "~/common/track/QuickCommentForm.tsx";
-import DebugEventSyncForm from "~/common/track/DebugEventSyncForm.tsx";
-import { useState } from "react";
-import DrillStart from "~/common/track/DrillStart.tsx";
-import CompStart from "~/common/track/CompStart.tsx";
+import RequireRole from "~/common/auth/RequireRole.tsx";
+import trackPageRegistry from "~/common/track/trackPageRegistry.ts";
+import { TrackNavProvider, useActiveScreen } from "~/common/track/TrackNavContext.tsx";
 
-type EnvelopeProps = {
-  closeFunction: () => void;
-  children: React.ReactNode;
+export type TrackScreenProps = {
+  areaCode?: string;
+  sequenceCode?: string;
 };
-const Envelope = (props: EnvelopeProps) => {
-  return (
-    <div>
-      {props.children}
-      <button onClick={props.closeFunction}>Close</button>
-    </div>
-  );
+
+const TrackScreen = () => {
+  const activeScreen = useActiveScreen();
+
+  const props: TrackScreenProps = {};
+
+  if (activeScreen.startsWith("seq:")) {
+    const CustomSeq = trackPageRegistry[activeScreen];
+    if (CustomSeq) return <CustomSeq {...props} sequenceCode={activeScreen.slice(4)} />;
+    const DefaultSeq = trackPageRegistry["seq:default"];
+    return <DefaultSeq {...props} sequenceCode={activeScreen.slice(4)} />;
+  }
+
+  if (activeScreen.startsWith("area:")) {
+    const CustomArea = trackPageRegistry[activeScreen];
+    if (CustomArea) return <CustomArea {...props} areaCode={activeScreen.slice(5)} />;
+    const DefaultArea = trackPageRegistry["area:default"];
+    return <DefaultArea {...props} areaCode={activeScreen.slice(5)} />;
+  }
+
+  const ThePage = trackPageRegistry[activeScreen];
+  if (ThePage) return <ThePage {...props} />;
+  return <h1>Not found</h1>;
 };
 
 const TrackHomePage = () => {
-  const [showComment, setShowComment] = useState(false);
-  const [showDrill, setShowDrill] = useState(false);
-  const [showComp, setShowComp] = useState(false);
-
-  const handleShowComment = () => {
-    setShowComment(true);
-    setShowDrill(false);
-    setShowComp(false);
-  };
-
-  const handleShowDrill = () => {
-    setShowComment(false);
-    setShowDrill(true);
-    setShowComp(false);
-  };
-
-  const handleShowComp = () => {
-    setShowComment(false);
-    setShowDrill(false);
-    setShowComp(true);
-  };
-
   return (
-    <main>
-      <h1>Track</h1>
-      <p>
-        Scouts and team members - you're in the right place to track robots!
-      </p>
-
-      {showComment && (
-        <Envelope closeFunction={() => setShowComment(false)}>
-          <QuickCommentForm />
-        </Envelope>
-      )}
-      {showDrill && (
-        <Envelope closeFunction={() => setShowDrill(false)}>
-          <DrillStart />
-        </Envelope>
-      )}
-      {showComp && (
-        <Envelope closeFunction={() => setShowComp(false)}>
-          <CompStart />
-        </Envelope>
-      )}
-
-      <button onClick={handleShowComment}>Comment</button>
-      <button onClick={handleShowDrill}>Drill</button>
-      <button onClick={handleShowComp}>Comp</button>
-
-      <p>Hello world from Track Home</p>
-      <ul>
-        <li>user selects Strat area</li>
-        <li>user selects match/drill</li>
-        <li>user selects team</li>
-        <li>
-          User goes to score tracking screen
-          <br />
-          <ul>
-            <li>this can look like a game map or not</li>
-            <li>buttons denoting what can be tracked are shown</li>
-          </ul>
-        </li>
-      </ul>
-      <RequireLogin>
-        <QuickCommentForm />
-        <DebugEventSyncForm />
-      </RequireLogin>
-    </main>
+    <RequireRole roles={["MEMBER", "DATASCOUT", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>
+      <TrackNavProvider>
+        <TrackScreen />
+      </TrackNavProvider>
+    </RequireRole>
   );
 };
 export default TrackHomePage;

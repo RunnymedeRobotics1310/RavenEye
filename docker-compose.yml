@@ -32,11 +32,9 @@ services:
       - "8888:8888"
     restart: unless-stopped
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DB: ${MYSQL_DATABASE:-ravenbrain}
-      MYSQL_USERNAME: ${MYSQL_USER:-rb}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-rb}
+      DATASOURCES_DEFAULT_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-ravenbrain}?enabledTLSProtocols=TLSv1.2&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+      DATASOURCES_DEFAULT_USERNAME: ${MYSQL_USER:-rb}
+      DATASOURCES_DEFAULT_PASSWORD: ${MYSQL_PASSWORD:-rb}
       JWT_GENERATOR_SIGNATURE_SECRET: ${JWT_GENERATOR_SIGNATURE_SECRET:-defaultRavenBrainJwtSignatureSecret}
       ENCRYPTION_SEED: ${ENCRYPTION_SEED:-raven-brain-default-seed-change-me-in-production}
       SUPERUSER_PASSWORD: ${SUPERUSER_PASSWORD:-default_superuser_password_999}

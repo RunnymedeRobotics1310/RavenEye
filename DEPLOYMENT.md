@@ -112,7 +112,7 @@ sudo docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ## CI/CD Pipeline
 
-The GitHub Actions workflow (`.github/workflows/deploy.yml`) automatically:
+The GitHub Actions workflow (`.github/workflows/release.yml`) automatically:
 1. Triggers on pushes to the `main` branch
 2. Builds the Docker image with the configured API host
 3. Deploys the application using Docker Compose
@@ -252,15 +252,13 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 The following settings should already be implemented, but the following miscellaneous sections provide some of the
 internals already implemented via docker, docker-compose, and github actions.
 
-### Building the Docker Image
+### Building Docker Images
 
-On your development machine, build the production Docker image:
+**RavenEye:** Built directly from its `Dockerfile` using `docker/build-push-action` in CI.
 
-```bash
-./gradlew dockerBuild
-```
+**RavenBrain:** Gradle generates the Dockerfile and build context (`./gradlew dockerfile`), then `docker/build-push-action` handles the multi-arch build and push. For local development, you can still build a single-arch image with `./gradlew dockerBuild`.
 
-This creates the `ravenbrain:latest` image.
+Both images are built for `linux/amd64` and `linux/arm64` in CI using QEMU emulation on GitHub-hosted Ubuntu runners. The multi-arch manifest allows `docker pull` to automatically select the correct platform (amd64 on the production Windows server, arm64 on Apple Silicon Macs).
 
 ### Configure SSL Certificates
 
@@ -341,8 +339,9 @@ branch, the workflow automatically creates a release, builds a Docker image, and
    - Runs type checking and builds the application
    - Creates a semantic release (version bump, changelog, git tag)
 3. The `build` job runs on GitHub-hosted Ubuntu runners:
-   - Builds a multi-architecture Docker image (amd64/arm64)
-   - Pushes the image to GitHub Container Registry (ghcr.io)
+   - Uses QEMU emulation + Docker Buildx to build a multi-architecture image (amd64 + arm64)
+   - Pushes the multi-arch manifest to GitHub Container Registry (ghcr.io)
+   - Both platforms are needed: production server runs amd64 (Windows), dev team includes arm64 (Apple Silicon Macs)
 4. The `deploy` job runs on the self-hosted runner (Linux container on Windows 11):
    - Pulls the latest Docker image
    - Restarts only the nginx (RavenEye) container

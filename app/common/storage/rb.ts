@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import type { User } from "~/types/User.ts";
-import { rbfetch } from "~/common/storage/rbauth.ts";
+import {
+  rbfetch,
+  SESSION_KEY_RAVENBRAIN_VERSION,
+} from "~/common/storage/rbauth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
@@ -10,6 +13,20 @@ import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 import type { RBEventLogPostResult } from "~/types/RBEventLogPostResult.ts";
 import type { RBQuickCommentPostResult } from "~/types/RBQuickCommentPostResult.ts";
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
+import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
+import type { RBRobotAlertPostResult } from "~/types/RBRobotAlertPostResult.ts";
+import type {
+  DrillReportResponse,
+  TournamentSequenceReportResponse,
+} from "~/types/SequenceReport.ts";
+import type { ChronoReportResponse } from "~/types/ChronoReport.ts";
+import type { MegaReportResponse } from "~/types/MegaReport.ts";
+import type {
+  TeamSummaryReportResponse,
+  CustomTournamentStatsResponse,
+} from "~/types/TeamSummaryReport.ts";
+import type { TeamScheduleResponse } from "~/types/TeamSchedule.ts";
+import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -19,6 +36,10 @@ import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 export async function ping(): Promise<boolean> {
   return fetch(import.meta.env.VITE_API_HOST + "/api/ping", {})
     .then((resp) => {
+      const ver = resp.headers.get("X-RavenBrain-Version");
+      if (ver && typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, ver);
+      }
       return resp.ok;
     })
     .catch(() => {
@@ -38,6 +59,38 @@ export async function getTournamentList() {
     return resp.json() as unknown as RBTournament[];
   } else {
     throw new Error("Failure fetching tournament list");
+  }
+}
+
+/**
+ * Fetches the list of tournament IDs where the team is registered.
+ *
+ * @return {Promise<string[]>} A promise that resolves to an array of tournament ID strings.
+ * @throws {Error} If the request fails or the server responds with an error status.
+ */
+export async function getTeamTournamentIds() {
+  const resp = await rbfetch("/api/tournament/team-ids", {});
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching team tournament IDs");
+  }
+}
+
+/**
+ * Triggers RavenBrain to fetch schedule data for a tournament from the FRC API.
+ *
+ * @param {string} tournamentId - The tournament ID to fetch schedule data for.
+ * @throws {Error} If the request fails.
+ */
+export async function fetchTournamentSchedule(
+  tournamentId: string,
+): Promise<void> {
+  const resp = await rbfetch("/api/frc-sync/schedule/" + tournamentId, {
+    method: "POST",
+  });
+  if (!resp.ok && resp.status !== 404) {
+    throw new Error("Failed to fetch tournament schedule: " + resp.status);
   }
 }
 
@@ -68,6 +121,103 @@ export async function getEventTypeList() {
     return resp.json() as unknown as EventType[];
   } else {
     throw new Error("Failure fetching event type list");
+  }
+}
+
+/**
+ * A custom hook for retrieving and managing the state of an event type by its key.
+ *
+ * @param {string | undefined} eventtype - The event type key to fetch. If undefined, no fetch request is performed.
+ * @return {{ data: EventType | null, error: string | null, loading: boolean }}
+ */
+export function useEventType(eventtype: string | undefined) {
+  const [data, setData] = useState<EventType | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!eventtype) {
+      setLoading(false);
+      return;
+    }
+    rbfetch(`/api/event-types/${eventtype}`, {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data);
+          } else {
+            setError("Failed to fetch event type: " + data.reason);
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch event type: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, [eventtype]);
+
+  return { data, error, loading } as {
+    data: EventType | null;
+    error: string | null;
+    loading: boolean;
+  };
+}
+
+/**
+ * Creates a new event type on RavenBrain.
+ *
+ * @param {EventType} item - The event type object to be created.
+ * @return {Promise<EventType>} A promise that resolves to the created event type object.
+ */
+export async function createEventType(item: EventType): Promise<EventType> {
+  return rbfetch("/api/event-types", {
+    method: "POST",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to create event type: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * Updates an existing event type on RavenBrain.
+ *
+ * @param {EventType} item - The event type object containing updated data.
+ * @return {Promise<EventType>} A promise that resolves to the updated event type object.
+ */
+export async function updateEventType(item: EventType): Promise<EventType> {
+  return rbfetch("/api/event-types/" + item.eventtype, {
+    method: "PUT",
+    body: JSON.stringify(item),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to update event type: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+/**
+ * Deletes an event type on RavenBrain.
+ *
+ * @param {string} eventtype - The event type key to delete.
+ */
+export async function deleteEventType(eventtype: string): Promise<void> {
+  const resp = await rbfetch("/api/event-types/" + eventtype, {
+    method: "DELETE",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
   }
 }
 
@@ -143,6 +293,26 @@ export async function getScheduleForTournament(tournamentId: string) {
 }
 
 /**
+ * Fetches schedules for multiple tournaments in a single request.
+ *
+ * @param {string[]} tournamentIds - The tournament IDs to fetch schedules for.
+ * @return {Promise<RBScheduleRecord[]>} A promise that resolves to an array of schedule records.
+ * @throws {Error} If the request fails.
+ */
+export async function getSchedulesForTournaments(tournamentIds: string[]) {
+  if (tournamentIds.length === 0) return [];
+  const resp = await rbfetch("/api/schedule/bulk", {
+    method: "POST",
+    body: JSON.stringify(tournamentIds),
+  });
+  if (resp.ok) {
+    return resp.json() as unknown as RBScheduleRecord[];
+  } else {
+    throw new Error("Failure fetching bulk schedules");
+  }
+}
+
+/**
  * A custom hook that fetches and provides a list of users from RavenBrain.
  *
  * This hook manages the state for data, loading, and error, allowing components to easily make use
@@ -163,7 +333,12 @@ export function useUserList() {
       if (resp.ok) {
         resp.json().then((data) => {
           if (data) {
-            setData(data);
+            setData(
+              (data as User[])
+                // sort by enabled first (1) and disabled second (0)
+                .slice()
+                .sort((a, b) => Number(b.enabled) - Number(a.enabled)),
+            );
           } else {
             setError("Failed to fetch users: " + data.reason);
           }
@@ -230,7 +405,7 @@ export interface UserFormData {
   id: number;
   login: string;
   displayName: string;
-  password: string;
+  passwordHash: string;
   enabled: boolean;
   forgotPassword: boolean;
   roles: string[];
@@ -356,6 +531,98 @@ export async function updateStrategyArea(
   });
 }
 
+export async function deleteStrategyArea(id: number): Promise<void> {
+  const resp = await rbfetch("/api/strategy-areas/" + id, {
+    method: "DELETE",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+}
+
+export async function deleteSequenceType(id: number): Promise<void> {
+  const resp = await rbfetch("/api/sequence-types/" + id, {
+    method: "DELETE",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+}
+
+export async function deleteUser(id: number): Promise<void> {
+  const resp = await rbfetch("/api/users/" + id, {
+    method: "DELETE",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+}
+
+export interface ConfigSyncRequest {
+  sourceUrl: string;
+  sourceUser: string;
+  sourcePassword: string;
+}
+
+export interface ConfigSyncResult {
+  strategyAreas: number;
+  eventTypes: number;
+  sequenceTypes: number;
+  sequenceEvents: number;
+  tournaments: number;
+  schedules: number;
+  teamTournaments: number;
+  message: string;
+}
+
+export async function configSync(
+  request: ConfigSyncRequest,
+): Promise<ConfigSyncResult> {
+  const resp = await rbfetch("/api/config-sync", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+  if (resp.ok) {
+    return resp.json() as unknown as ConfigSyncResult;
+  } else if (resp.status === 401) {
+    throw new Error("Authentication failed");
+  } else if (resp.status === 403) {
+    throw new Error(
+      "Access denied — insufficient privileges to perform this operation",
+    );
+  } else {
+    let detail = "Server error: " + resp.status;
+    try {
+      const body = await resp.text();
+      if (body) detail = "Server error: " + body;
+    } catch {
+      // ignore
+    }
+    throw new Error(detail);
+  }
+}
+
 /**
  * Fetches a sequence type based on a given identifier.
  *
@@ -436,4 +703,330 @@ export async function saveQuickCommentRecords(
     }
     return resp.json();
   });
+}
+
+export async function saveRobotAlertRecords(
+  records: RBRobotAlert[],
+): Promise<RBRobotAlertPostResult[]> {
+  return rbfetch("/api/robot-alert", {
+    method: "POST",
+    body: JSON.stringify(records),
+  }).then((resp) => {
+    if (!resp.ok) {
+      throw new Error("Failed to save robot alert records: " + resp.status);
+    }
+    return resp.json();
+  });
+}
+
+export async function getRobotAlertList(
+  tournamentId: string,
+): Promise<RBRobotAlert[]> {
+  const resp = await rbfetch("/api/robot-alert/" + tournamentId, {});
+  if (resp.ok) {
+    return resp.json() as unknown as RBRobotAlert[];
+  } else {
+    throw new Error(
+      "Failure fetching robot alerts for tournament " + tournamentId,
+    );
+  }
+}
+
+export async function getRobotAlertListBulk(
+  tournamentIds: string[],
+): Promise<RBRobotAlert[]> {
+  if (tournamentIds.length === 0) return [];
+  const resp = await rbfetch("/api/robot-alert/bulk", {
+    method: "POST",
+    body: JSON.stringify(tournamentIds),
+  });
+  if (resp.ok) {
+    return resp.json() as unknown as RBRobotAlert[];
+  } else {
+    throw new Error("Failure fetching bulk robot alerts");
+  }
+}
+
+/**
+ * A custom hook that fetches users who have requested a password reset.
+ * Only returns users with forgotPassword=true. Requires ADMIN/SUPERUSER role.
+ *
+ * @return {{ data: User[] | null, error: string | null, loading: boolean }}
+ */
+export function useForgotPasswordUsers() {
+  const [data, setData] = useState<User[] | null>(null);
+  const [error, setError] = useState<null | string>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    rbfetch("/api/users/forgot-password", {}).then((resp) => {
+      if (resp.ok) {
+        resp.json().then((data) => {
+          if (data) {
+            setData(data as User[]);
+          } else {
+            setError("Failed to fetch forgot-password users");
+          }
+          setLoading(false);
+        });
+      } else {
+        setError("Failed to fetch forgot-password users: " + resp.status);
+        setLoading(false);
+      }
+    });
+  }, []);
+
+  return { data, error, loading } as {
+    data: User[] | null;
+    error: string | null;
+    loading: boolean;
+  };
+}
+
+/**
+ * Flags a user's password as forgotten. This is an unauthenticated request
+ * that marks the account so an administrator can reset the password.
+ *
+ * @param {string} login - The login/username of the user who forgot their password.
+ * @throws {Error} If the server responds with a non-OK status.
+ */
+export async function getDrillSessions(
+  teamId?: number,
+  year?: number,
+  sequenceTypeId?: number,
+): Promise<string[]> {
+  const params = new URLSearchParams();
+  if (teamId) params.set("team", String(teamId));
+  if (year) params.set("year", String(year));
+  if (sequenceTypeId) params.set("sequenceTypeId", String(sequenceTypeId));
+  const query = params.toString();
+  const url = `/api/report/drill-sessions${query ? `?${query}` : ""}`;
+  const resp = await rbfetch(url, {});
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching drill sessions");
+  }
+}
+
+export async function getDrillReport(
+  teamId: number,
+  tournamentId: string,
+  frcYear: number,
+  sequenceTypeId?: number,
+): Promise<DrillReportResponse> {
+  let url = `/api/report/drill/${tournamentId}?team=${teamId}&year=${frcYear}`;
+  if (sequenceTypeId) {
+    url += `&sequenceTypeId=${sequenceTypeId}`;
+  }
+  const resp = await rbfetch(url, {});
+  if (resp.ok) {
+    return resp.json() as unknown as DrillReportResponse;
+  } else {
+    throw new Error("Failure fetching drill report");
+  }
+}
+
+export async function getSequenceTeams(): Promise<number[]> {
+  const resp = await rbfetch("/api/report/sequence/teams", {});
+  if (resp.ok) {
+    return resp.json() as unknown as number[];
+  } else {
+    throw new Error("Failure fetching sequence teams");
+  }
+}
+
+export async function getSequenceTournaments(
+  teamId: number,
+): Promise<string[]> {
+  const resp = await rbfetch(
+    `/api/report/sequence/tournaments?team=${teamId}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching sequence tournaments");
+  }
+}
+
+export async function getTournamentSequenceReport(
+  teamId: number,
+  tournamentId: string,
+  frcYear: number,
+  sequenceTypeId: number,
+): Promise<TournamentSequenceReportResponse> {
+  const resp = await rbfetch(
+    `/api/report/sequence/tournament/${tournamentId}?team=${teamId}&year=${frcYear}&sequenceTypeId=${sequenceTypeId}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as TournamentSequenceReportResponse;
+  } else {
+    throw new Error("Failure fetching tournament sequence report");
+  }
+}
+
+export async function getMegaReportTournaments(): Promise<string[]> {
+  const resp = await rbfetch("/api/report/mega/tournaments", {});
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching mega report tournaments");
+  }
+}
+
+export async function getMegaReportTeams(
+  tournamentId: string,
+): Promise<number[]> {
+  const resp = await rbfetch(`/api/report/mega/teams/${tournamentId}`, {});
+  if (resp.ok) {
+    return resp.json() as unknown as number[];
+  } else {
+    throw new Error("Failure fetching mega report teams");
+  }
+}
+
+export async function getMegaReport(
+  tournamentId: string,
+  teamId: number,
+  frcYear: number,
+  sequenceTypeId?: number,
+): Promise<MegaReportResponse> {
+  let url = `/api/report/mega/${tournamentId}?team=${teamId}&year=${frcYear}`;
+  if (sequenceTypeId) url += `&sequenceTypeId=${sequenceTypeId}`;
+  const resp = await rbfetch(url, {});
+  if (resp.ok) {
+    return resp.json() as unknown as MegaReportResponse;
+  } else {
+    throw new Error("Failure fetching mega report");
+  }
+}
+
+export async function getTeamSummaryTeams(): Promise<number[]> {
+  const resp = await rbfetch("/api/report/team/teams", {});
+  if (resp.ok) {
+    return resp.json() as unknown as number[];
+  } else {
+    throw new Error("Failure fetching team summary teams");
+  }
+}
+
+export async function getTeamSummaryReport(
+  teamId: number,
+): Promise<TeamSummaryReportResponse> {
+  const resp = await rbfetch(`/api/report/team/${teamId}`, {});
+  if (resp.ok) {
+    return resp.json() as unknown as TeamSummaryReportResponse;
+  } else {
+    throw new Error("Failure fetching team summary report");
+  }
+}
+
+export async function getCustomTournamentStats(
+  teamId: number,
+): Promise<CustomTournamentStatsResponse> {
+  const resp = await rbfetch(`/api/report/custom-stats?team=${teamId}`, {});
+  if (resp.ok) {
+    return resp.json() as unknown as CustomTournamentStatsResponse;
+  } else {
+    throw new Error("Failure fetching custom tournament stats");
+  }
+}
+
+export async function getChronoReport(
+  tournamentId: string,
+  teamId: number,
+  frcYear: number,
+  sequenceTypeId?: number,
+): Promise<ChronoReportResponse> {
+  let url = `/api/report/chrono/${tournamentId}?team=${teamId}&year=${frcYear}`;
+  if (sequenceTypeId) url += `&sequenceTypeId=${sequenceTypeId}`;
+  const resp = await rbfetch(url, {});
+  if (resp.ok) {
+    return resp.json() as unknown as ChronoReportResponse;
+  } else {
+    throw new Error("Failure fetching chronological event report");
+  }
+}
+
+export async function getTeamSchedule(
+  tournamentId: string,
+): Promise<TeamScheduleResponse> {
+  const resp = await rbfetch(
+    "/api/schedule/team-schedule/" + tournamentId,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as TeamScheduleResponse;
+  } else {
+    throw new Error("Failure fetching team schedule for " + tournamentId);
+  }
+}
+
+/**
+ * Fetches active team tournaments directly from the API (no auth required).
+ */
+export async function getActiveTeamTournaments(): Promise<RBTournament[]> {
+  const resp = await fetch(
+    import.meta.env.VITE_API_HOST + "/api/tournament/active-team",
+    { mode: "cors" },
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as RBTournament[];
+  } else {
+    throw new Error("Failure fetching active team tournaments");
+  }
+}
+
+/**
+ * Fetches team schedule directly from the API (no auth required).
+ */
+export async function getTeamSchedulePublic(
+  tournamentId: string,
+): Promise<TeamScheduleResponse> {
+  const resp = await fetch(
+    import.meta.env.VITE_API_HOST +
+      "/api/schedule/team-schedule/" +
+      tournamentId,
+    { mode: "cors" },
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as TeamScheduleResponse;
+  } else {
+    throw new Error("Failure fetching team schedule for " + tournamentId);
+  }
+}
+
+/**
+ * Fetches the Nexus queue status for a tournament.
+ * Returns null on 204 (no data) or any error — never throws.
+ */
+export async function getNexusQueueStatus(
+  tournamentId: string,
+): Promise<NexusQueueStatus | null> {
+  try {
+    const resp = await rbfetch(
+      "/api/nexus/queue-status/" + tournamentId,
+      {},
+    );
+    if (resp.ok) {
+      return resp.json() as unknown as NexusQueueStatus;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function forgotPassword(login: string): Promise<void> {
+  const resp = await fetch(
+    import.meta.env.VITE_API_HOST +
+      "/api/users/forgot-password?login=" +
+      encodeURIComponent(login),
+    { method: "POST", mode: "cors" },
+  );
+  if (!resp.ok) {
+    throw new Error("Failed to flag forgotten password: " + resp.status);
+  }
 }

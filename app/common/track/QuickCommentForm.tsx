@@ -1,10 +1,14 @@
 import { useState } from "react";
 import { recordComment } from "~/common/storage/track.ts";
+import type { TrackScreenProps } from "~/routes/track/track-home-page";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
-function QuickCommentForm() {
+function QuickCommentForm({}: TrackScreenProps) {
+  const { goBack } = useTrackNav();
   const [team, setTeam] = useState(-1);
   const [comment, setComment] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
+
   async function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
     if (comment !== "") {
@@ -15,52 +19,65 @@ function QuickCommentForm() {
     }
   }
 
-  const Success = () => {
-    return (
-      <section>
-        <h2>Quick Comment</h2>
-        <p>Comment recorded successfully!</p>
-        <button onClick={(e) => setSubmitted(false)}>Add Another</button>
-      </section>
-    );
-  };
-
   const disabled = team === -1 || comment === "";
 
   if (submitted) {
-    return <Success />;
+    return (
+      <main className="track">
+        <section>
+          <h2>Quick Comment</h2>
+          <p>Comment recorded successfully!</p>
+          <div className="form-actions">
+            <button onClick={() => setSubmitted(false)}>Add Another</button>
+            <button type="button" className="secondary" onClick={goBack}>
+              Back to Track Home
+            </button>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   return (
-    <section>
+    <main className="track">
       <h2>Quick Comment</h2>
       <p>
-        todo: fixme: Raw, unformatted, non-accessible comment form (i.e.
-        prototype).
+        Record a quick comment about a team. Start by entering their team
+        number.
       </p>
       <form>
-        <div>
-          Team:{" "}
+        <div className="form-field">
+          <label htmlFor="quick-comment-team">Team</label>
           <input
+            id="quick-comment-team"
             type="number"
             name="team"
-            value={team}
-            onChange={(e) => setTeam(e.target.value as unknown as number)}
+            placeholder="e.g. 1310"
+            value={team === -1 ? "" : team}
+            onChange={(e) =>
+              setTeam(e.target.value === "" ? -1 : Number(e.target.value))
+            }
           />
         </div>
-
-        <div>
-          Comment:
+        <div className="form-field">
+          <label htmlFor="quick-comment-comment">Comment</label>
           <textarea
+            id="quick-comment-comment"
+            placeholder="What did you observe?"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
         </div>
-        <button disabled={disabled} onClick={handleSubmit}>
-          Record Comment
-        </button>
+        <div className="form-actions">
+          <button disabled={disabled} onClick={handleSubmit}>
+            Record Comment
+          </button>
+          <button type="button" className="secondary" onClick={goBack}>
+            Back to Track Home
+          </button>
+        </div>
       </form>
-    </section>
+    </main>
   );
 }
 
