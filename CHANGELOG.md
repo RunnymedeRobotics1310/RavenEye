@@ -1,3 +1,10 @@
+## [3.21.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.0...v3.21.1) (2026-03-14)
+
+
+### Bug Fixes
+
+* add nexus ket to docker compose environment variables ([#216](https://github.com/RunnymedeRobotics1310/RavenEye/issues/216)) ([7ae2f00](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7ae2f00be4738d5f71cdb7cf7624db5218510d93))
+
 # [3.21.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.20.0...v3.21.0) (2026-03-14)
 
 
