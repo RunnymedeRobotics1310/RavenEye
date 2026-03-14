@@ -30,3 +30,20 @@ export interface TeamSummaryReportResponse {
   success: boolean;
   reason: string | null;
 }
+
+export interface EventTypeStat {
+  eventType: string;
+  eventTypeName: string;
+  averageAmount: number;
+}
+
+export interface CustomTournamentStats {
+  tournamentId: string;
+  stats: EventTypeStat[];
+}
+
+export interface CustomTournamentStatsResponse {
+  stats: CustomTournamentStats[] | null;
+  success: boolean;
+  reason: string | null;
+}

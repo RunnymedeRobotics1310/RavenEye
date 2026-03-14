@@ -8,9 +8,10 @@ import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
+import type { CustomTournamentStats } from "~/types/TeamSummaryReport.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 11;
+const DB_VERSION = 12;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -25,6 +26,7 @@ const NEW_ALERT_STORE = "robotAlertsNew";
 const SYNC_ALERT_STORE = "robotAlertsSynced";
 const ROBOT_ALERTS_STORE = "robotAlerts";
 const TEAM_TOURNAMENT_IDS_STORE = "teamTournamentIds";
+const CUSTOM_STATS_CACHE_STORE = "customStatsCache";
 
 export class Repository {
   private db: IDBDatabase | null = null;
@@ -84,6 +86,9 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(TEAM_TOURNAMENT_IDS_STORE)) {
           db.createObjectStore(TEAM_TOURNAMENT_IDS_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(CUSTOM_STATS_CACHE_STORE)) {
+          db.createObjectStore(CUSTOM_STATS_CACHE_STORE, { keyPath: "key" });
         }
       };
     });
@@ -537,6 +542,60 @@ export class Repository {
 
       request.onsuccess = () => resolve(request.result as string[]);
       request.onerror = () => reject(request.error);
+    });
+  }
+
+  async putCustomStatsCache(
+    teamId: number,
+    stats: CustomTournamentStats[],
+  ): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [CUSTOM_STATS_CACHE_STORE],
+        "readwrite",
+      );
+      const store = transaction.objectStore(CUSTOM_STATS_CACHE_STORE);
+      store.put({ key: teamId, stats, cachedAt: Date.now() });
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getCustomStatsCache(
+    teamId: number,
+  ): Promise<{ stats: CustomTournamentStats[]; cachedAt: number } | null> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [CUSTOM_STATS_CACHE_STORE],
+        "readonly",
+      );
+      const store = transaction.objectStore(CUSTOM_STATS_CACHE_STORE);
+      const request = store.get(teamId);
+      request.onsuccess = () => {
+        const result = request.result;
+        if (!result) {
+          resolve(null);
+          return;
+        }
+        resolve({ stats: result.stats, cachedAt: result.cachedAt });
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async clearCustomStatsCache(teamId: number): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [CUSTOM_STATS_CACHE_STORE],
+        "readwrite",
+      );
+      const store = transaction.objectStore(CUSTOM_STATS_CACHE_STORE);
+      store.delete(teamId);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
     });
   }
 }
