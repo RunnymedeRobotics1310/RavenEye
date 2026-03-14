@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { authenticate, useLoginStatus } from "~/common/storage/rbauth.ts";
+import { forgotPassword } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 function LoginForm() {
   const [formName, setFormName] = useState("");
@@ -9,7 +10,11 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [forgotMsg, setForgotMsg] = useState<string | null>(null);
+  const [forgotError, setForgotError] = useState<string | null>(null);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   function handleLoginClick() {
     setLoading(true);
@@ -19,9 +24,31 @@ function LoginForm() {
         setSuccess(true);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((ex: any) => {
+        console.log("Login failed", ex);
         setLoading(false);
         setSuccess(false);
+      });
+  }
+
+  function handleForgotPassword() {
+    if (formName === "") {
+      setForgotError("Please enter your username first.");
+      return;
+    }
+    setForgotError(null);
+    setForgotMsg(null);
+    setForgotLoading(true);
+    forgotPassword(formName)
+      .then(() => {
+        setForgotMsg(
+          "Your password has been flagged for reset. An administrator will reset your password and share it with you via Teams, email, or voice.",
+        );
+        setForgotLoading(false);
+      })
+      .catch((err: any) => {
+        setForgotError("Failed to flag password for reset: " + err.message);
+        setForgotLoading(false);
       });
   }
 
@@ -42,68 +69,66 @@ function LoginForm() {
     );
   }
 
+  useEffect(() => {
+    if (success) {
+      if (location.pathname === "/login") {
+        // Redirect to the page they were trying to reach, or home
+        const params = new URLSearchParams(location.search);
+        navigate(params.get("redirect") || "/", { replace: true });
+      } else {
+        // Inline login form (RequireLogin/RequireRole) — refresh to re-check auth
+        navigate(0);
+      }
+    }
+  }, [success, navigate, location]);
+
   if (!submitted) {
     return (
-      <div>
+      <div className="login-card">
         <h3>Login</h3>
         <form>
-          <table className={"tools"}>
-            <tbody>
-              <tr>
-                <td>
-                  <label>
-                    <input
-                      className={"center"}
-                      type={"text"}
-                      id={"name"}
-                      autoComplete="username"
-                      placeholder={formName == "" ? "Name" : formName}
-                      onChange={(e) => {
-                        setFormName(e.target.value);
-                      }}
-                    />
-                  </label>
-                </td>
-                <td>Please enter your username.</td>
-              </tr>
-              <tr>
-                <td>
-                  <label>
-                    <input
-                      className={"center"}
-                      type={"password"}
-                      id={"password"}
-                      autoComplete={"current-password"}
-                      placeholder={"Password"}
-                      onChange={(e) => {
-                        setFormPassword(e.target.value);
-                      }}
-                    />
-                  </label>
-                </td>
-                <td>
-                  Enter the password that you received from the strategy lead.
-                  Do not share your password.
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  <button
-                    disabled={formName == "" || formPassword == ""}
-                    onClick={() => {
-                      handleLoginClick();
-                    }}
-                  >
-                    Log in
-                  </button>
-                </td>
-                <td>
-                  Log in. You need to be connected to the internet to log in.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div className="form-field">
+            <label htmlFor="name">Username</label>
+            <input
+              id="name"
+              type="text"
+              autoComplete="username"
+              placeholder="Name"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+            />
+          </div>
+          <div className="form-field">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Password"
+              value={formPassword}
+              onChange={(e) => setFormPassword(e.target.value)}
+            />
+          </div>
+          <div className="form-actions">
+            <button
+              disabled={formName === "" || formPassword === ""}
+              onClick={() => handleLoginClick()}
+            >
+              Log in
+            </button>
+            <button
+              type="button"
+              className="secondary"
+              disabled={forgotLoading}
+              onClick={handleForgotPassword}
+            >
+              Forgot Password
+            </button>
+          </div>
         </form>
+        {forgotLoading && <Spinner />}
+        {forgotMsg && <p>{forgotMsg}</p>}
+        {forgotError && <p className={"errorMessage"}>{forgotError}</p>}
       </div>
     );
   }
@@ -120,6 +145,6 @@ function LoginForm() {
     return <LoginFailed />;
   }
 
-  navigate(0); // refresh
+  return <Spinner />;
 }
 export default LoginForm;

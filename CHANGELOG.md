@@ -1,3 +1,354 @@
+## [3.21.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.0...v3.21.1) (2026-03-14)
+
+
+### Bug Fixes
+
+* add nexus ket to docker compose environment variables ([#216](https://github.com/RunnymedeRobotics1310/RavenEye/issues/216)) ([7ae2f00](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7ae2f00be4738d5f71cdb7cf7624db5218510d93))
+
+# [3.21.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.20.0...v3.21.0) (2026-03-14)
+
+
+### Features
+
+* add custom tournament sequence stats to team summary report ([3be1ace](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3be1acea2b7eeb9c887247ce7cf6c647cb203d25))
+
+# [3.20.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.19.0...v3.20.0) (2026-03-13)
+
+
+### Features
+
+* add Nexus API integration for match queueing notifications ([b8e1d81](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b8e1d81e44e50e8f0a62fb87f3906e57baa00da9))
+
+# [3.19.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.18.0...v3.19.0) (2026-03-13)
+
+
+### Features
+
+* responsive team schedule for portrait phones ([55ed964](https://github.com/RunnymedeRobotics1310/RavenEye/commit/55ed964d527891a38cd6a4b6e1806de10635c7a4))
+
+# [3.18.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.17.0...v3.18.0) (2026-03-13)
+
+
+### Features
+
+* make team schedule page public and add ranking strength display ([ea06b6a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ea06b6a139a40a472f5d74e5bed8a3d408fe5e2f))
+
+# [3.17.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.16.0...v3.17.0) (2026-03-13)
+
+
+### Features
+
+* highlight own team row in rankings table ([002e1d4](https://github.com/RunnymedeRobotics1310/RavenEye/commit/002e1d429709af5309c065085c8587ae724820c6))
+
+# [3.16.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.15.1...v3.16.0) (2026-03-13)
+
+
+### Features
+
+* display rankings table and rank info on schedule page ([b75c9dd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b75c9dd8acd5d9c81b6c0d9a0c35a24fa61a830e))
+
+## [3.15.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.15.0...v3.15.1) (2026-03-13)
+
+
+### Bug Fixes
+
+* fix null errors on sequence report ([ed3e3d2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ed3e3d20edc5b2646b84e674452fa4601597ac67))
+
+# [3.15.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.14.0...v3.15.0) (2026-03-13)
+
+
+### Features
+
+* Add support for disabling items. ([863ffeb](https://github.com/RunnymedeRobotics1310/RavenEye/commit/863ffeb9377fea875cb632f5d95f3630cb9f8e01))
+* Schedule display ([82e820f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/82e820ffafc0c5a463505ab26386dd266494691b))
+
+# [3.14.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.10...v3.14.0) (2026-03-13)
+
+
+### Features
+
+* Add support for disabling items. ([#207](https://github.com/RunnymedeRobotics1310/RavenEye/issues/207)) ([a8f7244](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a8f724487ab6e27e689f33474284f9365d1fdb38))
+
+## [3.13.10](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.9...v3.13.10) (2026-03-12)
+
+
+### Bug Fixes
+
+* Add area selection in sequence report selection, and show note in reports ([45b3d64](https://github.com/RunnymedeRobotics1310/RavenEye/commit/45b3d64d043f3d0f0f164870f0d78d891e983050))
+* Add comments and alerts to summary report ([433a347](https://github.com/RunnymedeRobotics1310/RavenEye/commit/433a3478c87657a7cbdec78eca3ff5e95d8223d2))
+* Don't show sequences if no data is present ([3d4e978](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3d4e9785a3abe0fd1090632ceede02815b3d0266))
+* Render graphic for sequence buttons ([14aa427](https://github.com/RunnymedeRobotics1310/RavenEye/commit/14aa427b7b11f09c68e8304c1910b263dd00aada))
+
+## [3.13.9](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.8...v3.13.9) (2026-03-12)
+
+
+### Bug Fixes
+
+* Add chronological event report ([810a12a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/810a12a384302ce949fa96401fe94444dea910b0))
+
+## [3.13.8](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.7...v3.13.8) (2026-03-12)
+
+
+### Bug Fixes
+
+* No new window for megareport. ([6169434](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6169434f9b56826ef507f2e481f7cd6547f4cd5d))
+
+## [3.13.7](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.6...v3.13.7) (2026-03-12)
+
+
+### Bug Fixes
+
+* Deploy megareport ([e9d335f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e9d335f48dabd2df0408af329291b90b17778c23))
+
+## [3.13.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.5...v3.13.6) (2026-03-12)
+
+
+### Bug Fixes
+
+* Trigger release ([e3ba49e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e3ba49e2dac27e0178b2b18e38f1541acc240286))
+
+## [3.13.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.4...v3.13.5) (2026-03-12)
+
+
+### Bug Fixes
+
+* Generic sequence report ([#201](https://github.com/RunnymedeRobotics1310/RavenEye/issues/201)) ([ddb88c8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ddb88c89361865a3a7d77953e5b04201fbe3e1e7))
+
+## [3.13.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.3...v3.13.4) (2026-03-12)
+
+
+### Bug Fixes
+
+* Rework sync to only sync necessary data, use bulk operations, and handle errors more cleanly. ([#200](https://github.com/RunnymedeRobotics1310/RavenEye/issues/200)) ([101e90e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/101e90e0227e36b5166a9d1b5fb4c68ee895a6dd))
+
+## [3.13.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.2...v3.13.3) (2026-03-11)
+
+
+### Bug Fixes
+
+* Clean up tournament list rendering for mobile and update sync process to split manual and bulk due to very slow tournament sync ([#199](https://github.com/RunnymedeRobotics1310/RavenEye/issues/199)) ([f163dd9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f163dd917ac3c3b4a0ac074caffa0c015c9459ee))
+
+## [3.13.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.1...v3.13.2) (2026-03-11)
+
+
+### Bug Fixes
+
+* Fetch schedules on-demand without requiring a force-sync ([168466d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/168466d7a1d2a53672e7df7be80af49968c1b793))
+* Merge main into home-links ([6daf9b8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6daf9b895e7cbac8caad16d9c976b78523e4f91b))
+* Merge main into report-outline ([e61af42](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e61af4230e6c79bc45a443ba8f05443d4ba3fea7))
+* Refresh look and feel ([3bed957](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3bed957c1717eff02dc7409a7ad9f02ebd77b493))
+* Show all tournaments in comp scouting list to facilitate video-based tracking ([bb066e8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bb066e8998b98f81cf27b07e65f606978a5be58a))
+* Switch to release bot for better branch protection controls. ([1863df7](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1863df7cc5b21a1bea379cda6df1140f168a73c9))
+* Tidy up home page ([aa3e7ac](https://github.com/RunnymedeRobotics1310/RavenEye/commit/aa3e7ac174a1244e22acf5d9b73a238b574fd39b))
+
+## [3.13.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.13.0...v3.13.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* Proper drill sequence end event type ([1ee9dfe](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1ee9dfe4ebc5bdb609de8653779e64ef750ff379))
+
+# [3.13.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.12.0...v3.13.0) (2026-03-09)
+
+
+### Features
+
+* Drill sequence report ([#193](https://github.com/RunnymedeRobotics1310/RavenEye/issues/193)) ([30fc09f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/30fc09fb44cda48389f702706d56d8b5dad7ca2a))
+
+# [3.12.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.11.0...v3.12.0) (2026-03-06)
+
+
+### Bug Fixes
+
+* Switch to PAT for releases ([60f28ab](https://github.com/RunnymedeRobotics1310/RavenEye/commit/60f28abf68337dc115fe748688bb0e384a648464))
+* Switch to PAT for releases ([#189](https://github.com/RunnymedeRobotics1310/RavenEye/issues/189)) ([0529103](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0529103c35b3f9186ff2cf6a04cacb280659b999))
+* Sync status screen updates ([31c7597](https://github.com/RunnymedeRobotics1310/RavenEye/commit/31c75973620d54e40ef3a24e712888ee405e3cc4))
+* Trigger build ([c8495ac](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c8495acfdae6a75a080b746800990b143b465de0))
+
+
+### Features
+
+* Implement robot alerts ([9b4f567](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9b4f567dd0b41278570ced420328177c1dc8afc7))
+
+# [3.11.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.5...v3.11.0) (2026-03-01)
+
+
+### Features
+
+* Add CI workflow for pull request checks ([35fbd06](https://github.com/RunnymedeRobotics1310/RavenEye/commit/35fbd060c61894f3bcedcde02a080b619bf755cc))
+
+## [3.10.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.4...v3.10.5) (2026-03-01)
+
+
+### Bug Fixes
+
+* Bump Docker Node image from 22 to 24 ([cfee462](https://github.com/RunnymedeRobotics1310/RavenEye/commit/cfee4628fbcb750d4c90c092fbe4abd47a7d0f85))
+
+## [3.10.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.3...v3.10.4) (2026-03-01)
+
+
+### Bug Fixes
+
+* Update Dependencies ([f86f77a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f86f77a555e4a1b378dde187d3a364edc80b6328))
+
+## [3.10.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.2...v3.10.3) (2026-03-01)
+
+
+### Bug Fixes
+
+* invoke goBack() function instead of returning it. Add debug statements ([09434e9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/09434e90e004d52aa3fb81dd9dea69fabd397f97))
+* Proper enablement of sequence buttons ([18474b8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/18474b8f976ea86864f206eb81a427ef3e88e5a1))
+* Typecheck fixes ([5fe4805](https://github.com/RunnymedeRobotics1310/RavenEye/commit/5fe4805a30d93678e4618242e7e6251087928190))
+* Typecheck fixes ([dd3ed0d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/dd3ed0dc1a71df9865672005c8504db0e39f5b46))
+
+## [3.10.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.1...v3.10.2) (2026-02-22)
+
+
+### Bug Fixes
+
+* iOS bug re title graphic ([#180](https://github.com/RunnymedeRobotics1310/RavenEye/issues/180)) ([1f8607b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1f8607b5225e2476e46a84ce6c6aca9dd6538aa1))
+
+## [3.10.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.10.0...v3.10.1) (2026-02-22)
+
+
+### Bug Fixes
+
+* Score fuel formatting cleanup ([#179](https://github.com/RunnymedeRobotics1310/RavenEye/issues/179)) ([e534ed4](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e534ed4869f555de9db1c8df81dff982fc1b13a0))
+
+# [3.10.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.9.0...v3.10.0) (2026-02-21)
+
+
+### Features
+
+* configurable buttons by eventtype. ([#178](https://github.com/RunnymedeRobotics1310/RavenEye/issues/178)) ([f1747ec](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f1747ec7763f12df2587ab67564b2f946b453b9e))
+
+# [3.9.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.8.0...v3.9.0) (2026-02-21)
+
+
+### Features
+
+* Refresh token support ([#177](https://github.com/RunnymedeRobotics1310/RavenEye/issues/177)) ([1d47c09](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1d47c09902e4a421d18da9d960a2dcbaef32dcf1))
+
+# [3.8.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.2...v3.8.0) (2026-02-21)
+
+
+### Bug Fixes
+
+* Don't require login for design system page ([f9fd86b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f9fd86bf6e85b2d203c719f1455a240034afd020))
+* icon alignment ([0054f43](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0054f43ea6d7159a7c7e8b7d75b861e8bec66134))
+* Look and feel updates for light mode and mobile view ([c70c0ef](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c70c0ef1d43e2fcecf130a16ccd79ec4ad87d9b4))
+* merge conflict resolution ([df87106](https://github.com/RunnymedeRobotics1310/RavenEye/commit/df8710637608f33c723d91f600b66303e6deca4f))
+* Minor look and feel refinements for top nav ([606e6a3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/606e6a353a02b4208d20500f4b8a5cd96e390d50))
+
+
+### Features
+
+* admin menu ([dbada62](https://github.com/RunnymedeRobotics1310/RavenEye/commit/dbada62d920234b48639030e7e5882dc861573bf))
+* admin menu ([9355ecb](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9355ecb7268faf322305d65fd1798b308aef5989))
+
+## [3.7.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.1...v3.7.2) (2026-02-21)
+
+
+### Bug Fixes
+
+* Better formatting for sequencew type checkboxes ([1bda0ad](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1bda0ad9f5a58e5bf5412efe26d557fa597974c3))
+* don't allow _ in codes. ([172df1a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/172df1a8d4c2acd895b1a1d125741f89547bec6a))
+* Safe delete support ([71a6ba2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/71a6ba2ec38f59e20f385f11f8783a2fda0b4541))
+
+## [3.7.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.7.0...v3.7.1) (2026-02-20)
+
+
+### Bug Fixes
+
+* Remove unused styles ([6abaf39](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6abaf397b4d2016374137109e6e256f021fcf704))
+
+# [3.7.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.6.1...v3.7.0) (2026-02-20)
+
+
+### Features
+
+* Sync from server ([#169](https://github.com/RunnymedeRobotics1310/RavenEye/issues/169)) ([d5b488b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d5b488bfabf33aed4494da8e346cac0b4583645c))
+
+## [3.6.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.6.0...v3.6.1) (2026-02-19)
+
+
+### Bug Fixes
+
+* Design system renders sync colors ([f408f00](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f408f001c06a7ee95eba6c2df819ed58457697c3))
+* Look and feel fixes: ([bfae715](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bfae715b9c0515fc59fd2b5587db62eba36e0f7b))
+* Standardize form field usage ([be74067](https://github.com/RunnymedeRobotics1310/RavenEye/commit/be740677ff538a0a7e3d34c5042ec2830d2a79b6))
+
+# [3.6.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.5.0...v3.6.0) (2026-02-18)
+
+
+### Features
+
+* red ui ([81572fd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/81572fd19aa8b94a772af2f00a9971ab07b585b9))
+
+# [3.5.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.3...v3.5.0) (2026-02-17)
+
+
+### Bug Fixes
+
+* Remove debug component ([19c9a83](https://github.com/RunnymedeRobotics1310/RavenEye/commit/19c9a8396220e25c68954e94a111d893727faa57))
+* Restore reference data ([ae6c34a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ae6c34a3ac0a135591acd0b5c6d786bf069368a1))
+* Restore reference data ([fa5bcab](https://github.com/RunnymedeRobotics1310/RavenEye/commit/fa5bcab89519b87f04a049ce0827110c34dc417c))
+
+
+### Features
+
+* Better formatting of eventtype page ([bebebc0](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bebebc04a5594a73e0ab90b7fa11088d9e76865d))
+* Dynamic wiring for event recording ([cbefb13](https://github.com/RunnymedeRobotics1310/RavenEye/commit/cbefb13bcde08629e3aad4a6cbb75e1c2746324a))
+* Force-sync data with FRC ([c292d8e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c292d8e91374d0fbd2e785a42e90335645670ba2))
+* Show note and quantity on event type if necessary ([128f0a2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/128f0a25b8c9ea14248f20534cd688a119c9ea02))
+* Wire track UI's session selection to back-end functions. Track UI framework. ([a31e614](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a31e614d72a2cc70ad43400415cb04f00be3ab13))
+
+## [3.4.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.2...v3.4.3) (2026-02-14)
+
+
+### Bug Fixes
+
+* Allow 2ms grace time on JWT ([4df6b2d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4df6b2d662625bf118ae5cdc94382885e4f89c33))
+
+## [3.4.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.1...v3.4.2) (2026-02-14)
+
+
+### Bug Fixes
+
+* Update build system ([d4bbdaf](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d4bbdaf843369e615076d5ed967dec143e60bd29))
+
+## [3.4.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.4.0...v3.4.1) (2026-02-14)
+
+
+### Bug Fixes
+
+* Temporarily disable arm builds ([48f51ec](https://github.com/RunnymedeRobotics1310/RavenEye/commit/48f51ec82bdb5b0a6273468a327f855abe670959))
+
+# [3.4.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.8...v3.4.0) (2026-02-14)
+
+
+### Bug Fixes
+
+* Disabled users look a little more disabled ([b623aa9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b623aa9ff2d1f42871269bc114c83c8443eca20d))
+* Hide admin menu from non-admins ([ed7dcfa](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ed7dcfa320d6ed2b847321e968dd60a4ce02959e))
+* Send password up to server as passwordHash field ([e596fdd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e596fdd042ca38625b1286c817a39399e466cc30))
+* Sort users disabled first ([d07d886](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d07d886ed175b3b492281f4fad75f43a55d5a638))
+* Switch to test containers ([b829f8b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b829f8b5907350698b9f1d4e8d383159972cfcbb))
+
+
+### Features
+
+* Admin users shown forgot password banner ([2c254bb](https://github.com/RunnymedeRobotics1310/RavenEye/commit/2c254bb43a709781d8e1e53c3ad05da331ed70f8))
+* Event type UI ([dd5dc1c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/dd5dc1ca3c52f12125464a11d70304fac0423aa9))
+* Forgot password and edit my profile and change my password ([9bf968d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9bf968d8768db56e9cba8437c7c9f28c7c65048b))
+
+## [3.3.8](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.7...v3.3.8) (2026-02-02)
+
+
+### Bug Fixes
+
+* RB version as header not body value ([#158](https://github.com/RunnymedeRobotics1310/RavenEye/issues/158)) ([9e43c90](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9e43c905cb4afd1988348f237d7c8bc63e9c5cdb))
+
 ## [3.3.7](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.3.6...v3.3.7) (2026-02-02)
 
 

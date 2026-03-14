@@ -13,9 +13,7 @@ const Success = () => {
     <section>
       <h1>Success!</h1>
       <p>Strategy area updated successfully.</p>
-      <NavLink to={"/admin/strategy-areas"}>
-        <button>Return to Strategy Areas</button>
-      </NavLink>
+      <NavLink to={"/admin/strategy-areas"} className="btn">Return to Strategy Areas</NavLink>
     </section>
   );
 };
@@ -51,20 +49,24 @@ const EditPage = () => {
 
   return (
     <main>
-      <h1>Manage Strategy Areas</h1>
-      <p>Edit strategy area.</p>
-      <RequireLogin>
-        {error && <p className={"errorMessage"}>{msg}</p>}
-        {success ? (
-          <Success />
-        ) : (
-          <StrategyAreaForm
-            submitFunction={handleSubmit}
-            disabled={success}
-            initialData={data || undefined}
-          />
-        )}
-      </RequireLogin>
+      <div className="page-header">
+        <h1>Edit Strategy Area</h1>
+      </div>
+      <section className="card">
+        <RequireLogin>
+          {error && <p className={"errorMessage"}>{msg}</p>}
+          {success ? (
+            <Success />
+          ) : (
+            <StrategyAreaForm
+              submitFunction={handleSubmit}
+              disabled={success}
+              initialData={data || undefined}
+              isEdit
+            />
+          )}
+        </RequireLogin>
+      </section>
     </main>
   );
 };

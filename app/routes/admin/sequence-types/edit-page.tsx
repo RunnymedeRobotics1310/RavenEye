@@ -13,9 +13,7 @@ const Success = () => {
     <section>
       <h1>Success!</h1>
       <p>Sequence type updated successfully.</p>
-      <NavLink to={"/admin/sequence-types"}>
-        <button>Return to Sequence Types</button>
-      </NavLink>
+      <NavLink to={"/admin/sequence-types"} className="btn">Return to Sequence Types</NavLink>
     </section>
   );
 };
@@ -51,20 +49,24 @@ const EditPage = () => {
 
   return (
     <main>
-      <h1>Manage Sequence Types</h1>
-      <p>Edit sequence type.</p>
-      <RequireLogin>
-        {error && <p className={"errorMessage"}>{msg}</p>}
-        {success ? (
-          <Success />
-        ) : (
-          <SequenceTypeForm
-            submitFunction={handleSubmit}
-            disabled={success}
-            initialData={data || undefined}
-          />
-        )}
-      </RequireLogin>
+      <div className="page-header">
+        <h1>Edit Sequence Type</h1>
+      </div>
+      <section className="card">
+        <RequireLogin>
+          {error && <p className={"errorMessage"}>{msg}</p>}
+          {success ? (
+            <Success />
+          ) : (
+            <SequenceTypeForm
+              submitFunction={handleSubmit}
+              disabled={success}
+              initialData={data || undefined}
+              isEdit
+            />
+          )}
+        </RequireLogin>
+      </section>
     </main>
   );
 };

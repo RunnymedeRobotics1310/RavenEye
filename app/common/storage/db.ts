@@ -7,9 +7,11 @@ import type { SequenceType } from "~/types/SequenceType.ts";
 import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
 import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
+import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
+import type { CustomTournamentStats } from "~/types/TeamSummaryReport.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 9;
+const DB_VERSION = 12;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -20,6 +22,11 @@ const NEW_COMMENT_STORE = "commentsNew";
 const SYNC_COMMENT_STORE = "commentsSynced";
 const NEW_EVENT_STORE = "eventsNew";
 const SYNC_EVENT_STORE = "eventsSynced";
+const NEW_ALERT_STORE = "robotAlertsNew";
+const SYNC_ALERT_STORE = "robotAlertsSynced";
+const ROBOT_ALERTS_STORE = "robotAlerts";
+const TEAM_TOURNAMENT_IDS_STORE = "teamTournamentIds";
+const CUSTOM_STATS_CACHE_STORE = "customStatsCache";
 
 export class Repository {
   private db: IDBDatabase | null = null;
@@ -67,6 +74,21 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(SYNC_EVENT_STORE)) {
           db.createObjectStore(SYNC_EVENT_STORE, { keyPath: "id" });
+        }
+        if (!db.objectStoreNames.contains(NEW_ALERT_STORE)) {
+          db.createObjectStore(NEW_ALERT_STORE);
+        }
+        if (!db.objectStoreNames.contains(SYNC_ALERT_STORE)) {
+          db.createObjectStore(SYNC_ALERT_STORE, { keyPath: "id" });
+        }
+        if (!db.objectStoreNames.contains(ROBOT_ALERTS_STORE)) {
+          db.createObjectStore(ROBOT_ALERTS_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(TEAM_TOURNAMENT_IDS_STORE)) {
+          db.createObjectStore(TEAM_TOURNAMENT_IDS_STORE, { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains(CUSTOM_STATS_CACHE_STORE)) {
+          db.createObjectStore(CUSTOM_STATS_CACHE_STORE, { keyPath: "key" });
         }
       };
     });
@@ -267,6 +289,19 @@ export class Repository {
     });
   }
 
+  async mergeMatchSchedule(list: RBScheduleRecord[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([MATCH_SCHEDULE_STORE], "readwrite");
+      const store = transaction.objectStore(MATCH_SCHEDULE_STORE);
+      for (const item of list) {
+        store.put(item);
+      }
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
   async getMatchSchedule(): Promise<RBScheduleRecord[]> {
     const db = await this.getDB();
     return new Promise((resolve, reject) => {
@@ -382,6 +417,187 @@ export class Repository {
       transaction.onerror = () => reject(transaction.error);
     });
   }
+
+  async captureRobotAlert(item: RBRobotAlert): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([NEW_ALERT_STORE], "readwrite");
+
+      const store = transaction.objectStore(NEW_ALERT_STORE);
+      const storeRequest = store.add(item, unsyncAlertKey(item));
+      storeRequest.onsuccess = () => resolve();
+      storeRequest.onerror = () => reject(storeRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getUnsynchronizedRobotAlerts(): Promise<RBRobotAlert[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([NEW_ALERT_STORE], "readonly");
+      const store = transaction.objectStore(NEW_ALERT_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result as RBRobotAlert[]);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async markRobotAlertSynchronized(items: RBRobotAlert[]): Promise<void> {
+    const db = await this.getDB();
+
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [NEW_ALERT_STORE, SYNC_ALERT_STORE],
+        "readwrite",
+      );
+      const newStore = transaction.objectStore(NEW_ALERT_STORE);
+      const syncStore = transaction.objectStore(SYNC_ALERT_STORE);
+
+      items.forEach((item) => {
+        const key = unsyncAlertKey(item);
+        const newStoreReq = newStore.get(key);
+        newStoreReq.onsuccess = () => {
+          syncStore.add(item);
+          newStore.delete(key);
+        };
+      });
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async putRobotAlerts(list: RBRobotAlert[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([ROBOT_ALERTS_STORE], "readwrite");
+      const store = transaction.objectStore(ROBOT_ALERTS_STORE);
+
+      const clearRequest = store.clear();
+      clearRequest.onsuccess = () => {
+        for (const item of list) {
+          store.add(item);
+        }
+        resolve();
+      };
+      clearRequest.onerror = () => reject(clearRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getRobotAlerts(): Promise<RBRobotAlert[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([ROBOT_ALERTS_STORE], "readonly");
+      const store = transaction.objectStore(ROBOT_ALERTS_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result as RBRobotAlert[]);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getRobotAlertsForTeam(teamNumber: number): Promise<RBRobotAlert[]> {
+    const all = await this.getRobotAlerts();
+    return all.filter((a) => a.teamNumber === teamNumber);
+  }
+
+  async putTeamTournamentIds(ids: string[]): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [TEAM_TOURNAMENT_IDS_STORE],
+        "readwrite",
+      );
+      const store = transaction.objectStore(TEAM_TOURNAMENT_IDS_STORE);
+
+      const clearRequest = store.clear();
+      clearRequest.onsuccess = () => {
+        for (const id of ids) {
+          store.add(id);
+        }
+        resolve();
+      };
+      clearRequest.onerror = () => reject(clearRequest.error);
+
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getTeamTournamentIds(): Promise<string[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [TEAM_TOURNAMENT_IDS_STORE],
+        "readonly",
+      );
+      const store = transaction.objectStore(TEAM_TOURNAMENT_IDS_STORE);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result as string[]);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async putCustomStatsCache(
+    teamId: number,
+    stats: CustomTournamentStats[],
+  ): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [CUSTOM_STATS_CACHE_STORE],
+        "readwrite",
+      );
+      const store = transaction.objectStore(CUSTOM_STATS_CACHE_STORE);
+      store.put({ key: teamId, stats, cachedAt: Date.now() });
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
+
+  async getCustomStatsCache(
+    teamId: number,
+  ): Promise<{ stats: CustomTournamentStats[]; cachedAt: number } | null> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [CUSTOM_STATS_CACHE_STORE],
+        "readonly",
+      );
+      const store = transaction.objectStore(CUSTOM_STATS_CACHE_STORE);
+      const request = store.get(teamId);
+      request.onsuccess = () => {
+        const result = request.result;
+        if (!result) {
+          resolve(null);
+          return;
+        }
+        resolve({ stats: result.stats, cachedAt: result.cachedAt });
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async clearCustomStatsCache(teamId: number): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction(
+        [CUSTOM_STATS_CACHE_STORE],
+        "readwrite",
+      );
+      const store = transaction.objectStore(CUSTOM_STATS_CACHE_STORE);
+      store.delete(teamId);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+  }
 }
 
 /**
@@ -413,6 +629,16 @@ const unsyncEventKey = (item: RBEventLogRecord): string => {
     "-" +
     item.eventType
   );
+};
+
+const unsyncAlertKey = (item: RBRobotAlert): string => {
+  // re-parse date
+  if (item.createdAt instanceof Date) {
+    /* empty */
+  } else {
+    item.createdAt = new Date(item.createdAt);
+  }
+  return "user(" + item.userId + ")-" + item.createdAt.getTime();
 };
 
 export const repository = new Repository();

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { doManualSync, useOverallSyncStatus } from "~/common/sync/sync.ts";
+import { doManualSync, useManualSyncStatus } from "~/common/sync/sync.ts";
 
 const SyncNowButton = () => {
-  const status = useOverallSyncStatus();
+  const status = useManualSyncStatus();
   const [manualSyncing, setManualSyncing] = useState(false);
   const isSyncing = status.inProgress || status.loading || manualSyncing;
 

@@ -14,9 +14,8 @@ import "~/assets/css/typography.css";
 import "~/assets/css/colors.css";
 import "~/assets/css/layout.css";
 import "~/assets/css/components.css";
-import "~/assets/css/report.css";
 import logoUrl from "~/assets/images/logo.png";
-import titleUrl from "~/assets/images/title.png";
+import Title from "~/common/icons/Title.tsx";
 import Sync from "~/common/icons/Sync.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import {
@@ -25,10 +24,15 @@ import {
 } from "~/common/sync/sync.ts";
 import { useEffect, useState } from "react";
 import { getRavenBrainVersion } from "~/common/storage/rbauth.ts";
+import Banners from "~/common/banners/Banners.tsx";
+import AdminMenu from "~/common/AdminMenu.tsx";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preload", href: logoUrl, as: "image" },
-  { rel: "preload", href: titleUrl, as: "image" },
+  { rel: "icon", type: "image/png", sizes: "32x32", href: "/icons/favicon-32x32.png" },
+  { rel: "icon", type: "image/png", sizes: "16x16", href: "/icons/favicon-16x16.png" },
+  { rel: "apple-touch-icon", sizes: "180x180", href: "/icons/apple-touch-icon.png" },
+  { rel: "manifest", href: "/site.webmanifest" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -54,6 +58,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#c0392b" />
         <title>1310 Raven Eye</title>
         <Meta />
         <Links />
@@ -67,9 +72,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </NavLink>
             </div>
             <div id="title">
-              <img src={titleUrl} alt="1310 Raven Eye" />
+              <Title />
             </div>
-            <div className={"sync-button"}>
+            <div className="header-actions">
+              <AdminMenu />
               <NavLink to={"/sync"} className={"button"}>
                 <Sync status={syncStatus} />
               </NavLink>
@@ -97,7 +103,12 @@ export default function App() {
   useEffect(() => {
     initializeSyncSchedule();
   }, []);
-  return <Outlet />;
+  return (
+    <>
+      <Banners />
+      <Outlet />
+    </>
+  );
 }
 
 export function HydrateFallback() {
