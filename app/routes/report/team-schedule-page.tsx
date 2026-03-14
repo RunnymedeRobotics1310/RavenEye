@@ -498,19 +498,19 @@ const TeamScheduleContent = () => {
         </p>
       </div>
       <QueueBanner queueStatus={queueStatus} />
-      <ScheduleTable
-        label="Practice"
-        level="Practice"
-        matches={schedule.matches}
-        ownerTeam={schedule.teamNumber}
-        showAll={showAll}
-        hasData={schedule.hasPractice}
-        tournamentId={schedule.tournamentId}
-        onFetchSchedule={handleFetchSchedule}
-        fetching={fetching}
-        countdown={countdown}
-        loggedIn={loggedIn}
-      />
+      {/*<ScheduleTable*/}
+      {/*  label="Practice"*/}
+      {/*  level="Practice"*/}
+      {/*  matches={schedule.matches}*/}
+      {/*  ownerTeam={schedule.teamNumber}*/}
+      {/*  showAll={showAll}*/}
+      {/*  hasData={schedule.hasPractice}*/}
+      {/*  tournamentId={schedule.tournamentId}*/}
+      {/*  onFetchSchedule={handleFetchSchedule}*/}
+      {/*  fetching={fetching}*/}
+      {/*  countdown={countdown}*/}
+      {/*  loggedIn={loggedIn}*/}
+      {/*/>*/}
       <ScheduleTable
         label="Qualification"
         level="Qualification"
