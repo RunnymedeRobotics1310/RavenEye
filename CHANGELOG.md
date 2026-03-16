@@ -1,3 +1,10 @@
+## [3.21.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.1...v3.21.2) (2026-03-16)
+
+
+### Bug Fixes
+
+* increase login JWT NBF grace period from 2ms to 250ms ([0ce076b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0ce076bf1b18916eb29ad9c53f0bc720ee604022))
+
 ## [3.21.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.0...v3.21.1) (2026-03-14)
 
 
