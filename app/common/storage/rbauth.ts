@@ -100,8 +100,8 @@ function validateRavenBrainJwt(jwt: RBJWT): void {
   if (jwt.exp < currentTime) {
     throw new Error("JWT has expired. Current time: " + currentTime+" exp: "+ jwt.exp);
   }
-  if (jwt.nbf - 2 > currentTime) {
-    // allow 2ms grace period
+  if (jwt.nbf - 250 > currentTime) {
+    // allow 250ms grace period
     throw new Error("JWT is not yet valid. Current time: "+currentTime+" nbf: "+ jwt.nbf);
   }
 }
