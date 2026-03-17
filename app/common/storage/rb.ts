@@ -27,6 +27,7 @@ import type {
 } from "~/types/TeamSummaryReport.ts";
 import type { TeamScheduleResponse } from "~/types/TeamSchedule.ts";
 import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
+import type { PmvaReportResponse } from "~/types/PmvaReport.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -1016,6 +1017,31 @@ export async function getNexusQueueStatus(
     return null;
   } catch {
     return null;
+  }
+}
+
+// ── PMVA Report ─────────────────────────────────────────────────────────
+
+export async function getPmvaReportTournaments(): Promise<string[]> {
+  const resp = await rbfetch("/api/report/pmva/tournaments", {});
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching PMVA report tournaments");
+  }
+}
+
+export async function getPmvaReport(
+  tournamentId: string,
+): Promise<PmvaReportResponse> {
+  const resp = await rbfetch(
+    `/api/report/pmva/${tournamentId}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as PmvaReportResponse;
+  } else {
+    throw new Error("Failure fetching PMVA report");
   }
 }
 

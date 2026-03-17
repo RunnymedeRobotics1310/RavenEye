@@ -28,6 +28,11 @@ const ReportHomePage = () => {
                     </NavLink>
                   </li>
                   <li>
+                    <NavLink to="/report/pmva" className="btn-secondary">
+                      PMVA Report
+                    </NavLink>
+                  </li>
+                  <li>
                     <NavLink to="/report/mega" className="btn-secondary">
                       Mega Report
                     </NavLink>
