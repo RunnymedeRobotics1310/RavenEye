@@ -1,3 +1,10 @@
+# [3.22.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.2...v3.22.0) (2026-03-17)
+
+
+### Features
+
+* Post-Match Video Analysis Report ([993e599](https://github.com/RunnymedeRobotics1310/RavenEye/commit/993e599cf2a0a621d7181d06f3f35d2597a14175))
+
 ## [3.21.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.1...v3.21.2) (2026-03-16)
 
 
