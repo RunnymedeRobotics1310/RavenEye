@@ -10,6 +10,7 @@ import Spinner from "~/common/Spinner.tsx";
 import type { TournamentSequenceReport } from "~/types/SequenceReport.ts";
 import type {
   PmvaReport,
+  MatchComment,
   GeneralSection,
   HopperSection,
   LoadingStats,
@@ -59,7 +60,7 @@ function CommentAccordion({
   comments,
 }: {
   title: string;
-  comments: string[];
+  comments: MatchComment[];
 }) {
   if (!comments || comments.length === 0) return null;
   return (
@@ -68,11 +69,22 @@ function CommentAccordion({
         {title} ({comments.length})
       </summary>
       <div className="pmva-accordion-body">
-        <ul>
-          {comments.map((c, i) => (
-            <li key={i}>{c}</li>
-          ))}
-        </ul>
+        <table className="pmva-stats-table">
+          <thead>
+            <tr>
+              <th>Match</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comments.map((c, i) => (
+              <tr key={i}>
+                <td>{matchLabel(c.level, c.matchId)}</td>
+                <td>{c.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </details>
   );

@@ -1309,13 +1309,9 @@ main.mega-report {
     padding: var(--space-sm) var(--space-base);
 }
 
-.pmva-accordion .pmva-accordion-body ul {
-    margin: 0;
-    padding-left: 1.2rem;
-}
-
-.pmva-accordion .pmva-accordion-body li {
-    margin-bottom: var(--space-xs);
+.pmva-accordion .pmva-stats-table td:last-child,
+.pmva-accordion .pmva-stats-table th:last-child {
+    text-align: left;
 }
 
 .pmva-legend {

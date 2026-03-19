@@ -6,16 +6,22 @@ export interface PmvaReport {
   swi: SwiSection;
 }
 
+export interface MatchComment {
+  matchId: number;
+  level: string;
+  note: string;
+}
+
 export interface GeneralSection {
   breakdownCount: number;
   noBreakdownCount: number;
   breakdownPercentage: number;
   breakdownMatches: MatchBreakdown[];
-  breakdownNotes: string[];
-  intakeComments: string[];
-  shooterComments: string[];
-  generalComments: string[];
-  suggestions: string[];
+  breakdownNotes: MatchComment[];
+  intakeComments: MatchComment[];
+  shooterComments: MatchComment[];
+  generalComments: MatchComment[];
+  suggestions: MatchComment[];
 }
 
 export interface MatchBreakdown {
@@ -39,7 +45,7 @@ export interface LoadingStats {
   maxFillCount: number;
   hopperFilledPercentage: number;
   avgLoadRating: number;
-  loadComments: string[];
+  loadComments: MatchComment[];
 }
 
 export interface ShootingStats {
@@ -52,8 +58,8 @@ export interface ShootingStats {
   shotsPerSecond: number;
   scoresPerSecond: number;
   avgStuckPerSequence: number;
-  stuckComments: string[];
-  generalComments: string[];
+  stuckComments: MatchComment[];
+  generalComments: MatchComment[];
 }
 
 export interface MatchShootingData {
@@ -72,9 +78,9 @@ export interface SwiSection {
   avgStuckPerSequence: number;
   avgDurationSeconds: number;
   perMatch: MatchSwiData[];
-  stuckComments: string[];
-  generalComments: string[];
-  positionComments: string[];
+  stuckComments: MatchComment[];
+  generalComments: MatchComment[];
+  positionComments: MatchComment[];
 }
 
 export interface MatchSwiData {
