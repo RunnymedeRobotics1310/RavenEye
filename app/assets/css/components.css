@@ -978,7 +978,8 @@ main.mega-report {
     background-color: var(--color-bg-secondary);
 }
 
-.mega-report-header code {
+.mega-report-header code,
+.mega-report-table td code {
     display: block;
     font-size: 0.7rem;
     font-weight: 400;
@@ -996,6 +997,11 @@ main.mega-report {
     transform: rotate(180deg);
     white-space: nowrap;
     font-size: 0.65rem;
+    text-align: left;
+}
+
+.chrono-table td:last-child,
+.chrono-table th:last-child {
     text-align: left;
 }
 
@@ -1325,7 +1331,18 @@ main.mega-report {
 
 /* Star rating */
 .pmva-stars {
-    color: var(--color-accent);
-    font-size: 1.1rem;
-    letter-spacing: 0.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1rem;
+}
+
+.pmva-stars .icon {
+    display: inline-flex;
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.pmva-stars .icon svg {
+    width: 100%;
+    height: 100%;
 }
