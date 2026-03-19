@@ -584,6 +584,9 @@ export interface ConfigSyncRequest {
   sourceUrl: string;
   sourceUser: string;
   sourcePassword: string;
+  clearTournaments: boolean;
+  syncScoutingData: boolean;
+  clearExistingScoutingData: boolean;
 }
 
 export interface ConfigSyncResult {
@@ -591,9 +594,10 @@ export interface ConfigSyncResult {
   eventTypes: number;
   sequenceTypes: number;
   sequenceEvents: number;
-  tournaments: number;
-  schedules: number;
-  teamTournaments: number;
+  events: number;
+  comments: number;
+  alerts: number;
+  tournamentsCleared: boolean;
   message: string;
 }
 
@@ -616,7 +620,21 @@ export async function configSync(
     let detail = "Server error: " + resp.status;
     try {
       const body = await resp.text();
-      if (body) detail = "Server error: " + body;
+      if (body) {
+        try {
+          const json = JSON.parse(body);
+          const embedded = json?._embedded?.errors;
+          if (embedded?.length > 0) {
+            const msg = embedded[0].message ?? "";
+            // Strip "Internal Server Error: " prefix from Micronaut wrapper
+            detail = msg.replace(/^Internal Server Error:\s*/, "");
+          } else if (json?.message) {
+            detail = json.message;
+          }
+        } catch {
+          detail = body;
+        }
+      }
     } catch {
       // ignore
     }

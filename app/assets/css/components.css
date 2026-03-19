@@ -350,6 +350,12 @@ section.usersAdmin {
     max-width: 24rem;
 }
 
+.form-hint {
+    margin: 0.2rem 0 0 1.4rem;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+}
+
 .form-actions {
     display: flex;
     gap: var(--space-sm);
