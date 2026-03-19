@@ -978,18 +978,30 @@ main.mega-report {
     background-color: var(--color-bg-secondary);
 }
 
+.mega-report-header code {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 400;
+    opacity: 0.7;
+}
+
 .mega-report-compact thead th:not(:first-child) {
     vertical-align: bottom;
     padding: 0.2rem 0;
     width: 1.2em;
 }
 
-.mega-report-compact thead th:not(:first-child) span {
-    display: block;
+.mega-report-compact thead th:not(:first-child) .mega-report-header {
     writing-mode: vertical-rl;
     transform: rotate(180deg);
     white-space: nowrap;
     font-size: 0.65rem;
+    text-align: left;
+}
+
+.mega-report-count {
+    font-size: 0.7em;
+    opacity: 0.6;
 }
 
 /*

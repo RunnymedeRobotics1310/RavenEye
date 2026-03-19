@@ -8,6 +8,7 @@ export interface MegaReportRow {
   matchId: number;
   level: string;
   values: Record<string, number>;
+  counts: Record<string, number>;
 }
 
 export interface MegaReport {

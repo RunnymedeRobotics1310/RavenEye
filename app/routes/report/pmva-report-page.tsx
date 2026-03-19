@@ -46,7 +46,7 @@ function CommentAccordion({
   title: string;
   comments: string[];
 }) {
-  if (comments.length === 0) return null;
+  if (!comments || comments.length === 0) return null;
   return (
     <details className="pmva-accordion">
       <summary>
@@ -335,7 +335,7 @@ function SwiCard({
   swi: SwiSection;
   matchCount: number;
 }) {
-  const hasData = swi.perMatch.length > 0;
+  const hasData = swi.perMatch?.length > 0;
   return (
     <section className="card">
       <h2>Shoot While Intaking (SWI)</h2>
@@ -457,7 +457,7 @@ const PmvaReportPage = () => {
               <ul className="nav-list">
                 <li>
                   <NavLink
-                    to={`/report/mega/${tournamentId}`}
+                    to={`/report/mega/${tournamentId}/${report.teamNumber}`}
                     className="btn-secondary"
                   >
                     Mega Report

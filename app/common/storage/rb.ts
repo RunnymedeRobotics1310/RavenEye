@@ -642,6 +642,13 @@ export async function configSync(
   }
 }
 
+export async function clearReportCache(): Promise<void> {
+  const resp = await rbfetch("/api/report/cache/clear", {});
+  if (!resp.ok) {
+    throw new Error("Failed to clear report cache: " + resp.status);
+  }
+}
+
 /**
  * Fetches a sequence type based on a given identifier.
  *

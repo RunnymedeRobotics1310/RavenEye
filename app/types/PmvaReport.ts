@@ -1,4 +1,5 @@
 export interface PmvaReport {
+  teamNumber: number;
   matchCount: number;
   general: GeneralSection;
   hopper: HopperSection;

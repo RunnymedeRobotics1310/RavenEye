@@ -13,6 +13,18 @@ function formatValue(value: number, isQuantity: boolean): string {
   return String(value);
 }
 
+const LEVEL_ORDER: Record<string, number> = {
+  Practice: 0,
+  Qualification: 1,
+  Playoff: 2,
+};
+
+const LEVEL_PREFIX: Record<string, string> = {
+  Practice: "P",
+  Qualification: "Q",
+  Playoff: "E",
+};
+
 const MegaReportPage = () => {
   const { tournamentId, teamId } = useParams<{
     tournamentId: string;
@@ -21,7 +33,7 @@ const MegaReportPage = () => {
   const [report, setReport] = useState<MegaReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [compact, setCompact] = useState(false);
+  const [compact, setCompact] = useState(true);
 
   useEffect(() => {
     if (!tournamentId || !teamId) return;
@@ -77,27 +89,40 @@ const MegaReportPage = () => {
                   <tr>
                     <th>Match</th>
                     {report.columns.map((col) => (
-                      <th key={col.eventtype} title={col.eventtype}>
-                        <span>{col.name}</span>
+                      <th key={col.eventtype}>
+                        <div className="mega-report-header">
+                          <span>{col.name}</span>
+                          <code>{col.eventtype}</code>
+                        </div>
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {report.rows.map((row) => (
+                  {[...report.rows]
+                    .sort((a, b) => (LEVEL_ORDER[a.level] ?? 99) - (LEVEL_ORDER[b.level] ?? 99) || a.matchId - b.matchId)
+                    .map((row) => (
                     <tr key={`${row.level}-${row.matchId}`}>
                       <td>
-                        {row.level === "Qualification" ? "Q" : "P"}
+                        {LEVEL_PREFIX[row.level] ?? row.level.charAt(0)}
                         {row.matchId}
                       </td>
-                      {report.columns.map((col) => (
-                        <td key={col.eventtype}>
-                          {formatValue(
-                            row.values[col.eventtype] ?? 0,
-                            col.isQuantity,
-                          )}
-                        </td>
-                      ))}
+                      {report.columns.map((col) => {
+                        const value = row.values[col.eventtype] ?? 0;
+                        const count = row.counts?.[col.eventtype] ?? 0;
+                        return (
+                          <td key={col.eventtype}>
+                            {col.isQuantity ? (
+                              value === 0 ? "—" : <>
+                                {formatValue(value, true)}
+                                <span className="mega-report-count"> ({count})</span>
+                              </>
+                            ) : (
+                              formatValue(value, false)
+                            )}
+                          </td>
+                        );
+                      })}
                     </tr>
                   ))}
                 </tbody>
