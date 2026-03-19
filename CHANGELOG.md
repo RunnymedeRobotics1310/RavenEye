@@ -1,3 +1,10 @@
+## [3.23.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.4...v3.23.5) (2026-03-19)
+
+
+### Bug Fixes
+
+* move clear cache button to sync and reports pages ([d439548](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d4395480143c5c8a653f3f395fde509c2c747cb6))
+
 ## [3.23.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.3...v3.23.4) (2026-03-19)
 
 
