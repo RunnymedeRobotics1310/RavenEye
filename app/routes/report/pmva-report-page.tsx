@@ -19,6 +19,16 @@ import type {
   MatchSwiData,
 } from "~/types/PmvaReport.ts";
 
+const LEVEL_PREFIX: Record<string, string> = {
+  Practice: "P",
+  Qualification: "Q",
+  Playoff: "E",
+};
+
+function matchLabel(level: string, matchId: number): string {
+  return (LEVEL_PREFIX[level] ?? level.charAt(0)) + matchId;
+}
+
 function safeDivide(num: number, den: number): number {
   return den === 0 ? 0 : num / den;
 }
@@ -92,8 +102,7 @@ function BarChart({
           >
             <span className="pmva-bar-value">{fmt(d.value)}</span>
             <span className="pmva-bar-label">
-              {d.level === "Qualification" ? "Q" : "P"}
-              {d.matchId}
+              {matchLabel(d.level, d.matchId)}
             </span>
           </div>
         ))}
@@ -102,8 +111,7 @@ function BarChart({
   );
 }
 
-function GeneralCard({ general }: { general: GeneralSection }) {
-  const total = general.breakdownCount + general.noBreakdownCount;
+function GeneralCard({ general, matchCount }: { general: GeneralSection; matchCount: number }) {
   return (
     <section className="card">
       <h2>Summary &amp; General</h2>
@@ -113,7 +121,7 @@ function GeneralCard({ general }: { general: GeneralSection }) {
           <tr>
             <td>Matches with Robot Breakdown</td>
             <td>
-              {general.breakdownCount} / {total} ({formatPct(general.breakdownPercentage)})
+              {general.breakdownCount} / {matchCount} ({formatPct(general.breakdownPercentage)})
             </td>
           </tr>
         </tbody>
@@ -133,10 +141,7 @@ function GeneralCard({ general }: { general: GeneralSection }) {
             <tbody>
               {general.breakdownMatches.map((m) => (
                 <tr key={`${m.level}-${m.matchId}`}>
-                  <td>
-                    {m.level === "Qualification" ? "Q" : "P"}
-                    {m.matchId}
-                  </td>
+                  <td>{matchLabel(m.level, m.matchId)}</td>
                   <td>{m.note}</td>
                   <td>
                     {m.videoLink ? (
@@ -576,9 +581,10 @@ const PmvaReportPage = () => {
           <>
             <p>
               <strong>Matches analyzed:</strong> {report.matchCount}
+              <span className="pmva-legend"> (P = Practice, Q = Qualification, E = Elimination)</span>
             </p>
 
-            <GeneralCard general={report.general} />
+            <GeneralCard general={report.general} matchCount={report.matchCount} />
             <HopperCard hopper={report.hopper} matchCount={report.matchCount} />
             <SwiCard swi={report.swi} matchCount={report.matchCount} />
 

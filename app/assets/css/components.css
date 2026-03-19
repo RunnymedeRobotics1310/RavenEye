@@ -1318,6 +1318,11 @@ main.mega-report {
     margin-bottom: var(--space-xs);
 }
 
+.pmva-legend {
+    font-size: 0.8rem;
+    color: var(--color-text-tertiary);
+}
+
 .pmva-seq-summary {
     margin-bottom: var(--space-lg);
 }
