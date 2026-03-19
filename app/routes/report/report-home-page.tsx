@@ -29,7 +29,7 @@ const ReportHomePage = () => {
                   </li>
                   <li>
                     <NavLink to="/report/pmva" className="btn-secondary">
-                      PMVA Report
+                      Post-Match Video Analysis (PMVA) Report
                     </NavLink>
                   </li>
                   <li>

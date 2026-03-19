@@ -47,7 +47,7 @@ const PmvaReportTournamentsPage = () => {
   return (
     <main>
       <div className="page-header">
-        <h1>PMVA Report</h1>
+        <h1>Post-Match Video Analysis Report</h1>
         <p>
           <NavLink to="/report">&larr; Back to Reports</NavLink>
         </p>
