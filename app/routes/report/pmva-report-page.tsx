@@ -244,7 +244,7 @@ function ShootingSection({
               </tr>
               <tr>
                 <td>Average Hit Rate</td>
-                <td>{formatPct(stats.avgHitRate * 100)}</td>
+                <td>{formatPct(stats.avgHitRate)}</td>
               </tr>
               <tr>
                 <td>Average Unload Time</td>
@@ -288,7 +288,7 @@ function ShootingSection({
               level: m.level,
               value: m.hitRate,
             }))}
-            valueFormatter={(v) => formatPct(v * 100)}
+            valueFormatter={(v) => formatPct(v)}
           />
 
           <CommentAccordion title="Stuck Comments" comments={stats.stuckComments} />
@@ -414,7 +414,7 @@ function SwiCard({
               level: m.level,
               value: m.hitRate,
             }))}
-            valueFormatter={(v) => formatPct(v * 100)}
+            valueFormatter={(v) => formatPct(v)}
           />
         </>
       )}
