@@ -1,3 +1,12 @@
+## [3.23.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.0...v3.23.1) (2026-03-19)
+
+
+### Bug Fixes
+
+* PMVA report fixes ([e12c733](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e12c733141667b52ba5767c9cd40d4cd971f3085))
+* PMVA report title ([f87832f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f87832f30e1ba7ed4828f33e9c63c7933ba204ec))
+* Rework related report titles ([77e02ab](https://github.com/RunnymedeRobotics1310/RavenEye/commit/77e02ab2af7821c3be1717490ea2f9e927e1e283))
+
 # [3.23.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.22.0...v3.23.0) (2026-03-19)
 
 
