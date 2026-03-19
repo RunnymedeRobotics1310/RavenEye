@@ -1,3 +1,10 @@
+# [3.23.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.22.0...v3.23.0) (2026-03-19)
+
+
+### Features
+
+* Sync scouting data from source ([0a86a79](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0a86a79dc3bd5498b099c5a0f0fa4ab58d695ad5))
+
 # [3.22.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.2...v3.22.0) (2026-03-17)
 
 
