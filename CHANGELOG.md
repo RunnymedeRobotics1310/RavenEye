@@ -1,3 +1,10 @@
+## [3.23.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.3...v3.23.4) (2026-03-19)
+
+
+### Bug Fixes
+
+* improve report match labels, chrono filter, and star rating SVG ([bc447fa](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bc447faa5620835d4490fe61704a3b05e66442ec))
+
 ## [3.23.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.2...v3.23.3) (2026-03-19)
 
 
