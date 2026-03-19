@@ -14,6 +14,7 @@ import SyncDashboardData from "~/common/sync/SyncDashboardData.tsx";
 import SyncNowButton from "~/common/sync/SyncNowButton.tsx";
 import SyncServerDataButton from "~/common/sync/SyncServerDataButton.tsx";
 import FrcSyncButton from "~/common/sync/FrcSyncButton.tsx";
+import ClearReportCacheButton from "~/common/ClearReportCacheButton.tsx";
 import { useRole } from "~/common/storage/rbauth.ts";
 
 export function meta({}: Route.MetaArgs) {
@@ -26,7 +27,7 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 const SyncPage = () => {
-  const { isSuperuser } = useRole();
+  const { isAdmin, isSuperuser } = useRole();
 
   return (
     <main>
@@ -66,6 +67,16 @@ const SyncPage = () => {
               the updated data from RavenBrain.
             </p>
             <FrcSyncButton />
+          </section>
+        )}
+        {(isAdmin || isSuperuser) && (
+          <section className="card">
+            <h2>Report Cache</h2>
+            <p>
+              Clear the server-side report cache to force reports to regenerate
+              with the latest data.
+            </p>
+            <ClearReportCacheButton />
           </section>
         )}
       </RequireLogin>
