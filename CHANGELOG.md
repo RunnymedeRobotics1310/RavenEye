@@ -1,3 +1,10 @@
+## [3.23.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.5...v3.23.6) (2026-03-19)
+
+
+### Bug Fixes
+
+* schedule tournament picker fallback and left-justify report comments ([c0ca37c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c0ca37c35760784d244faf61a6c948de6f000616))
+
 ## [3.23.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.4...v3.23.5) (2026-03-19)
 
 
