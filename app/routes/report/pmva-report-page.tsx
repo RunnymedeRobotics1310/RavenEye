@@ -7,6 +7,7 @@ import {
   getTournamentSequenceReport,
 } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
+import Star from "~/common/icons/Star.tsx";
 import type { TournamentSequenceReport } from "~/types/SequenceReport.ts";
 import type {
   PmvaReport,
@@ -44,13 +45,15 @@ function formatNum(value: number): string {
 
 function StarRating({ value }: { value: number }) {
   const full = Math.floor(value);
-  const half = value - full >= 0.5;
-  const empty = 5 - full - (half ? 1 : 0);
+  const empty = 5 - full;
   return (
     <span className="pmva-stars" title={value.toFixed(1) + " / 5"}>
-      {"★".repeat(full)}
-      {half ? "½" : ""}
-      {"☆".repeat(empty)}
+      {Array.from({ length: full }, (_, i) => (
+        <Star key={`f${i}`} filled={true} />
+      ))}
+      {Array.from({ length: empty }, (_, i) => (
+        <Star key={`e${i}`} filled={false} />
+      ))}
     </span>
   );
 }
@@ -449,6 +452,14 @@ function RelatedReports({
             className="btn-secondary"
           >
             Mega Report
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to={`/report/chrono/${tournamentId}/${teamNumber}`}
+            className="btn-secondary"
+          >
+            Chronological Events
           </NavLink>
         </li>
       </ul>
