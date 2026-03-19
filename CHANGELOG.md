@@ -1,3 +1,11 @@
+## [3.23.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.1...v3.23.2) (2026-03-19)
+
+
+### Bug Fixes
+
+* Event totals ([abf6a13](https://github.com/RunnymedeRobotics1310/RavenEye/commit/abf6a1323d42deee807c1e0491b31b55111bac0c))
+* Further report cleanup ([42ad5f0](https://github.com/RunnymedeRobotics1310/RavenEye/commit/42ad5f0c381492564dd2876056bef9fe8e77ab28))
+
 ## [3.23.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.0...v3.23.1) (2026-03-19)
 
 
