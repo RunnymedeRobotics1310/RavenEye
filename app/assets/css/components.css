@@ -1318,6 +1318,10 @@ main.mega-report {
     margin-bottom: var(--space-xs);
 }
 
+.pmva-seq-summary {
+    margin-bottom: var(--space-lg);
+}
+
 /* Star rating */
 .pmva-stars {
     color: var(--color-accent);
