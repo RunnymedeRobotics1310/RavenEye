@@ -1,3 +1,10 @@
+## [3.23.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.2...v3.23.3) (2026-03-19)
+
+
+### Bug Fixes
+
+* normalize PMVA percentages and add match context to comments ([a153ebd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a153ebde42b6b93762f64ad083dc6881af681b6f))
+
 ## [3.23.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.1...v3.23.2) (2026-03-19)
 
 
