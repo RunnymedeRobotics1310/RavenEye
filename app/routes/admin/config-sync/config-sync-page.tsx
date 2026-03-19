@@ -3,7 +3,6 @@ import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import { useRole } from "~/common/storage/rbauth.ts";
 import {
-  clearReportCache,
   configSync,
   type ConfigSyncRequest,
   type ConfigSyncResult,
@@ -259,32 +258,6 @@ const ConfigSyncForm = () => {
   );
 };
 
-const ClearCacheButton = () => {
-  const [status, setStatus] = useState<string | null>(null);
-
-  const handleClear = async () => {
-    setStatus(null);
-    try {
-      await clearReportCache();
-      setStatus("Report cache cleared.");
-    } catch (err: any) {
-      setStatus(err.message || "Failed to clear cache");
-    }
-  };
-
-  return (
-    <section>
-      <h2>Report Cache</h2>
-      <div className="form-actions">
-        <button type="button" onClick={handleClear}>
-          Clear Report Cache
-        </button>
-      </div>
-      {status && <p>{status}</p>}
-    </section>
-  );
-};
-
 const ConfigSyncPage = () => {
   return (
     <main>
@@ -298,7 +271,6 @@ const ConfigSyncPage = () => {
       </div>
       <RequireLogin>
         <ConfigSyncForm />
-        <ClearCacheButton />
       </RequireLogin>
     </main>
   );
