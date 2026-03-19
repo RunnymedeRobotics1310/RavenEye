@@ -5,6 +5,7 @@ import {
   getActiveTeamTournaments,
   getNexusQueueStatus,
   getTeamSchedulePublic,
+  getTournamentList,
 } from "~/common/storage/rb.ts";
 import { useLoginStatus } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
@@ -198,7 +199,7 @@ function ScheduleTable({
   ownerRs?: number | null;
   loggedIn: boolean;
 }) {
-  const allLevelMatches = matches.filter((m) => m.level === level);
+  const allLevelMatches = (matches ?? []).filter((m) => m.level === level);
   const levelMatches = showAll
     ? allLevelMatches
     : allLevelMatches.filter((m) => getAllianceForTeam(m, ownerTeam) !== null);
@@ -328,6 +329,49 @@ function RankingsTable({
   );
 }
 
+function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void }) {
+  const [tournaments, setTournaments] = useState<RBTournament[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getTournamentList()
+      .then((all) => {
+        const now = Date.now();
+        const currentYear = new Date().getFullYear();
+        setTournaments(
+          all.filter((t) => t.season === currentYear && new Date(t.startTime).getTime() <= now),
+        );
+      })
+      .catch((e) => console.error("Failed to load tournaments", e))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <main>
+      <div className="page-header schedule-header">
+        <h1>Team Schedule</h1>
+        <p><NavLink to="/">&larr; Home</NavLink></p>
+      </div>
+      <p>No active tournament found. Select a tournament to view its schedule.</p>
+      {loading && <Spinner />}
+      {!loading && tournaments.length === 0 && <p>No tournaments available.</p>}
+      {!loading && tournaments.length > 0 && (
+        <section className="card">
+          <ul className="nav-list">
+            {tournaments.map((t) => (
+              <li key={t.id}>
+                <button className="btn-secondary" onClick={() => onSelect(t)}>
+                  {t.name}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </main>
+  );
+}
+
 const TeamScheduleContent = () => {
   const { list: activeTournaments, loading: tournamentsLoading } =
     useActiveTeamTournamentsFromApi();
@@ -342,11 +386,13 @@ const TeamScheduleContent = () => {
   const [countdown, setCountdown] = useState(60);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [manualTournament, setManualTournament] = useState<RBTournament | null>(null);
 
   const selectedTournament =
-    activeTournaments.length > 0 ? activeTournaments[0] : null;
+    activeTournaments.length > 0 ? activeTournaments[0] : manualTournament;
   const selectedTournamentId = selectedTournament?.id ?? null;
   const matches = schedule?.matches ?? [];
+
   const hasScored = matches.some((m) => m.winningAlliance !== 0);
   const hasUnscored = matches.some((m) => m.winningAlliance === 0);
   const isActive = hasScored && hasUnscored;
@@ -433,15 +479,7 @@ const TeamScheduleContent = () => {
   }
 
   if (!selectedTournament) {
-    return (
-      <main>
-        <div className="page-header schedule-header">
-          <h1>{title}</h1>
-          <p><NavLink to="/">&larr; Home</NavLink></p>
-        </div>
-        <p>No active tournament found. Schedules are available during tournament weekends.</p>
-      </main>
-    );
+    return <TournamentPicker onSelect={(t) => setManualTournament(t)} />;
   }
 
   if ((loading || !schedule) && !schedule) {
