@@ -28,8 +28,9 @@ const ReportHomePage = () => {
                 <ul className="nav-list">
                   <li>
                     <NavLink to="/report/schedule" className="btn-secondary">
-                      Team Schedule
+                      Tournament Report
                     </NavLink>
+                    <span className="nav-note">formerly Team Schedule</span>
                   </li>
                   <li>
                     <NavLink to="/report/summary" className="btn-secondary">

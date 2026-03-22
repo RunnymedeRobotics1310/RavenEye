@@ -722,6 +722,12 @@ table tbody tr:nth-child(odd).forgot-password-row {
     margin-bottom: var(--space-sm);
 }
 
+.nav-note {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin-left: 0.5rem;
+}
+
 .tournament-row {
     display: flex;
     align-items: center;

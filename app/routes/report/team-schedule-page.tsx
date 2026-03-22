@@ -379,7 +379,7 @@ function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void })
   return (
     <main>
       <div className="page-header schedule-header">
-        <h1>Team Schedule</h1>
+        <h1>Tournament Report</h1>
         <p><NavLink to="/">&larr; Home</NavLink></p>
       </div>
       <p>No active tournament found. Select a tournament to view its schedule.</p>
@@ -525,7 +525,7 @@ const TeamScheduleContent = () => {
     : null;
   const ownerRp = ownerRankEntry?.rp ?? null;
   const ownerRs = ownerRankEntry?.rs ?? null;
-  const title = schedule?.tournamentName || "Team Schedule";
+  const title = schedule?.tournamentName || "Tournament Report";
 
   if (tournamentsLoading) {
     return (
