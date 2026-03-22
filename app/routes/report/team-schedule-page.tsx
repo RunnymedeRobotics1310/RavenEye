@@ -439,6 +439,8 @@ const TeamScheduleContent = () => {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [manualTournament, setManualTournament] = useState<RBTournament | null>(null);
+  const loggedInRef = useRef(loggedIn);
+  const showAllInitializedRef = useRef(showAllInitialized);
 
   const selectedTournament =
     activeTournaments.length > 0 ? activeTournaments[0] : manualTournament;
@@ -453,6 +455,9 @@ const TeamScheduleContent = () => {
     : REFRESH_INTERVAL_IDLE_MS;
   const countdownStart = refreshInterval / 1000;
 
+  useEffect(() => { loggedInRef.current = loggedIn; }, [loggedIn]);
+  useEffect(() => { showAllInitializedRef.current = showAllInitialized; }, [showAllInitialized]);
+
   const loadSchedule = useCallback(
     async (tournamentId: string, isRefresh: boolean) => {
       if (isRefresh) setRefreshing(true);
@@ -460,28 +465,30 @@ const TeamScheduleContent = () => {
         const data = await getTeamSchedulePublic(tournamentId);
         setSchedule(data);
         setError(null);
-        if (!showAllInitialized && (data.matches ?? []).length > 0) {
+        if (!showAllInitializedRef.current && (data.matches ?? []).length > 0) {
           const ownerInMatches = (data.matches ?? []).some(
             (m) => getAllianceForTeam(m, data.teamNumber) !== null,
           );
           setShowAll(!ownerInMatches);
           setShowAllInitialized(true);
+          showAllInitializedRef.current = true;
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load schedule");
       } finally {
         if (isRefresh) setRefreshing(false);
       }
-      if (loggedIn) {
+      if (loggedInRef.current) {
         getNexusQueueStatus(tournamentId).then(setQueueStatus);
       }
     },
-    [loggedIn, showAllInitialized],
+    [],
   );
 
   useEffect(() => {
     if (!selectedTournamentId) return;
     setShowAllInitialized(false);
+    showAllInitializedRef.current = false;
     setShowAll(true);
     setLoading(true);
     loadSchedule(selectedTournamentId, false).finally(() => setLoading(false));
@@ -501,6 +508,13 @@ const TeamScheduleContent = () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, [selectedTournamentId, loadSchedule, refreshInterval, countdownStart]);
+
+  // Fetch queue status promptly when login completes
+  useEffect(() => {
+    if (loggedIn && selectedTournamentId && schedule) {
+      getNexusQueueStatus(selectedTournamentId).then(setQueueStatus);
+    }
+  }, [loggedIn, selectedTournamentId]);
 
   const handleFetchSchedule = async () => {
     if (!selectedTournamentId) return;
@@ -612,19 +626,21 @@ const TeamScheduleContent = () => {
         </p>
       </div>
       <QueueBanner queueStatus={queueStatus} />
-      {/*<ScheduleTable*/}
-      {/*  label="Practice"*/}
-      {/*  level="Practice"*/}
-      {/*  matches={schedule.matches}*/}
-      {/*  ownerTeam={schedule.teamNumber}*/}
-      {/*  showAll={showAll}*/}
-      {/*  hasData={schedule.hasPractice}*/}
-      {/*  tournamentId={schedule.tournamentId}*/}
-      {/*  onFetchSchedule={handleFetchSchedule}*/}
-      {/*  fetching={fetching}*/}
-      {/*  countdown={countdown}*/}
-      {/*  loggedIn={loggedIn}*/}
-      {/*/>*/}
+      {!schedule.hasQualification && (
+        <ScheduleTable
+          label="Practice"
+          level="Practice"
+          matches={schedule.matches}
+          ownerTeam={schedule.teamNumber}
+          showAll={showAll}
+          hasData={schedule.hasPractice}
+          tournamentId={schedule.tournamentId}
+          onFetchSchedule={handleFetchSchedule}
+          fetching={fetching}
+          countdown={countdown}
+          loggedIn={loggedIn}
+        />
+      )}
       <ScheduleTable
         label="Qualification"
         level="Qualification"
@@ -658,6 +674,21 @@ const TeamScheduleContent = () => {
         rankings={schedule.rankings}
         ownerTeam={schedule.teamNumber}
       />
+      {schedule.hasQualification && schedule.hasPractice && (
+        <ScheduleTable
+          label="Practice"
+          level="Practice"
+          matches={schedule.matches}
+          ownerTeam={schedule.teamNumber}
+          showAll={showAll}
+          hasData={schedule.hasPractice}
+          tournamentId={schedule.tournamentId}
+          onFetchSchedule={handleFetchSchedule}
+          fetching={fetching}
+          countdown={countdown}
+          loggedIn={loggedIn}
+        />
+      )}
       {queueStatus && queueStatus.teamStatus && (
         <p style={{ textAlign: "center", fontSize: "0.75rem", marginTop: "1rem" }}>
           Queueing data from{" "}
