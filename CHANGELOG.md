@@ -1,3 +1,10 @@
+## [3.24.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.1...v3.24.2) (2026-03-22)
+
+
+### Bug Fixes
+
+* guard against empty/malformed schedule API responses ([5e09c74](https://github.com/RunnymedeRobotics1310/RavenEye/commit/5e09c74667fcf01c5f557ba607047eea39f77f49))
+
 ## [3.24.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.0...v3.24.1) (2026-03-22)
 
 
