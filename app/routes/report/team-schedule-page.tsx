@@ -465,21 +465,23 @@ const TeamScheduleContent = () => {
         const data = await getTeamSchedulePublic(tournamentId);
         setSchedule(data);
         setError(null);
+        const ownerInMatches = (data.matches ?? []).some(
+          (m) => getAllianceForTeam(m, data.teamNumber) !== null,
+        );
         if (!showAllInitializedRef.current && (data.matches ?? []).length > 0) {
-          const ownerInMatches = (data.matches ?? []).some(
-            (m) => getAllianceForTeam(m, data.teamNumber) !== null,
-          );
           setShowAll(!ownerInMatches);
           setShowAllInitialized(true);
           showAllInitializedRef.current = true;
+        }
+        if (loggedInRef.current && ownerInMatches) {
+          getNexusQueueStatus(tournamentId).then(setQueueStatus);
+        } else {
+          setQueueStatus(null);
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load schedule");
       } finally {
         if (isRefresh) setRefreshing(false);
-      }
-      if (loggedInRef.current) {
-        getNexusQueueStatus(tournamentId).then(setQueueStatus);
       }
     },
     [],
@@ -512,7 +514,12 @@ const TeamScheduleContent = () => {
   // Fetch queue status promptly when login completes
   useEffect(() => {
     if (loggedIn && selectedTournamentId && schedule) {
-      getNexusQueueStatus(selectedTournamentId).then(setQueueStatus);
+      const ownerInMatches = (schedule.matches ?? []).some(
+        (m) => getAllianceForTeam(m, schedule.teamNumber) !== null,
+      );
+      if (ownerInMatches) {
+        getNexusQueueStatus(selectedTournamentId).then(setQueueStatus);
+      }
     }
   }, [loggedIn, selectedTournamentId]);
 
