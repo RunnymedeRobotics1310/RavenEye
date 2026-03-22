@@ -1,3 +1,10 @@
+## [3.24.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.0...v3.24.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* guard against undefined matches in schedule response ([c77122c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c77122ca65fe02f6505a656d7d6c945e4fac11a3))
+
 # [3.24.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.6...v3.24.0) (2026-03-22)
 
 
