@@ -1,3 +1,10 @@
+## [3.25.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.1...v3.25.2) (2026-03-22)
+
+
+### Bug Fixes
+
+* skip queue status fetch when owner team is not in tournament ([75ef133](https://github.com/RunnymedeRobotics1310/RavenEye/commit/75ef1333779259be63dccb801a041fae7a53ad7f))
+
 ## [3.25.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.0...v3.25.1) (2026-03-22)
 
 
