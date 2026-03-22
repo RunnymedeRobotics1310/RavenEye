@@ -1011,26 +1011,28 @@ export async function getActiveTeamTournaments(): Promise<RBTournament[]> {
 export async function getTeamSchedulePublic(
   tournamentId: string,
 ): Promise<TeamScheduleResponse> {
-  const resp = await fetch(
-    import.meta.env.VITE_API_HOST +
-      "/api/schedule/team-schedule/" +
-      tournamentId,
-    { mode: "cors" },
-  );
-  if (resp.ok) {
-    return resp.json() as unknown as TeamScheduleResponse;
-  } else {
-    // Return an empty response so the UI can show a "loading" state
-    return {
-      tournamentId,
-      tournamentName: "Loading...",
-      teamNumber: 0,
-      hasPractice: false,
-      hasQualification: false,
-      hasPlayoff: false,
-      matches: [],
-      rankings: [],
-    };
+  const empty: TeamScheduleResponse = {
+    tournamentId,
+    tournamentName: "Loading...",
+    teamNumber: 0,
+    hasPractice: false,
+    hasQualification: false,
+    hasPlayoff: false,
+    matches: [],
+    rankings: [],
+  };
+  try {
+    const resp = await fetch(
+      import.meta.env.VITE_API_HOST +
+        "/api/schedule/team-schedule/" +
+        tournamentId,
+      { mode: "cors" },
+    );
+    if (!resp.ok) return empty;
+    const data = await resp.json() as unknown as TeamScheduleResponse;
+    return data ?? empty;
+  } catch {
+    return empty;
   }
 }
 
