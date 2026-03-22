@@ -99,8 +99,9 @@ const CompStart = ({}: TrackScreenProps) => {
         <div className="card">
           <h2>All {currentYear} Events</h2>
           {[...weekGroups.entries()].map(([weekNum, tournaments]) => {
-            const firstStart = new Date(tournaments[0].startTime);
-            const weekLabel = `Week ${weekNum} — ${formatDate(firstStart)}`;
+            const firstStart = tournaments[0].startTime;
+            const lastEnd = tournaments[tournaments.length - 1].endTime;
+            const weekLabel = `Week ${weekNum} — ${formatDate(firstStart)} – ${formatDate(lastEnd)}`;
             return (
               <details
                 key={weekNum}
