@@ -1,3 +1,10 @@
+# [3.25.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.2...v3.25.0) (2026-03-22)
+
+
+### Features
+
+* rename Team Schedule to Tournament Report ([2310cd8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/2310cd8400165c3f34e78bb81fc44282966b89a7))
+
 ## [3.24.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.1...v3.24.2) (2026-03-22)
 
 
