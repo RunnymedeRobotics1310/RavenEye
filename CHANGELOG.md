@@ -1,3 +1,10 @@
+# [3.24.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.6...v3.24.0) (2026-03-22)
+
+
+### Features
+
+* add watched tournaments and improve schedule report ([74d93fe](https://github.com/RunnymedeRobotics1310/RavenEye/commit/74d93fe19c40e35f6d1e9645200c47611a2184ae))
+
 ## [3.23.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.5...v3.23.6) (2026-03-19)
 
 
