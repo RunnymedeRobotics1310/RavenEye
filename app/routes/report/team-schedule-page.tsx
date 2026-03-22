@@ -460,8 +460,8 @@ const TeamScheduleContent = () => {
         const data = await getTeamSchedulePublic(tournamentId);
         setSchedule(data);
         setError(null);
-        if (!showAllInitialized && data.matches.length > 0) {
-          const ownerInMatches = data.matches.some(
+        if (!showAllInitialized && (data.matches ?? []).length > 0) {
+          const ownerInMatches = (data.matches ?? []).some(
             (m) => getAllianceForTeam(m, data.teamNumber) !== null,
           );
           setShowAll(!ownerInMatches);
@@ -579,7 +579,7 @@ const TeamScheduleContent = () => {
     );
   }
 
-  if (schedule.matches.length === 0 && !schedule.hasPractice && !schedule.hasQualification && !schedule.hasPlayoff) {
+  if ((schedule.matches ?? []).length === 0 && !schedule.hasPractice && !schedule.hasQualification && !schedule.hasPlayoff) {
     return (
       <main>
         <div className="page-header schedule-header">
