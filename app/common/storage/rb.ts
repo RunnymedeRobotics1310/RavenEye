@@ -1020,7 +1020,17 @@ export async function getTeamSchedulePublic(
   if (resp.ok) {
     return resp.json() as unknown as TeamScheduleResponse;
   } else {
-    throw new Error("Failure fetching team schedule for " + tournamentId);
+    // Return an empty response so the UI can show a "loading" state
+    return {
+      tournamentId,
+      tournamentName: "Loading...",
+      teamNumber: 0,
+      hasPractice: false,
+      hasQualification: false,
+      hasPlayoff: false,
+      matches: [],
+      rankings: [],
+    };
   }
 }
 

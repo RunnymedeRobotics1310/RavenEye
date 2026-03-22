@@ -329,6 +329,32 @@ function RankingsTable({
   );
 }
 
+function groupByWeek(tournaments: RBTournament[]): Map<number, RBTournament[]> {
+  const groups = new Map<number, RBTournament[]>();
+  for (const t of tournaments) {
+    const list = groups.get(t.weekNumber) ?? [];
+    list.push(t);
+    groups.set(t.weekNumber, list);
+  }
+  return groups;
+}
+
+function formatDate(date: Date) {
+  return new Date(date).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function isCurrentWeek(tournaments: RBTournament[]): boolean {
+  const now = Date.now();
+  return tournaments.some((t) => {
+    const start = new Date(t.startTime).getTime();
+    const end = new Date(t.endTime).getTime();
+    return start <= now && end >= now;
+  });
+}
+
 function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void }) {
   const [tournaments, setTournaments] = useState<RBTournament[]>([]);
   const [loading, setLoading] = useState(true);
@@ -339,12 +365,16 @@ function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void })
         const now = Date.now();
         const currentYear = new Date().getFullYear();
         setTournaments(
-          all.filter((t) => t.season === currentYear && new Date(t.startTime).getTime() <= now),
+          all
+            .filter((t) => t.season === currentYear && new Date(t.startTime).getTime() <= now)
+            .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()),
         );
       })
       .catch((e) => console.error("Failed to load tournaments", e))
       .finally(() => setLoading(false));
   }, []);
+
+  const weekGroups = groupByWeek(tournaments);
 
   return (
     <main>
@@ -357,15 +387,36 @@ function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void })
       {!loading && tournaments.length === 0 && <p>No tournaments available.</p>}
       {!loading && tournaments.length > 0 && (
         <section className="card">
-          <ul className="nav-list">
-            {tournaments.map((t) => (
-              <li key={t.id}>
-                <button className="btn-secondary" onClick={() => onSelect(t)}>
-                  {t.name}
-                </button>
-              </li>
-            ))}
-          </ul>
+          {[...weekGroups.entries()].map(([weekNum, weekTournaments]) => {
+            const firstStart = weekTournaments[0].startTime;
+            const lastEnd = weekTournaments[weekTournaments.length - 1].endTime;
+            const weekLabel = `Week ${weekNum} — ${formatDate(firstStart)} – ${formatDate(lastEnd)}`;
+            return (
+              <details
+                key={weekNum}
+                className="tournament-week-group"
+                open={isCurrentWeek(weekTournaments)}
+              >
+                <summary>{weekLabel}</summary>
+                {weekTournaments.map((t) => (
+                  <div key={t.id} className="tournament-row">
+                    <button
+                      className="tournament-btn"
+                      onClick={() => onSelect(t)}
+                    >
+                      {t.id.slice(String(t.season).length)}
+                    </button>
+                    <div className="tournament-info">
+                      <span className="tournament-name">{t.name}</span>
+                      <span className="tournament-date">
+                        {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </details>
+            );
+          })}
         </section>
       )}
     </main>
@@ -381,7 +432,8 @@ const TeamScheduleContent = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [showAll, setShowAll] = useState(false);
+  const [showAll, setShowAll] = useState(true);
+  const [showAllInitialized, setShowAllInitialized] = useState(false);
   const [queueStatus, setQueueStatus] = useState<NexusQueueStatus | null>(null);
   const [countdown, setCountdown] = useState(60);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -408,6 +460,13 @@ const TeamScheduleContent = () => {
         const data = await getTeamSchedulePublic(tournamentId);
         setSchedule(data);
         setError(null);
+        if (!showAllInitialized && data.matches.length > 0) {
+          const ownerInMatches = data.matches.some(
+            (m) => getAllianceForTeam(m, data.teamNumber) !== null,
+          );
+          setShowAll(!ownerInMatches);
+          setShowAllInitialized(true);
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load schedule");
       } finally {
@@ -417,11 +476,13 @@ const TeamScheduleContent = () => {
         getNexusQueueStatus(tournamentId).then(setQueueStatus);
       }
     },
-    [loggedIn],
+    [loggedIn, showAllInitialized],
   );
 
   useEffect(() => {
     if (!selectedTournamentId) return;
+    setShowAllInitialized(false);
+    setShowAll(true);
     setLoading(true);
     loadSchedule(selectedTournamentId, false).finally(() => setLoading(false));
 
@@ -514,6 +575,21 @@ const TeamScheduleContent = () => {
           <p><NavLink to="/">&larr; Home</NavLink></p>
         </div>
         <Spinner />
+      </main>
+    );
+  }
+
+  if (schedule.matches.length === 0 && !schedule.hasPractice && !schedule.hasQualification && !schedule.hasPlayoff) {
+    return (
+      <main>
+        <div className="page-header schedule-header">
+          <h1>{title}</h1>
+          <p><NavLink to="/">&larr; Home</NavLink></p>
+        </div>
+        <section className="card">
+          <p>Schedule data is being loaded for this tournament. It will appear here automatically within a few minutes.</p>
+          <p className="schedule-countdown">Checking again in {countdown}s</p>
+        </section>
       </main>
     );
   }
