@@ -1,3 +1,10 @@
+## [3.25.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.0...v3.25.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* reduce FRC API load with smart sync completion detection and schedule page stability ([9d9fd70](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9d9fd70918994e427598ba86ba71deac79faa277))
+
 # [3.25.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.2...v3.25.0) (2026-03-22)
 
 
