@@ -1,3 +1,10 @@
+## [3.27.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.27.0...v3.27.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* admin menu reacts to login/logout without requiring page refresh ([b745f33](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b745f339ea47bcf035c3fecf95f13b023dee5d49))
+
 # [3.27.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.26.0...v3.27.0) (2026-03-24)
 
 
