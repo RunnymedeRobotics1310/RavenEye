@@ -1,3 +1,10 @@
+# [3.27.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.26.0...v3.27.0) (2026-03-24)
+
+
+### Features
+
+* add concave notch styling on sequence-end buttons ([9f22dda](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9f22dda21e54b4def19a218536fecf8706b4e252))
+
 # [3.26.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.2...v3.26.0) (2026-03-24)
 
 
