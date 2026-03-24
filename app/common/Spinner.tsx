@@ -1,5 +1,7 @@
+import RavenWings from "~/common/raven-wings.tsx";
+
 function Spinner() {
-  return <div className={"spinner"}></div>;
+  return <RavenWings size="1.5rem" />;
 }
 
 export default Spinner;
