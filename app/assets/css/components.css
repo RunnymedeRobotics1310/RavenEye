@@ -429,6 +429,25 @@ main.track button.btn-sequence::after {
     border-radius: 0 4px 0 0;
 }
 
+main.track button.btn-sequence-end {
+    position: relative;
+    border-radius: 0 var(--btn-border-radius) var(--btn-border-radius) 0;
+    padding-left: 1.4rem;
+    margin-left: 1.2rem;
+}
+
+main.track button.btn-sequence-end::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -1.08rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    background-color: var(--color-bg-primary);
+    transform: translateY(-50%) rotate(45deg);
+    border-radius: 0 4px 0 0;
+}
+
 main.track button.event-tracked {
     background-color: var(--color-event-tracked);
     transition: background-color 0.05s ease, transform 0.2s;
