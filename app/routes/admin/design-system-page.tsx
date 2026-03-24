@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { NavLink } from "react-router";
 import Sync from "~/common/icons/Sync.tsx";
+import RavenWings from "~/common/raven-wings.tsx";
+
 import type { SyncStatus } from "~/types/SyncStatus.ts";
 
 const colorVars = [
@@ -383,6 +385,22 @@ const DesignSystemPage = () => {
 
           <h3>Spinner</h3>
           <div className="spinner" />
+
+          <h3>Raven Wings</h3>
+          <div style={{ display: "flex", gap: "2rem", alignItems: "center" }}>
+            <div style={{ textAlign: "center" }}>
+              <RavenWings size="2rem" />
+              <br /><small>2rem</small>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <RavenWings />
+              <br /><small>3rem (default)</small>
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <RavenWings size="5rem" />
+              <br /><small>5rem</small>
+            </div>
+          </div>
 
           <h3>Error Message</h3>
           <p className="errorMessage">Something went wrong!</p>
