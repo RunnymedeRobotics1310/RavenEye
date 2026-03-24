@@ -1,3 +1,10 @@
+# [3.26.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.2...v3.26.0) (2026-03-24)
+
+
+### Features
+
+* replace loading spinner with animated raven wings SVG ([205c71a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/205c71a750ca776a2fef2aa9ff26c368090f2e39))
+
 ## [3.25.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.1...v3.25.2) (2026-03-22)
 
 
