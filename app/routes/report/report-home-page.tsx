@@ -27,19 +27,8 @@ const ReportHomePage = () => {
                 <h2>Standard Reports</h2>
                 <ul className="nav-list">
                   <li>
-                    <NavLink to="/report/schedule" className="btn-secondary">
-                      Tournament Report
-                    </NavLink>
-                    <span className="nav-note">formerly Team Schedule</span>
-                  </li>
-                  <li>
                     <NavLink to="/report/summary" className="btn-secondary">
                       Team Summary Report
-                    </NavLink>
-                  </li>
-                  <li>
-                    <NavLink to="/report/pmva" className="btn-secondary">
-                      Post-Match Video Analysis (PMVA) Report
                     </NavLink>
                   </li>
                   <li>
@@ -50,6 +39,17 @@ const ReportHomePage = () => {
                   <li>
                     <NavLink to="/report/chrono" className="btn-secondary">
                       Chronological Event Report
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/report/schedule" className="btn-secondary">
+                      Tournament Report
+                    </NavLink>
+                    <span className="nav-note">formerly Team Schedule</span>
+                  </li>
+                  <li>
+                    <NavLink to="/report/pmva" className="btn-secondary">
+                      Post-Match Video Analysis (PMVA) Report
                     </NavLink>
                   </li>
                 </ul>
