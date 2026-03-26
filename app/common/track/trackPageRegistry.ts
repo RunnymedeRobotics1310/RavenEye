@@ -12,6 +12,7 @@ import MatchForm from "~/common/track/MatchForm.tsx";
 import CompTeams from "~/common/track/CompTeams.tsx";
 import SequencePage from "~/common/track/seq/SequencePage.tsx";
 import AreaPage from "~/common/track/strat-area/AreaPage.tsx";
+import PMVALoadShootSeqPage from "~/common/track/seq/PMVALoadShootSeqPage.tsx";
 
 /**
  * Maps navigation strings to custom components. This is effectively
@@ -42,6 +43,7 @@ const trackPageRegistry: Record<string, ComponentType<TrackScreenProps>> = {
 
     // sequence pages
     "seq:default": SequencePage,
+    "seq:pmva-score": PMVALoadShootSeqPage,
     // custom sequence pages
     // "seq:auto": AutoPage,
     // "seq:defense": DefensePage,

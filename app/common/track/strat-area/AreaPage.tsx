@@ -71,7 +71,7 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
 
   function startSequence(seq: SequenceType) {
     console.log("Starting sequence "+seq.name);
-    const firstSeqEvent = seq.events[0];
+    const firstSeqEvent = seq.events && seq.events[0];
     if (firstSeqEvent) {
       const firstEvent = firstSeqEvent.eventtype;
       recordEvent(firstEvent.eventtype, 0, "")
