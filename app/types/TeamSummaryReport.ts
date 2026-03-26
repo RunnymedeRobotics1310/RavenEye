@@ -19,10 +19,19 @@ export interface TeamReportRobotAlert {
   alert: string;
 }
 
+export interface DefenceNote {
+  timestamp: string;
+  displayName: string;
+  tournamentId: string;
+  matchId: number;
+  note: string;
+}
+
 export interface TeamSummaryReport {
   comments: TeamReportComment[];
   robotAlerts: TeamReportRobotAlert[];
   sequenceReportLinks: SequenceReportLink[];
+  defenceNotes: DefenceNote[];
 }
 
 export interface TeamSummaryReportResponse {
