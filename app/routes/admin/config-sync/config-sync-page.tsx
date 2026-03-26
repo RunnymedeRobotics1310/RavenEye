@@ -22,6 +22,10 @@ const ConfigSyncForm = () => {
   );
   const [sourceUser, setSourceUser] = useState("");
   const [sourcePassword, setSourcePassword] = useState("");
+  const [clearTournaments, setClearTournaments] = useState(false);
+  const [syncScoutingData, setSyncScoutingData] = useState(false);
+  const [clearExistingScoutingData, setClearExistingScoutingData] =
+    useState(true);
   const [syncing, setSyncing] = useState(false);
   const [result, setResult] = useState<ConfigSyncResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +49,9 @@ const ConfigSyncForm = () => {
       sourceUrl,
       sourceUser,
       sourcePassword,
+      clearTournaments,
+      syncScoutingData,
+      clearExistingScoutingData,
     };
 
     try {
@@ -52,8 +59,8 @@ const ConfigSyncForm = () => {
       setResult(data);
       doManualSync();
     } catch (err: any) {
-      if (err.message.includes("Failed to fetch")) {
-        setError("Could not connect to source server");
+      if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
+        setError("Could not connect to RavenBrain server");
       } else {
         setError(err.message || "An unexpected error occurred");
       }
@@ -65,8 +72,8 @@ const ConfigSyncForm = () => {
   return (
     <section>
       <div className="banner banner-warning">
-        This will delete ALL local scouting events, comments, and config data
-        before importing from the source server.
+        This will replace all local config data (strategy areas, event types,
+        sequences) from the source server.
       </div>
 
       <form onSubmit={handleSubmit}>
@@ -104,6 +111,58 @@ const ConfigSyncForm = () => {
             onChange={(e) => setSourcePassword(e.target.value)}
           />
         </div>
+
+        <fieldset>
+          <legend>Options</legend>
+
+          <div className="form-field">
+            <label>
+              <input
+                type="checkbox"
+                checked={clearTournaments}
+                onChange={(e) => setClearTournaments(e.target.checked)}
+              />{" "}
+              Clear tournaments & schedules
+            </label>
+            <p className="form-hint">
+              Remove locally stored tournaments, schedules, and team
+              assignments. Re-fetch them from the FRC API after sync.
+            </p>
+          </div>
+
+          <div className="form-field">
+            <label>
+              <input
+                type="checkbox"
+                checked={syncScoutingData}
+                onChange={(e) => setSyncScoutingData(e.target.checked)}
+              />{" "}
+              Sync scouting data
+            </label>
+            <p className="form-hint">
+              Import events, comments, and alerts from the source server.
+            </p>
+          </div>
+
+          {syncScoutingData && (
+            <div className="form-field" style={{ marginLeft: "1.5rem" }}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={clearExistingScoutingData}
+                  onChange={(e) =>
+                    setClearExistingScoutingData(e.target.checked)
+                  }
+                />{" "}
+                Clear existing scouting data first
+              </label>
+              <p className="form-hint">
+                Delete all local events, comments, and alerts before importing.
+                If unchecked, duplicates will be skipped.
+              </p>
+            </div>
+          )}
+        </fieldset>
 
         {isProduction && (
           <div className="form-field">
@@ -167,14 +226,30 @@ const ConfigSyncForm = () => {
                 <td>Sequence Events</td>
                 <td>{result.sequenceEvents}</td>
               </tr>
-              <tr>
-                <td>Tournaments</td>
-                <td>{result.tournaments}</td>
-              </tr>
-              <tr>
-                <td>Schedules</td>
-                <td>{result.schedules}</td>
-              </tr>
+              {result.tournamentsCleared && (
+                <tr>
+                  <td>Tournaments</td>
+                  <td>Cleared</td>
+                </tr>
+              )}
+              {(result.events > 0 ||
+                result.comments > 0 ||
+                result.alerts > 0) && (
+                <>
+                  <tr>
+                    <td>Events</td>
+                    <td>{result.events}</td>
+                  </tr>
+                  <tr>
+                    <td>Comments</td>
+                    <td>{result.comments}</td>
+                  </tr>
+                  <tr>
+                    <td>Alerts</td>
+                    <td>{result.alerts}</td>
+                  </tr>
+                </>
+              )}
             </tbody>
           </table>
         </section>
@@ -190,7 +265,8 @@ const ConfigSyncPage = () => {
         <h1>Sync from Source</h1>
         <p>
           Pull configuration data from a source RavenBrain server. This will
-          replace all local config data and clear scouting events and comments.
+          replace all local config data (strategy areas, event types,
+          sequences).
         </p>
       </div>
       <RequireLogin>

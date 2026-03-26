@@ -14,6 +14,12 @@ function msToSeconds(ms: number): string {
   return (ms / 1000).toFixed(2);
 }
 
+const LEVEL_PREFIX: Record<string, string> = {
+  Practice: "P",
+  Qualification: "Q",
+  Playoff: "E",
+};
+
 function endEventName(seq: SequenceInfo): string {
   if (seq.events.length === 0) return "—";
   return seq.events[seq.events.length - 1].eventtype.name;
@@ -179,7 +185,7 @@ const SequenceTournamentReportPage = () => {
             {(data.matches ?? []).map((m) => (
               <section key={m.matchId} className="card">
                 <h2>
-                  {m.level} Match {m.matchId}
+                  Match {(LEVEL_PREFIX[m.level] ?? m.level.charAt(0))}{m.matchId}
                 </h2>
                 <TimingStats report={m.report} />
                 <SequenceTable report={m.report} />

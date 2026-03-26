@@ -41,7 +41,7 @@ const DefenceStratControl = ({
       <div className="event-button-row">
         <button
           type="button"
-          className={flashing ? "event-tracked" : error ? "event-error" : ""}
+          className={`${flashing ? "event-tracked" : error ? "event-error" : ""}${sequenceEnd ? " btn-sequence-end" : ""}`}
           onClick={() => {
             handleClick();
           }}

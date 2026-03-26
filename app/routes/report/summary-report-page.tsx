@@ -103,7 +103,7 @@ const SummaryReportPage = () => {
               <p>No quick comments recorded for this team.</p>
             ) : (
               <div className="mega-report-table-wrapper">
-                <table className="mega-report-table">
+                <table className="mega-report-table chrono-table">
                   <thead>
                     <tr>
                       <th>Time</th>
@@ -130,7 +130,7 @@ const SummaryReportPage = () => {
           <section className="card">
             <h2>Robot Alerts</h2>
             <div className="mega-report-table-wrapper">
-              <table className="mega-report-table">
+              <table className="mega-report-table chrono-table">
                 <thead>
                   <tr>
                     <th>Time</th>

@@ -91,6 +91,11 @@ export default [
     "report/chrono/:tournamentId/:teamId",
     "./routes/report/chrono-report-page.tsx",
   ),
+  route("report/pmva", "./routes/report/pmva-report-tournaments-page.tsx"),
+  route(
+    "report/pmva/:tournamentId",
+    "./routes/report/pmva-report-page.tsx",
+  ),
   route("report/mega", "./routes/report/mega-report-tournaments-page.tsx"),
   route(
     "report/mega/:tournamentId",

@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { NavLink } from "react-router";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
+import ClearReportCacheButton from "~/common/ClearReportCacheButton.tsx";
+import { useRole } from "~/common/storage/rbauth.ts";
 
 const ReportHomePage = () => {
+  const { isAdmin, isSuperuser } = useRole();
   const [team, setTeam] = useState<number>(1310);
   const time = 7;
   const number = 10;
@@ -14,17 +17,29 @@ const ReportHomePage = () => {
                 <h1>Reports</h1>
             </div>
             <RequireLogin>
+              {(isAdmin || isSuperuser) && (
+                <section className="card">
+                  <h2>Report Cache</h2>
+                  <ClearReportCacheButton />
+                </section>
+              )}
               <section className="card">
                 <h2>Standard Reports</h2>
                 <ul className="nav-list">
                   <li>
                     <NavLink to="/report/schedule" className="btn-secondary">
-                      Team Schedule
+                      Tournament Report
                     </NavLink>
+                    <span className="nav-note">formerly Team Schedule</span>
                   </li>
                   <li>
                     <NavLink to="/report/summary" className="btn-secondary">
                       Team Summary Report
+                    </NavLink>
+                  </li>
+                  <li>
+                    <NavLink to="/report/pmva" className="btn-secondary">
+                      Post-Match Video Analysis (PMVA) Report
                     </NavLink>
                   </li>
                   <li>

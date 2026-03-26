@@ -27,6 +27,7 @@ import type {
 } from "~/types/TeamSummaryReport.ts";
 import type { TeamScheduleResponse } from "~/types/TeamSchedule.ts";
 import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
+import type { PmvaReportResponse } from "~/types/PmvaReport.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -583,6 +584,9 @@ export interface ConfigSyncRequest {
   sourceUrl: string;
   sourceUser: string;
   sourcePassword: string;
+  clearTournaments: boolean;
+  syncScoutingData: boolean;
+  clearExistingScoutingData: boolean;
 }
 
 export interface ConfigSyncResult {
@@ -590,9 +594,10 @@ export interface ConfigSyncResult {
   eventTypes: number;
   sequenceTypes: number;
   sequenceEvents: number;
-  tournaments: number;
-  schedules: number;
-  teamTournaments: number;
+  events: number;
+  comments: number;
+  alerts: number;
+  tournamentsCleared: boolean;
   message: string;
 }
 
@@ -615,11 +620,32 @@ export async function configSync(
     let detail = "Server error: " + resp.status;
     try {
       const body = await resp.text();
-      if (body) detail = "Server error: " + body;
+      if (body) {
+        try {
+          const json = JSON.parse(body);
+          const embedded = json?._embedded?.errors;
+          if (embedded?.length > 0) {
+            const msg = embedded[0].message ?? "";
+            // Strip "Internal Server Error: " prefix from Micronaut wrapper
+            detail = msg.replace(/^Internal Server Error:\s*/, "");
+          } else if (json?.message) {
+            detail = json.message;
+          }
+        } catch {
+          detail = body;
+        }
+      }
     } catch {
       // ignore
     }
     throw new Error(detail);
+  }
+}
+
+export async function clearReportCache(): Promise<void> {
+  const resp = await rbfetch("/api/report/cache/clear", {});
+  if (!resp.ok) {
+    throw new Error("Failed to clear report cache: " + resp.status);
   }
 }
 
@@ -985,16 +1011,28 @@ export async function getActiveTeamTournaments(): Promise<RBTournament[]> {
 export async function getTeamSchedulePublic(
   tournamentId: string,
 ): Promise<TeamScheduleResponse> {
-  const resp = await fetch(
-    import.meta.env.VITE_API_HOST +
-      "/api/schedule/team-schedule/" +
-      tournamentId,
-    { mode: "cors" },
-  );
-  if (resp.ok) {
-    return resp.json() as unknown as TeamScheduleResponse;
-  } else {
-    throw new Error("Failure fetching team schedule for " + tournamentId);
+  const empty: TeamScheduleResponse = {
+    tournamentId,
+    tournamentName: "Loading...",
+    teamNumber: 0,
+    hasPractice: false,
+    hasQualification: false,
+    hasPlayoff: false,
+    matches: [],
+    rankings: [],
+  };
+  try {
+    const resp = await fetch(
+      import.meta.env.VITE_API_HOST +
+        "/api/schedule/team-schedule/" +
+        tournamentId,
+      { mode: "cors" },
+    );
+    if (!resp.ok) return empty;
+    const data = await resp.json() as unknown as TeamScheduleResponse;
+    return data ?? empty;
+  } catch {
+    return empty;
   }
 }
 
@@ -1016,6 +1054,31 @@ export async function getNexusQueueStatus(
     return null;
   } catch {
     return null;
+  }
+}
+
+// ── PMVA Report ─────────────────────────────────────────────────────────
+
+export async function getPmvaReportTournaments(): Promise<string[]> {
+  const resp = await rbfetch("/api/report/pmva/tournaments", {});
+  if (resp.ok) {
+    return resp.json() as unknown as string[];
+  } else {
+    throw new Error("Failure fetching PMVA report tournaments");
+  }
+}
+
+export async function getPmvaReport(
+  tournamentId: string,
+): Promise<PmvaReportResponse> {
+  const resp = await rbfetch(
+    `/api/report/pmva/${tournamentId}`,
+    {},
+  );
+  if (resp.ok) {
+    return resp.json() as unknown as PmvaReportResponse;
+  } else {
+    throw new Error("Failure fetching PMVA report");
   }
 }
 

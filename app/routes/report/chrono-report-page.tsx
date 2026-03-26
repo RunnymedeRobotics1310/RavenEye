@@ -10,10 +10,14 @@ function formatTimestamp(iso: string): string {
   return d.toLocaleString();
 }
 
-function formatLevel(level: string): string {
-  if (level === "Qualification") return "Q";
-  if (level === "Playoff") return "P";
-  return level;
+const LEVEL_PREFIX: Record<string, string> = {
+  Practice: "P",
+  Qualification: "Q",
+  Playoff: "E",
+};
+
+function matchLabel(level: string, matchId: number): string {
+  return (LEVEL_PREFIX[level] ?? level.charAt(0)) + matchId;
 }
 
 const ChronoReportPage = () => {
@@ -24,6 +28,7 @@ const ChronoReportPage = () => {
   const [rows, setRows] = useState<ChronoReportRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("");
 
   useEffect(() => {
     if (!tournamentId || !teamId) return;
@@ -63,32 +68,55 @@ const ChronoReportPage = () => {
         )}
         {rows && rows.length > 0 && (
           <section className="card">
+            <p className="pmva-legend">
+              P = Practice, Q = Qualification, E = Elimination
+            </p>
+            <div className="form-field">
+              <label htmlFor="eventFilter">Filter by event type</label>
+              <input
+                id="eventFilter"
+                type="text"
+                placeholder="Type to filter..."
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              />
+            </div>
             <div className="mega-report-table-wrapper">
-              <table className="mega-report-table">
+              <table className="mega-report-table chrono-table">
                 <thead>
                   <tr>
                     <th>Timestamp</th>
                     <th>Match</th>
+                    <th>Recorder</th>
                     <th>Event Type</th>
                     <th>Quantity</th>
                     <th>Note</th>
-                    <th>Recorder</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((row, i) => (
-                    <tr key={i}>
-                      <td>{formatTimestamp(row.timestamp)}</td>
-                      <td>
-                        {formatLevel(row.level)}
-                        {row.matchId}
-                      </td>
-                      <td title={row.eventType}>{row.eventTypeName}</td>
-                      <td>{row.amount}</td>
-                      <td>{row.note}</td>
-                      <td>{row.recorder}</td>
-                    </tr>
-                  ))}
+                  {rows
+                    .filter((row) => {
+                      if (!filter) return true;
+                      const term = filter.toLowerCase();
+                      return (
+                        row.eventTypeName.toLowerCase().includes(term) ||
+                        row.eventType.toLowerCase().includes(term)
+                      );
+                    })
+                    .map((row, i) => (
+                      <tr key={i}>
+                        <td>{formatTimestamp(row.timestamp)}</td>
+                        <td>{matchLabel(row.level, row.matchId)}</td>
+                        <td>{row.recorder}</td>
+                        <td>
+                          {row.eventTypeName}
+                          <br />
+                          <code>{row.eventType}</code>
+                        </td>
+                        <td>{row.amount}</td>
+                        <td>{row.note}</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

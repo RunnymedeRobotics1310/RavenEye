@@ -10,6 +10,8 @@ const SESSION_KEY_DISPLAY_NAME = "raveneye_displayName";
 const SESSION_KEY_ROLES = "raveneye_roles";
 export const SESSION_KEY_RAVENBRAIN_VERSION = "raveneye_ravenbrain_version";
 
+const AUTH_CHANGED_EVENT = "raveneye_auth_changed";
+
 /**
  * Authenticates a user by sending their credentials to the server.
  *
@@ -58,6 +60,7 @@ export async function authenticate(
       if (json.refresh_token) {
         sessionStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
       }
+      window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
       return;
     });
 }
@@ -100,8 +103,8 @@ function validateRavenBrainJwt(jwt: RBJWT): void {
   if (jwt.exp < currentTime) {
     throw new Error("JWT has expired. Current time: " + currentTime+" exp: "+ jwt.exp);
   }
-  if (jwt.nbf - 2 > currentTime) {
-    // allow 2ms grace period
+  if (jwt.nbf - 250 > currentTime) {
+    // allow 250ms grace period
     throw new Error("JWT is not yet valid. Current time: "+currentTime+" nbf: "+ jwt.nbf);
   }
 }
@@ -209,6 +212,7 @@ export function logout() {
   if (typeof localStorage !== "undefined") {
     localStorage.clear();
   }
+  window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 }
 
 /**
@@ -449,7 +453,8 @@ export function useRole() {
   const [isDataScout, setIsDataScout] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
+
+  const updateRoles = () => {
     try {
       const roles = getRoles();
       setIsSuperuser(roles.includes("ROLE_SUPERUSER"));
@@ -458,10 +463,21 @@ export function useRole() {
       setIsDataScout(roles.includes("ROLE_DATASCOUT"));
       setIsMember(roles.includes("ROLE_MEMBER"));
     } catch {
-      // Not logged in — all roles remain false
+      setIsSuperuser(false);
+      setIsAdmin(false);
+      setIsExpertScout(false);
+      setIsDataScout(false);
+      setIsMember(false);
     }
     setLoading(false);
+  };
+
+  useEffect(() => {
+    updateRoles();
+    window.addEventListener(AUTH_CHANGED_EVENT, updateRoles);
+    return () => window.removeEventListener(AUTH_CHANGED_EVENT, updateRoles);
   }, []);
+
   return {
     isSuperuser,
     isAdmin,

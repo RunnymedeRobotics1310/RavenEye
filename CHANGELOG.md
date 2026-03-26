@@ -1,3 +1,132 @@
+## [3.27.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.27.0...v3.27.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* admin menu reacts to login/logout without requiring page refresh ([b745f33](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b745f339ea47bcf035c3fecf95f13b023dee5d49))
+
+# [3.27.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.26.0...v3.27.0) (2026-03-24)
+
+
+### Features
+
+* add concave notch styling on sequence-end buttons ([9f22dda](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9f22dda21e54b4def19a218536fecf8706b4e252))
+
+# [3.26.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.2...v3.26.0) (2026-03-24)
+
+
+### Features
+
+* replace loading spinner with animated raven wings SVG ([205c71a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/205c71a750ca776a2fef2aa9ff26c368090f2e39))
+
+## [3.25.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.1...v3.25.2) (2026-03-22)
+
+
+### Bug Fixes
+
+* skip queue status fetch when owner team is not in tournament ([75ef133](https://github.com/RunnymedeRobotics1310/RavenEye/commit/75ef1333779259be63dccb801a041fae7a53ad7f))
+
+## [3.25.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.25.0...v3.25.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* reduce FRC API load with smart sync completion detection and schedule page stability ([9d9fd70](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9d9fd70918994e427598ba86ba71deac79faa277))
+
+# [3.25.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.2...v3.25.0) (2026-03-22)
+
+
+### Features
+
+* rename Team Schedule to Tournament Report ([2310cd8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/2310cd8400165c3f34e78bb81fc44282966b89a7))
+
+## [3.24.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.1...v3.24.2) (2026-03-22)
+
+
+### Bug Fixes
+
+* guard against empty/malformed schedule API responses ([5e09c74](https://github.com/RunnymedeRobotics1310/RavenEye/commit/5e09c74667fcf01c5f557ba607047eea39f77f49))
+
+## [3.24.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.24.0...v3.24.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* guard against undefined matches in schedule response ([c77122c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c77122ca65fe02f6505a656d7d6c945e4fac11a3))
+
+# [3.24.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.6...v3.24.0) (2026-03-22)
+
+
+### Features
+
+* add watched tournaments and improve schedule report ([74d93fe](https://github.com/RunnymedeRobotics1310/RavenEye/commit/74d93fe19c40e35f6d1e9645200c47611a2184ae))
+
+## [3.23.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.5...v3.23.6) (2026-03-19)
+
+
+### Bug Fixes
+
+* schedule tournament picker fallback and left-justify report comments ([c0ca37c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c0ca37c35760784d244faf61a6c948de6f000616))
+
+## [3.23.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.4...v3.23.5) (2026-03-19)
+
+
+### Bug Fixes
+
+* move clear cache button to sync and reports pages ([d439548](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d4395480143c5c8a653f3f395fde509c2c747cb6))
+
+## [3.23.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.3...v3.23.4) (2026-03-19)
+
+
+### Bug Fixes
+
+* improve report match labels, chrono filter, and star rating SVG ([bc447fa](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bc447faa5620835d4490fe61704a3b05e66442ec))
+
+## [3.23.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.2...v3.23.3) (2026-03-19)
+
+
+### Bug Fixes
+
+* normalize PMVA percentages and add match context to comments ([a153ebd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a153ebde42b6b93762f64ad083dc6881af681b6f))
+
+## [3.23.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.1...v3.23.2) (2026-03-19)
+
+
+### Bug Fixes
+
+* Event totals ([abf6a13](https://github.com/RunnymedeRobotics1310/RavenEye/commit/abf6a1323d42deee807c1e0491b31b55111bac0c))
+* Further report cleanup ([42ad5f0](https://github.com/RunnymedeRobotics1310/RavenEye/commit/42ad5f0c381492564dd2876056bef9fe8e77ab28))
+
+## [3.23.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.23.0...v3.23.1) (2026-03-19)
+
+
+### Bug Fixes
+
+* PMVA report fixes ([e12c733](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e12c733141667b52ba5767c9cd40d4cd971f3085))
+* PMVA report title ([f87832f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f87832f30e1ba7ed4828f33e9c63c7933ba204ec))
+* Rework related report titles ([77e02ab](https://github.com/RunnymedeRobotics1310/RavenEye/commit/77e02ab2af7821c3be1717490ea2f9e927e1e283))
+
+# [3.23.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.22.0...v3.23.0) (2026-03-19)
+
+
+### Features
+
+* Sync scouting data from source ([0a86a79](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0a86a79dc3bd5498b099c5a0f0fa4ab58d695ad5))
+
+# [3.22.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.2...v3.22.0) (2026-03-17)
+
+
+### Features
+
+* Post-Match Video Analysis Report ([993e599](https://github.com/RunnymedeRobotics1310/RavenEye/commit/993e599cf2a0a621d7181d06f3f35d2597a14175))
+
+## [3.21.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.1...v3.21.2) (2026-03-16)
+
+
+### Bug Fixes
+
+* increase login JWT NBF grace period from 2ms to 250ms ([0ce076b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0ce076bf1b18916eb29ad9c53f0bc720ee604022))
+
 ## [3.21.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.21.0...v3.21.1) (2026-03-14)
 
 
