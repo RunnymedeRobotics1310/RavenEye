@@ -1,3 +1,16 @@
+# [3.28.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.27.1...v3.28.0) (2026-03-26)
+
+
+### Bug Fixes
+
+* npe on sequence event page ([2b72fdc](https://github.com/RunnymedeRobotics1310/RavenEye/commit/2b72fdcb8ead1c580651397d688264b558311ed5))
+* Re-order report pages ([028834d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/028834daaf3254b98f07981afa0876e91da14e8b))
+
+
+### Features
+
+* Custom page for PMVALoadShootSequence ([fe954ac](https://github.com/RunnymedeRobotics1310/RavenEye/commit/fe954acde229ac7d4f3130ad32668eff458d4da0))
+
 ## [3.27.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.27.0...v3.27.1) (2026-03-24)
 
 
