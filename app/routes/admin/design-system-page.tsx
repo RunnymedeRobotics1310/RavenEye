@@ -207,10 +207,10 @@ const DesignSystemPage = () => {
               />
             </EventTypeDemo>
             <EventTypeDemo label="With Note">
-              <input
-                type="text"
+              <textarea
                 className="event-type-note"
                 placeholder="note"
+                rows={2}
               />
             </EventTypeDemo>
             <div>

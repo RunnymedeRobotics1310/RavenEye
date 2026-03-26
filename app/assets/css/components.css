@@ -480,8 +480,11 @@ main.track .event-type-quantity {
 }
 
 main.track .event-type-note {
-    width: 5rem;
-    margin-left: 0.25rem;
+    width: 100%;
+    margin-top: 0.25rem;
+    resize: vertical;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 main.track .defence-strat .event-type-note {

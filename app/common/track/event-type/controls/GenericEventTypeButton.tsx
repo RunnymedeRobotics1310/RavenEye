@@ -61,10 +61,10 @@ const GenericEventTypeButton = ({
         />
       )}
       {eventType.showNote && (
-        <input
+        <textarea
           className="event-type-note"
-          type="text"
           placeholder="Note"
+          rows={2}
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />
