@@ -13,6 +13,7 @@ import type {
   TeamReportRobotAlert,
   SequenceReportLink,
   DefenceNote,
+  CountPerMatchStat,
   CustomTournamentStats,
 } from "~/types/TeamSummaryReport.ts";
 
@@ -27,6 +28,9 @@ const SummaryReportPage = () => {
     SequenceReportLink[] | null
   >(null);
   const [defenceNotes, setDefenceNotes] = useState<DefenceNote[] | null>(null);
+  const [shootToHomeStats, setShootToHomeStats] = useState<
+    CountPerMatchStat[]
+  >([]);
   const [customStats, setCustomStats] = useState<CustomTournamentStats[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -55,6 +59,7 @@ const SummaryReportPage = () => {
           setRobotAlerts(resp.report.robotAlerts);
           setSequenceLinks(resp.report.sequenceReportLinks);
           setDefenceNotes(resp.report.defenceNotes ?? []);
+          setShootToHomeStats(resp.report.shootToHomeStats ?? []);
         } else {
           setError(resp.reason || "Failed to load team summary report");
         }
@@ -211,6 +216,42 @@ const SummaryReportPage = () => {
                   )}
                 </div>
               ))}
+          </section>
+        )}
+
+        {shootToHomeStats.length > 0 && (
+          <section className="card">
+            <h2>Feed to Home</h2>
+            <div className="mega-report-table-wrapper">
+              <table className="mega-report-table">
+                <thead>
+                  <tr>
+                    <th>Tournament</th>
+                    <th>Avg Count / Match</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...shootToHomeStats]
+                    .sort((a, b) => {
+                      const aIdx = allTournaments.findIndex(
+                        (t) => t.id === a.tournamentId,
+                      );
+                      const bIdx = allTournaments.findIndex(
+                        (t) => t.id === b.tournamentId,
+                      );
+                      return bIdx - aIdx;
+                    })
+                    .map((s) => (
+                      <tr key={s.tournamentId}>
+                        <td>{tournamentName(s.tournamentId)}</td>
+                        <td>{s.averageCountPerMatch.toFixed(2)}</td>
+                        <td>{s.totalCount}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         )}
 

@@ -27,11 +27,19 @@ export interface DefenceNote {
   note: string;
 }
 
+export interface CountPerMatchStat {
+  tournamentId: string;
+  averageCountPerMatch: number;
+  matchCount: number;
+  totalCount: number;
+}
+
 export interface TeamSummaryReport {
   comments: TeamReportComment[];
   robotAlerts: TeamReportRobotAlert[];
   sequenceReportLinks: SequenceReportLink[];
   defenceNotes: DefenceNote[];
+  shootToHomeStats: CountPerMatchStat[];
 }
 
 export interface TeamSummaryReportResponse {
