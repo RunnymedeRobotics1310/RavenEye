@@ -1,3 +1,10 @@
+## [3.29.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.29.0...v3.29.1) (2026-03-27)
+
+
+### Bug Fixes
+
+* look up team for reports ([4d451d2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4d451d234fea0a3640b7ee9d9621601bd0c547f5))
+
 # [3.29.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.28.0...v3.29.0) (2026-03-26)
 
 
