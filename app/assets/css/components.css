@@ -1365,6 +1365,11 @@ main.track.pmva button {
     color: var(--color-accent);
 }
 
+.pmva-required {
+    color: var(--color-error);
+    margin-left: 0.25rem;
+}
+
 .pmva-form-actions {
     padding-top: var(--space-base);
 }

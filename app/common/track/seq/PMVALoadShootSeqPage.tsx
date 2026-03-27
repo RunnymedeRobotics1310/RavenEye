@@ -40,7 +40,7 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
 
             <div className="pmva-form">
                 <div className="pmva-form-row">
-                    <label>Was the hopper filled?</label>
+                    <label>Was the hopper filled?<span className="pmva-required">*</span></label>
                     <div className="pmva-btn-group">
                         <button onClick={() => setHopperFilled(true)}
                                 disabled={hopperFilled}>Yes
@@ -73,7 +73,7 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
                 </div>
 
                 <div className="pmva-form-row">
-                    <label>How long did it take to unload? (seconds)</label>
+                    <label>How long did it take to unload? (seconds)<span className="pmva-required">*</span></label>
                     <p className="pmva-hint">
                         Rewind the video and play the sequence back. Use either the video time or a stopwatch.
                     </p>
@@ -82,7 +82,7 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
                 </div>
 
                 <div className="pmva-form-row">
-                    <label>How much fuel was stuck after the sequence?</label>
+                    <label>How much fuel was stuck after the sequence?<span className="pmva-required">*</span></label>
                     <input type="number" min={0} max={50}
                            onChange={(e) => setStuckFuelCount(Number(e.target.value))}/>
                 </div>
@@ -93,7 +93,7 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
                 </div>
 
                 <div className="pmva-form-row">
-                    <label>Where was the robot while shooting?</label>
+                    <label>Where was the robot while shooting?<span className="pmva-required">*</span></label>
                     <div className="pmva-btn-group">
                         <button disabled={shootPosition === ShootPosition.close}
                                 onClick={() => setShootPosition(ShootPosition.close)}>Close
@@ -108,7 +108,7 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
                 </div>
 
                 <div className="pmva-form-row">
-                    <label>Was the robot moving while shooting?</label>
+                    <label>Was the robot moving while shooting?<span className="pmva-required">*</span></label>
                     <div className="pmva-btn-group">
                         <button disabled={movingWhileShooting}
                                 onClick={() => setMovingWhileShooting(true)}>Moving
@@ -120,7 +120,7 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
                 </div>
 
                 <div className="pmva-form-row">
-                    <label>Was the robot shooting while intaking during this sequence?</label>
+                    <label>Was the robot shooting while intaking during this sequence?<span className="pmva-required">*</span></label>
                     <div className="pmva-btn-group">
                         <button disabled={shootingWhileIntaking}
                                 onClick={() => setShootingWhileIntaking(true)}>Yes
