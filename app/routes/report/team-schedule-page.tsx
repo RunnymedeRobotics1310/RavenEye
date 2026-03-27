@@ -365,7 +365,7 @@ function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void })
         const currentYear = new Date().getFullYear();
         setTournaments(
           all
-            .filter((t) => t.season === currentYear && new Date(t.startTime).getTime() <= now)
+            .filter((t) => t.season === currentYear)
             .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()),
         );
       })
