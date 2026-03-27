@@ -1,3 +1,17 @@
+# [3.30.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.29.2...v3.30.0) (2026-03-27)
+
+
+### Bug Fixes
+
+* Handle bad stat data in team report ([ed5d117](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ed5d117641a0637eaf4c2b6071d6e4d69f955083))
+* Larger spinner ([7a137e7](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7a137e7b7d280d1a57c61f7f78abea59fbc9d628))
+* Switch team report to use type-ahead ([947aab9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/947aab9810d3ab242b8de807a4f176de85f9f1bf))
+
+
+### Features
+
+* Shoot to Home reports ([1532e24](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1532e24174195cee1a000c8d9016abfb8733f576))
+
 ## [3.29.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.29.1...v3.29.2) (2026-03-27)
 
 
