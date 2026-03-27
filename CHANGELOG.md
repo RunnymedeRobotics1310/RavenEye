@@ -1,3 +1,23 @@
+# [3.31.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.30.0...v3.31.0) (2026-03-27)
+
+
+### Bug Fixes
+
+* Don't hide current tournament from schedule page ([be27f87](https://github.com/RunnymedeRobotics1310/RavenEye/commit/be27f8743e43e1e8199812ed04789eb198f4bd4e))
+* Filter tournaments ([668ac42](https://github.com/RunnymedeRobotics1310/RavenEye/commit/668ac42fc26dc0a2a8b7e004546519c8f46a27d2))
+* Fix schedule back links ([974ee98](https://github.com/RunnymedeRobotics1310/RavenEye/commit/974ee9809a0257b0ea84b73be281f073c73256f7))
+* Formatting cleanup for auto-complete ([6e0217d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6e0217df9ba4a733d5fa9879af089d40b810cb93))
+* Hide report page sketches ([174a4e9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/174a4e95058c7bb3c2ec19bbf3995c84ae4a1bf2))
+* select team row format ([b7c8454](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b7c84548e59135282bc5259e3cd808269d4382f8))
+* Show current event type first on schedule page, until tournament is over ([203ee6d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/203ee6dedeecb4ba1c0b5fae1bc35457d400133f))
+
+
+### Features
+
+* Add fuel pickup scores to team report ([fd04481](https://github.com/RunnymedeRobotics1310/RavenEye/commit/fd04481d2cc7f45f03af138bb22ed51de41422eb))
+* Show team names on schedule page ([f73cb9e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f73cb9e154864b59509568275ead9080e541f84c))
+* Type-ahead for track robot at comp page - tournament selection ([bc4b62f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bc4b62f579ede630bc1ae16bc5258156ed6012b5))
+
 # [3.30.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.29.2...v3.30.0) (2026-03-27)
 
 
