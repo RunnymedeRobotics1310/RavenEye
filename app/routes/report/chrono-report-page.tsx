@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import { getChronoReport } from "~/common/storage/rb.ts";
+import { getChronoReport, deleteEventLogEntry } from "~/common/storage/rb.ts";
+import { useRole } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import type { ChronoReportRow } from "~/types/ChronoReport.ts";
 
@@ -29,6 +30,8 @@ const ChronoReportPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("");
+  const [deleting, setDeleting] = useState<number | null>(null);
+  const { isSuperuser } = useRole();
 
   useEffect(() => {
     if (!tournamentId || !teamId) return;
@@ -47,6 +50,27 @@ const ChronoReportPage = () => {
         setLoading(false);
       });
   }, [tournamentId, teamId]);
+
+  const handleDelete = async (row: ChronoReportRow) => {
+    if (
+      !window.confirm(
+        `Delete event "${row.eventTypeName}" (${row.eventType}) from match ${matchLabel(row.level, row.matchId)}? This cannot be undone.`,
+      )
+    )
+      return;
+    setDeleting(row.id);
+    try {
+      await deleteEventLogEntry(row.id);
+      setRows((prev) => prev?.filter((r) => r.id !== row.id) ?? null);
+    } catch (err) {
+      alert(
+        "Failed to delete: " +
+          (err instanceof Error ? err.message : String(err)),
+      );
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   return (
     <main>
@@ -89,6 +113,7 @@ const ChronoReportPage = () => {
                     <th>Match</th>
                     <th>Recorder</th>
                     <th>Event Type</th>
+                    {isSuperuser && <th>Actions</th>}
                     <th>Quantity</th>
                     <th>Note</th>
                   </tr>
@@ -103,8 +128,8 @@ const ChronoReportPage = () => {
                         row.eventType.toLowerCase().includes(term)
                       );
                     })
-                    .map((row, i) => (
-                      <tr key={i}>
+                    .map((row) => (
+                      <tr key={row.id}>
                         <td>{formatTimestamp(row.timestamp)}</td>
                         <td>{matchLabel(row.level, row.matchId)}</td>
                         <td>{row.recorder}</td>
@@ -113,8 +138,21 @@ const ChronoReportPage = () => {
                           <br />
                           <code>{row.eventType}</code>
                         </td>
+                        {isSuperuser && (
+                          <td>
+                            <button
+                              className="btn-danger"
+                              disabled={deleting === row.id}
+                              onClick={() => handleDelete(row)}
+                            >
+                              {deleting === row.id
+                                ? "Deleting..."
+                                : "Delete"}
+                            </button>
+                          </td>
+                        )}
                         <td>{row.amount}</td>
-                        <td>{row.note}</td>
+                        <td style={{ textAlign: "left" }}>{row.note}</td>
                       </tr>
                     ))}
                 </tbody>

@@ -1,4 +1,5 @@
 export interface ChronoReportRow {
+  id: number;
   timestamp: string;
   level: string;
   matchId: number;

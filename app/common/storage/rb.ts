@@ -1002,6 +1002,22 @@ export async function getChronoReport(
   }
 }
 
+export async function deleteEventLogEntry(id: number): Promise<void> {
+  const resp = await rbfetch("/api/event/" + id, {
+    method: "DELETE",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+}
+
 export async function getTeamSchedule(
   tournamentId: string,
 ): Promise<TeamScheduleResponse> {

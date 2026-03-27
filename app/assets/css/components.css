@@ -125,6 +125,18 @@ button.secondary:hover {
     color: var(--color-btn-secondary-text);
 }
 
+.btn-danger {
+    background-color: var(--color-danger, #c0392b);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    white-space: nowrap;
+}
+
+.btn-danger:hover {
+    background-color: #a93226;
+}
+
 .home-nav {
     display: flex;
     flex-direction: column;
