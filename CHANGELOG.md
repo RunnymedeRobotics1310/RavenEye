@@ -1,3 +1,15 @@
+# [3.32.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.31.0...v3.32.0) (2026-03-27)
+
+
+### Bug Fixes
+
+* Note fields on pmva sequence page as required ([1d8c455](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1d8c4555d742b53d0651008edf5c0337b50705ac))
+
+
+### Features
+
+* Add delete support ([02b4a30](https://github.com/RunnymedeRobotics1310/RavenEye/commit/02b4a30152da6f706e16a32982d8228fe1e421b3))
+
 # [3.31.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.30.0...v3.31.0) (2026-03-27)
 
 
