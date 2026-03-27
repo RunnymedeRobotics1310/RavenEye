@@ -1,3 +1,10 @@
+# [3.29.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.28.0...v3.29.0) (2026-03-26)
+
+
+### Features
+
+* Defence strat notes now added to team report ([71b2c17](https://github.com/RunnymedeRobotics1310/RavenEye/commit/71b2c17aed3c0ca5c1071f35798826df153e1b7b))
+
 # [3.28.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.27.1...v3.28.0) (2026-03-26)
 
 

@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import { recordEvent } from "~/common/storage/track.ts";
 import type { EventTypeControlProps } from "~/common/track/event-type/eventTypeRegistry.ts";
-import {useTrackNav} from "~/common/track/TrackNavContext.tsx";
+import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
 const GenericEventTypeButton = ({
   eventType,
   sequenceEnd,
   sequenceStart,
 }: EventTypeControlProps) => {
-  const {goBack} = useTrackNav()
+  const { goBack } = useTrackNav();
   const [count, setCount] = useState(0);
   const [flashing, setFlashing] = useState(false);
   const [error, setError] = useState<string>();
@@ -22,7 +22,6 @@ const GenericEventTypeButton = ({
     setTimeout(() => setFlashing(false), 300);
     clearTimeout(countTimer.current);
     countTimer.current = setTimeout(() => setCount(0), 2000);
-
 
     setError(undefined);
     try {
