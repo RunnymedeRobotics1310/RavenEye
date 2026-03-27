@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import {
@@ -32,6 +33,16 @@ const CompStart = ({}: TrackScreenProps) => {
   const { list: allTournaments, loading: allLoading } = useTournamentList();
   const loading = activeLoading || allLoading;
 
+  const [filterInput, setFilterInput] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const filterRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!loading && filterRef.current) {
+      filterRef.current.focus();
+    }
+  }, [loading]);
+
   const currentYear = new Date().getFullYear();
   const seasonTournaments = allTournaments
     .filter((t) => t.season === currentYear)
@@ -59,7 +70,20 @@ const CompStart = ({}: TrackScreenProps) => {
     navigate("comp-level");
   };
 
-  const weekGroups = groupByWeek(seasonTournaments);
+  const filterLower = filterInput.toLowerCase();
+  const filteredTournaments = filterInput
+    ? seasonTournaments.filter(
+        (t) =>
+          t.name.toLowerCase().includes(filterLower) ||
+          t.id.toLowerCase().includes(filterLower),
+      )
+    : seasonTournaments;
+
+  const suggestions = filterInput
+    ? filteredTournaments.slice(0, 8)
+    : [];
+
+  const weekGroups = groupByWeek(filteredTournaments);
 
   if (loading) {
     return (
@@ -98,6 +122,42 @@ const CompStart = ({}: TrackScreenProps) => {
 
         <div className="card">
           <h2>All {currentYear} Events</h2>
+          <div className="typeahead">
+            <input
+              ref={filterRef}
+              className="form-field"
+              type="text"
+              placeholder="Filter by name or code..."
+              value={filterInput}
+              onChange={(e) => {
+                setFilterInput(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && suggestions.length === 1) {
+                  selectTournament(suggestions[0].id);
+                }
+              }}
+            />
+            {showSuggestions && filterInput && suggestions.length > 0 && (
+              <ul className="typeahead-suggestions">
+                {suggestions.map((t) => (
+                  <li key={t.id}>
+                    <button
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setShowSuggestions(false);
+                        selectTournament(t.id);
+                      }}
+                    >
+                      {t.id.slice(String(t.season).length)} — {t.name}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           {[...weekGroups.entries()].map(([weekNum, tournaments]) => {
             const firstStart = tournaments[0].startTime;
             const lastEnd = tournaments[tournaments.length - 1].endTime;
