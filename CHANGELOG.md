@@ -1,3 +1,10 @@
+# [3.33.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.32.0...v3.33.0) (2026-03-27)
+
+
+### Features
+
+* Add ability to delete events when necessary ([a76a974](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a76a9747818e18ab6f29296d3807af1f08ccb869))
+
 # [3.32.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.31.0...v3.32.0) (2026-03-27)
 
 
