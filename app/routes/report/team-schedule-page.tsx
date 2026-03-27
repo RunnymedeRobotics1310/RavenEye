@@ -501,9 +501,22 @@ const TeamScheduleContent = () => {
   const loggedInRef = useRef(loggedIn);
   const showAllInitializedRef = useRef(showAllInitialized);
 
+  const isManualSelection = activeTournaments.length === 0 && manualTournament !== null;
   const selectedTournament =
     activeTournaments.length > 0 ? activeTournaments[0] : manualTournament;
   const selectedTournamentId = selectedTournament?.id ?? null;
+
+  const handleBack = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isManualSelection) {
+      setManualTournament(null);
+      setSchedule(null);
+      setError(null);
+      setShowAllInitialized(false);
+    } else {
+      window.history.back();
+    }
+  };
   const matches = schedule?.matches ?? [];
 
   const hasScored = matches.some((m) => m.winningAlliance !== 0);
@@ -631,7 +644,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
+          <p><a href="#" onClick={handleBack}>&larr; Back</a></p>
         </div>
         <Spinner />
       </main>
@@ -647,7 +660,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
+          <p><a href="#" onClick={handleBack}>&larr; Back</a></p>
         </div>
         <Spinner />
       </main>
@@ -659,7 +672,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
+          <p><a href="#" onClick={handleBack}>&larr; Back</a></p>
         </div>
         <p className="banner banner-warning">{error}</p>
       </main>
@@ -671,7 +684,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
+          <p><a href="#" onClick={handleBack}>&larr; Back</a></p>
         </div>
         <Spinner />
       </main>
@@ -683,7 +696,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
+          <p><a href="#" onClick={handleBack}>&larr; Back</a></p>
         </div>
         <section className="card">
           <p>Schedule data is being loaded for this tournament. It will appear here automatically within a few minutes.</p>
@@ -701,7 +714,7 @@ const TeamScheduleContent = () => {
           {refreshing && <span className="schedule-refresh-indicator"><Spinner /></span>}
         </h1>
         <p className="schedule-nav-row">
-          <a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a>
+          <a href="#" onClick={handleBack}>&larr; Back</a>
           <button
             className="schedule-toggle-btn"
             onClick={() => setShowAll((prev) => !prev)}
