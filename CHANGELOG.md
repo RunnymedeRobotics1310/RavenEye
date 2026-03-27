@@ -1,3 +1,11 @@
+## [3.29.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.29.1...v3.29.2) (2026-03-27)
+
+
+### Bug Fixes
+
+* Default note field is now a 2-lien text area ([4015ad3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4015ad357d5df4fa080ea5e4d58a8a907cfc85df))
+* Default note field is now full-width ([b4cafce](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b4cafcea957056b337c978b535e2a4dc80fb85ac))
+
 ## [3.29.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.29.0...v3.29.1) (2026-03-27)
 
 
