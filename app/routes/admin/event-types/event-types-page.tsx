@@ -1,22 +1,26 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import { NavLink } from "react-router";
-import { useEventTypeList, useStrategyAreaList, useTournamentList } from "~/common/storage/dbhooks.ts";
+import { useEventTypeList, useStrategyAreaList } from "~/common/storage/dbhooks.ts";
 import { useEffect, useMemo, useState } from "react";
-import { ping, deleteEventType } from "~/common/storage/rb.ts";
+import { ping, deleteEventType, getInUseEventTypes } from "~/common/storage/rb.ts";
 import { syncEventTypeList } from "~/common/sync/sync.ts";
+import { useRole } from "~/common/storage/rbauth.ts";
 
 const List = () => {
   const { list: data, loading } = useEventTypeList();
   const { list: strategyAreas } = useStrategyAreaList();
-  const { list: tournaments } = useTournamentList();
+  const { isSuperuser, isAdmin } = useRole();
   const [online, setOnline] = useState(false);
+  const [inUseSet, setInUseSet] = useState<Set<string>>(new Set());
   useEffect(() => { ping().then(setOnline); }, []);
-  const now = new Date();
-  const tournamentActive = tournaments.some(
-    (t) => new Date(t.startTime) <= now && now <= new Date(t.endTime),
-  );
-  const canDelete = online && !tournamentActive;
+  const canManage = isSuperuser || isAdmin;
+  useEffect(() => {
+    if (canManage && online) {
+      getInUseEventTypes().then(setInUseSet).catch(() => {});
+    }
+  }, [canManage, online]);
+  const canDelete = canManage && online;
 
   const handleDelete = async (eventtype: string, name: string) => {
     if (!window.confirm(`Delete "${name}"?`)) return;
@@ -73,7 +77,7 @@ const List = () => {
               <td>{item.disabled ? "Yes" : "No"}</td>
               <td>
                 <NavLink to={`/admin/event-types/${item.eventtype}`} className="btn">Edit</NavLink>
-                {canDelete && <button className="btn" onClick={() => handleDelete(item.eventtype, item.name)}>Delete</button>}
+                {canDelete && !inUseSet.has(item.eventtype) && <button className="btn" onClick={() => handleDelete(item.eventtype, item.name)}>Delete</button>}
               </td>
             </tr>
           ))}

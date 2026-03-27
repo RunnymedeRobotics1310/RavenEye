@@ -223,6 +223,19 @@ export async function deleteEventType(eventtype: string): Promise<void> {
 }
 
 /**
+ * Fetches the set of event type IDs that are currently in use (referenced by event logs or sequence types).
+ * Requires SUPERUSER role.
+ */
+export async function getInUseEventTypes(): Promise<Set<string>> {
+  const resp = await rbfetch("/api/event-types/in-use", {});
+  if (!resp.ok) {
+    throw new Error("Failed to fetch in-use event types: " + resp.status);
+  }
+  const data: string[] = await resp.json();
+  return new Set(data);
+}
+
+/**
  * Fetches the entire list of sequence types from the server.
  *
  * @return {Promise<SequenceType[]>} A promise that resolves to an array of sequence type objects.
@@ -562,6 +575,19 @@ export async function deleteSequenceType(id: number): Promise<void> {
     }
     throw new Error(detail);
   }
+}
+
+/**
+ * Fetches the set of sequence type IDs that are currently in use (have event log data recorded).
+ * Requires ADMIN or SUPERUSER role.
+ */
+export async function getInUseSequenceTypes(): Promise<Set<number>> {
+  const resp = await rbfetch("/api/sequence-types/in-use", {});
+  if (!resp.ok) {
+    throw new Error("Failed to fetch in-use sequence types: " + resp.status);
+  }
+  const data: number[] = await resp.json();
+  return new Set(data);
 }
 
 export async function deleteUser(id: number): Promise<void> {

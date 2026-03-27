@@ -1,4 +1,4 @@
-import { type FormEvent, useState, useEffect, useMemo } from "react";
+import { type FormEvent, useState, useEffect, useMemo, useRef } from "react";
 import { NavLink } from "react-router";
 import type { SequenceType } from "~/types/SequenceType.ts";
 import type { SequenceEvent } from "~/types/SequenceEvent.ts";
@@ -89,6 +89,50 @@ export const SequenceTypeForm = ({
     const newEvents = item.events.filter((_, i) => i !== index);
     setItem({ ...item, events: newEvents });
   };
+
+  const [typeaheadQuery, setTypeaheadQuery] = useState("");
+  const [typeaheadOpen, setTypeaheadOpen] = useState(false);
+  const typeaheadRef = useRef<HTMLDivElement>(null);
+
+  const typeaheadResults = useMemo(() => {
+    if (!typeaheadQuery.trim()) return [];
+    const q = typeaheadQuery.toLowerCase();
+    return filteredEventTypes.filter(
+      (et) =>
+        et.name.toLowerCase().includes(q) ||
+        et.eventtype.toLowerCase().includes(q),
+    );
+  }, [typeaheadQuery, filteredEventTypes]);
+
+  const addEventFromTypeahead = (et: (typeof filteredEventTypes)[0]) => {
+    const newEvent: SequenceEvent = {
+      id: 0,
+      sequencetype: item,
+      eventtype: et,
+      startOfSequence: false,
+      endOfSequence: false,
+    };
+    if (item.events) {
+      setItem({ ...item, events: [...item.events, newEvent] });
+    } else {
+      setItem({ ...item, events: [newEvent] });
+    }
+    setTypeaheadQuery("");
+    setTypeaheadOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        typeaheadRef.current &&
+        !typeaheadRef.current.contains(e.target as Node)
+      ) {
+        setTypeaheadOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -253,9 +297,46 @@ export const SequenceTypeForm = ({
               ))}
             </tbody>
           </table>
-          <button type="button" onClick={addEvent}>
-            Add Event
-          </button>
+          <div className="add-event-controls">
+            <div className="typeahead" ref={typeaheadRef}>
+              <input
+                type="text"
+                placeholder="Type event name or code to add..."
+                value={typeaheadQuery}
+                onChange={(e) => {
+                  setTypeaheadQuery(e.target.value);
+                  setTypeaheadOpen(true);
+                }}
+                onFocus={() => {
+                  if (typeaheadQuery.trim()) setTypeaheadOpen(true);
+                }}
+              />
+              {typeaheadOpen && typeaheadResults.length > 0 && (
+                <ul className="typeahead-suggestions">
+                  {typeaheadResults.map((et) => (
+                    <li key={et.eventtype}>
+                      <button
+                        type="button"
+                        onClick={() => addEventFromTypeahead(et)}
+                      >
+                        {et.name} ({et.eventtype})
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {typeaheadOpen &&
+                typeaheadQuery.trim() &&
+                typeaheadResults.length === 0 && (
+                  <ul className="typeahead-suggestions">
+                    <li className="typeahead-no-results">No matching event types</li>
+                  </ul>
+                )}
+            </div>
+            <button type="button" onClick={addEvent}>
+              Add Event
+            </button>
+          </div>
         </div>
       )}
       <hr />

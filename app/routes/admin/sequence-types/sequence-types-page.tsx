@@ -4,23 +4,26 @@ import { NavLink } from "react-router";
 import {
   useSequenceTypeList,
   useStrategyAreaList,
-  useTournamentList,
 } from "~/common/storage/dbhooks.ts";
 import { useEffect, useMemo, useState } from "react";
-import { ping, deleteSequenceType } from "~/common/storage/rb.ts";
+import { ping, deleteSequenceType, getInUseSequenceTypes } from "~/common/storage/rb.ts";
 import { syncSequenceTypeList } from "~/common/sync/sync.ts";
+import { useRole } from "~/common/storage/rbauth.ts";
 
 const List = () => {
   const { list: data, loading } = useSequenceTypeList();
   const { list: strategyAreas } = useStrategyAreaList();
-  const { list: tournaments } = useTournamentList();
+  const { isSuperuser, isAdmin } = useRole();
   const [online, setOnline] = useState(false);
+  const [inUseSet, setInUseSet] = useState<Set<number>>(new Set());
   useEffect(() => { ping().then(setOnline); }, []);
-  const now = new Date();
-  const tournamentActive = tournaments.some(
-    (t) => new Date(t.startTime) <= now && now <= new Date(t.endTime),
-  );
-  const canDelete = online && !tournamentActive;
+  const canManage = isSuperuser || isAdmin;
+  useEffect(() => {
+    if (canManage && online) {
+      getInUseSequenceTypes().then(setInUseSet).catch(() => {});
+    }
+  }, [canManage, online]);
+  const canDelete = canManage && online;
 
   const handleDelete = async (id: number, name: string) => {
     if (!window.confirm(`Delete "${name}"?`)) return;
@@ -78,7 +81,7 @@ const List = () => {
               <td>{item.events?.length || 0}</td>
               <td>
                 <NavLink to={`/admin/sequence-types/${item.id}`} className="btn">Edit</NavLink>
-                {canDelete && <button className="btn" onClick={() => handleDelete(item.id, item.name)}>Delete</button>}
+                {canDelete && !inUseSet.has(item.id) && <button className="btn" onClick={() => handleDelete(item.id, item.name)}>Delete</button>}
               </td>
             </tr>
           ))}
