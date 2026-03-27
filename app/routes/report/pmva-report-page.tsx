@@ -592,7 +592,10 @@ function HopperCard({ hopper }: { hopper: HopperSection }) {
     <section className="card">
       <h2>Intaking and Scoring</h2>
       <p className="pmva-legend">
-        <strong>{hopper.shootingAll?.sequenceCount ?? 0}</strong> sequences analyzed
+        {hopper.shootingAll && hopper.shootingAll.matchCycles.length > 0 && (
+            <>Matches analyzed: <strong>{hopper.shootingAll.matchCycles.map((m) => matchLabel(m.level, m.matchId)).join(", ")}</strong><br /></>
+        )}
+        Total count of sequences analyzed: <strong>{hopper.shootingAll?.sequenceCount ?? 0}</strong>
       </p>
 
       <LoadingSection loading={hopper.loading} />
