@@ -18,6 +18,7 @@ import type {
 
 const REFRESH_INTERVAL_ACTIVE_MS = 30_000;
 const REFRESH_INTERVAL_IDLE_MS = 30_000;
+const ACTIVE_TOURNAMENT_CUTOFF = 36 * 60 * 60 * 1000; // 36 hours
 
 function hasRed4(matches: TeamScheduleMatch[]): boolean {
   return matches.some((m) => m.red4 !== 0);
@@ -545,6 +546,25 @@ const TeamScheduleContent = () => {
     : null;
   const ownerRp = ownerRankEntry?.rp ?? null;
   const ownerRs = ownerRankEntry?.rs ?? null;
+
+  // Order schedule sections so the current phase appears first, unless the tournament is over
+  const allSections = [
+    { label: "Practice", level: "Practice" as const, hasData: schedule?.hasPractice ?? false },
+    { label: "Qualification", level: "Qualification" as const, hasData: schedule?.hasQualification ?? false },
+    { label: "Elimination", level: "Playoff" as const, hasData: schedule?.hasPlayoff ?? false },
+  ];
+  const tournamentOver = selectedTournament
+    ? Date.now() > new Date(selectedTournament.endTime).getTime() + ACTIVE_TOURNAMENT_CUTOFF
+    : false;
+  const currentIndex = tournamentOver ? 0
+    : schedule?.hasPlayoff ? 2
+    : schedule?.hasQualification ? 1
+    : 0;
+  const scheduleSections = [
+    ...allSections.slice(currentIndex),
+    ...allSections.slice(0, currentIndex),
+  ];
+
   const title = schedule?.tournamentName || "Tournament Report";
 
   if (tournamentsLoading) {
@@ -632,69 +652,46 @@ const TeamScheduleContent = () => {
         </p>
       </div>
       <QueueBanner queueStatus={queueStatus} />
-      {!schedule.hasQualification && (
-        <ScheduleTable
-          label="Practice"
-          level="Practice"
-          matches={schedule.matches}
-          ownerTeam={schedule.teamNumber}
-          showAll={showAll}
-          hasData={schedule.hasPractice}
-          tournamentId={schedule.tournamentId}
-          onFetchSchedule={handleFetchSchedule}
-          fetching={fetching}
-          countdown={countdown}
-          loggedIn={loggedIn}
-        />
+      {scheduleSections.map((section) =>
+        section.level === "Qualification" ? (
+          <ScheduleTable
+            key={section.level}
+            label={section.label}
+            level={section.level}
+            matches={schedule.matches}
+            ownerTeam={schedule.teamNumber}
+            showAll={showAll}
+            hasData={section.hasData}
+            tournamentId={schedule.tournamentId}
+            onFetchSchedule={handleFetchSchedule}
+            fetching={fetching}
+            countdown={countdown}
+            ownerRank={ownerRank}
+            ownerRp={ownerRp}
+            ownerRs={ownerRs}
+            loggedIn={loggedIn}
+          />
+        ) : (
+          <ScheduleTable
+            key={section.level}
+            label={section.label}
+            level={section.level}
+            matches={schedule.matches}
+            ownerTeam={schedule.teamNumber}
+            showAll={showAll}
+            hasData={section.hasData}
+            tournamentId={schedule.tournamentId}
+            onFetchSchedule={handleFetchSchedule}
+            fetching={fetching}
+            countdown={countdown}
+            loggedIn={loggedIn}
+          />
+        ),
       )}
-      <ScheduleTable
-        label="Qualification"
-        level="Qualification"
-        matches={schedule.matches}
-        ownerTeam={schedule.teamNumber}
-        showAll={showAll}
-        hasData={schedule.hasQualification}
-        tournamentId={schedule.tournamentId}
-        onFetchSchedule={handleFetchSchedule}
-        fetching={fetching}
-        countdown={countdown}
-        ownerRank={ownerRank}
-        ownerRp={ownerRp}
-        ownerRs={ownerRs}
-        loggedIn={loggedIn}
-      />
-      <ScheduleTable
-        label="Elimination"
-        level="Playoff"
-        matches={schedule.matches}
-        ownerTeam={schedule.teamNumber}
-        showAll={showAll}
-        hasData={schedule.hasPlayoff}
-        tournamentId={schedule.tournamentId}
-        onFetchSchedule={handleFetchSchedule}
-        fetching={fetching}
-        countdown={countdown}
-        loggedIn={loggedIn}
-      />
       <RankingsTable
         rankings={schedule.rankings}
         ownerTeam={schedule.teamNumber}
       />
-      {schedule.hasQualification && schedule.hasPractice && (
-        <ScheduleTable
-          label="Practice"
-          level="Practice"
-          matches={schedule.matches}
-          ownerTeam={schedule.teamNumber}
-          showAll={showAll}
-          hasData={schedule.hasPractice}
-          tournamentId={schedule.tournamentId}
-          onFetchSchedule={handleFetchSchedule}
-          fetching={fetching}
-          countdown={countdown}
-          loggedIn={loggedIn}
-        />
-      )}
       {queueStatus && queueStatus.teamStatus && (
         <p style={{ textAlign: "center", fontSize: "0.75rem", marginTop: "1rem" }}>
           Queueing data from{" "}
