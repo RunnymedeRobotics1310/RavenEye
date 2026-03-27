@@ -48,7 +48,6 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
         if (unloadComments) {
             await recordEvent("pmva-shoot-note", -1, unloadComments)
         }
-        // await recordEvent("pmva-shoot-intake-comments", )
         if (shootPosition === ShootPosition.close) {
             await recordEvent("pmva-shoot-close")
         } else if (shootPosition === ShootPosition.mid) {

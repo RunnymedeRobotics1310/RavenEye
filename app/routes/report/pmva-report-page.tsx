@@ -142,43 +142,7 @@ function GeneralCard({ general, matchCount }: { general: GeneralSection; matchCo
         </tbody>
       </table>
 
-      {general.breakdownMatches.length > 0 && (
-        <>
-          <h3>Breakdown Matches</h3>
-          <table className="pmva-stats-table">
-            <thead>
-              <tr>
-                <th>Match</th>
-                <th>Note</th>
-                <th>Video</th>
-              </tr>
-            </thead>
-            <tbody>
-              {general.breakdownMatches.map((m) => (
-                <tr key={`${m.level}-${m.matchId}`}>
-                  <td>{matchLabel(m.level, m.matchId)}</td>
-                  <td>{m.note}</td>
-                  <td>
-                    {m.videoLink ? (
-                      <a
-                        href={m.videoLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Video
-                      </a>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      )}
-
-      <CommentAccordion title="Breakdown Comments" comments={general.breakdownNotes} />
+      <CommentAccordion title="Breakdown Details" comments={general.breakdownNotes} />
       <CommentAccordion title="Intake Comments" comments={general.intakeComments} />
       <CommentAccordion title="Shooter Comments" comments={general.shooterComments} />
       <CommentAccordion title="General Comments" comments={general.generalComments} />
@@ -311,7 +275,7 @@ function HopperCard({
 }) {
   return (
     <section className="card">
-      <h2>Fill Then Empty Hopper</h2>
+      <h2>Intaking and Scoring</h2>
 
       <LoadingSection loading={hopper.loading} />
 
@@ -349,82 +313,6 @@ function HopperCard({
           matchCount={matchCount}
         />
       )}
-    </section>
-  );
-}
-
-function SwiCard({
-  swi,
-  matchCount,
-}: {
-  swi: SwiSection;
-  matchCount: number;
-}) {
-  const hasData = swi.perMatch?.length > 0;
-  return (
-    <section className="card">
-      <h2>Shoot While Intaking (SWI)</h2>
-
-      {!hasData ? (
-        <p>No SWI sequences recorded.</p>
-      ) : (
-        <>
-          <table className="pmva-stats-table">
-            <tbody>
-              <tr>
-                <td>Average SWI Sequences Per Match</td>
-                <td>{formatNum(swi.avgSequencesPerMatch)}</td>
-              </tr>
-              <tr>
-                <td>Average Scores Per Sequence</td>
-                <td>{formatNum(swi.avgScoresPerSequence)}</td>
-              </tr>
-              <tr>
-                <td>Average Score %</td>
-                <td>{formatPct(swi.avgScorePercentPerSequence)}</td>
-              </tr>
-              <tr>
-                <td>Average Stuck Balls Per Sequence</td>
-                <td>{formatNum(swi.avgStuckPerSequence)}</td>
-              </tr>
-              <tr>
-                <td>Average SWI Duration</td>
-                <td>{formatNum(swi.avgDurationSeconds)}s</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <BarChart
-            label="SWI Sequences Per Match"
-            data={swi.perMatch.map((m) => ({
-              matchId: m.matchId,
-              level: m.level,
-              value: m.sequenceCount,
-            }))}
-          />
-          <BarChart
-            label="Scores Per Match"
-            data={swi.perMatch.map((m) => ({
-              matchId: m.matchId,
-              level: m.level,
-              value: m.totalScores,
-            }))}
-          />
-          <BarChart
-            label="Hit Rate Per Match"
-            data={swi.perMatch.map((m) => ({
-              matchId: m.matchId,
-              level: m.level,
-              value: m.hitRate,
-            }))}
-            valueFormatter={(v) => formatPct(v)}
-          />
-        </>
-      )}
-
-      <CommentAccordion title="Stuck Comments" comments={swi.stuckComments} />
-      <CommentAccordion title="General Comments" comments={swi.generalComments} />
-      <CommentAccordion title="Position Comments" comments={swi.positionComments} />
     </section>
   );
 }
@@ -609,7 +497,6 @@ const PmvaReportPage = () => {
 
             <GeneralCard general={report.general} matchCount={report.matchCount} />
             <HopperCard hopper={report.hopper} matchCount={report.matchCount} />
-            <SwiCard swi={report.swi} matchCount={report.matchCount} />
 
             <RelatedReports
               tournamentId={tournamentId!}
