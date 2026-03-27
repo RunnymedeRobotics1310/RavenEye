@@ -190,7 +190,7 @@ const SummaryReportPage = () => {
               .map((ts) => (
                 <div key={ts.tournamentId}>
                   <h3>{tournamentName(ts.tournamentId)}</h3>
-                  {ts.stats.length === 0 ? (
+                  {!ts.stats || ts.stats.length === 0 ? (
                     <p>No matching events for this tournament.</p>
                   ) : (
                     <div className="mega-report-table-wrapper">
