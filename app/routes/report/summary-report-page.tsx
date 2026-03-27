@@ -14,6 +14,7 @@ import type {
   SequenceReportLink,
   DefenceNote,
   CountPerMatchStat,
+  FuelPickupStats,
   CustomTournamentStats,
 } from "~/types/TeamSummaryReport.ts";
 
@@ -31,6 +32,9 @@ const SummaryReportPage = () => {
   const [shootToHomeStats, setShootToHomeStats] = useState<
     CountPerMatchStat[]
   >([]);
+  const [fuelPickupStats, setFuelPickupStats] = useState<FuelPickupStats[]>(
+    [],
+  );
   const [customStats, setCustomStats] = useState<CustomTournamentStats[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,6 +64,7 @@ const SummaryReportPage = () => {
           setSequenceLinks(resp.report.sequenceReportLinks);
           setDefenceNotes(resp.report.defenceNotes ?? []);
           setShootToHomeStats(resp.report.shootToHomeStats ?? []);
+          setFuelPickupStats(resp.report.fuelPickupStats ?? []);
         } else {
           setError(resp.reason || "Failed to load team summary report");
         }
@@ -247,6 +252,44 @@ const SummaryReportPage = () => {
                         <td>{tournamentName(s.tournamentId)}</td>
                         <td>{s.averageCountPerMatch.toFixed(2)}</td>
                         <td>{s.totalCount}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {fuelPickupStats.length > 0 && (
+          <section className="card">
+            <h2>Fuel Pickup</h2>
+            <div className="mega-report-table-wrapper">
+              <table className="mega-report-table">
+                <thead>
+                  <tr>
+                    <th>Tournament</th>
+                    <th>Ball Pit</th>
+                    <th>Home</th>
+                    <th>Outpost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...fuelPickupStats]
+                    .sort((a, b) => {
+                      const aIdx = allTournaments.findIndex(
+                        (t) => t.id === a.tournamentId,
+                      );
+                      const bIdx = allTournaments.findIndex(
+                        (t) => t.id === b.tournamentId,
+                      );
+                      return bIdx - aIdx;
+                    })
+                    .map((s) => (
+                      <tr key={s.tournamentId}>
+                        <td>{tournamentName(s.tournamentId)}</td>
+                        <td>{s.ballPitCount}</td>
+                        <td>{s.homeCount}</td>
+                        <td>{s.outpostCount}</td>
                       </tr>
                     ))}
                 </tbody>

@@ -34,12 +34,20 @@ export interface CountPerMatchStat {
   totalCount: number;
 }
 
+export interface FuelPickupStats {
+  tournamentId: string;
+  ballPitCount: number;
+  homeCount: number;
+  outpostCount: number;
+}
+
 export interface TeamSummaryReport {
   comments: TeamReportComment[];
   robotAlerts: TeamReportRobotAlert[];
   sequenceReportLinks: SequenceReportLink[];
   defenceNotes: DefenceNote[];
   shootToHomeStats: CountPerMatchStat[];
+  fuelPickupStats: FuelPickupStats[];
 }
 
 export interface TeamSummaryReportResponse {
