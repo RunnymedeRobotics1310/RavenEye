@@ -350,6 +350,42 @@ section.usersAdmin {
     max-width: 24rem;
 }
 
+.typeahead {
+    position: relative;
+    max-width: 24rem;
+}
+
+.typeahead-suggestions {
+    position: absolute;
+    z-index: 10;
+    width: 100%;
+    max-height: 15rem;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-top: none;
+    border-radius: 0 0 var(--radius-sm, 4px) var(--radius-sm, 4px);
+}
+
+.typeahead-suggestions li button {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: none;
+    background: none;
+    color: var(--color-text-primary);
+    text-align: left;
+    cursor: pointer;
+    font-size: inherit;
+}
+
+.typeahead-suggestions li button:hover {
+    background: var(--color-bg-secondary);
+}
+
 .form-hint {
     margin: 0.2rem 0 0 1.4rem;
     font-size: 0.75rem;
