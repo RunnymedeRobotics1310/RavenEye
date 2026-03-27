@@ -123,7 +123,6 @@ const COLOR_SHOTS = "#6b7280";
 const COLOR_SCORES = "#22c55e";
 const COLOR_MISSES = "#ef4444";
 const COLOR_STUCK = "#f59e0b";
-const COLOR_TIME = "#3b82f6";
 const COLOR_SHOTS_SEC = "#8b5cf6";
 const COLOR_SCORES_SEC = "#06b6d4";
 
@@ -140,8 +139,8 @@ function MatchCyclesChart({
 }) {
   if (data.length === 0) return null;
   const W = 500;
-  const H = 200;
-  const pad = { top: 20, right: 20, bottom: 30, left: 35 };
+  const H = 210;
+  const pad = { top: 20, right: 20, bottom: 40, left: 35 };
   const plotW = W - pad.left - pad.right;
   const plotH = H - pad.top - pad.bottom;
   const yMax = Math.max(max, 1);
@@ -149,7 +148,7 @@ function MatchCyclesChart({
 
   return (
     <div className="pmva-svg-chart">
-      <h4>Match Cycles</h4>
+      <h4>Cycles per Match</h4>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
         {/* Y axis gridlines */}
         {Array.from({ length: 5 }, (_, i) => {
@@ -207,6 +206,8 @@ function MatchCyclesChart({
         {/* Axes */}
         <line className="axis-line" x1={pad.left} y1={pad.top} x2={pad.left} y2={H - pad.bottom} />
         <line className="axis-line" x1={pad.left} y1={H - pad.bottom} x2={W - pad.right} y2={H - pad.bottom} />
+        {/* X axis title */}
+        <text className="axis-label" x={pad.left + plotW / 2} y={H - 4} textAnchor="middle">Match</text>
       </svg>
     </div>
   );
@@ -215,8 +216,8 @@ function MatchCyclesChart({
 function HitsMissesChart({ data }: { data: MatchCycleData[] }) {
   if (data.length === 0) return null;
   const W = 500;
-  const H = 220;
-  const pad = { top: 20, right: 20, bottom: 30, left: 35 };
+  const H = 230;
+  const pad = { top: 20, right: 20, bottom: 40, left: 35 };
   const plotW = W - pad.left - pad.right;
   const plotH = H - pad.top - pad.bottom;
   const yMax = Math.max(
@@ -234,7 +235,7 @@ function HitsMissesChart({ data }: { data: MatchCycleData[] }) {
 
   return (
     <div className="pmva-svg-chart">
-      <h4>Hits vs Misses</h4>
+      <h4>Shooting by Match</h4>
       <div className="pmva-chart-legend">
         {series.map((s) => (
           <span key={s.key} className="pmva-chart-legend-item">
@@ -286,6 +287,8 @@ function HitsMissesChart({ data }: { data: MatchCycleData[] }) {
         {/* Axes */}
         <line className="axis-line" x1={pad.left} y1={pad.top} x2={pad.left} y2={H - pad.bottom} />
         <line className="axis-line" x1={pad.left} y1={H - pad.bottom} x2={W - pad.right} y2={H - pad.bottom} />
+        {/* X axis title */}
+        <text className="axis-label" x={pad.left + plotW / 2} y={H - 4} textAnchor="middle">Match</text>
       </svg>
     </div>
   );
@@ -296,8 +299,8 @@ function ShotsLineChart({ data }: { data: SequenceShotData[] }) {
   if (data.length === 0) return null;
 
   const W = 500;
-  const H = 220;
-  const pad = { top: 20, right: 20, bottom: 30, left: 35 };
+  const H = 230;
+  const pad = { top: 20, right: 20, bottom: 40, left: 35 };
   const plotW = W - pad.left - pad.right;
   const plotH = H - pad.top - pad.bottom;
   const yMax = Math.max(...data.map((d) => Math.max(d.shots, d.scores, d.misses)), 1);
@@ -325,7 +328,7 @@ function ShotsLineChart({ data }: { data: SequenceShotData[] }) {
 
   return (
     <div className="pmva-svg-chart">
-      <h4>Shots Graph</h4>
+      <h4>Shooting by Tournament</h4>
       <div className="pmva-chart-legend">
         {series.map((s) => (
           <span key={s.label} className="pmva-chart-legend-item">
@@ -379,6 +382,8 @@ function ShotsLineChart({ data }: { data: SequenceShotData[] }) {
         {/* Axes */}
         <line className="axis-line" x1={pad.left} y1={pad.top} x2={pad.left} y2={H - pad.bottom} />
         <line className="axis-line" x1={pad.left} y1={H - pad.bottom} x2={W - pad.right} y2={H - pad.bottom} />
+        {/* X axis title */}
+        <text className="axis-label" x={pad.left + plotW / 2} y={H - 4} textAnchor="middle">Sequence</text>
       </svg>
       {hover && (
         <div
@@ -397,8 +402,8 @@ function TimeLineChart({ data }: { data: SequenceShotData[] }) {
   if (data.length === 0) return null;
 
   const W = 500;
-  const H = 220;
-  const pad = { top: 20, right: 20, bottom: 30, left: 35 };
+  const H = 230;
+  const pad = { top: 20, right: 20, bottom: 40, left: 35 };
   const plotW = W - pad.left - pad.right;
   const plotH = H - pad.top - pad.bottom;
   const yMax = Math.max(
@@ -421,14 +426,14 @@ function TimeLineChart({ data }: { data: SequenceShotData[] }) {
   }
 
   const series = [
-    { getter: (d: SequenceShotData) => d.unloadSeconds, color: COLOR_TIME, label: "Unload Time (s)" },
+    { getter: (d: SequenceShotData) => d.unloadSeconds, color: COLOR_SHOTS, label: "Unload Time (s)" },
     { getter: (d: SequenceShotData) => d.shotsPerSecond, color: COLOR_SHOTS_SEC, label: "Shots/sec" },
     { getter: (d: SequenceShotData) => d.scoresPerSecond, color: COLOR_SCORES_SEC, label: "Scores/sec" },
   ];
 
   return (
     <div className="pmva-svg-chart">
-      <h4>Time Graph</h4>
+      <h4>Timing - Duration and Shot Rate</h4>
       <div className="pmva-chart-legend">
         {series.map((s) => (
           <span key={s.label} className="pmva-chart-legend-item">
@@ -482,6 +487,8 @@ function TimeLineChart({ data }: { data: SequenceShotData[] }) {
         {/* Axes */}
         <line className="axis-line" x1={pad.left} y1={pad.top} x2={pad.left} y2={H - pad.bottom} />
         <line className="axis-line" x1={pad.left} y1={H - pad.bottom} x2={W - pad.right} y2={H - pad.bottom} />
+        {/* X axis title */}
+        <text className="axis-label" x={pad.left + plotW / 2} y={H - 4} textAnchor="middle">Sequence</text>
       </svg>
       {hover && (
         <div
@@ -532,9 +539,11 @@ function LoadingSection({ loading }: { loading: LoadingStats }) {
 function ShootingSection({
   view,
   title,
+  defaultOpen,
 }: {
   view: ShootingView;
   title: string;
+  defaultOpen?: boolean;
 }) {
   if (view.sequenceCount === 0) return null;
 
@@ -547,34 +556,34 @@ function ShootingSection({
   const totalScores = view.sequenceShots.reduce((sum, s) => sum + s.scores, 0);
 
   return (
-    <>
-      <h3>{title}</h3>
+    <details className="pmva-accordion" open={defaultOpen}>
+      <summary>{title} ({view.sequenceCount} sequences)</summary>
+      <div className="pmva-accordion-body">
+        <MatchCyclesChart data={view.matchCycles} avg={view.avgCyclesPerMatch} max={view.maxCyclesPerMatch} />
 
-      <h4>Match Cycles</h4>
-      <MatchCyclesChart data={view.matchCycles} avg={view.avgCyclesPerMatch} max={view.maxCyclesPerMatch} />
+        <HitsMissesChart data={view.matchCycles} />
 
-      <HitsMissesChart data={view.matchCycles} />
+        <ShotsLineChart data={view.sequenceShots} />
 
-      <ShotsLineChart data={view.sequenceShots} />
-
-      <TimeLineChart data={view.sequenceShots} />
-      <table className="pmva-stats-table">
-        <tbody>
-          <tr>
-            <td>Average Unload Time Per Sequence</td>
-            <td>{formatNum(avgUnload)}s</td>
-          </tr>
-          <tr>
-            <td>Shots Per Second</td>
-            <td>{formatNum(safeDivide(totalShots, totalTime))}</td>
-          </tr>
-          <tr>
-            <td>Scores Per Second</td>
-            <td>{formatNum(safeDivide(totalScores, totalTime))}</td>
-          </tr>
-        </tbody>
-      </table>
-    </>
+        <TimeLineChart data={view.sequenceShots} />
+        <table className="pmva-stats-table">
+          <tbody>
+            <tr>
+              <td>Average Unload Time Per Sequence</td>
+              <td>{formatNum(avgUnload)}s</td>
+            </tr>
+            <tr>
+              <td>Shots Per Second</td>
+              <td>{formatNum(safeDivide(totalShots, totalTime))}</td>
+            </tr>
+            <tr>
+              <td>Scores Per Second</td>
+              <td>{formatNum(safeDivide(totalScores, totalTime))}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   );
 }
 
@@ -589,7 +598,7 @@ function HopperCard({ hopper }: { hopper: HopperSection }) {
       <LoadingSection loading={hopper.loading} />
 
       {hopper.shootingAll && (
-        <ShootingSection view={hopper.shootingAll} title="Shooting — All" />
+        <ShootingSection view={hopper.shootingAll} title="Shooting — All" defaultOpen />
       )}
       {hopper.shootingClose && hopper.shootingClose.sequenceCount > 0 && (
         <ShootingSection view={hopper.shootingClose} title="Shooting — Close" />
