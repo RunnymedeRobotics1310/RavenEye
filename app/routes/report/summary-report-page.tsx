@@ -12,6 +12,7 @@ import type {
   TeamReportComment,
   TeamReportRobotAlert,
   SequenceReportLink,
+  DefenceNote,
   CustomTournamentStats,
 } from "~/types/TeamSummaryReport.ts";
 
@@ -25,6 +26,7 @@ const SummaryReportPage = () => {
   const [sequenceLinks, setSequenceLinks] = useState<
     SequenceReportLink[] | null
   >(null);
+  const [defenceNotes, setDefenceNotes] = useState<DefenceNote[] | null>(null);
   const [customStats, setCustomStats] = useState<CustomTournamentStats[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,6 +54,7 @@ const SummaryReportPage = () => {
           setComments(resp.report.comments);
           setRobotAlerts(resp.report.robotAlerts);
           setSequenceLinks(resp.report.sequenceReportLinks);
+          setDefenceNotes(resp.report.defenceNotes ?? []);
         } else {
           setError(resp.reason || "Failed to load team summary report");
         }
@@ -154,24 +157,6 @@ const SummaryReportPage = () => {
           </section>
         )}
 
-        {compLinks.length > 0 && (
-          <section className="card">
-            <h2>Tournament Sequence Reports</h2>
-            <ul className="nav-list">
-              {compLinks.map((link) => (
-                <li key={`${link.sequenceTypeCode}-${link.tournamentId}`}>
-                  <NavLink
-                    to={`/report/tournament/${link.sequenceTypeCode}/${teamId}/${link.tournamentId}`}
-                    className="btn-secondary"
-                  >
-                    {link.sequenceTypeName} @ {tournamentName(link.tournamentId)}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
         {customStats.length > 0 && (
           <section className="card">
             <h2>
@@ -227,6 +212,63 @@ const SummaryReportPage = () => {
                 </div>
               ))}
           </section>
+        )}
+
+        {defenceNotes && defenceNotes.length > 0 && (
+          <section className="card">
+            <h2>Defence Strategy Notes</h2>
+            {[...new Set(defenceNotes.map((n) => n.tournamentId))].map(
+              (tid) => (
+                <div key={tid}>
+                  <h3>{tournamentName(tid)}</h3>
+                  <div className="mega-report-table-wrapper">
+                    <table className="mega-report-table chrono-table">
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Scout</th>
+                          <th>Match</th>
+                          <th>Note</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {defenceNotes
+                          .filter((n) => n.tournamentId === tid)
+                          .map((n, i) => (
+                            <tr key={i}>
+                              <td>
+                                {new Date(n.timestamp).toLocaleString()}
+                              </td>
+                              <td>{n.displayName}</td>
+                              <td>{n.matchId}</td>
+                              <td>{n.note}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ),
+            )}
+          </section>
+        )}
+
+        {compLinks.length > 0 && (
+            <section className="card">
+              <h2>Tournament Sequence Reports</h2>
+              <ul className="nav-list">
+                {compLinks.map((link) => (
+                    <li key={`${link.sequenceTypeCode}-${link.tournamentId}`}>
+                      <NavLink
+                          to={`/report/tournament/${link.sequenceTypeCode}/${teamId}/${link.tournamentId}`}
+                          className="btn-secondary"
+                      >
+                        {link.sequenceTypeName} @ {tournamentName(link.tournamentId)}
+                      </NavLink>
+                    </li>
+                ))}
+              </ul>
+            </section>
         )}
 
         {drillLinks.length > 0 && (

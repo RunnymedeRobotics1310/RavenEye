@@ -95,7 +95,7 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
       ))}
       {standaloneEvents.length > 0 && (
         <>
-          <h3>Stand-Alone Events</h3>
+          <h3>Non-Sequence Events</h3>
           {standaloneEvents.map((et) => (
             <span key={et.eventtype}>
               <EventTypeControl eventType={et} sequenceStart={false} sequenceEnd={false} />

@@ -32,59 +32,109 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
         // loadNotes --> stores pmva-load-comments
         // pmva-unload-comments
     }
+
     return <main className="track pmva">
         <div>
             <TrackNav/>
-            <h2>Post-Match Video Analysis - Pickup, Score & Shoot Sequence</h2>
-            <p>Was the hopper filled?
-                <button onClick={() => setHopperFilled(true)}
-                        disabled={hopperFilled}>Yes</button>
-                <button onClick={() => setHopperFilled(false)}
-                        disabled={!(hopperFilled === undefined) && !hopperFilled}>No
-                </button>
-            </p>
-            <p>
-                Anything noteworthy about this load?
-                <textarea onChange={(e) => setLoadNotes(e.target.value)}></textarea>
-            </p>
-            <p>Click on the buttons below to add to the count for this sequence. Play the video back slowly and get an
-                accurate count for the sequence. The count is shown so that you can verify the amout if you're not sure
-                what you saw.</p>
-            <button onClick={() => setScoreCount(scoreCount + 1)}>Score One</button>
-            ({scoreCount})
-            <button onClick={() => setMissCount(missCount + 1)}>Miss One</button> ({missCount})
-            ({Math.round(100 * scoreCount / Math.max(1, scoreCount + missCount))}%)
-            <p>How long did it take to unload (rewind the video and play the sequence back. Use
-                either the video time or a stopwatch)
-                <input type="number" min={0} max={155}
-                       onClick={(e) => setUnloadSeconds(Number((e.target as HTMLInputElement).value))}/> seconds.
-            </p>
-            <p>How much fuel was stuck after the end of the sequence?
-                <input type="number" min={0} max={50}
-                       onClick={(e) => setStuckFuelCount(Number((e.target as HTMLInputElement).value))}/> pieces.
-            </p>
-            <p>Anything noteworthy about this shooting session?
-                <textarea onChange={(e) => setUnloadComments(e.target.value)}></textarea>
-            </p>
-            <p>Where was the robot while shooting? (select one)
-                <button disabled={shootPosition === ShootPosition.close}
-                        onClick={() => setShootPosition(ShootPosition.close)}>Close</button>
-                <button disabled={shootPosition === ShootPosition.mid}
-                        onClick={() => setShootPosition(ShootPosition.mid)}>Mid
-                </button>
-                <button disabled={shootPosition === ShootPosition.far}
-                        onClick={() => setShootPosition(ShootPosition.far)}>Far
-                </button>
-            </p>
-            <p>Was the robot moving while shooting?
-                <button disabled={movingWhileShooting} onClick={() => setMovingWhileShooting(true)}>Moving</button>
-                <button disabled={!(movingWhileShooting === undefined) && !movingWhileShooting} onClick={() => setMovingWhileShooting(false)}>Still</button>
-            </p>
-            <p>Was the robot shooting while intaking during this sequence?
-                <button disabled={shootingWhileIntaking} onClick={() => setShootingWhileIntaking(true)}>Yes</button>
-                <button disabled={!(shootingWhileIntaking === undefined) && !shootingWhileIntaking} onClick={() => setShootingWhileIntaking(false)}>No</button>
-            </p>
-            <button disabled={isIncomplete()} onClick={e => handleSubmit(e)}>Save Sequence</button>
+            <h2>Post-Match Video Analysis — Pickup, Score & Shoot Sequence</h2>
+
+            <div className="pmva-form">
+                <div className="pmva-form-row">
+                    <label>Was the hopper filled?</label>
+                    <div className="pmva-btn-group">
+                        <button onClick={() => setHopperFilled(true)}
+                                disabled={hopperFilled}>Yes
+                        </button>
+                        <button onClick={() => setHopperFilled(false)}
+                                disabled={!(hopperFilled === undefined) && !hopperFilled}>No
+                        </button>
+                    </div>
+                </div>
+
+                <div className="pmva-form-row">
+                    <label>Anything noteworthy about this load?</label>
+                    <textarea onChange={(e) => setLoadNotes(e.target.value)}/>
+                </div>
+
+                <div className="pmva-form-row">
+                    <label>Score / Miss count</label>
+                    <p className="pmva-hint">
+                        Play the video back slowly and get an accurate count for the sequence.
+                    </p>
+                    <div className="pmva-counter-row">
+                        <button onClick={() => setScoreCount(scoreCount + 1)}>Score One</button>
+                        <span className="pmva-counter-value">{scoreCount}</span>
+                        <button onClick={() => setMissCount(missCount + 1)}>Miss One</button>
+                        <span className="pmva-counter-value">{missCount}</span>
+                        <span className="pmva-counter-pct">
+                            {Math.round(100 * scoreCount / Math.max(1, scoreCount + missCount))}%
+                        </span>
+                    </div>
+                </div>
+
+                <div className="pmva-form-row">
+                    <label>How long did it take to unload? (seconds)</label>
+                    <p className="pmva-hint">
+                        Rewind the video and play the sequence back. Use either the video time or a stopwatch.
+                    </p>
+                    <input type="number" min={0} max={155}
+                           onChange={(e) => setUnloadSeconds(Number(e.target.value))}/>
+                </div>
+
+                <div className="pmva-form-row">
+                    <label>How much fuel was stuck after the sequence?</label>
+                    <input type="number" min={0} max={50}
+                           onChange={(e) => setStuckFuelCount(Number(e.target.value))}/>
+                </div>
+
+                <div className="pmva-form-row">
+                    <label>Anything noteworthy about this shooting session?</label>
+                    <textarea onChange={(e) => setUnloadComments(e.target.value)}/>
+                </div>
+
+                <div className="pmva-form-row">
+                    <label>Where was the robot while shooting?</label>
+                    <div className="pmva-btn-group">
+                        <button disabled={shootPosition === ShootPosition.close}
+                                onClick={() => setShootPosition(ShootPosition.close)}>Close
+                        </button>
+                        <button disabled={shootPosition === ShootPosition.mid}
+                                onClick={() => setShootPosition(ShootPosition.mid)}>Mid
+                        </button>
+                        <button disabled={shootPosition === ShootPosition.far}
+                                onClick={() => setShootPosition(ShootPosition.far)}>Far
+                        </button>
+                    </div>
+                </div>
+
+                <div className="pmva-form-row">
+                    <label>Was the robot moving while shooting?</label>
+                    <div className="pmva-btn-group">
+                        <button disabled={movingWhileShooting}
+                                onClick={() => setMovingWhileShooting(true)}>Moving
+                        </button>
+                        <button disabled={!(movingWhileShooting === undefined) && !movingWhileShooting}
+                                onClick={() => setMovingWhileShooting(false)}>Still
+                        </button>
+                    </div>
+                </div>
+
+                <div className="pmva-form-row">
+                    <label>Was the robot shooting while intaking during this sequence?</label>
+                    <div className="pmva-btn-group">
+                        <button disabled={shootingWhileIntaking}
+                                onClick={() => setShootingWhileIntaking(true)}>Yes
+                        </button>
+                        <button disabled={!(shootingWhileIntaking === undefined) && !shootingWhileIntaking}
+                                onClick={() => setShootingWhileIntaking(false)}>No
+                        </button>
+                    </div>
+                </div>
+
+                <div className="pmva-form-actions">
+                    <button disabled={isIncomplete()} onClick={e => handleSubmit(e)}>Save Sequence</button>
+                </div>
+            </div>
         </div>
     </main>
 

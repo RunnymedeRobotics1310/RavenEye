@@ -1242,6 +1242,78 @@ main.mega-report {
     background-color: var(--alliance-red-bg) !important;
 }
 
+/* ── PMVA Track Form ────────────────────────────────────────────────── */
+
+main.track.pmva button {
+    font-size: 1rem;
+    padding: 0.5rem 1.5rem;
+}
+
+.pmva-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    max-width: 40rem;
+}
+
+.pmva-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.pmva-form-row label {
+    font-weight: 600;
+}
+
+.pmva-form-row textarea {
+    resize: vertical;
+    font-family: inherit;
+    font-size: 1rem;
+    padding: var(--space-sm);
+    min-height: 3rem;
+}
+
+.pmva-form-row input[type="number"] {
+    width: 6rem;
+    font-size: 1rem;
+    padding: var(--space-sm);
+}
+
+.pmva-hint {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.pmva-btn-group {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.pmva-counter-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.pmva-counter-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    min-width: 1.5rem;
+    text-align: center;
+}
+
+.pmva-counter-pct {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-accent);
+}
+
+.pmva-form-actions {
+    padding-top: var(--space-base);
+}
+
 /* ── PMVA Report ─────────────────────────────────────────────────────── */
 
 .pmva-stats-table {
