@@ -356,7 +356,7 @@ export class Repository {
         const key = unsyncCommentKey(item);
         const newStoreReq = newStore.get(key);
         newStoreReq.onsuccess = () => {
-          syncStore.add(item);
+          syncStore.put(item);
           newStore.delete(key);
         };
       });
@@ -408,7 +408,7 @@ export class Repository {
         const key = unsyncEventKey(item);
         const newStoreReq = newStore.get(key);
         newStoreReq.onsuccess = () => {
-          syncStore.add(item);
+          syncStore.put(item);
           newStore.delete(key);
         };
       });
@@ -460,7 +460,7 @@ export class Repository {
         const key = unsyncAlertKey(item);
         const newStoreReq = newStore.get(key);
         newStoreReq.onsuccess = () => {
-          syncStore.add(item);
+          syncStore.put(item);
           newStore.delete(key);
         };
       });
