@@ -1,8 +1,11 @@
 import type {TrackScreenProps} from "~/routes/track/track-home-page.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import {useState} from "react";
+import {recordEvent} from "~/common/storage/track.ts";
+import {useTrackNav} from "~/common/track/TrackNavContext.tsx";
 
 const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
+    const {goBack} = useTrackNav();
     const [hopperFilled, setHopperFilled] = useState<boolean | undefined>(undefined);
     const [loadNotes, setLoadNotes] = useState<string | undefined>(undefined);
     const [scoreCount, setScoreCount] = useState<number>(0);
@@ -26,11 +29,41 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
         return false
     }
 
-    const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        // hopper filled --> stores pmva-hopper-full / pmva-hopper-not-full
-        // loadNotes --> stores pmva-load-comments
-        // pmva-unload-comments
+        if (hopperFilled) {
+            await recordEvent('pmva-load-hopper-full')
+        } else {
+            await recordEvent('pmva-load-hopper-not-full')
+        }
+        if (loadNotes) {
+            await recordEvent('pmva-load-comments', -1, loadNotes)
+        }
+        await recordEvent('pmva-load', scoreCount + missCount + stuckFuelCount)
+        await recordEvent("pmva-shoot", scoreCount + missCount)
+        await recordEvent("pmva-shoot-score", scoreCount);
+        await recordEvent("pmva-shoot-miss", missCount);
+        await recordEvent("pmva-shoot-time", unloadSeconds);
+        await recordEvent("pmva-shoot-stuck-in-hopper", stuckFuelCount);
+        if (unloadComments) {
+            await recordEvent("pmva-shoot-note", -1, unloadComments)
+        }
+        // await recordEvent("pmva-shoot-intake-comments", )
+        if (shootPosition === ShootPosition.close) {
+            await recordEvent("pmva-shoot-close")
+        } else if (shootPosition === ShootPosition.mid) {
+            await recordEvent("pmva-shoot-mid")
+        } else if (shootPosition === ShootPosition.far) {
+            await recordEvent("pmva-shoot-far")
+        }
+        if (movingWhileShooting) {
+            await recordEvent("pmva-shoot-moving");
+        }
+        if (shootingWhileIntaking) {
+            await recordEvent("pmva-shoot-intaking");
+        }
+        await recordEvent("pmva-shoot-end");
+        goBack();
     }
 
     return <main className="track pmva">
@@ -120,7 +153,8 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
                 </div>
 
                 <div className="pmva-form-row">
-                    <label>Was the robot shooting while intaking during this sequence?<span className="pmva-required">*</span></label>
+                    <label>Was the robot shooting while intaking during this sequence?<span
+                        className="pmva-required">*</span></label>
                     <div className="pmva-btn-group">
                         <button disabled={shootingWhileIntaking}
                                 onClick={() => setShootingWhileIntaking(true)}>Yes
@@ -137,7 +171,6 @@ const PMVALoadShootSeqPage = ({}: TrackScreenProps) => {
             </div>
         </div>
     </main>
-
 }
 
 export default PMVALoadShootSeqPage;
