@@ -1,3 +1,12 @@
+## [3.33.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.33.0...v3.33.1) (2026-03-27)
+
+
+### Bug Fixes
+
+* Capture PMVA data ([efb8b0d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/efb8b0d0148d31fb1d5d9e5ea6fb5e159b5876b2))
+* Config sync after server sync ([de9f069](https://github.com/RunnymedeRobotics1310/RavenEye/commit/de9f06991884027d3f31b1a6dec2e3d988cf944f))
+* Stuck records on sync ([9332dc5](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9332dc5d4f2b78203020ca51c5b4b85b42267257))
+
 # [3.33.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.32.0...v3.33.0) (2026-03-27)
 
 
