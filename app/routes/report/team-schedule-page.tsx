@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { NavLink } from "react-router";
 import {
   fetchTournamentSchedule,
   getActiveTeamTournaments,
@@ -295,7 +294,7 @@ function RankingsTable({
   rankings: TeamRanking[];
   ownerTeam: number;
 }) {
-  if (rankings.length === 0) return null;
+  if (!rankings || rankings.length === 0) return null;
 
   return (
     <section id="rankings" className="card schedule-card">
@@ -380,7 +379,7 @@ function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void })
     <main>
       <div className="page-header schedule-header">
         <h1>Tournament Report</h1>
-        <p><NavLink to="/">&larr; Home</NavLink></p>
+        <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
       </div>
       <p>No active tournament found. Select a tournament to view its schedule.</p>
       {loading && <Spinner />}
@@ -553,7 +552,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><NavLink to="/">&larr; Home</NavLink></p>
+          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
         </div>
         <Spinner />
       </main>
@@ -569,7 +568,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><NavLink to="/">&larr; Home</NavLink></p>
+          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
         </div>
         <Spinner />
       </main>
@@ -581,7 +580,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><NavLink to="/">&larr; Home</NavLink></p>
+          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
         </div>
         <p className="banner banner-warning">{error}</p>
       </main>
@@ -593,7 +592,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><NavLink to="/">&larr; Home</NavLink></p>
+          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
         </div>
         <Spinner />
       </main>
@@ -605,7 +604,7 @@ const TeamScheduleContent = () => {
       <main>
         <div className="page-header schedule-header">
           <h1>{title}</h1>
-          <p><NavLink to="/">&larr; Home</NavLink></p>
+          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
         </div>
         <section className="card">
           <p>Schedule data is being loaded for this tournament. It will appear here automatically within a few minutes.</p>
@@ -623,7 +622,7 @@ const TeamScheduleContent = () => {
           {refreshing && <span className="schedule-refresh-indicator"><Spinner /></span>}
         </h1>
         <p className="schedule-nav-row">
-          <NavLink to="/">&larr; Home</NavLink>
+          <a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a>
           <button
             className="schedule-toggle-btn"
             onClick={() => setShowAll((prev) => !prev)}

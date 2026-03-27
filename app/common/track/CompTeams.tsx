@@ -40,26 +40,30 @@ const CompTeams = ({}: TrackScreenProps) => {
       <p>Select a team to scout:</p>
       {match ? (
         <div className="team-select">
-          {redTeams.map((team, i) => (
-            <button
-              key={team}
-              id={`red${i + 1}`}
-              className="allianceRed"
-              onClick={() => handleTeam(team, "red")}
-            >
-              {team}
-            </button>
-          ))}
-          {blueTeams.map((team, i) => (
-            <button
-              key={team}
-              id={`blue${i + 1}`}
-              className="allianceBlue"
-              onClick={() => handleTeam(team, "blue")}
-            >
-              {team}
-            </button>
-          ))}
+          <div className="team-select-row">
+            {redTeams.map((team, i) => (
+              <button
+                key={team}
+                id={`red${i + 1}`}
+                className="allianceRed"
+                onClick={() => handleTeam(team, "red")}
+              >
+                {team}
+              </button>
+            ))}
+          </div>
+          <div className="team-select-row">
+            {blueTeams.map((team, i) => (
+              <button
+                key={team}
+                id={`blue${i + 1}`}
+                className="allianceBlue"
+                onClick={() => handleTeam(team, "blue")}
+              >
+                {team}
+              </button>
+            ))}
+          </div>
         </div>
       ) : (
         <p>No schedule found for this match.</p>

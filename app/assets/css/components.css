@@ -439,6 +439,12 @@ section.usersAdmin {
  * MISC COMPONENTS
  *
  */
+.team-select-row {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
 main.track button {
     font-size: 1.4rem;
     padding: 0.6rem 2rem;
