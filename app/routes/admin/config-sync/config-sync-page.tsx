@@ -7,7 +7,7 @@ import {
   type ConfigSyncRequest,
   type ConfigSyncResult,
 } from "~/common/storage/rb.ts";
-import { doManualSync } from "~/common/sync/sync.ts";
+import { doManualSync, doServerDataSync } from "~/common/sync/sync.ts";
 
 const LOCALSTORAGE_KEY = "raveneye_config_sync_source_url";
 
@@ -57,6 +57,7 @@ const ConfigSyncForm = () => {
     try {
       const data = await configSync(request);
       setResult(data);
+      await doServerDataSync();
       doManualSync();
     } catch (err: any) {
       if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
