@@ -76,34 +76,30 @@ The report consumes events from three strategy areas, all prefixed with `pmva-`:
 | pmva-look-into-suggestion | note | Suggestions to investigate |
 | pmva-general-comments | note | General match comments |
 
-#### Strategy Area: pmva-fill-then-empty-hopper
+#### Strategy Area: pmva-load-shoot-sequence
 
-**Sequence: pmva-load-hopper**
+Each load-and-shoot cycle is recorded as a batch of events ending with `pmva-shoot-end`:
 
-| Event Type | Type | Description |
-|------------|------|-------------|
-| pmva-start-load | start | Begin load sequence |
-| pmva-load-count | qty | Number of balls loaded |
-| pmva-load-rating | qty | Load quality rating (1-5) |
-| pmva-load-comments | note | Comments about the load |
-| pmva-hopper-full | end | Hopper was filled |
-| pmva-hopper-not-full | end | Hopper was not filled |
+| Event Type | Payload | Description |
+|------------|---------|-------------|
+| pmva-load | amount | Total pieces loaded (scores + misses + stuck) |
+| pmva-load-hopper-full | — | Hopper was subjectively "full" |
+| pmva-load-hopper-not-full | — | Hopper was not full |
+| pmva-load-comments | note | Load notes |
+| pmva-shoot | amount | Total shots attempted (scores + misses) |
+| pmva-shoot-score | amount | Successful scores |
+| pmva-shoot-miss | amount | Missed shots |
+| pmva-shoot-time | amount | Unload time in seconds |
+| pmva-shoot-stuck-in-hopper | amount | Pieces stuck in hopper |
+| pmva-shoot-note | note | Shooting session notes |
+| pmva-shoot-close | — | Shot from close position |
+| pmva-shoot-mid | — | Shot from mid position |
+| pmva-shoot-far | — | Shot from far position |
+| pmva-shoot-moving | — | Robot was moving while shooting |
+| pmva-shoot-intaking | — | Robot was shooting while intaking |
+| pmva-shoot-end | — | End of sequence (delimiter) |
 
-**Sequence: pmva-unload-hopper**
-
-| Event Type | Type | Description |
-|------------|------|-------------|
-| pmva-shoot-one | start | Begin unload sequence (first shot) |
-| pmva-score-one | event | Ball scored |
-| pmva-miss-one | event | Ball missed |
-| pmva-count-stuck-in-hopper | qty | Balls stuck in hopper |
-| pmva-unload-seconds | qty | Seconds from start to end of unload |
-| pmva-stuck-comments | note | Comments about stuck balls |
-| pmva-unload-general-comments | note | General unload comments |
-| pmva-shoot-position-close | end | Shot from close position |
-| pmva-shoot-position-mid | end | Shot from mid position |
-| pmva-shoot-position-far | end | Shot from far position |
-| pmva-shoot-position-varied | end | Shot from varied positions |
+> **Deprecated**: The old event types (`pmva-start-load`, `pmva-load-count`, `pmva-load-rating`, `pmva-hopper-full`, `pmva-hopper-not-full`, `pmva-shoot-one`, `pmva-score-one`, `pmva-miss-one`, `pmva-unload-seconds`, `pmva-count-stuck-in-hopper`, `pmva-stuck-comments`, `pmva-unload-general-comments`, `pmva-shoot-position-*`) are no longer processed by the report service. Data captured with old event types will not appear in reports.
 
 #### Strategy Area: pmva-shoot-while-intaking
 
@@ -139,13 +135,15 @@ PmvaReport
 │   └── breakdownNotes, intakeComments, shooterComments, generalComments, suggestions
 ├── hopper: HopperSection
 │   ├── loading: LoadingStats
-│   │   ├── avgFillCount, maxFillCount, hopperFilledPercentage, avgLoadRating
-│   │   └── loadComments
-│   ├── shootingAll: ShootingStats      (aggregate across all positions)
-│   ├── shootingClose: ShootingStats?   (null if no data)
-│   ├── shootingMid: ShootingStats?
-│   ├── shootingFar: ShootingStats?
-│   └── shootingVaried: ShootingStats?
+│   │   ├── avgFillCount, hopperFilledPercentage
+│   │   ├── maxFillExcludingIntaking, hopperFilledRating (0-5 stars)
+│   │   └── loadComments, shootComments
+│   ├── shootingAll: ShootingView         (all sequences)
+│   ├── shootingClose: ShootingView?      (null if no data)
+│   ├── shootingMid: ShootingView?
+│   ├── shootingFar: ShootingView?
+│   ├── shootingMoving: ShootingView?
+│   └── shootingIntaking: ShootingView?
 └── swi: SwiSection
     ├── avgSequencesPerMatch, avgScoresPerSequence, avgScorePercentPerSequence
     ├── avgStuckPerSequence, avgDurationSeconds
@@ -153,11 +151,12 @@ PmvaReport
     └── stuckComments, generalComments, positionComments
 ```
 
-Where ShootingStats contains:
-- position, sequenceCount, perMatch (per-match breakdown)
-- avgScorePerMatch, avgHitRate, avgUnloadSeconds
-- shotsPerSecond, scoresPerSecond, avgStuckPerSequence
-- stuckComments, generalComments
+Where ShootingView contains:
+- filter, sequenceCount, avgCyclesPerMatch, maxCyclesPerMatch
+- matchCycles: [{matchId, level, cycleCount, totalShots, totalScores, totalMisses, totalStuck}]
+- sequenceShots: [{matchId, level, sequenceIndex, shots, scores, misses, stuck, unloadSeconds, shotsPerSecond, scoresPerSecond}]
+
+Shooting views are shown 6 times: all (unfiltered), close, mid, far, moving, intaking. Filters overlap — a sequence tagged close+moving appears in both views.
 
 ### Frontend Pages
 
@@ -179,10 +178,13 @@ The report is designed to handle edge cases gracefully:
 ### Frontend Components
 
 The report page uses inline helper functions (no separate component files):
-- **BarChart**: CSS-based bar charts using flex layout and percentage heights
+- **MatchCyclesChart**: SVG bar chart showing cycle count per match with avg/max horizontal lines
+- **HitsMissesChart**: SVG grouped bar chart (shots, scores, misses, stuck per match)
+- **ShotsLineChart**: SVG multi-line chart (shots/scores/misses per sequence with mouse-over tooltips)
+- **TimeLineChart**: SVG multi-line chart (unload time, shots/sec, scores/sec per sequence with tooltips)
 - **CommentAccordion**: Native `<details>/<summary>` elements
-- **StarRating**: Unicode star characters for the 0-5 load rating
-- **ShootingSection**: Reusable section rendered for each shooting position
+- **StarRating**: Star icons for the 0-5 hopper filled rating
+- **ShootingSection**: Reusable section rendered for each of 6 shooting views (all, close, mid, far, moving, intaking)
 
 ### Key Files
 
@@ -198,4 +200,4 @@ The report page uses inline helper functions (no separate component files):
 - `common/storage/rb.ts` — API wrapper functions
 - `routes/report/pmva-report-tournaments-page.tsx` — Tournament selector
 - `routes/report/pmva-report-page.tsx` — Main report page
-- `assets/css/components.css` — Bar chart, accordion, star rating styles
+- `assets/css/components.css` — SVG chart, tooltip, accordion, star rating styles

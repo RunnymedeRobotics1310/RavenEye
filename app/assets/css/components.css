@@ -1516,6 +1516,90 @@ main.track.pmva button {
     height: 100%;
 }
 
+/* SVG Charts */
+.pmva-svg-chart {
+    position: relative;
+    margin: var(--space-base) 0;
+}
+
+.pmva-svg-chart svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.pmva-svg-chart .axis-label {
+    font-size: 10px;
+    fill: var(--color-text-secondary);
+}
+
+.pmva-svg-chart .axis-line {
+    stroke: var(--color-border);
+    stroke-width: 1;
+}
+
+.pmva-svg-chart .grid-line {
+    stroke: var(--color-border);
+    stroke-width: 0.5;
+    stroke-dasharray: 2 4;
+}
+
+.pmva-svg-chart .avg-line {
+    stroke: var(--color-accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 3;
+}
+
+.pmva-svg-chart .max-line {
+    stroke: var(--color-warning, #e67e22);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 3;
+}
+
+.pmva-svg-chart .match-separator {
+    stroke: var(--color-border);
+    stroke-width: 0.5;
+    stroke-dasharray: 2 2;
+}
+
+.pmva-svg-chart .data-point {
+    cursor: pointer;
+}
+
+.pmva-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.pmva-chart-legend {
+    display: flex;
+    gap: var(--space-base);
+    flex-wrap: wrap;
+    font-size: 0.75rem;
+    margin-bottom: var(--space-sm);
+}
+
+.pmva-chart-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.pmva-chart-legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
 /* Typeahead / autocomplete */
 
 .add-event-controls {

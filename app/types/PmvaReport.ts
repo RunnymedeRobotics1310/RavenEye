@@ -33,42 +33,53 @@ export interface MatchBreakdown {
 
 export interface HopperSection {
   loading: LoadingStats;
-  shootingAll: ShootingStats;
-  shootingClose: ShootingStats | null;
-  shootingMid: ShootingStats | null;
-  shootingFar: ShootingStats | null;
-  shootingVaried: ShootingStats | null;
+  shootingAll: ShootingView;
+  shootingClose: ShootingView | null;
+  shootingMid: ShootingView | null;
+  shootingFar: ShootingView | null;
+  shootingMoving: ShootingView | null;
+  shootingIntaking: ShootingView | null;
 }
 
 export interface LoadingStats {
   avgFillCount: number;
-  maxFillCount: number;
   hopperFilledPercentage: number;
-  avgLoadRating: number;
+  maxFillExcludingIntaking: number;
+  hopperFilledRating: number;
   loadComments: MatchComment[];
+  shootComments: MatchComment[];
 }
 
-export interface ShootingStats {
-  position: string;
+export interface ShootingView {
+  filter: string;
   sequenceCount: number;
-  perMatch: MatchShootingData[];
-  avgScorePerMatch: number;
-  avgHitRate: number;
-  avgUnloadSeconds: number;
-  shotsPerSecond: number;
-  scoresPerSecond: number;
-  avgStuckPerSequence: number;
-  stuckComments: MatchComment[];
-  generalComments: MatchComment[];
+  matchCycles: MatchCycleData[];
+  sequenceShots: SequenceShotData[];
+  avgCyclesPerMatch: number;
+  maxCyclesPerMatch: number;
 }
 
-export interface MatchShootingData {
+export interface MatchCycleData {
   matchId: number;
   level: string;
-  unloadRuns: number;
-  totalScores: number;
+  cycleCount: number;
   totalShots: number;
-  hitRate: number;
+  totalScores: number;
+  totalMisses: number;
+  totalStuck: number;
+}
+
+export interface SequenceShotData {
+  matchId: number;
+  level: string;
+  sequenceIndex: number;
+  shots: number;
+  scores: number;
+  misses: number;
+  stuck: number;
+  unloadSeconds: number;
+  shotsPerSecond: number;
+  scoresPerSecond: number;
 }
 
 export interface SwiSection {

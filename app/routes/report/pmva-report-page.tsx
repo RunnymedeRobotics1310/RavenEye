@@ -15,10 +15,9 @@ import type {
   GeneralSection,
   HopperSection,
   LoadingStats,
-  ShootingStats,
-  MatchShootingData,
-  SwiSection,
-  MatchSwiData,
+  ShootingView,
+  MatchCycleData,
+  SequenceShotData,
 } from "~/types/PmvaReport.ts";
 
 const LEVEL_PREFIX: Record<string, string> = {
@@ -93,39 +92,6 @@ function CommentAccordion({
   );
 }
 
-function BarChart({
-  data,
-  label,
-  valueFormatter,
-}: {
-  data: { matchId: number; level: string; value: number }[];
-  label: string;
-  valueFormatter?: (v: number) => string;
-}) {
-  if (data.length === 0) return null;
-  const maxVal = Math.max(...data.map((d) => d.value), 0.01);
-  const fmt = valueFormatter ?? formatNum;
-  return (
-    <div className="pmva-chart-container">
-      <h4>{label}</h4>
-      <div className="pmva-bar-chart">
-        {data.map((d) => (
-          <div
-            key={`${d.level}-${d.matchId}`}
-            className="pmva-bar"
-            style={{ height: `${(d.value / maxVal) * 100}%` }}
-          >
-            <span className="pmva-bar-value">{fmt(d.value)}</span>
-            <span className="pmva-bar-label">
-              {matchLabel(d.level, d.matchId)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function GeneralCard({ general, matchCount }: { general: GeneralSection; matchCount: number }) {
   return (
     <section className="card">
@@ -151,6 +117,386 @@ function GeneralCard({ general, matchCount }: { general: GeneralSection; matchCo
   );
 }
 
+// ── Chart color constants ──────────────────────────────────────────────
+
+const COLOR_SHOTS = "#6b7280";
+const COLOR_SCORES = "#22c55e";
+const COLOR_MISSES = "#ef4444";
+const COLOR_STUCK = "#f59e0b";
+const COLOR_TIME = "#3b82f6";
+const COLOR_SHOTS_SEC = "#8b5cf6";
+const COLOR_SCORES_SEC = "#06b6d4";
+
+// ── SVG Chart Components ───────────────────────────────────────────────
+
+function MatchCyclesChart({
+  data,
+  avg,
+  max,
+}: {
+  data: MatchCycleData[];
+  avg: number;
+  max: number;
+}) {
+  if (data.length === 0) return null;
+  const W = 500;
+  const H = 200;
+  const pad = { top: 20, right: 20, bottom: 30, left: 35 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+  const yMax = Math.max(max, 1);
+  const barW = Math.min(plotW / data.length - 4, 40);
+
+  return (
+    <div className="pmva-svg-chart">
+      <h4>Match Cycles</h4>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
+        {/* Y axis gridlines */}
+        {Array.from({ length: 5 }, (_, i) => {
+          const yVal = (yMax / 4) * i;
+          const y = pad.top + plotH - (yVal / yMax) * plotH;
+          return (
+            <g key={i}>
+              <line className="grid-line" x1={pad.left} y1={y} x2={W - pad.right} y2={y} />
+              <text className="axis-label" x={pad.left - 4} y={y + 3} textAnchor="end">
+                {Math.round(yVal)}
+              </text>
+            </g>
+          );
+        })}
+        {/* Bars */}
+        {data.map((d, i) => {
+          const x = pad.left + (i + 0.5) * (plotW / data.length) - barW / 2;
+          const barH = (d.cycleCount / yMax) * plotH;
+          const y = pad.top + plotH - barH;
+          return (
+            <g key={`${d.level}-${d.matchId}`}>
+              <rect x={x} y={y} width={barW} height={barH} fill="var(--color-accent)" rx={2} />
+              <text className="axis-label" x={x + barW / 2} y={H - pad.bottom + 14} textAnchor="middle">
+                {matchLabel(d.level, d.matchId)}
+              </text>
+              <text className="axis-label" x={x + barW / 2} y={y - 4} textAnchor="middle" fontWeight={700}>
+                {d.cycleCount}
+              </text>
+            </g>
+          );
+        })}
+        {/* Average line */}
+        {avg > 0 && (
+          <>
+            <line
+              className="avg-line"
+              x1={pad.left}
+              y1={pad.top + plotH - (avg / yMax) * plotH}
+              x2={W - pad.right}
+              y2={pad.top + plotH - (avg / yMax) * plotH}
+            />
+            <text className="axis-label" x={W - pad.right + 2} y={pad.top + plotH - (avg / yMax) * plotH + 3} fill="var(--color-accent)" fontSize={9}>
+              avg {formatNum(avg)}
+            </text>
+          </>
+        )}
+        {/* Max line */}
+        <line
+          className="max-line"
+          x1={pad.left}
+          y1={pad.top + plotH - (max / yMax) * plotH}
+          x2={W - pad.right}
+          y2={pad.top + plotH - (max / yMax) * plotH}
+        />
+        {/* Axes */}
+        <line className="axis-line" x1={pad.left} y1={pad.top} x2={pad.left} y2={H - pad.bottom} />
+        <line className="axis-line" x1={pad.left} y1={H - pad.bottom} x2={W - pad.right} y2={H - pad.bottom} />
+      </svg>
+    </div>
+  );
+}
+
+function HitsMissesChart({ data }: { data: MatchCycleData[] }) {
+  if (data.length === 0) return null;
+  const W = 500;
+  const H = 220;
+  const pad = { top: 20, right: 20, bottom: 30, left: 35 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+  const yMax = Math.max(
+    ...data.map((d) => Math.max(d.totalShots, d.totalScores, d.totalMisses, d.totalStuck)),
+    1,
+  );
+  const groupW = plotW / data.length;
+  const barW = Math.min(groupW / 5, 14);
+  const series = [
+    { key: "totalShots" as const, color: COLOR_SHOTS, label: "Shots" },
+    { key: "totalScores" as const, color: COLOR_SCORES, label: "Scores" },
+    { key: "totalMisses" as const, color: COLOR_MISSES, label: "Misses" },
+    { key: "totalStuck" as const, color: COLOR_STUCK, label: "Stuck" },
+  ];
+
+  return (
+    <div className="pmva-svg-chart">
+      <h4>Hits vs Misses</h4>
+      <div className="pmva-chart-legend">
+        {series.map((s) => (
+          <span key={s.key} className="pmva-chart-legend-item">
+            <span className="pmva-chart-legend-swatch" style={{ backgroundColor: s.color }} />
+            {s.label}
+          </span>
+        ))}
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
+        {/* Y gridlines */}
+        {Array.from({ length: 5 }, (_, i) => {
+          const yVal = (yMax / 4) * i;
+          const y = pad.top + plotH - (yVal / yMax) * plotH;
+          return (
+            <g key={i}>
+              <line className="grid-line" x1={pad.left} y1={y} x2={W - pad.right} y2={y} />
+              <text className="axis-label" x={pad.left - 4} y={y + 3} textAnchor="end">{Math.round(yVal)}</text>
+            </g>
+          );
+        })}
+        {/* Grouped bars */}
+        {data.map((d, i) => {
+          const groupX = pad.left + i * groupW;
+          const cx = groupX + groupW / 2;
+          return (
+            <g key={`${d.level}-${d.matchId}`}>
+              {series.map((s, si) => {
+                const val = d[s.key];
+                const barH = (val / yMax) * plotH;
+                const x = cx - (series.length * barW) / 2 + si * barW;
+                return (
+                  <rect
+                    key={s.key}
+                    x={x}
+                    y={pad.top + plotH - barH}
+                    width={barW}
+                    height={barH}
+                    fill={s.color}
+                    rx={1}
+                  />
+                );
+              })}
+              <text className="axis-label" x={cx} y={H - pad.bottom + 14} textAnchor="middle">
+                {matchLabel(d.level, d.matchId)}
+              </text>
+            </g>
+          );
+        })}
+        {/* Axes */}
+        <line className="axis-line" x1={pad.left} y1={pad.top} x2={pad.left} y2={H - pad.bottom} />
+        <line className="axis-line" x1={pad.left} y1={H - pad.bottom} x2={W - pad.right} y2={H - pad.bottom} />
+      </svg>
+    </div>
+  );
+}
+
+function ShotsLineChart({ data }: { data: SequenceShotData[] }) {
+  const [hover, setHover] = useState<{ x: number; y: number; label: string } | null>(null);
+  if (data.length === 0) return null;
+
+  const W = 500;
+  const H = 220;
+  const pad = { top: 20, right: 20, bottom: 30, left: 35 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+  const yMax = Math.max(...data.map((d) => Math.max(d.shots, d.scores, d.misses)), 1);
+  const n = data.length;
+
+  const xOf = (i: number) => pad.left + (i + 0.5) * (plotW / n);
+  const yOf = (v: number) => pad.top + plotH - (v / yMax) * plotH;
+
+  const toPath = (getter: (d: SequenceShotData) => number) =>
+    data.map((d, i) => `${i === 0 ? "M" : "L"}${xOf(i)},${yOf(getter(d))}`).join(" ");
+
+  // Detect match boundaries for separators
+  const matchBoundaries: number[] = [];
+  for (let i = 1; i < data.length; i++) {
+    if (data[i].matchId !== data[i - 1].matchId || data[i].level !== data[i - 1].level) {
+      matchBoundaries.push(i);
+    }
+  }
+
+  const series = [
+    { getter: (d: SequenceShotData) => d.shots, color: COLOR_SHOTS, label: "Shots" },
+    { getter: (d: SequenceShotData) => d.scores, color: COLOR_SCORES, label: "Scores" },
+    { getter: (d: SequenceShotData) => d.misses, color: COLOR_MISSES, label: "Misses" },
+  ];
+
+  return (
+    <div className="pmva-svg-chart">
+      <h4>Shots Graph</h4>
+      <div className="pmva-chart-legend">
+        {series.map((s) => (
+          <span key={s.label} className="pmva-chart-legend-item">
+            <span className="pmva-chart-legend-swatch" style={{ backgroundColor: s.color }} />
+            {s.label}
+          </span>
+        ))}
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" onMouseLeave={() => setHover(null)}>
+        {/* Y gridlines */}
+        {Array.from({ length: 5 }, (_, i) => {
+          const yVal = (yMax / 4) * i;
+          const y = pad.top + plotH - (yVal / yMax) * plotH;
+          return (
+            <g key={i}>
+              <line className="grid-line" x1={pad.left} y1={y} x2={W - pad.right} y2={y} />
+              <text className="axis-label" x={pad.left - 4} y={y + 3} textAnchor="end">{Math.round(yVal)}</text>
+            </g>
+          );
+        })}
+        {/* Match separators */}
+        {matchBoundaries.map((bi) => (
+          <line key={bi} className="match-separator" x1={xOf(bi) - plotW / n / 2} y1={pad.top} x2={xOf(bi) - plotW / n / 2} y2={H - pad.bottom} />
+        ))}
+        {/* Lines */}
+        {series.map((s) => (
+          <path key={s.label} d={toPath(s.getter)} fill="none" stroke={s.color} strokeWidth={2} />
+        ))}
+        {/* Hover points */}
+        {data.map((d, i) =>
+          series.map((s) => (
+            <circle
+              key={`${s.label}-${i}`}
+              className="data-point"
+              cx={xOf(i)}
+              cy={yOf(s.getter(d))}
+              r={4}
+              fill={s.color}
+              opacity={0}
+              onMouseEnter={() =>
+                setHover({
+                  x: xOf(i),
+                  y: yOf(s.getter(d)),
+                  label: `Match ${matchLabel(d.level, d.matchId)} Seq ${d.sequenceIndex}, ${s.label.toLowerCase()}: ${s.getter(d)}`,
+                })
+              }
+              onMouseLeave={() => setHover(null)}
+            />
+          )),
+        )}
+        {/* Axes */}
+        <line className="axis-line" x1={pad.left} y1={pad.top} x2={pad.left} y2={H - pad.bottom} />
+        <line className="axis-line" x1={pad.left} y1={H - pad.bottom} x2={W - pad.right} y2={H - pad.bottom} />
+      </svg>
+      {hover && (
+        <div
+          className="pmva-tooltip"
+          style={{ left: `${(hover.x / W) * 100}%`, top: `${(hover.y / H) * 100}%` }}
+        >
+          {hover.label}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TimeLineChart({ data }: { data: SequenceShotData[] }) {
+  const [hover, setHover] = useState<{ x: number; y: number; label: string } | null>(null);
+  if (data.length === 0) return null;
+
+  const W = 500;
+  const H = 220;
+  const pad = { top: 20, right: 20, bottom: 30, left: 35 };
+  const plotW = W - pad.left - pad.right;
+  const plotH = H - pad.top - pad.bottom;
+  const yMax = Math.max(
+    ...data.map((d) => Math.max(d.unloadSeconds, d.shotsPerSecond, d.scoresPerSecond)),
+    0.1,
+  );
+  const n = data.length;
+
+  const xOf = (i: number) => pad.left + (i + 0.5) * (plotW / n);
+  const yOf = (v: number) => pad.top + plotH - (v / yMax) * plotH;
+
+  const toPath = (getter: (d: SequenceShotData) => number) =>
+    data.map((d, i) => `${i === 0 ? "M" : "L"}${xOf(i)},${yOf(getter(d))}`).join(" ");
+
+  const matchBoundaries: number[] = [];
+  for (let i = 1; i < data.length; i++) {
+    if (data[i].matchId !== data[i - 1].matchId || data[i].level !== data[i - 1].level) {
+      matchBoundaries.push(i);
+    }
+  }
+
+  const series = [
+    { getter: (d: SequenceShotData) => d.unloadSeconds, color: COLOR_TIME, label: "Unload Time (s)" },
+    { getter: (d: SequenceShotData) => d.shotsPerSecond, color: COLOR_SHOTS_SEC, label: "Shots/sec" },
+    { getter: (d: SequenceShotData) => d.scoresPerSecond, color: COLOR_SCORES_SEC, label: "Scores/sec" },
+  ];
+
+  return (
+    <div className="pmva-svg-chart">
+      <h4>Time Graph</h4>
+      <div className="pmva-chart-legend">
+        {series.map((s) => (
+          <span key={s.label} className="pmva-chart-legend-item">
+            <span className="pmva-chart-legend-swatch" style={{ backgroundColor: s.color }} />
+            {s.label}
+          </span>
+        ))}
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" onMouseLeave={() => setHover(null)}>
+        {/* Y gridlines */}
+        {Array.from({ length: 5 }, (_, i) => {
+          const yVal = (yMax / 4) * i;
+          const y = pad.top + plotH - (yVal / yMax) * plotH;
+          return (
+            <g key={i}>
+              <line className="grid-line" x1={pad.left} y1={y} x2={W - pad.right} y2={y} />
+              <text className="axis-label" x={pad.left - 4} y={y + 3} textAnchor="end">{formatNum(yVal)}</text>
+            </g>
+          );
+        })}
+        {/* Match separators */}
+        {matchBoundaries.map((bi) => (
+          <line key={bi} className="match-separator" x1={xOf(bi) - plotW / n / 2} y1={pad.top} x2={xOf(bi) - plotW / n / 2} y2={H - pad.bottom} />
+        ))}
+        {/* Lines */}
+        {series.map((s) => (
+          <path key={s.label} d={toPath(s.getter)} fill="none" stroke={s.color} strokeWidth={2} />
+        ))}
+        {/* Hover points */}
+        {data.map((d, i) =>
+          series.map((s) => (
+            <circle
+              key={`${s.label}-${i}`}
+              className="data-point"
+              cx={xOf(i)}
+              cy={yOf(s.getter(d))}
+              r={4}
+              fill={s.color}
+              opacity={0}
+              onMouseEnter={() =>
+                setHover({
+                  x: xOf(i),
+                  y: yOf(s.getter(d)),
+                  label: `Match ${matchLabel(d.level, d.matchId)} Seq ${d.sequenceIndex}, ${s.label}: ${formatNum(s.getter(d))}`,
+                })
+              }
+              onMouseLeave={() => setHover(null)}
+            />
+          )),
+        )}
+        {/* Axes */}
+        <line className="axis-line" x1={pad.left} y1={pad.top} x2={pad.left} y2={H - pad.bottom} />
+        <line className="axis-line" x1={pad.left} y1={H - pad.bottom} x2={W - pad.right} y2={H - pad.bottom} />
+      </svg>
+      {hover && (
+        <div
+          className="pmva-tooltip"
+          style={{ left: `${(hover.x / W) * 100}%`, top: `${(hover.y / H) * 100}%` }}
+        >
+          {hover.label}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Section Components ─────────────────────────────────────────────────
+
 function LoadingSection({ loading }: { loading: LoadingStats }) {
   return (
     <>
@@ -162,156 +508,103 @@ function LoadingSection({ loading }: { loading: LoadingStats }) {
             <td>{formatNum(loading.avgFillCount)}</td>
           </tr>
           <tr>
-            <td>Max Hopper Fill</td>
-            <td>{formatNum(loading.maxFillCount)}</td>
-          </tr>
-          <tr>
             <td>Hopper Filled %</td>
             <td>{formatPct(loading.hopperFilledPercentage)}</td>
           </tr>
           <tr>
-            <td>Average Load Rating</td>
+            <td>Max Hopper Fill (excl. intaking)</td>
+            <td>{formatNum(loading.maxFillExcludingIntaking)}</td>
+          </tr>
+          <tr>
+            <td>Hopper Filled Rating</td>
             <td>
-              <StarRating value={loading.avgLoadRating} /> ({formatNum(loading.avgLoadRating)})
+              <StarRating value={loading.hopperFilledRating} /> ({formatNum(loading.hopperFilledRating)})
             </td>
           </tr>
         </tbody>
       </table>
-      <CommentAccordion title="Load Comments" comments={loading.loadComments} />
+      <CommentAccordion title="Sequence Load Comments" comments={loading.loadComments} />
+      <CommentAccordion title="Sequence Shoot Comments" comments={loading.shootComments} />
     </>
   );
 }
 
 function ShootingSection({
-  stats,
+  view,
   title,
-  matchCount,
 }: {
-  stats: ShootingStats;
+  view: ShootingView;
   title: string;
-  matchCount: number;
 }) {
-  const runsPerMatch = safeDivide(stats.sequenceCount, matchCount);
+  if (view.sequenceCount === 0) return null;
+
+  const avgUnload =
+    view.sequenceShots.length > 0
+      ? view.sequenceShots.reduce((sum, s) => sum + s.unloadSeconds, 0) / view.sequenceShots.length
+      : 0;
+  const totalShots = view.sequenceShots.reduce((sum, s) => sum + s.shots, 0);
+  const totalTime = view.sequenceShots.reduce((sum, s) => sum + s.unloadSeconds, 0);
+  const totalScores = view.sequenceShots.reduce((sum, s) => sum + s.scores, 0);
+
   return (
     <>
       <h3>{title}</h3>
-      {stats.sequenceCount === 0 ? (
-        <p>No unload sequences recorded.</p>
-      ) : (
-        <>
-          <table className="pmva-stats-table">
-            <tbody>
-              <tr>
-                <td>Unload Runs</td>
-                <td>{stats.sequenceCount} total ({formatNum(runsPerMatch)} per match)</td>
-              </tr>
-              <tr>
-                <td>Average Score Per Match</td>
-                <td>{formatNum(stats.avgScorePerMatch)}</td>
-              </tr>
-              <tr>
-                <td>Average Hit Rate</td>
-                <td>{formatPct(stats.avgHitRate)}</td>
-              </tr>
-              <tr>
-                <td>Average Unload Time</td>
-                <td>{formatNum(stats.avgUnloadSeconds)}s</td>
-              </tr>
-              <tr>
-                <td>Shots Per Second</td>
-                <td>{formatNum(stats.shotsPerSecond)}</td>
-              </tr>
-              <tr>
-                <td>Scores Per Second</td>
-                <td>{formatNum(stats.scoresPerSecond)}</td>
-              </tr>
-              <tr>
-                <td>Average Stuck In Hopper</td>
-                <td>{formatNum(stats.avgStuckPerSequence)}</td>
-              </tr>
-            </tbody>
-          </table>
 
-          <BarChart
-            label="Unload Runs Per Match"
-            data={stats.perMatch.map((m) => ({
-              matchId: m.matchId,
-              level: m.level,
-              value: m.unloadRuns,
-            }))}
-          />
-          <BarChart
-            label="Scores Per Match"
-            data={stats.perMatch.map((m) => ({
-              matchId: m.matchId,
-              level: m.level,
-              value: m.totalScores,
-            }))}
-          />
-          <BarChart
-            label="Hit Rate Per Match"
-            data={stats.perMatch.map((m) => ({
-              matchId: m.matchId,
-              level: m.level,
-              value: m.hitRate,
-            }))}
-            valueFormatter={(v) => formatPct(v)}
-          />
+      <h4>Match Cycles</h4>
+      <MatchCyclesChart data={view.matchCycles} avg={view.avgCyclesPerMatch} max={view.maxCyclesPerMatch} />
 
-          <CommentAccordion title="Stuck Comments" comments={stats.stuckComments} />
-          <CommentAccordion title="General Comments" comments={stats.generalComments} />
-        </>
-      )}
+      <HitsMissesChart data={view.matchCycles} />
+
+      <ShotsLineChart data={view.sequenceShots} />
+
+      <TimeLineChart data={view.sequenceShots} />
+      <table className="pmva-stats-table">
+        <tbody>
+          <tr>
+            <td>Average Unload Time Per Sequence</td>
+            <td>{formatNum(avgUnload)}s</td>
+          </tr>
+          <tr>
+            <td>Shots Per Second</td>
+            <td>{formatNum(safeDivide(totalShots, totalTime))}</td>
+          </tr>
+          <tr>
+            <td>Scores Per Second</td>
+            <td>{formatNum(safeDivide(totalScores, totalTime))}</td>
+          </tr>
+        </tbody>
+      </table>
     </>
   );
 }
 
-function HopperCard({
-  hopper,
-  matchCount,
-}: {
-  hopper: HopperSection;
-  matchCount: number;
-}) {
+function HopperCard({ hopper }: { hopper: HopperSection }) {
   return (
     <section className="card">
       <h2>Intaking and Scoring</h2>
+      <p className="pmva-legend">
+        <strong>{hopper.shootingAll?.sequenceCount ?? 0}</strong> sequences analyzed
+      </p>
 
       <LoadingSection loading={hopper.loading} />
 
-      <ShootingSection
-        stats={hopper.shootingAll}
-        title="Shooting — All Positions"
-        matchCount={matchCount}
-      />
-
+      {hopper.shootingAll && (
+        <ShootingSection view={hopper.shootingAll} title="Shooting — All" />
+      )}
       {hopper.shootingClose && hopper.shootingClose.sequenceCount > 0 && (
-        <ShootingSection
-          stats={hopper.shootingClose}
-          title="Shooting — Close"
-          matchCount={matchCount}
-        />
+        <ShootingSection view={hopper.shootingClose} title="Shooting — Close" />
       )}
       {hopper.shootingMid && hopper.shootingMid.sequenceCount > 0 && (
-        <ShootingSection
-          stats={hopper.shootingMid}
-          title="Shooting — Mid"
-          matchCount={matchCount}
-        />
+        <ShootingSection view={hopper.shootingMid} title="Shooting — Mid" />
       )}
       {hopper.shootingFar && hopper.shootingFar.sequenceCount > 0 && (
-        <ShootingSection
-          stats={hopper.shootingFar}
-          title="Shooting — Far"
-          matchCount={matchCount}
-        />
+        <ShootingSection view={hopper.shootingFar} title="Shooting — Far" />
       )}
-      {hopper.shootingVaried && hopper.shootingVaried.sequenceCount > 0 && (
-        <ShootingSection
-          stats={hopper.shootingVaried}
-          title="Shooting — Varied"
-          matchCount={matchCount}
-        />
+      {hopper.shootingMoving && hopper.shootingMoving.sequenceCount > 0 && (
+        <ShootingSection view={hopper.shootingMoving} title="Shooting — Moving" />
+      )}
+      {hopper.shootingIntaking && hopper.shootingIntaking.sequenceCount > 0 && (
+        <ShootingSection view={hopper.shootingIntaking} title="Shooting — Intaking" />
       )}
     </section>
   );
@@ -496,7 +789,7 @@ const PmvaReportPage = () => {
             </p>
 
             <GeneralCard general={report.general} matchCount={report.matchCount} />
-            <HopperCard hopper={report.hopper} matchCount={report.matchCount} />
+            <HopperCard hopper={report.hopper} />
 
             <RelatedReports
               tournamentId={tournamentId!}
