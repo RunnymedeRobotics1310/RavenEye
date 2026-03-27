@@ -306,6 +306,7 @@ function RankingsTable({
             <tr>
               <th>Rank</th>
               <th>Team</th>
+              <th className="rankings-col-name">Name</th>
               <th>RP</th>
               <th>RS</th>
             </tr>
@@ -318,6 +319,7 @@ function RankingsTable({
               >
                 <td>{i + 1}</td>
                 <td>{r.teamNumber}</td>
+                <td className="rankings-col-name">{r.teamName}</td>
                 <td>{r.rp}</td>
                 <td>{r.rs.toFixed(2)}</td>
               </tr>
