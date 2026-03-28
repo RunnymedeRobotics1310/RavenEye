@@ -1,3 +1,10 @@
+## [3.35.12](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.11...v3.35.12) (2026-03-28)
+
+
+### Bug Fixes
+
+* trigger build 3 ([86736c3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/86736c31cd7bdcec62f0f7bf6386be5b66a50ad8))
+
 ## [3.35.11](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.10...v3.35.11) (2026-03-28)
 
 
