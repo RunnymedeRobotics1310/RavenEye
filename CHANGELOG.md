@@ -1,3 +1,10 @@
+## [3.35.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.1...v3.35.2) (2026-03-28)
+
+
+### Bug Fixes
+
+* Match schedule only background-syncs when logged in. ([c5d778e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c5d778ea43c1e250985b8ecbe213c3a37745d27c))
+
 ## [3.35.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.0...v3.35.1) (2026-03-28)
 
 
