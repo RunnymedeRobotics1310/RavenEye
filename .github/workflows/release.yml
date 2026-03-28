@@ -129,7 +129,8 @@ jobs:
           tags: |
             ${{ steps.image-name.outputs.image }}:${{ needs.publish.outputs.version }}
             ${{ steps.image-name.outputs.image }}:latest
-          no-cache: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   # Unified deploy job handles both RavenEye builds and external triggers (e.g., RavenBrain)
   # External trigger: echo '{"event_type":"deploy","client_payload":{"service":"app"}}' | gh api repos/RunnymedeRobotics1310/RavenEye/dispatches --input -

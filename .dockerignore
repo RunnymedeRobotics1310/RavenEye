@@ -1,8 +1,9 @@
 # Dependencies
 node_modules
 
-# Build output
-build
+# Build output (keep build/client for Docker COPY)
+build/*
+!build/client
 dist
 
 # Git
