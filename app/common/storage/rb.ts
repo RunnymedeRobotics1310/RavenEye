@@ -1099,6 +1099,33 @@ export async function getNexusQueueStatus(
   }
 }
 
+export interface NexusDebugInfo {
+  enabled: boolean;
+  apiKeyLength: number;
+  ttlSeconds: number;
+  cacheEntryCount: number;
+  cacheEntry: {
+    present: boolean;
+    fetchedAt: string | null;
+    ageSeconds: number;
+    stale: boolean;
+    body: string | null;
+  };
+  queueStatus: NexusQueueStatus | null;
+  teamNumber: number;
+  nexusEventKey: string;
+}
+
+export async function getNexusDebugInfo(
+  tournamentId: string,
+): Promise<NexusDebugInfo> {
+  const resp = await rbfetch("/api/nexus/debug/" + tournamentId, {});
+  if (resp.ok) {
+    return resp.json() as unknown as NexusDebugInfo;
+  }
+  throw new Error("Failed to fetch Nexus debug info (" + resp.status + ")");
+}
+
 // ── PMVA Report ─────────────────────────────────────────────────────────
 
 export async function getPmvaReportTournaments(): Promise<string[]> {

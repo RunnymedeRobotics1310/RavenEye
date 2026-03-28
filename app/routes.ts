@@ -49,6 +49,7 @@ export default [
     "admin/config-sync",
     "./routes/admin/config-sync/config-sync-page.tsx",
   ),
+  route("admin/nexus-debug", "./routes/admin/nexus-debug-page.tsx"),
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
   route("report/schedule", "./routes/report/team-schedule-page.tsx"),

@@ -78,11 +78,18 @@ const AdminMenu = () => {
               </NavLink>
             </li>
             {isSuperuser && (
-              <li>
-                <NavLink to="/admin/config-sync" onClick={handleLinkClick}>
-                  Sync from Source
-                </NavLink>
-              </li>
+              <>
+                <li>
+                  <NavLink to="/admin/config-sync" onClick={handleLinkClick}>
+                    Sync from Source
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/admin/nexus-debug" onClick={handleLinkClick}>
+                    Nexus Debug
+                  </NavLink>
+                </li>
+              </>
             )}
           </ul>
         </nav>
