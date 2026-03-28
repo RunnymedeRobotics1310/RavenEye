@@ -1,3 +1,10 @@
+## [3.35.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.2...v3.35.3) (2026-03-28)
+
+
+### Bug Fixes
+
+* Faster raveneye builds ([bd48f06](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bd48f0637c0280b699c43e889b1f520cce571b57))
+
 ## [3.35.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.1...v3.35.2) (2026-03-28)
 
 
