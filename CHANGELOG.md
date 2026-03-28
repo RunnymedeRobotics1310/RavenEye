@@ -1,3 +1,10 @@
+## [3.35.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.3...v3.35.4) (2026-03-28)
+
+
+### Bug Fixes
+
+* Don't cache tiny gha files ([dfb8d2e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/dfb8d2e6b94652662c19af267186d09e59d6fa7b))
+
 ## [3.35.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.2...v3.35.3) (2026-03-28)
 
 
