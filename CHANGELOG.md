@@ -1,3 +1,11 @@
+## [3.35.7](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.6...v3.35.7) (2026-03-28)
+
+
+### Bug Fixes
+
+* Nexus api debug ([f3c6d17](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f3c6d170bcc380f23968dbbcd73931e00bbfebcd))
+* Typo fix ([4b88154](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4b88154b53de9ba1d57872a3c12f6f9383b69056))
+
 ## [3.35.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.5...v3.35.6) (2026-03-28)
 
 
