@@ -1,3 +1,11 @@
+## [3.34.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.34.0...v3.34.1) (2026-03-28)
+
+
+### Bug Fixes
+
+* remove auto-selection of tournament to one that lets people choose the tournament they see the schedule for ([0d8241b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0d8241b4a6192899ec4ba078671c86d0b06904de))
+* Rework order that shows the schedules ([c101869](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c101869b6e582b332ac67f83327c6c7aff928d39))
+
 # [3.34.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.33.1...v3.34.0) (2026-03-27)
 
 
