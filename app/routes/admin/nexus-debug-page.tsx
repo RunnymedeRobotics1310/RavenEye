@@ -78,8 +78,8 @@ const NexusDebugContent = () => {
                 <td>{debugInfo.enabled ? "Yes" : "No"}</td>
               </tr>
               <tr>
-                <td>API Key Length</td>
-                <td>{debugInfo.apiKeyLength}</td>
+                <td>API Key</td>
+                <td><code>{debugInfo.apiKey}</code></td>
               </tr>
               <tr>
                 <td>Team Number</td>

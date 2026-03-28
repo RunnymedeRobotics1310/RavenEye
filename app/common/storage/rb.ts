@@ -1101,7 +1101,7 @@ export async function getNexusQueueStatus(
 
 export interface NexusDebugInfo {
   enabled: boolean;
-  apiKeyLength: number;
+  apiKey: string;
   ttlSeconds: number;
   cacheEntryCount: number;
   cacheEntry: {
