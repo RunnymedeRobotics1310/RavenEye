@@ -110,6 +110,11 @@ async function hasActiveTournament(): Promise<boolean> {
 }
 
 async function autoSyncMatchSchedule(): Promise<void> {
+  const hasSession =
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem("raveneye_access_token") !== null;
+  if (!hasSession) return;
+
   const active = await hasActiveTournament();
   if (!active) return;
 
