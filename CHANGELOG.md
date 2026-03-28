@@ -1,3 +1,11 @@
+## [3.35.8](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.7...v3.35.8) (2026-03-28)
+
+
+### Bug Fixes
+
+* Better nexus debug info ([4f1a5dc](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4f1a5dc6063d3bd5f763da835fef68b02771e9ad))
+* Switch debug menu to type ahead ([0f70253](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0f702534cbed048b26672fa6f9daec8f9a981eef))
+
 ## [3.35.7](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.6...v3.35.7) (2026-03-28)
 
 
