@@ -1,3 +1,10 @@
+## [3.35.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.4...v3.35.5) (2026-03-28)
+
+
+### Bug Fixes
+
+* bump version to run new workflow ([827eb09](https://github.com/RunnymedeRobotics1310/RavenEye/commit/827eb0986e3f4b908547a7771546b4aee8238c13))
+
 ## [3.35.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.3...v3.35.4) (2026-03-28)
 
 
