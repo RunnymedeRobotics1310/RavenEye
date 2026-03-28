@@ -40,18 +40,20 @@ const NexusDebugContent = () => {
     <section>
       <div className="form-field">
         <label htmlFor="tournament">Tournament</label>
-        <select
+        <input
           id="tournament"
+          list="tournament-list"
+          placeholder="Type to search tournaments..."
           value={selectedTournamentId}
           onChange={(e) => setSelectedTournamentId(e.target.value)}
-        >
-          <option value="">Select a tournament</option>
+        />
+        <datalist id="tournament-list">
           {tournaments.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
             </option>
           ))}
-        </select>
+        </datalist>
       </div>
 
       <div className="form-actions">
