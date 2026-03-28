@@ -18,7 +18,6 @@ import type {
 
 const REFRESH_INTERVAL_ACTIVE_MS = 30_000;
 const REFRESH_INTERVAL_IDLE_MS = 30_000;
-const ACTIVE_TOURNAMENT_CUTOFF = 36 * 60 * 60 * 1000; // 36 hours
 
 function hasRed4(matches: TeamScheduleMatch[]): boolean {
   return matches.some((m) => m.red4 !== 0);
@@ -638,18 +637,26 @@ const TeamScheduleContent = () => {
   const ownerRp = ownerRankEntry?.rp ?? null;
   const ownerRs = ownerRankEntry?.rs ?? null;
 
-  // Order schedule sections so the current phase appears first, unless the tournament is over
+  // Order schedule sections so the current phase appears first.
+  // Rotate forward each time the last match in a phase is scored.
   const allSections = [
     { label: "Practice", level: "Practice" as const, hasData: schedule?.hasPractice ?? false },
     { label: "Qualification", level: "Qualification" as const, hasData: schedule?.hasQualification ?? false },
     { label: "Elimination", level: "Playoff" as const, hasData: schedule?.hasPlayoff ?? false },
   ];
-  const tournamentOver = selectedTournament
-    ? Date.now() > new Date(selectedTournament.endTime).getTime() + ACTIVE_TOURNAMENT_CUTOFF
-    : false;
-  const currentIndex = tournamentOver ? 0
-    : schedule?.hasPlayoff ? 2
-    : schedule?.hasQualification ? 1
+  const isLastMatchScored = (level: string) => {
+    const phaseMatches = matches.filter((m) => m.level === level);
+    if (phaseMatches.length === 0) return false;
+    const lastMatch = phaseMatches.reduce((a, b) => (b.match > a.match ? b : a));
+    return lastMatch.winningAlliance !== 0;
+  };
+  const isQualQueuing = queueStatus?.nowQueuing?.startsWith("Qualification") ?? false;
+  // Practice may never be scored — move past it when quals start queueing or are scored
+  const practiceOver = isLastMatchScored("Practice") || isQualQueuing || isLastMatchScored("Qualification");
+  const currentIndex =
+    !practiceOver ? 0
+    : !isLastMatchScored("Qualification") ? 1
+    : !isLastMatchScored("Playoff") ? 2
     : 0;
   const scheduleSections = [
     ...allSections.slice(currentIndex),
