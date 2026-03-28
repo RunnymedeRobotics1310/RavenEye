@@ -41,7 +41,7 @@ services:
       REGISTRATION_SECRET: ${REGISTRATION_SECRET:-default_registration_secret_123}
       FRC_USER: ${FRC_USER:-frc_api_user_id}
       FRC_KEY: ${FRC_KEY:-frc_api_user_key}
-      NEXUS_KEY: ${NEXUS_KEY:-leia_is_a_tree_hugger}
+      NEXUS_KEY: ${NEXUS_KEY:-more_friendly_dummy_key}
     networks:
       - raveneye-network
 
