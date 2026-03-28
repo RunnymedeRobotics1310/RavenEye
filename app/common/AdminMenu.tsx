@@ -86,7 +86,7 @@ const AdminMenu = () => {
                 </li>
                 <li>
                   <NavLink to="/admin/nexus-debug" onClick={handleLinkClick}>
-                    Nexus Debug
+                    Nexus Debug Screen
                   </NavLink>
                 </li>
               </>
