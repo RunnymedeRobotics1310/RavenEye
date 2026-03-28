@@ -129,18 +129,47 @@ function QueueBanner({ queueStatus }: { queueStatus: NexusQueueStatus | null }) 
   if (!queueStatus || !queueStatus.teamStatus) return null;
 
   const allianceClass = queueStatus.teamAlliance
-    ? `alliance-${queueStatus.teamAlliance}-text`
+    ? `queue-alliance-${queueStatus.teamAlliance}`
     : "";
   const startTime = formatQueueTime(queueStatus.estimatedStartTime);
+  const queueTime = formatQueueTime(queueStatus.estimatedQueueTime);
 
   return (
     <div className="banner banner-queue">
-      <span className={allianceClass} style={{ fontWeight: 700 }}>
-        {queueStatus.teamMatchLabel}
-      </span>
-      {" — "}
-      {queueStatus.teamStatus}
-      {startTime && <> (est. {startTime})</>}
+      <div className="queue-summary">
+        {queueStatus.teamMatchLabel && (
+          <span className={`queue-match-badge ${allianceClass}`}>
+            {queueStatus.teamMatchLabel}
+          </span>
+        )}
+        <span>{queueStatus.teamStatus}</span>
+        {startTime && <span className="queue-time">est. {startTime}</span>}
+      </div>
+      {(queueStatus.nowQueuing || queueTime || (queueStatus.announcements && queueStatus.announcements.length > 0)) && (
+        <div className="queue-details">
+          {queueStatus.nowQueuing && (
+            <div className="queue-detail-row">
+              <span className="queue-detail-label">Now queuing</span>
+              <span>{queueStatus.nowQueuing}</span>
+            </div>
+          )}
+          {queueTime && (
+            <div className="queue-detail-row">
+              <span className="queue-detail-label">Queue at</span>
+              <span>{queueTime}</span>
+            </div>
+          )}
+          {startTime && (
+            <div className="queue-detail-row">
+              <span className="queue-detail-label">Start at</span>
+              <span>{startTime}</span>
+            </div>
+          )}
+          {(queueStatus.announcements ?? []).map((a, i) => (
+            <div key={i} className="queue-announcement">{a.content}</div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -440,10 +440,69 @@ section.usersAdmin {
     background-color: #e67e22;
     color: #fff;
     font-size: 0.85rem;
+    padding: 0.5rem 1rem;
 }
 
 .banner-queue a {
     color: #fff;
+}
+
+.queue-summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.queue-match-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    background-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+
+.queue-alliance-red {
+    background-color: var(--alliance-red);
+}
+
+.queue-alliance-blue {
+    background-color: var(--alliance-blue);
+}
+
+.queue-time {
+    opacity: 0.9;
+    font-weight: 400;
+}
+
+.queue-details {
+    margin-top: 0.4rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 400;
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.queue-detail-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+}
+
+.queue-detail-label {
+    opacity: 0.8;
+}
+
+.queue-announcement {
+    margin-top: 0.2rem;
+    font-style: italic;
+    opacity: 0.9;
 }
 
 /*
