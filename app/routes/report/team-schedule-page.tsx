@@ -563,7 +563,7 @@ const TeamScheduleContent = () => {
           setShowAllInitialized(true);
           showAllInitializedRef.current = true;
         }
-        if (loggedInRef.current && ownerInMatches) {
+        if (ownerInMatches) {
           getNexusQueueStatus(tournamentId).then(setQueueStatus);
         } else {
           setQueueStatus(null);
@@ -600,18 +600,6 @@ const TeamScheduleContent = () => {
       if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, [selectedTournamentId, loadSchedule, refreshInterval, countdownStart]);
-
-  // Fetch queue status promptly when login completes
-  useEffect(() => {
-    if (loggedIn && selectedTournamentId && schedule) {
-      const ownerInMatches = (schedule.matches ?? []).some(
-        (m) => getAllianceForTeam(m, schedule.teamNumber) !== null,
-      );
-      if (ownerInMatches) {
-        getNexusQueueStatus(selectedTournamentId).then(setQueueStatus);
-      }
-    }
-  }, [loggedIn, selectedTournamentId]);
 
   const handleFetchSchedule = async () => {
     if (!selectedTournamentId) return;
