@@ -9,6 +9,7 @@ import Spinner from "~/common/Spinner.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
+
 const AreaStart = ({}: TrackScreenProps) => {
   const { navigate } = useTrackNav();
   const { list: allAreas, loading: areasLoading } = useStrategyAreaList();
