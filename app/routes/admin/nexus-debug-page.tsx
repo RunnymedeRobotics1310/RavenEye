@@ -89,6 +89,40 @@ const NexusDebugContent = () => {
                 <td>Nexus Event Key</td>
                 <td>{debugInfo.nexusEventKey}</td>
               </tr>
+              <tr>
+                <td>Last Error</td>
+                <td>{debugInfo.lastError ?? "None"}</td>
+              </tr>
+              {debugInfo.lastErrorTime && (
+                <tr>
+                  <td>Last Error Time</td>
+                  <td>{debugInfo.lastErrorTime}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          <h2>Live Fetch</h2>
+          <table>
+            <tbody>
+              <tr>
+                <td>Success</td>
+                <td>{debugInfo.liveFetch.success ? "Yes" : "No"}</td>
+              </tr>
+              <tr>
+                <td>Status Code</td>
+                <td>{debugInfo.liveFetch.statusCode || "N/A"}</td>
+              </tr>
+              <tr>
+                <td>Latency</td>
+                <td>{debugInfo.liveFetch.latencyMs} ms</td>
+              </tr>
+              {debugInfo.liveFetch.error && (
+                <tr>
+                  <td>Error</td>
+                  <td>{debugInfo.liveFetch.error}</td>
+                </tr>
+              )}
             </tbody>
           </table>
 

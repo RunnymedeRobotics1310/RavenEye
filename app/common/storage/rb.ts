@@ -1114,6 +1114,14 @@ export interface NexusDebugInfo {
   queueStatus: NexusQueueStatus | null;
   teamNumber: number;
   nexusEventKey: string;
+  lastError: string | null;
+  lastErrorTime: string | null;
+  liveFetch: {
+    success: boolean;
+    statusCode: number;
+    latencyMs: number;
+    error: string | null;
+  };
 }
 
 export async function getNexusDebugInfo(
