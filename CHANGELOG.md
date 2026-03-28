@@ -1,3 +1,16 @@
+# [3.34.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.33.1...v3.34.0) (2026-03-27)
+
+
+### Bug Fixes
+
+* PMVA legend update ([b574028](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b57402899c5b4201d90e7ac23b313a270e9f0659))
+* PMVA report refinement ([829e95f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/829e95f3c917eab37307ea6213dd106442436ad6))
+
+
+### Features
+
+* PMVA report v2 mark 1 ([5b0c81a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/5b0c81a9af22b792a560b7654c5f54d4569a57a6))
+
 ## [3.33.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.33.0...v3.33.1) (2026-03-27)
 
 
