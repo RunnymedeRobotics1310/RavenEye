@@ -1,3 +1,10 @@
+# [3.35.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.34.1...v3.35.0) (2026-03-28)
+
+
+### Features
+
+* Nexus queueing info no longer requires login ([c7930f5](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c7930f56bf831ed6529be1fe95d0005cca77e756))
+
 ## [3.34.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.34.0...v3.34.1) (2026-03-28)
 
 
