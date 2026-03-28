@@ -1,3 +1,10 @@
+## [3.35.6](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.5...v3.35.6) (2026-03-28)
+
+
+### Bug Fixes
+
+* More CI refinements ([ae60993](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ae609938a3f937df0d0e4525b4b5c9a253034a8e))
+
 ## [3.35.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.4...v3.35.5) (2026-03-28)
 
 
