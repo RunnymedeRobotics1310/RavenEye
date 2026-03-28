@@ -119,6 +119,14 @@ function RpCell({
   );
 }
 
+function formatMatchTime(time24: string | null): string {
+  if (!time24) return "";
+  const [h, m] = time24.split(":").map(Number);
+  const suffix = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${m.toString().padStart(2, "0")} ${suffix}`;
+}
+
 function formatQueueTime(unixMs: number | null): string | null {
   if (unixMs == null) return null;
   const date = new Date(unixMs);
@@ -148,22 +156,19 @@ function QueueBanner({ queueStatus }: { queueStatus: NexusQueueStatus | null }) 
       {(queueStatus.nowQueuing || queueTime || (queueStatus.announcements && queueStatus.announcements.length > 0)) && (
         <div className="queue-details">
           {queueStatus.nowQueuing && (
-            <div className="queue-detail-row">
-              <span className="queue-detail-label">Now queuing</span>
-              <span>{queueStatus.nowQueuing}</span>
-            </div>
+            <><span className="queue-detail-label">Now queuing</span> {queueStatus.nowQueuing}</>
+          )}
+          {queueStatus.nowQueuing && (queueTime || startTime) && (
+            <span className="queue-detail-sep">&middot;</span>
           )}
           {queueTime && (
-            <div className="queue-detail-row">
-              <span className="queue-detail-label">Queue at</span>
-              <span>{queueTime}</span>
-            </div>
+            <><span className="queue-detail-label">Queue</span> {queueTime}</>
+          )}
+          {queueTime && startTime && (
+            <span className="queue-detail-sep">&middot;</span>
           )}
           {startTime && (
-            <div className="queue-detail-row">
-              <span className="queue-detail-label">Start at</span>
-              <span>{startTime}</span>
-            </div>
+            <><span className="queue-detail-label">Start</span> {startTime}</>
           )}
           {(queueStatus.announcements ?? []).map((a, i) => (
             <div key={i} className="queue-announcement">{a.content}</div>
@@ -211,6 +216,7 @@ function ScheduleTable({
   ownerRp,
   ownerRs,
   loggedIn,
+  highlightMatch,
 }: {
   label: string;
   level: string;
@@ -226,6 +232,7 @@ function ScheduleTable({
   ownerRp?: number | null;
   ownerRs?: number | null;
   loggedIn: boolean;
+  highlightMatch?: number | null;
 }) {
   const allLevelMatches = (matches ?? []).filter((m) => m.level === level);
   const levelMatches = showAll
@@ -279,16 +286,15 @@ function ScheduleTable({
             <tbody>
               {levelMatches.map((m) => {
                 const alliance = getAllianceForTeam(m, ownerTeam);
-                const rowClass = alliance
-                  ? alliance === "red"
-                    ? "schedule-row-our-red"
-                    : "schedule-row-our-blue"
-                  : "";
+                const classes = [
+                  alliance === "red" ? "schedule-row-our-red" : alliance === "blue" ? "schedule-row-our-blue" : "",
+                  highlightMatch === m.match ? "schedule-row-highlight" : "",
+                ].filter(Boolean).join(" ");
                 return (
-                  <tr key={`${m.level}-${m.match}`} className={rowClass}>
+                  <tr key={`${m.level}-${m.match}`} className={classes}>
                     <td className="schedule-match-num">{m.match}</td>
                     <td className="schedule-time">
-                      {m.startTime || ""}
+                      {formatMatchTime(m.startTime)}
                     </td>
                     <AllianceCell match={m} ownerTeam={ownerTeam} />
                     <TeamCell team={m.red1} ownerTeam={ownerTeam} />
@@ -680,6 +686,33 @@ const TeamScheduleContent = () => {
     ...allSections.slice(0, currentIndex),
   ];
 
+  // Determine which match to highlight per level.
+  // showAll → highlight the match currently being queued (from nexus).
+  // owner-only → highlight the owner's next unplayed match.
+  const highlightByLevel: Record<string, number | null> = {};
+  if (schedule) {
+    for (const section of allSections) {
+      const levelMatches = (schedule.matches ?? []).filter(
+        (m) => m.level === section.level,
+      );
+      if (showAll) {
+        // Highlight the next unplayed match for any team
+        const nextUnplayed = levelMatches.find(
+          (m) => m.redScore == null && m.blueScore == null,
+        );
+        highlightByLevel[section.level] = nextUnplayed?.match ?? null;
+      } else {
+        const nextOwner = levelMatches.find(
+          (m) =>
+            getAllianceForTeam(m, schedule.teamNumber) !== null &&
+            m.redScore == null &&
+            m.blueScore == null,
+        );
+        highlightByLevel[section.level] = nextOwner?.match ?? null;
+      }
+    }
+  }
+
   const title = schedule?.tournamentName || "Tournament Report";
 
   if (tournamentsLoading) {
@@ -785,6 +818,7 @@ const TeamScheduleContent = () => {
             ownerRp={ownerRp}
             ownerRs={ownerRs}
             loggedIn={loggedIn}
+            highlightMatch={highlightByLevel[section.level]}
           />
         ) : (
           <ScheduleTable
@@ -800,6 +834,7 @@ const TeamScheduleContent = () => {
             fetching={fetching}
             countdown={countdown}
             loggedIn={loggedIn}
+            highlightMatch={highlightByLevel[section.level]}
           />
         ),
       )}

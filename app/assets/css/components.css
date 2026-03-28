@@ -485,22 +485,22 @@ section.usersAdmin {
     font-weight: 400;
     font-size: 0.8rem;
     display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-}
-
-.queue-detail-row {
-    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 0.4rem;
+    gap: 0.15rem 0.4rem;
 }
 
 .queue-detail-label {
-    opacity: 0.8;
+    opacity: 0.75;
+}
+
+.queue-detail-sep {
+    opacity: 0.5;
 }
 
 .queue-announcement {
-    margin-top: 0.2rem;
+    width: 100%;
+    text-align: center;
     font-style: italic;
     opacity: 0.9;
 }
@@ -1318,6 +1318,16 @@ main.mega-report {
 
 .schedule-row-our-blue {
     background-color: var(--alliance-blue-bg) !important;
+}
+
+.schedule-row-highlight {
+    outline: 2.5px solid #e67e22;
+    outline-offset: -2.5px;
+    box-shadow: 0 0 0 1px rgba(230, 126, 34, 0.3);
+}
+
+.schedule-row-highlight td:first-child {
+    border-left: 3px solid #e67e22;
 }
 
 /* Alliance column: hidden on wide screens, shown on narrow portrait phones */
