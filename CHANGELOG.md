@@ -1,3 +1,10 @@
+## [3.35.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.0...v3.35.1) (2026-03-28)
+
+
+### Bug Fixes
+
+* cors issue ([d29bc60](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d29bc60b110d7d8c37880e8b0970b63670856bc5))
+
 # [3.35.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.34.1...v3.35.0) (2026-03-28)
 
 
