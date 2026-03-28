@@ -1086,13 +1086,11 @@ export async function getNexusQueueStatus(
   tournamentId: string,
 ): Promise<NexusQueueStatus | null> {
   try {
-    const resp = await fetch(
-      import.meta.env.VITE_API_HOST +
-        "/api/nexus/queue-status/" +
-        tournamentId,
-      { mode: "cors", headers: { "Content-Type": "application/json" } },
+    const resp = await rbfetch(
+      "/api/nexus/queue-status/" + tournamentId,
+      {},
     );
-    if (resp.ok) {
+    if (resp.ok && resp.status !== 204) {
       return resp.json() as unknown as NexusQueueStatus;
     }
     return null;
