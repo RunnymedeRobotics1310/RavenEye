@@ -357,7 +357,8 @@ function isCurrentWeek(tournaments: RBTournament[]): boolean {
   });
 }
 
-function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void }) {
+function TournamentPicker({ onSelect, activeTournaments = [] }: { onSelect: (t: RBTournament) => void; activeTournaments?: RBTournament[] }) {
+  const activeTournamentIds = activeTournaments.map((t) => t.id);
   const [tournaments, setTournaments] = useState<RBTournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterInput, setFilterInput] = useState("");
@@ -404,7 +405,27 @@ function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void })
         <h1>Tournament Report</h1>
         <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
       </div>
-      <p>No active tournament found. Select a tournament to view its schedule.</p>
+      <p>Select a tournament to view its schedule.</p>
+      {!loading && activeTournaments.length > 0 && !filterInput && (
+        <section className="card">
+          {activeTournaments.map((t) => (
+            <div key={t.id} className="tournament-row">
+              <button
+                className="tournament-btn"
+                onClick={() => onSelect(t)}
+              >
+                {t.id.slice(String(t.season).length)}
+              </button>
+              <div className="tournament-info">
+                <span className="tournament-name">{t.name} (active)</span>
+                <span className="tournament-date">
+                  {formatDate(t.startTime)} – {formatDate(t.endTime)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </section>
+      )}
       {loading && <Spinner />}
       {!loading && tournaments.length === 0 && <p>No tournaments available.</p>}
       {!loading && tournaments.length > 0 && (
@@ -466,7 +487,7 @@ function TournamentPicker({ onSelect }: { onSelect: (t: RBTournament) => void })
                       {t.id.slice(String(t.season).length)}
                     </button>
                     <div className="tournament-info">
-                      <span className="tournament-name">{t.name}</span>
+                      <span className="tournament-name">{t.name}{activeTournamentIds.includes(t.id) ? " (active)" : ""}</span>
                       <span className="tournament-date">
                         {formatDate(t.startTime)} – {formatDate(t.endTime)}
                       </span>
@@ -501,14 +522,12 @@ const TeamScheduleContent = () => {
   const loggedInRef = useRef(loggedIn);
   const showAllInitializedRef = useRef(showAllInitialized);
 
-  const isManualSelection = activeTournaments.length === 0 && manualTournament !== null;
-  const selectedTournament =
-    activeTournaments.length > 0 ? activeTournaments[0] : manualTournament;
+  const selectedTournament = manualTournament;
   const selectedTournamentId = selectedTournament?.id ?? null;
 
   const handleBack = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (isManualSelection) {
+    if (manualTournament) {
       setManualTournament(null);
       setSchedule(null);
       setError(null);
@@ -652,7 +671,7 @@ const TeamScheduleContent = () => {
   }
 
   if (!selectedTournament) {
-    return <TournamentPicker onSelect={(t) => setManualTournament(t)} />;
+    return <TournamentPicker onSelect={(t) => setManualTournament(t)} activeTournaments={activeTournaments} />;
   }
 
   if ((loading || !schedule) && !schedule) {
