@@ -1,3 +1,11 @@
+## [3.35.14](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.13...v3.35.14) (2026-03-28)
+
+
+### Bug Fixes
+
+* Better highlighting for next match ([59facf4](https://github.com/RunnymedeRobotics1310/RavenEye/commit/59facf4f3c4b5d8ba10662934c614779df80deda))
+* Better queueing display ([ac749bd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ac749bd39c8246352b519067138b4ab794114104))
+
 ## [3.35.13](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.12...v3.35.13) (2026-03-28)
 
 
