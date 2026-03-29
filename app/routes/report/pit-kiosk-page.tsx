@@ -12,6 +12,7 @@ import type {
 } from "~/types/TeamSchedule.ts";
 import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 import logoUrl from "~/assets/images/logo.png";
+import Title from "~/common/icons/Title.tsx";
 import Spinner from "~/common/Spinner.tsx";
 
 const REFRESH_MS = 15_000;
@@ -145,11 +146,22 @@ function TopBar({
   const startTime = formatQueueTime(queueStatus?.estimatedStartTime ?? null);
   const queueTime = formatQueueTime(queueStatus?.estimatedQueueTime ?? null);
 
+  const status = queueStatus?.teamStatus ?? null;
+  const barClass = status === "On field"
+    ? "kiosk-bar-onfield"
+    : status === "On deck"
+      ? "kiosk-bar-ondeck"
+      : status === "Now queuing"
+        ? "kiosk-bar-queuing"
+        : status === "Queuing soon"
+          ? "kiosk-bar-soon"
+          : "kiosk-bar-idle";
+
   return (
-    <div className="kiosk-top-bar">
+    <div className={`kiosk-top-bar ${barClass}`}>
       <div className="kiosk-brand">
         <img src={logoUrl} alt="" className="kiosk-logo" />
-        <span className="kiosk-title">1310 Raven Eye</span>
+        <Title />
       </div>
       <div className="kiosk-queue-status">
         {queueStatus?.teamStatus && (
@@ -265,7 +277,7 @@ function OwnerScoresPanel({
                   <span className={"kiosk-score-red"}>{m.redScore}</span>:
                     <span className="kiosk-score-blue">{m.blueScore}</span>
                   </td>
-                  <td className={won ? "kiosk-result-win" : "kiosk-result-loss"}>
+                  <td>
                     {won ? "W" : "L"}{rp != null ? rp : ""}
                   </td>
                 </tr>
@@ -349,25 +361,24 @@ function SchedulePanel({
   ownerTeam: number;
   highlightMatch: number | null;
 }) {
+  const hasQuals = matches.some((m) => m.level === "Qualification");
   const ownerMatches = matches.filter(
-    (m) => getAllianceForTeam(m, ownerTeam) !== null,
+    (m) =>
+      getAllianceForTeam(m, ownerTeam) !== null &&
+      m.winningAlliance === 0 &&
+      !(hasQuals && m.level === "Practice"),
   );
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const highlightRowRef = useRef<HTMLTableRowElement>(null);
 
-  // Auto-scroll to keep the highlighted row visible
+  // Scroll so the next match is at the top of the viewport
   useEffect(() => {
     if (highlightRowRef.current && viewportRef.current) {
-      const row = highlightRowRef.current;
-      const viewport = viewportRef.current;
-      const rowTop = row.offsetTop;
-      const rowHeight = row.offsetHeight;
-      const vpHeight = viewport.clientHeight;
-      const targetScroll = rowTop - vpHeight / 2 + rowHeight / 2;
-      viewport.scrollTo({ top: Math.max(0, targetScroll), behavior: "smooth" });
+      const rowTop = highlightRowRef.current.offsetTop;
+      viewportRef.current.scrollTop = Math.max(0, rowTop);
     }
-  }, [highlightMatch, ownerMatches.length]);
+  }, [highlightMatch]);
 
   return (
     <div className="kiosk-schedule">

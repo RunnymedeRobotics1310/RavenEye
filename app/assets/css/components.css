@@ -1739,7 +1739,8 @@ main.track.pmva button {
 
 /* Hide app chrome when kiosk is active */
 #layout.kiosk-active > header,
-#layout.kiosk-active > footer {
+#layout.kiosk-active > footer,
+#layout.kiosk-active .banner {
     display: none;
 }
 
@@ -1797,12 +1798,36 @@ main.track.pmva button {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.4rem 0.75rem;
-    background: #e67e22;
+    padding: 0.2rem 0.4rem;
     color: #fff;
     font-size: 0.85rem;
     font-weight: 600;
     min-height: 2.5rem;
+}
+
+.kiosk-bar-idle {
+    background: #1a1a1a;
+}
+
+.kiosk-bar-soon {
+    background: #8a8040;
+}
+
+.kiosk-bar-queuing {
+    background: #e67e22;
+}
+
+.kiosk-bar-ondeck {
+    animation: kiosk-flash-ondeck 0.8s ease-in-out infinite;
+}
+
+@keyframes kiosk-flash-ondeck {
+    0%, 100% { background: #e67e22; }
+    50% { background: #1a1a1a; }
+}
+
+.kiosk-bar-onfield {
+    background: #2e7d32;
 }
 
 .kiosk-brand {
@@ -1812,17 +1837,16 @@ main.track.pmva button {
     flex-shrink: 0;
 }
 
+.kiosk-brand svg {
+    height: 0.8rem;
+    width: auto;
+}
+
 .kiosk-logo {
     height: 1.8rem;
     width: auto;
 }
 
-.kiosk-title {
-    font-weight: 800;
-    font-size: 0.95rem;
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-}
 
 .kiosk-queue-status {
     flex: 1;
