@@ -1,3 +1,10 @@
+## [3.36.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.36.4...v3.36.5) (2026-03-29)
+
+
+### Bug Fixes
+
+* schedule colors ([4586a27](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4586a27eb6aadfb04b31b8b19d4ac6bd0f581043))
+
 ## [3.36.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.36.3...v3.36.4) (2026-03-29)
 
 
