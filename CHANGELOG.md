@@ -1,3 +1,10 @@
+## [3.37.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.37.0...v3.37.1) (2026-03-29)
+
+
+### Bug Fixes
+
+* kiosk ([7be3dc6](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7be3dc606cd8ccd2a9080b74d7ac7a7a6c2626dc))
+
 # [3.37.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.36.5...v3.37.0) (2026-03-29)
 
 
