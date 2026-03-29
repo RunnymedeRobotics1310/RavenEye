@@ -1810,7 +1810,7 @@ main.track.pmva button {
 }
 
 .kiosk-bar-soon {
-    background: #8a8040;
+    background: #1a1a1a;
 }
 
 .kiosk-bar-queuing {
@@ -2184,7 +2184,7 @@ main.track.pmva button {
 
 .kiosk-team-rank {
     font-size: 0.55rem;
-    opacity: 0.6;
+    color: var(--color-text-primary);
     margin-left: 0.1rem;
 }
 
@@ -2192,6 +2192,12 @@ main.track.pmva button {
     font-weight: 800;
     text-decoration: underline;
     text-underline-offset: 2px;
+}
+
+.kiosk-team-owner .kiosk-team-rank {
+    font-weight: 400;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .kiosk-score-cell {
