@@ -274,7 +274,7 @@ function OwnerScoresPanel({
                 <tr key={`${m.level}-${m.match}`}>
                   <td className={`kiosk-match-num ${alliance === "red" ? "kiosk-score-red" : "kiosk-score-blue"}`}>{m.match}</td>
                   <td>
-                  <span className={"kiosk-score-red"}>{m.redScore}</span>:
+                  <span className={"kiosk-score-red"}>{m.redScore}</span>-
                     <span className="kiosk-score-blue">{m.blueScore}</span>
                   </td>
                   <td>
@@ -299,11 +299,15 @@ function RankingsPanel({
 }) {
   return (
     <div className="kiosk-rankings">
-      <h2 className="kiosk-section-title">Rankings</h2>
       <table className="kiosk-rankings-table kiosk-rankings-header">
+        <colgroup>
+          <col style={{ width: "30%" }} />
+          <col style={{ width: "40%" }} />
+          <col style={{ width: "30%" }} />
+        </colgroup>
         <thead>
           <tr>
-            <th>#</th>
+            <th>Rank</th>
             <th>Team</th>
             <th>RP</th>
           </tr>
@@ -311,6 +315,11 @@ function RankingsPanel({
       </table>
       <AutoScrollViewport deps={[rankings.length]}>
         <table className="kiosk-rankings-table">
+          <colgroup>
+            <col style={{ width: "30%" }} />
+            <col style={{ width: "40%" }} />
+            <col style={{ width: "30%" }} />
+          </colgroup>
           <tbody>
             {rankings.map((r, idx) => (
               <tr
@@ -384,15 +393,6 @@ function SchedulePanel({
     <div className="kiosk-schedule">
       <div className="kiosk-schedule-viewport" ref={viewportRef}>
         <table className="kiosk-schedule-table">
-          <thead>
-            <tr>
-              <th>Match</th>
-              <th>Time</th>
-              <th className="kiosk-col-red">Red Alliance</th>
-              <th className="kiosk-col-blue">Blue Alliance</th>
-              <th>Score</th>
-            </tr>
-          </thead>
           <tbody>
             {ownerMatches.map((m) => {
               const alliance = getAllianceForTeam(m, ownerTeam)!;
@@ -449,7 +449,7 @@ function SchedulePanel({
                     {hasScore ? (
                       <>
                         <span className="kiosk-score-red">{m.redScore}</span>
-                        {":"}
+                        {"-"}
                         <span className="kiosk-score-blue">{m.blueScore}</span>
                       </>
                     ) : (

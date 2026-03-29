@@ -1943,6 +1943,7 @@ main.track.pmva button {
 
 .kiosk-owner-scores-table td {
     padding: 0.2rem 0.4rem;
+    text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -2013,6 +2014,7 @@ main.track.pmva button {
 .kiosk-rankings-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
     font-size: 0.8rem;
 }
 
@@ -2031,6 +2033,7 @@ main.track.pmva button {
 
 .kiosk-rankings-table td {
     padding: 0.2rem 0.4rem;
+    text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -2148,6 +2151,7 @@ main.track.pmva button {
 
 .kiosk-schedule-table td {
     padding: 0.2rem 0.5rem;
+    text-align: left;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     white-space: nowrap;
 }
@@ -2162,7 +2166,6 @@ main.track.pmva button {
 
 .kiosk-match-num {
     font-weight: 700;
-    text-align: right;
     padding-right: 0.6rem !important;
 }
 
