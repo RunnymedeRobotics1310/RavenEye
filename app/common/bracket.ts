@@ -1,4 +1,4 @@
-import type { TeamScheduleMatch } from "~/types/TeamSchedule.ts";
+import type { TeamScheduleMatch, TeamRanking } from "~/types/TeamSchedule.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -22,6 +22,7 @@ type MatchSource =
 export interface Alliance {
   seed: number;
   teams: number[];
+  captain: number | null;
   eliminated: boolean;
   isOwner: boolean;
 }
@@ -107,9 +108,26 @@ export const BRACKET_8: BracketSlot[] = [
 export function deriveAlliances(
   playoffMatches: TeamScheduleMatch[],
   ownerTeam: number,
+  rankings: TeamRanking[] = [],
 ): Alliance[] {
   const matchByNum = new Map<number, TeamScheduleMatch>();
   for (const m of playoffMatches) matchByNum.set(m.match, m);
+
+  const rankByTeam = new Map<number, number>();
+  rankings.forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
+
+  function findCaptain(teams: number[]): number | null {
+    let best: number | null = null;
+    let bestRank = Infinity;
+    for (const t of teams) {
+      const rank = rankByTeam.get(t) ?? Infinity;
+      if (rank < bestRank) {
+        bestRank = rank;
+        best = t;
+      }
+    }
+    return best;
+  }
 
   const alliances: Alliance[] = [];
   for (const [matchNum, [redSeed, blueSeed]] of Object.entries(SEED_BY_MATCH)) {
@@ -120,12 +138,14 @@ export function deriveAlliances(
     alliances.push({
       seed: redSeed,
       teams: redTeams,
+      captain: findCaptain(redTeams),
       eliminated: false,
       isOwner: redTeams.includes(ownerTeam),
     });
     alliances.push({
       seed: blueSeed,
       teams: blueTeams,
+      captain: findCaptain(blueTeams),
       eliminated: false,
       isOwner: blueTeams.includes(ownerTeam),
     });

@@ -93,22 +93,28 @@ function getAllianceForTeam(
 function RpCell({
   match,
   ownerTeam,
+  isElimination,
 }: {
   match: TeamScheduleMatch;
   ownerTeam: number;
+  isElimination: boolean;
 }) {
   if (match.winningAlliance === 0 || match.redScore === null || match.blueScore === null) {
     return <td></td>;
   }
 
-  const redRp = match.redRp ?? 0;
-  const blueRp = match.blueRp ?? 0;
   const alliance = getAllianceForTeam(match, ownerTeam);
   const won =
     alliance === "red" ? match.winningAlliance === 1 :
     alliance === "blue" ? match.winningAlliance === 2 :
     null;
 
+  if (isElimination) {
+    return <td className="schedule-score-cell">{won !== null ? (won ? "W" : "L") : ""}</td>;
+  }
+
+  const redRp = match.redRp ?? 0;
+  const blueRp = match.blueRp ?? 0;
   return (
     <td className="schedule-score-cell">
       <span className="alliance-red-text">{redRp}</span>
@@ -243,6 +249,7 @@ function ScheduleTable({
   loggedIn: boolean;
   highlightMatch?: number | null;
 }) {
+  const isElimination = level === "Playoff";
   const allLevelMatches = (matches ?? []).filter((m) => m.level === level);
   const levelMatches = showAll
     ? allLevelMatches
@@ -289,7 +296,7 @@ function ScheduleTable({
                 <th className="alliance-blue-text schedule-col-team">B3</th>
                 {showBlue4 && <th className="alliance-blue-text schedule-col-team">B4</th>}
                 <th>Score</th>
-                <th>RP</th>
+                <th>{isElimination ? "W / L" : "RP"}</th>
               </tr>
             </thead>
             <tbody>
@@ -319,7 +326,7 @@ function ScheduleTable({
                       <TeamCell team={m.blue4} ownerTeam={ownerTeam} />
                     )}
                     <ScoreCell match={m} />
-                    <RpCell match={m} ownerTeam={ownerTeam} />
+                    <RpCell match={m} ownerTeam={ownerTeam} isElimination={isElimination} />
                   </tr>
                 );
               })}

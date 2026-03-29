@@ -514,7 +514,10 @@ function AllianceListPanel({
             <span className="kiosk-alliance-seed">{a.seed}</span>
             <span className="kiosk-alliance-teams">
               {a.teams.map((t) => (
-                <span key={t} className={t === ownerTeam ? "kiosk-alliance-owner-team" : ""}>
+                <span key={t} className={[
+                  t === ownerTeam ? "kiosk-alliance-owner-team" : "",
+                  t === a.captain ? "kiosk-alliance-captain" : "",
+                ].filter(Boolean).join(" ")}>
                   {t}
                   {rankByTeam.has(t) && (
                     <span className="kiosk-alliance-team-rank">({rankByTeam.get(t)})</span>
@@ -618,9 +621,11 @@ function buildConnectors(resolvedMatches: ResolvedMatch[]) {
 function BracketPanel({
   resolvedMatches,
   ownerTeam,
+  captains,
 }: {
   resolvedMatches: ResolvedMatch[];
   ownerTeam: number;
+  captains: Set<number>;
 }) {
   const ownerSeedNum = (() => {
     for (const rm of resolvedMatches) {
@@ -656,7 +661,7 @@ function BracketPanel({
     const textFill = isLoser ? "#555" : isOwner ? "#FF5A47" : "#ddd";
     const weight = isWinner ? "bold" : "normal";
     const seedStr = seed != null ? String(seed) : "?";
-    const teamStr = teams.length > 0 ? teams.join("  ") : sourceLabel(source);
+    const hasTeams = teams.length > 0;
     const scoreStr = score != null ? String(score) : "";
 
     return (
@@ -704,7 +709,13 @@ function BracketPanel({
           fontWeight={weight}
           fontFamily={FONT}
         >
-          {teamStr}
+          {hasTeams
+            ? teams.map((t, ti) => (
+                <tspan key={t} fontWeight={captains.has(t) ? "bold" : weight}>
+                  {ti > 0 ? "  " : ""}{t}
+                </tspan>
+              ))
+            : sourceLabel(source)}
         </text>
         {/* Score */}
         {scoreStr && (
@@ -910,8 +921,9 @@ export default function PitKioskPage() {
   const isPlayoffMode =
     schedule?.hasPlayoff === true && playoffMatches.length >= 4;
   const alliances = isPlayoffMode
-    ? deriveAlliances(playoffMatches, ownerTeam)
+    ? deriveAlliances(playoffMatches, ownerTeam, rankings)
     : [];
+  const captains = new Set(alliances.map((a) => a.captain).filter(Boolean) as number[]);
   const resolvedMatches = isPlayoffMode ? resolveBracket(playoffMatches) : [];
 
   // Highlight the owner team's next unplayed match
@@ -963,10 +975,12 @@ export default function PitKioskPage() {
     );
   }
 
+  const isLocal = window.location.hostname === "localhost";
   const kioskClass = [
     "kiosk",
     !hasVideo ? "kiosk-no-video" : "",
     isPlayoffMode ? "kiosk-playoff" : "",
+    isLocal ? "kiosk-dev" : "",
   ].filter(Boolean).join(" ");
 
   return (
@@ -1000,6 +1014,7 @@ export default function PitKioskPage() {
           <BracketPanel
             resolvedMatches={resolvedMatches}
             ownerTeam={ownerTeam}
+            captains={captains}
           />
         ) : (
           <SchedulePanel

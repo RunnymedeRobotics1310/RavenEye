@@ -1820,6 +1820,11 @@ main.track.pmva button {
     gap: 0;
 }
 
+.kiosk-dev {
+    outline: 1px solid rgba(255, 255, 0, 0.4);
+    outline-offset: -1px;
+}
+
 .kiosk-loading {
     display: flex;
     align-items: center;
@@ -2463,6 +2468,10 @@ a.kiosk-brand {
 .kiosk-alliance-team-rank {
     font-size: 0.5rem;
     color: var(--color-text-tertiary);
+}
+
+.kiosk-alliance-captain {
+    font-weight: 800;
 }
 
 .kiosk-alliance-owner-team {
