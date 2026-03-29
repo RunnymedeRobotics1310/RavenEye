@@ -1,3 +1,10 @@
+## [3.36.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.36.2...v3.36.3) (2026-03-29)
+
+
+### Bug Fixes
+
+* Pit kiosk optimization 3 ([fa4487b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/fa4487b424298b2d630c4d7996b0c0e95bb9413d))
+
 ## [3.36.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.36.1...v3.36.2) (2026-03-29)
 
 
