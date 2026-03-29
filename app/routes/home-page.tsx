@@ -53,6 +53,7 @@ const LoggedIn = () => {
           <div className="home-nav-primary">
             <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
             <NavLink to={"/report"} className="btn">View Reports</NavLink>
+            {hasActive && <NavLink to={"/report/schedule/active"} className="btn-secondary">Current Tournament Schedule & Scores</NavLink>}
             {hasActive && <NavLink to={"/report/schedule"} className="btn-secondary">Schedule & Scores</NavLink>}
           </div>
           <div className="home-nav-secondary">
@@ -108,7 +109,7 @@ const NotLoggedIn = (props: any) => {
       </div>
       <div className="page-section">
         <NavLink to={"/login"} className="btn">Log in</NavLink>
-        {hasActive && <NavLink to={"/report/schedule"} className="btn-secondary">Schedule & Scores</NavLink>}
+        {hasActive && <NavLink to={"/report/schedule/active"} className="btn-secondary">Schedule & Scores</NavLink>}
       </div>
       <section className="card">
         <h3>Login Status</h3>
