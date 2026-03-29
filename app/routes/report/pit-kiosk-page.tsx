@@ -376,12 +376,15 @@ function SchedulePanel({
   rankings.forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
 
   const hasQuals = matches.some((m) => m.level === "Qualification");
-  const ownerMatches = matches.filter(
+  const allOwner = matches.filter(
     (m) =>
       getAllianceForTeam(m, ownerTeam) !== null &&
-      m.winningAlliance === 0 &&
       !(hasQuals && m.level === "Practice"),
   );
+  const upcoming = allOwner.filter((m) => m.winningAlliance === 0);
+  const completed = allOwner
+    .filter((m) => m.winningAlliance !== 0)
+    .sort((a, b) => b.match - a.match);
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const highlightRowRef = useRef<HTMLTableRowElement>(null);
@@ -394,63 +397,70 @@ function SchedulePanel({
     }
   }, [highlightMatch]);
 
+  function renderRow(m: TeamScheduleMatch, ref?: React.Ref<HTMLTableRowElement>) {
+    const alliance = getAllianceForTeam(m, ownerTeam)!;
+    const isHighlight = highlightMatch === m.match;
+    const rowClass = [
+      alliance === "red" ? "kiosk-row-our-red" : "kiosk-row-our-blue",
+      isHighlight ? "kiosk-row-highlight" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
+    const redTeams = [m.red1, m.red2, m.red3, m.red4].filter(Boolean);
+    const blueTeams = [m.blue1, m.blue2, m.blue3, m.blue4].filter(Boolean);
+    const hasScore =
+      m.redScore != null && m.blueScore != null && m.winningAlliance !== 0;
+    return (
+      <tr key={`${m.level}-${m.match}`} className={rowClass} ref={ref}>
+        <td className="kiosk-match-num">
+          {levelPrefix(m.level)}{m.match}
+        </td>
+        <td className="kiosk-match-time">
+          {formatMatchTime(m.startTime)}
+        </td>
+        <td className="kiosk-alliance-cell kiosk-col-red">
+          {redTeams.map((t) => (
+            <span key={t} className={t === ownerTeam ? "kiosk-team-owner" : ""}>
+              {t}{rankByTeam.has(t) && <span className="kiosk-team-rank">({rankByTeam.get(t)})</span>}
+            </span>
+          ))}
+        </td>
+        <td className="kiosk-alliance-cell kiosk-col-blue">
+          {blueTeams.map((t) => (
+            <span key={t} className={t === ownerTeam ? "kiosk-team-owner" : ""}>
+              {t}{rankByTeam.has(t) && <span className="kiosk-team-rank">({rankByTeam.get(t)})</span>}
+            </span>
+          ))}
+        </td>
+        <td className="kiosk-score-cell">
+          {hasScore ? (
+            <>
+              <span className="kiosk-score-red">{m.redScore}</span>
+              {"-"}
+              <span className="kiosk-score-blue">{m.blueScore}</span>
+            </>
+          ) : (
+            ""
+          )}
+        </td>
+      </tr>
+    );
+  }
+
   return (
     <div className="kiosk-schedule">
       <div className="kiosk-schedule-viewport" ref={viewportRef}>
         <table className="kiosk-schedule-table">
           <tbody>
-            {ownerMatches.map((m) => {
-              const alliance = getAllianceForTeam(m, ownerTeam)!;
-              const isHighlight = highlightMatch === m.match;
-              const rowClass = [
-                alliance === "red" ? "kiosk-row-our-red" : "kiosk-row-our-blue",
-                isHighlight ? "kiosk-row-highlight" : "",
-              ]
-                .filter(Boolean)
-                .join(" ");
-              const redTeams = [m.red1, m.red2, m.red3, m.red4].filter(Boolean);
-              const blueTeams = [m.blue1, m.blue2, m.blue3, m.blue4].filter(
-                Boolean,
-              );
-              return (
-                <tr
-                  key={`${m.level}-${m.match}`}
-                  className={rowClass}
-                  ref={isHighlight ? highlightRowRef : undefined}
-                >
-                  <td className="kiosk-match-num">
-                    {levelPrefix(m.level)}{m.match}
-                  </td>
-                  <td className="kiosk-match-time">
-                    {formatMatchTime(m.startTime)}
-                  </td>
-                  <td className="kiosk-alliance-cell kiosk-col-red">
-                    {redTeams.map((t) => (
-                      <span
-                        key={t}
-                        className={
-                          t === ownerTeam ? "kiosk-team-owner" : ""
-                        }
-                      >
-                        {t}{rankByTeam.has(t) && <span className="kiosk-team-rank">({rankByTeam.get(t)})</span>}
-                      </span>
-                    ))}
-                  </td>
-                  <td className="kiosk-alliance-cell kiosk-col-blue">
-                    {blueTeams.map((t) => (
-                      <span
-                        key={t}
-                        className={
-                          t === ownerTeam ? "kiosk-team-owner" : ""
-                        }
-                      >
-                        {t}{rankByTeam.has(t) && <span className="kiosk-team-rank">({rankByTeam.get(t)})</span>}
-                      </span>
-                    ))}
-                  </td>
-                </tr>
-              );
-            })}
+            {upcoming.map((m) =>
+              renderRow(m, highlightMatch === m.match ? highlightRowRef : undefined),
+            )}
+            {completed.length > 0 && upcoming.length > 0 && (
+              <tr className="kiosk-schedule-separator">
+                <td colSpan={5}></td>
+              </tr>
+            )}
+            {completed.map((m) => renderRow(m))}
           </tbody>
         </table>
       </div>

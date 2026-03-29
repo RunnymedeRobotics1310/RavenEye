@@ -2205,17 +2205,6 @@ a.kiosk-brand {
     margin-left: 0.1rem;
 }
 
-.kiosk-team-owner {
-    font-weight: 800;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-}
-
-.kiosk-team-owner .kiosk-team-rank {
-    font-weight: 400;
-    text-decoration: none;
-    display: inline-block;
-}
 
 .kiosk-score-cell {
     font-weight: 600;
@@ -2247,7 +2236,13 @@ a.kiosk-brand {
     border-left: 3px solid #e67e22;
 }
 
-.kiosk-schedule-table tbody tr:nth-child(even):not(.kiosk-row-our-red):not(.kiosk-row-our-blue) {
+.kiosk-schedule-separator td {
+    border-bottom: 2px solid var(--color-text-tertiary);
+    padding: 0;
+    height: 0.4rem;
+}
+
+.kiosk-schedule-table tbody tr:nth-child(even):not(.kiosk-row-our-red):not(.kiosk-row-our-blue):not(.kiosk-schedule-separator) {
     background: rgba(255, 255, 255, 0.02);
 }
 
