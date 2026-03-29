@@ -5,4 +5,5 @@ export type RBTournament = {
   startTime: Date;
   endTime: Date;
   weekNumber: number;
+  webcasts?: string[] | string | null;
 };

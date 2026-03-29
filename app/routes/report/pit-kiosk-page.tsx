@@ -1,0 +1,609 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  getActiveTeamTournaments,
+  getTeamSchedulePublic,
+  getNexusQueueStatus,
+} from "~/common/storage/rb.ts";
+import type { RBTournament } from "~/types/RBTournament.ts";
+import type {
+  TeamScheduleResponse,
+  TeamScheduleMatch,
+  TeamRanking,
+} from "~/types/TeamSchedule.ts";
+import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
+import logoUrl from "~/assets/images/logo.png";
+import Spinner from "~/common/Spinner.tsx";
+
+const REFRESH_MS = 15_000;
+const SCROLL_PX_PER_SEC = 18;
+
+function AutoScrollViewport({
+  children,
+  deps,
+}: {
+  children: React.ReactNode;
+  deps: unknown[];
+}) {
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [style, setStyle] = useState<React.CSSProperties>({});
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    const inner = innerRef.current;
+    if (!viewport || !inner) return;
+    const overflow = inner.scrollHeight - viewport.clientHeight;
+    if (overflow > 0) {
+      const duration = (inner.scrollHeight * 2) / SCROLL_PX_PER_SEC;
+      setStyle({
+        "--scroll-duration": `${duration}s`,
+        "--scroll-distance": `${-overflow}px`,
+      } as React.CSSProperties);
+    } else {
+      setStyle({});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+
+  return (
+    <div ref={viewportRef} style={{ flex: 1, overflow: "hidden" }}>
+      <div ref={innerRef} className="kiosk-scroll-inner" style={style}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function getAllianceForTeam(
+  match: TeamScheduleMatch,
+  teamNumber: number,
+): "red" | "blue" | null {
+  if (
+    match.red1 === teamNumber ||
+    match.red2 === teamNumber ||
+    match.red3 === teamNumber ||
+    match.red4 === teamNumber
+  )
+    return "red";
+  if (
+    match.blue1 === teamNumber ||
+    match.blue2 === teamNumber ||
+    match.blue3 === teamNumber ||
+    match.blue4 === teamNumber
+  )
+    return "blue";
+  return null;
+}
+
+function formatMatchTime(time24: string | null): string {
+  if (!time24) return "";
+  const [h, m] = time24.split(":").map(Number);
+  const suffix = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${m.toString().padStart(2, "0")} ${suffix}`;
+}
+
+function formatQueueTime(unixMs: number | null): string | null {
+  if (unixMs == null) return null;
+  const date = new Date(unixMs);
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+
+type WebcastProvider = "youtube" | "twitch" | "unknown";
+
+interface ParsedWebcast {
+  provider: WebcastProvider;
+  embedUrl: string;
+  label: string;
+}
+
+function parseWebcast(url: string): ParsedWebcast {
+  // YouTube
+  const ytMatch =
+    url.match(/youtube\.com\/watch\?v=([^&]+)/) ||
+    url.match(/youtu\.be\/([^?]+)/) ||
+    url.match(/youtube\.com\/live\/([^?]+)/);
+  if (ytMatch) {
+    return {
+      provider: "youtube",
+      embedUrl: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&rel=0&enablejsapi=1`,
+      label: "YouTube",
+    };
+  }
+  // Twitch
+  const twMatch = url.match(/twitch\.tv\/([^/?]+)/);
+  if (twMatch) {
+    return {
+      provider: "twitch",
+      embedUrl: `https://player.twitch.tv/?channel=${twMatch[1]}&parent=${window.location.hostname}&muted=true`,
+      label: "Twitch",
+    };
+  }
+  return { provider: "unknown", embedUrl: url, label: "Stream" };
+}
+
+
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
+
+function TopBar({
+  queueStatus,
+  webcasts,
+  activeWebcast,
+  onSelectWebcast,
+}: {
+  queueStatus: NexusQueueStatus | null;
+  webcasts: ParsedWebcast[];
+  activeWebcast: number;
+  onSelectWebcast: (i: number) => void;
+}) {
+  const startTime = formatQueueTime(queueStatus?.estimatedStartTime ?? null);
+  const queueTime = formatQueueTime(queueStatus?.estimatedQueueTime ?? null);
+
+  return (
+    <div className="kiosk-top-bar">
+      <div className="kiosk-brand">
+        <img src={logoUrl} alt="" className="kiosk-logo" />
+        <span className="kiosk-title">1310 Raven Eye</span>
+      </div>
+      <div className="kiosk-queue-status">
+        {queueStatus?.teamStatus && (
+          <>
+            {queueStatus.teamMatchLabel && (
+              <span
+                className={`kiosk-queue-badge ${queueStatus.teamAlliance ? `queue-alliance-${queueStatus.teamAlliance}` : ""}`}
+              >
+                {queueStatus.teamMatchLabel}
+              </span>
+            )}
+            <span>{queueStatus.teamStatus}</span>
+            {queueStatus.nowQueuing && (
+              <>
+                <span className="kiosk-queue-sep">&middot;</span>
+                <span className="kiosk-queue-dim">Queuing</span>{" "}
+                {queueStatus.nowQueuing}
+              </>
+            )}
+            {queueTime && (
+              <>
+                <span className="kiosk-queue-sep">&middot;</span>
+                <span className="kiosk-queue-dim">Queue</span> {queueTime}
+              </>
+            )}
+            {startTime && (
+              <>
+                <span className="kiosk-queue-sep">&middot;</span>
+                <span className="kiosk-queue-dim">Start</span> {startTime}
+              </>
+            )}
+          </>
+        )}
+      </div>
+      <div className="kiosk-stream-tabs">
+        {webcasts.length > 1 &&
+          webcasts.map((w, i) => (
+            <button
+              key={i}
+              className={`kiosk-stream-tab ${i === activeWebcast ? "active" : ""}`}
+              onClick={() => onSelectWebcast(i)}
+            >
+              {w.label}
+            </button>
+          ))}
+      </div>
+    </div>
+  );
+}
+
+function OwnerScoresPanel({
+  matches,
+  ownerTeam,
+  countdown,
+}: {
+  matches: TeamScheduleMatch[];
+  ownerTeam: number;
+  countdown: number;
+}) {
+  const ownerMatches = matches.filter(
+    (m) => getAllianceForTeam(m, ownerTeam) !== null,
+  );
+  // Show scored matches, oldest first
+  const scored = ownerMatches
+    .filter((m) => m.winningAlliance !== 0)
+    .sort((a, b) => a.match - b.match);
+
+  return (
+    <div className="kiosk-owner-scores">
+      <h2 className="kiosk-section-title">
+        1310 Scores
+        {scored.length > 0 && (() => {
+          let wins = 0;
+          let losses = 0;
+          for (const m of scored) {
+            const a = getAllianceForTeam(m, ownerTeam)!;
+            const w = (a === "red" && m.winningAlliance === 1) || (a === "blue" && m.winningAlliance === 2);
+            if (w) wins++; else losses++;
+          }
+          return (
+            <span className="kiosk-wl-tally">{wins}W  {losses}L</span>
+          );
+        })()}
+        <span className="kiosk-countdown">{countdown}s</span>
+      </h2>
+      <div>
+        <table className="kiosk-owner-scores-table">
+          <thead>
+            <tr>
+              <th>Match</th>
+              <th>Score</th>
+              <th>W/L</th>
+            </tr>
+          </thead>
+          <tbody>
+            {scored.length === 0 && (
+              <tr>
+                <td colSpan={3} className="kiosk-owner-scores-empty">
+                  No scores yet
+                </td>
+              </tr>
+            )}
+            {scored.map((m) => {
+              const alliance = getAllianceForTeam(m, ownerTeam)!;
+              const won =
+                (alliance === "red" && m.winningAlliance === 1) ||
+                (alliance === "blue" && m.winningAlliance === 2);
+              const rp = alliance === "red" ? m.redRp : m.blueRp;
+              return (
+                <tr key={`${m.level}-${m.match}`}>
+                  <td className={`kiosk-match-num ${alliance === "red" ? "kiosk-score-red" : "kiosk-score-blue"}`}>{m.match}</td>
+                  <td>
+                  <span className={"kiosk-score-red"}>{m.redScore}</span>:
+                    <span className="kiosk-score-blue">{m.blueScore}</span>
+                  </td>
+                  <td className={won ? "kiosk-result-win" : "kiosk-result-loss"}>
+                    {won ? "W" : "L"}{rp != null ? rp : ""}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function RankingsPanel({
+  rankings,
+  ownerTeam,
+}: {
+  rankings: TeamRanking[];
+  ownerTeam: number;
+}) {
+  return (
+    <div className="kiosk-rankings">
+      <h2 className="kiosk-section-title">Rankings</h2>
+      <table className="kiosk-rankings-table kiosk-rankings-header">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Team</th>
+            <th>RP</th>
+          </tr>
+        </thead>
+      </table>
+      <AutoScrollViewport deps={[rankings.length]}>
+        <table className="kiosk-rankings-table">
+          <tbody>
+            {rankings.map((r, idx) => (
+              <tr
+                key={r.teamNumber}
+                className={
+                  r.teamNumber === ownerTeam ? "kiosk-rank-owner" : ""
+                }
+              >
+                <td>{idx + 1}</td>
+                <td>{r.teamNumber}</td>
+                <td>{r.rp}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </AutoScrollViewport>
+    </div>
+  );
+}
+
+function VideoEmbed({ webcast }: { webcast: ParsedWebcast | null }) {
+  if (!webcast) return null;
+  return (
+    <div className="kiosk-video-wrapper">
+      <iframe
+        src={webcast.embedUrl}
+        title="Livestream"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+    </div>
+  );
+}
+
+function levelPrefix(level: string): string {
+  if (level === "Practice") return "P";
+  if (level === "Qualification") return "Q";
+  if (level === "Playoff") return "E";
+  return "";
+}
+
+function SchedulePanel({
+  matches,
+  ownerTeam,
+  highlightMatch,
+}: {
+  matches: TeamScheduleMatch[];
+  ownerTeam: number;
+  highlightMatch: number | null;
+}) {
+  const ownerMatches = matches.filter(
+    (m) => getAllianceForTeam(m, ownerTeam) !== null,
+  );
+
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const highlightRowRef = useRef<HTMLTableRowElement>(null);
+
+  // Auto-scroll to keep the highlighted row visible
+  useEffect(() => {
+    if (highlightRowRef.current && viewportRef.current) {
+      const row = highlightRowRef.current;
+      const viewport = viewportRef.current;
+      const rowTop = row.offsetTop;
+      const rowHeight = row.offsetHeight;
+      const vpHeight = viewport.clientHeight;
+      const targetScroll = rowTop - vpHeight / 2 + rowHeight / 2;
+      viewport.scrollTo({ top: Math.max(0, targetScroll), behavior: "smooth" });
+    }
+  }, [highlightMatch, ownerMatches.length]);
+
+  return (
+    <div className="kiosk-schedule">
+      <div className="kiosk-schedule-viewport" ref={viewportRef}>
+        <table className="kiosk-schedule-table">
+          <thead>
+            <tr>
+              <th>Match</th>
+              <th>Time</th>
+              <th className="kiosk-col-red">Red Alliance</th>
+              <th className="kiosk-col-blue">Blue Alliance</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ownerMatches.map((m) => {
+              const alliance = getAllianceForTeam(m, ownerTeam)!;
+              const isHighlight = highlightMatch === m.match;
+              const rowClass = [
+                alliance === "red" ? "kiosk-row-our-red" : "kiosk-row-our-blue",
+                isHighlight ? "kiosk-row-highlight" : "",
+              ]
+                .filter(Boolean)
+                .join(" ");
+              const redTeams = [m.red1, m.red2, m.red3, m.red4].filter(Boolean);
+              const blueTeams = [m.blue1, m.blue2, m.blue3, m.blue4].filter(
+                Boolean,
+              );
+              const hasScore =
+                m.redScore != null && m.blueScore != null && m.winningAlliance !== 0;
+              return (
+                <tr
+                  key={`${m.level}-${m.match}`}
+                  className={rowClass}
+                  ref={isHighlight ? highlightRowRef : undefined}
+                >
+                  <td className="kiosk-match-num">
+                    {levelPrefix(m.level)}{m.match}
+                  </td>
+                  <td className="kiosk-match-time">
+                    {formatMatchTime(m.startTime)}
+                  </td>
+                  <td className="kiosk-alliance-cell kiosk-col-red">
+                    {redTeams.map((t) => (
+                      <span
+                        key={t}
+                        className={
+                          t === ownerTeam ? "kiosk-team-owner" : ""
+                        }
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </td>
+                  <td className="kiosk-alliance-cell kiosk-col-blue">
+                    {blueTeams.map((t) => (
+                      <span
+                        key={t}
+                        className={
+                          t === ownerTeam ? "kiosk-team-owner" : ""
+                        }
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </td>
+                  <td className="kiosk-score-cell">
+                    {hasScore ? (
+                      <>
+                        <span className="kiosk-score-red">{m.redScore}</span>
+                        {":"}
+                        <span className="kiosk-score-blue">{m.blueScore}</span>
+                      </>
+                    ) : (
+                      ""
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Main page
+// ---------------------------------------------------------------------------
+
+export default function PitKioskPage() {
+  const [activeTournaments, setActiveTournaments] = useState<RBTournament[]>(
+    [],
+  );
+  const [schedule, setSchedule] = useState<TeamScheduleResponse | null>(null);
+  const [queueStatus, setQueueStatus] = useState<NexusQueueStatus | null>(
+    null,
+  );
+  const [activeWebcast, setActiveWebcast] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [countdown, setCountdown] = useState(REFRESH_MS / 1000);
+
+  // Hide app header/footer
+  useEffect(() => {
+    const layout = document.getElementById("layout");
+    if (layout) layout.classList.add("kiosk-active");
+    return () => {
+      layout?.classList.remove("kiosk-active");
+    };
+  }, []);
+
+  // Load active tournaments on mount
+  useEffect(() => {
+    getActiveTeamTournaments()
+      .then(setActiveTournaments)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const tournament = activeTournaments.length > 0 ? activeTournaments[0] : null;
+  const tournamentId = tournament?.id ?? null;
+
+  const loadData = useCallback(
+    async (tid: string) => {
+      try {
+        const data = await getTeamSchedulePublic(tid);
+        setSchedule(data);
+        const ownerInMatches = (data.matches ?? []).some(
+          (m) => getAllianceForTeam(m, data.teamNumber) !== null,
+        );
+        if (ownerInMatches) {
+          getNexusQueueStatus(tid).then(setQueueStatus);
+        } else {
+          setQueueStatus(null);
+        }
+      } catch {
+        // Silently retry on next interval
+      }
+    },
+    [],
+  );
+
+  // Auto-refresh every 15s with countdown
+  useEffect(() => {
+    if (!tournamentId) return;
+    loadData(tournamentId);
+    setCountdown(REFRESH_MS / 1000);
+    const refreshInterval = setInterval(() => {
+      loadData(tournamentId);
+      setCountdown(REFRESH_MS / 1000);
+    }, REFRESH_MS);
+    const countdownInterval = setInterval(() => {
+      setCountdown((c) => (c > 1 ? c - 1 : c));
+    }, 1000);
+    return () => {
+      clearInterval(refreshInterval);
+      clearInterval(countdownInterval);
+    };
+  }, [tournamentId, loadData]);
+
+  const matches = schedule?.matches ?? [];
+  const rankings = schedule?.rankings ?? [];
+  const ownerTeam = schedule?.teamNumber ?? 1310;
+
+  // Highlight the owner team's next unplayed match
+  const nextOwnerMatch = matches.find(
+    (m) =>
+      getAllianceForTeam(m, ownerTeam) !== null &&
+      m.redScore == null &&
+      m.blueScore == null,
+  );
+  const highlightMatch = nextOwnerMatch?.match ?? null;
+
+  // Parse webcasts from tournament. Backend stores as JSON string, so handle both formats.
+  let webcastUrls: string[] = [];
+  const raw = tournament?.webcasts;
+  if (Array.isArray(raw)) {
+    webcastUrls = raw;
+  } else if (typeof raw === "string" && raw.length > 0) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) webcastUrls = parsed;
+    } catch { /* ignore */ }
+  }
+  const webcasts: ParsedWebcast[] = webcastUrls.map((url, i) => {
+    const parsed = parseWebcast(url);
+    // Label duplicate providers with a number for clarity
+    const sameProviderCount = webcastUrls
+      .slice(0, i)
+      .filter((u) => parseWebcast(u).provider === parsed.provider).length;
+    if (sameProviderCount > 0) {
+      parsed.label = `${parsed.label} ${sameProviderCount + 1}`;
+    }
+    return parsed;
+  });
+  const hasVideo = webcasts.length > 0;
+
+  if (loading) {
+    return (
+      <main className="kiosk kiosk-loading">
+        <Spinner />
+      </main>
+    );
+  }
+
+  if (!tournament) {
+    return (
+      <main className="kiosk kiosk-loading">
+        <p>No active tournament found.</p>
+      </main>
+    );
+  }
+
+  return (
+    <main className={`kiosk ${hasVideo ? "" : "kiosk-no-video"}`}>
+      <TopBar
+        queueStatus={queueStatus}
+        webcasts={webcasts}
+        activeWebcast={activeWebcast}
+        onSelectWebcast={setActiveWebcast}
+      />
+      <div className="kiosk-left">
+        <OwnerScoresPanel matches={matches} ownerTeam={ownerTeam} countdown={countdown} />
+        <RankingsPanel rankings={rankings} ownerTeam={ownerTeam} />
+      </div>
+      <div className="kiosk-main">
+        {hasVideo && (
+          <VideoEmbed webcast={webcasts[activeWebcast] ?? webcasts[0]} />
+        )}
+        <SchedulePanel
+          matches={matches}
+          ownerTeam={ownerTeam}
+          highlightMatch={highlightMatch}
+        />
+      </div>
+    </main>
+  );
+}

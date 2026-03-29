@@ -73,6 +73,11 @@ const AdminMenu = () => {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/admin/tournament-streams" onClick={handleLinkClick}>
+                Tournament Streams
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/admin/design-system" onClick={handleLinkClick}>
                 Design System
               </NavLink>

@@ -1099,6 +1099,36 @@ export async function getNexusQueueStatus(
   }
 }
 
+export async function addTournamentWebcast(
+  tournamentId: string,
+  url: string,
+): Promise<boolean> {
+  try {
+    const resp = await rbfetch(`/api/tournament/${tournamentId}/webcast`, {
+      method: "PUT",
+      body: JSON.stringify({ url }),
+    });
+    return resp.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function removeTournamentWebcast(
+  tournamentId: string,
+  url: string,
+): Promise<boolean> {
+  try {
+    const resp = await rbfetch(`/api/tournament/${tournamentId}/webcast`, {
+      method: "DELETE",
+      body: JSON.stringify({ url }),
+    });
+    return resp.ok;
+  } catch {
+    return false;
+  }
+}
+
 export interface NexusDebugInfo {
   enabled: boolean;
   apiKey: string;

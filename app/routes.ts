@@ -50,6 +50,7 @@ export default [
     "./routes/admin/config-sync/config-sync-page.tsx",
   ),
   route("admin/nexus-debug", "./routes/admin/nexus-debug-page.tsx"),
+  route("admin/tournament-streams", "./routes/admin/tournament-streams-page.tsx"),
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
   route("report/schedule", "./routes/report/team-schedule-page.tsx"),
@@ -123,4 +124,5 @@ export default [
     "./routes/report/sequence-tournament-sequences-page.tsx",
   ),
   route("track", "./routes/track/track-home-page.tsx"),
+  route("kiosk-pit", "./routes/report/pit-kiosk-page.tsx"),
 ] satisfies RouteConfig;
