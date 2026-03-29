@@ -1,3 +1,10 @@
+# [3.36.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.14...v3.36.0) (2026-03-29)
+
+
+### Features
+
+* Pit kiosk ([9004283](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9004283dc67fbc606cd121659814177b0c56eb23))
+
 ## [3.35.14](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.35.13...v3.35.14) (2026-03-28)
 
 
