@@ -2386,3 +2386,92 @@ a.kiosk-brand {
     font-size: 0.8rem;
     color: var(--color-text-secondary);
 }
+
+/*
+ *
+ * KIOSK PLAYOFF MODE
+ *
+ */
+
+/* Reduce video height during playoffs */
+.kiosk.kiosk-playoff .kiosk-video-wrapper {
+    max-height: 50vh;
+}
+
+/* --- Alliance list panel (left sidebar during playoffs) --- */
+.kiosk-alliance-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.kiosk-alliance-cards {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-bg-tertiary) transparent;
+    padding: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.kiosk-alliance-card {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.4rem;
+    border-radius: 3px;
+    background: var(--color-bg-secondary);
+    border-left: 3px solid transparent;
+}
+
+.kiosk-alliance-owner {
+    border-left-color: #FF3820;
+    background: rgba(255, 56, 32, 0.1);
+}
+
+.kiosk-alliance-eliminated {
+    opacity: 0.35;
+}
+
+.kiosk-alliance-eliminated .kiosk-alliance-seed {
+    text-decoration: line-through;
+}
+
+.kiosk-alliance-seed {
+    font-weight: 800;
+    font-size: 0.85rem;
+    min-width: 1.2rem;
+    text-align: center;
+}
+
+.kiosk-alliance-teams {
+    display: flex;
+    gap: 0.3rem;
+    font-size: 0.7rem;
+}
+
+.kiosk-alliance-teams > span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.1;
+}
+
+.kiosk-alliance-team-rank {
+    font-size: 0.5rem;
+    color: var(--color-text-tertiary);
+}
+
+.kiosk-alliance-owner-team {
+    font-weight: 700;
+}
+
+/* --- Bracket panel --- */
+.kiosk-bracket {
+    flex: 1;
+    min-height: 0;
+    padding: 0.25rem;
+}
