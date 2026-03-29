@@ -365,11 +365,16 @@ function SchedulePanel({
   matches,
   ownerTeam,
   highlightMatch,
+  rankings,
 }: {
   matches: TeamScheduleMatch[];
   ownerTeam: number;
   highlightMatch: number | null;
+  rankings: TeamRanking[];
 }) {
+  const rankByTeam = new Map<number, number>();
+  rankings.forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
+
   const hasQuals = matches.some((m) => m.level === "Qualification");
   const ownerMatches = matches.filter(
     (m) =>
@@ -407,8 +412,6 @@ function SchedulePanel({
               const blueTeams = [m.blue1, m.blue2, m.blue3, m.blue4].filter(
                 Boolean,
               );
-              const hasScore =
-                m.redScore != null && m.blueScore != null && m.winningAlliance !== 0;
               return (
                 <tr
                   key={`${m.level}-${m.match}`}
@@ -429,7 +432,7 @@ function SchedulePanel({
                           t === ownerTeam ? "kiosk-team-owner" : ""
                         }
                       >
-                        {t}
+                        {t}{rankByTeam.has(t) && <span className="kiosk-team-rank">({rankByTeam.get(t)})</span>}
                       </span>
                     ))}
                   </td>
@@ -441,20 +444,9 @@ function SchedulePanel({
                           t === ownerTeam ? "kiosk-team-owner" : ""
                         }
                       >
-                        {t}
+                        {t}{rankByTeam.has(t) && <span className="kiosk-team-rank">({rankByTeam.get(t)})</span>}
                       </span>
                     ))}
-                  </td>
-                  <td className="kiosk-score-cell">
-                    {hasScore ? (
-                      <>
-                        <span className="kiosk-score-red">{m.redScore}</span>
-                        {"-"}
-                        <span className="kiosk-score-blue">{m.blueScore}</span>
-                      </>
-                    ) : (
-                      ""
-                    )}
                   </td>
                 </tr>
               );
@@ -613,6 +605,7 @@ export default function PitKioskPage() {
           matches={matches}
           ownerTeam={ownerTeam}
           highlightMatch={highlightMatch}
+          rankings={rankings}
         />
       </div>
     </main>

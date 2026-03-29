@@ -2182,6 +2182,12 @@ main.track.pmva button {
     margin-right: 0;
 }
 
+.kiosk-team-rank {
+    font-size: 0.55rem;
+    opacity: 0.6;
+    margin-left: 0.1rem;
+}
+
 .kiosk-team-owner {
     font-weight: 800;
     text-decoration: underline;
