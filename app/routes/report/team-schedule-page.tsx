@@ -537,7 +537,7 @@ function TournamentPicker({ onSelect, activeTournaments = [] }: { onSelect: (t: 
   );
 }
 
-const TeamScheduleContent = () => {
+const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) => {
   const { list: activeTournaments, loading: tournamentsLoading } =
     useActiveTeamTournamentsFromApi();
   const { loggedIn } = useLoginStatus();
@@ -553,6 +553,15 @@ const TeamScheduleContent = () => {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [manualTournament, setManualTournament] = useState<RBTournament | null>(null);
+  const autoSelectedRef = useRef(false);
+
+  // Auto-select first active tournament when using /schedule/active
+  useEffect(() => {
+    if (autoSelect && !autoSelectedRef.current && !tournamentsLoading && activeTournaments.length > 0) {
+      autoSelectedRef.current = true;
+      setManualTournament(activeTournaments[0]);
+    }
+  }, [autoSelect, tournamentsLoading, activeTournaments]);
   const loggedInRef = useRef(loggedIn);
   const showAllInitializedRef = useRef(showAllInitialized);
 
@@ -856,6 +865,10 @@ const TeamScheduleContent = () => {
 
 const TeamSchedulePage = () => {
   return <TeamScheduleContent />;
+};
+
+export const TeamScheduleActivePage = () => {
+  return <TeamScheduleContent autoSelect />;
 };
 
 export default TeamSchedulePage;

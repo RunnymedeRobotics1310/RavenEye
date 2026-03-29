@@ -159,10 +159,10 @@ function TopBar({
 
   return (
     <div className={`kiosk-top-bar ${barClass}`}>
-      <div className="kiosk-brand">
+      <a href="/report/schedule/active" className="kiosk-brand">
         <img src={logoUrl} alt="" className="kiosk-logo" />
         <Title />
-      </div>
+      </a>
       <div className="kiosk-queue-status">
         {queueStatus?.teamStatus && (
           <>
@@ -272,7 +272,7 @@ function OwnerScoresPanel({
               const rp = alliance === "red" ? m.redRp : m.blueRp;
               return (
                 <tr key={`${m.level}-${m.match}`}>
-                  <td className={`kiosk-match-num ${alliance === "red" ? "kiosk-score-red" : "kiosk-score-blue"}`}>{m.match}</td>
+                  <td className={`kiosk-match-num ${alliance === "red" ? "kiosk-score-red" : "kiosk-score-blue"}`}>{levelPrefix(m.level)}{m.match}</td>
                   <td>
                   <span className={"kiosk-score-red"}>{m.redScore}</span>-
                     <span className="kiosk-score-blue">{m.blueScore}</span>

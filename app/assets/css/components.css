@@ -411,6 +411,21 @@ section.usersAdmin {
     align-items: center;
 }
 
+.copy-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-primary);
+    padding: 0.15rem;
+    vertical-align: middle;
+}
+
+.copy-toast {
+    font-size: 0.75rem;
+    color: var(--color-success);
+    white-space: nowrap;
+}
+
 /*
  *
  * BANNERS
@@ -1830,11 +1845,13 @@ main.track.pmva button {
     background: #2e7d32;
 }
 
-.kiosk-brand {
+a.kiosk-brand {
     display: flex;
     align-items: center;
     gap: 0.4rem;
     flex-shrink: 0;
+    color: inherit;
+    text-decoration: none;
 }
 
 .kiosk-brand svg {

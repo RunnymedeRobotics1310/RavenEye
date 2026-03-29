@@ -54,6 +54,7 @@ export default [
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
   route("report/schedule", "./routes/report/team-schedule-page.tsx"),
+  route("report/schedule/active", "./routes/report/team-schedule-active-page.tsx"),
   route("report/summary", "./routes/report/summary-report-teams-page.tsx"),
   route(
     "report/summary/:teamId",

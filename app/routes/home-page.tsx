@@ -39,6 +39,7 @@ export function meta({}: Route.MetaArgs) {
 const LoggedIn = () => {
   const fullName = getDisplayName();
   const hasActive = useHasActiveTournament();
+  const [copyToast, setCopyToast] = useState(false);
   return (
     <main>
       <div className="page-header">
@@ -47,17 +48,50 @@ const LoggedIn = () => {
           Logged in as <strong>{fullName}</strong>
         </p>
       </div>
-      <nav className="home-nav">
-        <div className="home-nav-primary">
-          <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
-          <NavLink to={"/report"} className="btn">View Reports</NavLink>
-          {hasActive && <NavLink to={"/report/schedule"} className="btn-secondary">Schedule & Scores</NavLink>}
-        </div>
-        <div className="home-nav-secondary">
-          <NavLink to={"/profile"} className="btn-secondary">My Profile</NavLink>
-          <NavLink to={"/logout"} className="btn-secondary">Log out</NavLink>
-        </div>
-      </nav>
+      <section className="card">
+        <nav className="home-nav">
+          <div className="home-nav-primary">
+            <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
+            <NavLink to={"/report"} className="btn">View Reports</NavLink>
+            {hasActive && <NavLink to={"/report/schedule"} className="btn-secondary">Schedule & Scores</NavLink>}
+          </div>
+          <div className="home-nav-secondary">
+            <NavLink to={"/profile"} className="btn-secondary">My Profile</NavLink>
+            <NavLink to={"/logout"} className="btn-secondary">Log out</NavLink>
+          </div>
+        </nav>
+      </section>
+      <section className="card">
+        <h2>Pit Support</h2>
+        <p>
+          The following features exist to drive a pit kiosk in Raven Eye.
+          All of the data shown in the pit section is available in the
+          &ldquo;Schedule &amp; Scores&rdquo; report. Please do not run
+          the pit kiosk mode on your own &mdash; it puts unnecessary load
+          on the server and we don&rsquo;t want to be shut down.
+        </p>
+        <table className="status-table">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><NavLink to="/admin/tournament-streams" className="btn-secondary">Livestreams</NavLink></td>
+              <td>Enter or change override tournament livestream YouTube URLs &mdash; admin access only.</td>
+            </tr>
+            <tr>
+              <td><NavLink to="/kiosk-pit" className="btn-secondary">Pit Kiosk</NavLink></td>
+              <td>
+                Load this URL in the pit (you do not need to be logged in):<br />
+                <pre style={{ display: "inline", margin: 0 }}>{window.location.origin}/kiosk-pit</pre>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
     </main>
   );
 };
