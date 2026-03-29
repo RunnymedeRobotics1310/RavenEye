@@ -452,10 +452,38 @@ section.usersAdmin {
 }
 
 .banner-queue {
-    background-color: #e67e22;
+    background-color: #1a1a1a;
     color: #fff;
     font-size: 0.85rem;
     padding: 0.5rem 1rem;
+}
+
+.banner-queue-idle {
+    background-color: #1a1a1a;
+}
+
+.banner-queue-queuing {
+    background-color: #e67e22;
+}
+
+.banner-queue-ondeck {
+    animation: banner-flash-ondeck 0.8s ease-in-out infinite;
+}
+
+@keyframes banner-flash-ondeck {
+    0%, 100% { background-color: #e67e22; color: #fff; }
+    50% { background-color: #fff; color: #e67e22; }
+}
+
+@media (prefers-color-scheme: dark) {
+    @keyframes banner-flash-ondeck {
+        0%, 100% { background-color: #e67e22; color: #fff; }
+        50% { background-color: #1a1a1a; color: #fff; }
+    }
+}
+
+.banner-queue-onfield {
+    background-color: #2e7d32;
 }
 
 .banner-queue a {

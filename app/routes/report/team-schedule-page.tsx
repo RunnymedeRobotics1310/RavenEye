@@ -142,8 +142,17 @@ function QueueBanner({ queueStatus }: { queueStatus: NexusQueueStatus | null }) 
   const startTime = formatQueueTime(queueStatus.estimatedStartTime);
   const queueTime = formatQueueTime(queueStatus.estimatedQueueTime);
 
+  const status = queueStatus.teamStatus;
+  const stateClass = status === "On field"
+    ? "banner-queue-onfield"
+    : status === "On deck"
+      ? "banner-queue-ondeck"
+      : status === "Now queuing"
+        ? "banner-queue-queuing"
+        : "banner-queue-idle";
+
   return (
-    <div className="banner banner-queue">
+    <div className={`banner banner-queue ${stateClass}`}>
       <div className="queue-summary">
         {queueStatus.teamMatchLabel && (
           <span className={`queue-match-badge ${allianceClass}`}>
