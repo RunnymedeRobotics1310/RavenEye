@@ -1,3 +1,10 @@
+# [3.37.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.36.5...v3.37.0) (2026-03-29)
+
+
+### Features
+
+* Elim bracket in kiosk ([ed2df5b](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ed2df5b3be45294a1b83dbc086f854d7c98a15c2))
+
 ## [3.36.5](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.36.4...v3.36.5) (2026-03-29)
 
 
