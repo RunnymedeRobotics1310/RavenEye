@@ -136,6 +136,14 @@ function buildConnectors(resolvedMatches: ResolvedMatch[]): string[] {
       if (source.match === 11 && rm.slot.match === 13) {
         midX = (POSITIONS[12].x + BOX_W + POSITIONS[13].x) / 2;
       }
+      // Separate M7→M9 and M8→M10 crossover lines horizontally
+      if (source.match === 7 && rm.slot.match === 9) midX -= 6;
+      if (source.match === 8 && rm.slot.match === 10) midX += 6;
+      // Separate M1/M2→M5 and M3/M4→M6 crossover lines horizontally
+      if (source.match === 1 && rm.slot.match === 5) midX -= 13.5;
+      if (source.match === 2 && rm.slot.match === 5) midX -= 4.5;
+      if (source.match === 3 && rm.slot.match === 6) midX += 4.5;
+      if (source.match === 4 && rm.slot.match === 6) midX += 13.5;
       paths.push(`M${fromX},${fromY} H${midX} V${toY} H${toX}`);
     }
   }
