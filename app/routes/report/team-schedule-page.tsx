@@ -304,7 +304,7 @@ function ScheduleTable({
                 <th className="alliance-blue-text schedule-col-team">B3</th>
                 {showBlue4 && <th className="alliance-blue-text schedule-col-team">B4</th>}
                 <th>Score</th>
-                <th>{isElimination ? "W / L" : "RP"}</th>
+                <th>{isElimination ? `${ownerTeam} W/L` : "RP"}</th>
               </tr>
             </thead>
             <tbody>
@@ -760,31 +760,14 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
   const ownerRp = ownerRankEntry?.rp ?? null;
   const ownerRs = ownerRankEntry?.rs ?? null;
 
-  // Order schedule sections so the current phase appears first.
-  // Rotate forward each time the last match in a phase is scored.
+  // Fixed order: Elimination (top), Qualification (middle), Practice (bottom).
+  // Each section only renders if data exists.
   const allSections = [
-    { label: "Practice", level: "Practice" as const, hasData: schedule?.hasPractice ?? false },
-    { label: "Qualification", level: "Qualification" as const, hasData: schedule?.hasQualification ?? false },
     { label: "Elimination", level: "Playoff" as const, hasData: schedule?.hasPlayoff ?? false },
+    { label: "Qualification", level: "Qualification" as const, hasData: schedule?.hasQualification ?? false },
+    { label: "Practice", level: "Practice" as const, hasData: schedule?.hasPractice ?? false },
   ];
-  const isLastMatchScored = (level: string) => {
-    const phaseMatches = matches.filter((m) => m.level === level);
-    if (phaseMatches.length === 0) return false;
-    const lastMatch = phaseMatches.reduce((a, b) => (b.match > a.match ? b : a));
-    return lastMatch.winningAlliance !== 0;
-  };
-  const isQualQueuing = queueStatus?.nowQueuing?.startsWith("Qualification") ?? false;
-  // Practice may never be scored — move past it when quals start queueing or are scored
-  const practiceOver = isLastMatchScored("Practice") || isQualQueuing || isLastMatchScored("Qualification");
-  const currentIndex =
-    !practiceOver ? 0
-    : !isLastMatchScored("Qualification") ? 1
-    : !isLastMatchScored("Playoff") ? 2
-    : 0;
-  const scheduleSections = [
-    ...allSections.slice(currentIndex),
-    ...allSections.slice(0, currentIndex),
-  ];
+  const scheduleSections = allSections.filter((s) => s.hasData);
 
   // Playoff bracket data (needed before highlight logic for finalsOver check)
   const playoffMatches = matches.filter((m) => m.level === "Playoff");
