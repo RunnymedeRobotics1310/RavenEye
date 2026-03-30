@@ -1,3 +1,10 @@
+## [3.38.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.3...v3.38.4) (2026-03-30)
+
+
+### Bug Fixes
+
+* reorder schedule page ([25a94d7](https://github.com/RunnymedeRobotics1310/RavenEye/commit/25a94d792c883cde062692e36fdfc146e0024cc1))
+
 ## [3.38.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.2...v3.38.3) (2026-03-30)
 
 
