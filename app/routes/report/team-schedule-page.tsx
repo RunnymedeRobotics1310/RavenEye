@@ -6,15 +6,15 @@ import {
   getTeamSchedulePublic,
   getTournamentList,
 } from "~/common/storage/rb.ts";
-import { useLoginStatus } from "~/common/storage/rbauth.ts";
+import { useLoginStatus, useRole } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import {
-  BRACKET_8,
   deriveAlliances,
   resolveBracket,
   type Alliance,
   type ResolvedMatch,
 } from "~/common/bracket.ts";
+import BracketSvg from "~/common/BracketSvg.tsx";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 import type {
@@ -613,31 +613,6 @@ function ScheduleAllianceList({
   );
 }
 
-// SVG bracket for schedule page — reuses layout constants from kiosk
-const SCH_FONT = "-apple-system, system-ui, sans-serif";
-const SCH_BOX_W = 140;
-const SCH_BOX_H = 36;
-const SCH_HALF = SCH_BOX_H / 2;
-const SCH_COL = SCH_BOX_W + 45;
-const SCH_PAD = 20;
-const SCH_LB_TOP = 210;
-const SCH_FINALS_X = SCH_COL * 4 + SCH_COL / 2 + 35;
-
-const SCH_LB_SHIFT = SCH_COL / 2; // lower bracket offset: half a column right
-const SCH_POSITIONS: Record<number, { x: number; y: number }> = {
-  1: { x: SCH_PAD, y: 10 }, 2: { x: SCH_PAD, y: 55 },
-  3: { x: SCH_PAD, y: 100 }, 4: { x: SCH_PAD, y: 145 },
-  7: { x: SCH_PAD + SCH_COL, y: 32 }, 8: { x: SCH_PAD + SCH_COL, y: 122 },
-  11: { x: SCH_PAD + SCH_COL * 2, y: 77 },
-  5: { x: SCH_PAD + SCH_LB_SHIFT, y: SCH_LB_TOP }, 6: { x: SCH_PAD + SCH_LB_SHIFT, y: SCH_LB_TOP + 45 },
-  9: { x: SCH_PAD + SCH_COL + SCH_LB_SHIFT, y: SCH_LB_TOP }, 10: { x: SCH_PAD + SCH_COL + SCH_LB_SHIFT, y: SCH_LB_TOP + 45 },
-  12: { x: SCH_PAD + SCH_COL * 2 + SCH_LB_SHIFT, y: SCH_LB_TOP + 22 },
-  13: { x: SCH_PAD + SCH_COL * 3 + SCH_LB_SHIFT, y: SCH_LB_TOP + 22 },
-  14: { x: SCH_PAD + SCH_FINALS_X, y: 130 },
-  15: { x: SCH_PAD + SCH_FINALS_X, y: 170 },
-  16: { x: SCH_PAD + SCH_FINALS_X, y: 210 },
-};
-
 function ScheduleBracketSvg({
   resolvedMatches,
   ownerTeam,
@@ -648,134 +623,14 @@ function ScheduleBracketSvg({
   alliances: Alliance[];
 }) {
   const captains = new Set(alliances.map((a) => a.captain).filter(Boolean) as number[]);
-  const ownerSeedNum = (() => {
-    for (const rm of resolvedMatches) {
-      if (rm.redTeams.includes(ownerTeam)) return rm.redSeed;
-      if (rm.blueTeams.includes(ownerTeam)) return rm.blueSeed;
-    }
-    return null;
-  })();
-
-  function srcLabel(source: { type: string; seed?: number; match?: number }): string {
-    if (source.type === "seed") return `Alliance ${source.seed}`;
-    if (source.type === "winner") return `W ${BRACKET_8.find((s) => s.match === source.match)?.label ?? ""}`;
-    if (source.type === "loser") return `L ${BRACKET_8.find((s) => s.match === source.match)?.label ?? ""}`;
-    return "TBD";
-  }
-
-  // Finals dot node — sits to the right of M13, between bracket and finals
-  const m13Pos = SCH_POSITIONS[13];
-  const finalsFirst = SCH_POSITIONS[14];
-  const schDotX = (m13Pos.x + SCH_BOX_W + finalsFirst.x) / 2;
-  const finalsLast = SCH_POSITIONS[16];
-  const schDotY = (finalsFirst.y + finalsLast.y + SCH_BOX_H) / 2;
-  const schDotR = 4;
-
-  // Build connectors
-  const paths: string[] = [];
-  for (const rm of resolvedMatches) {
-    if (rm.slot.region === "finals") continue; // handled via dot node
-    const toPos = SCH_POSITIONS[rm.slot.match];
-    if (!toPos) continue;
-    for (const [i, source] of [rm.slot.redSource, rm.slot.blueSource].entries()) {
-      if (source.type === "seed") continue;
-      const fromPos = SCH_POSITIONS[source.match];
-      if (!fromPos) continue;
-      const fromX = fromPos.x + SCH_BOX_W;
-      const fromY = fromPos.y + SCH_HALF;
-      const toX = toPos.x;
-      const toY = toPos.y + (i === 0 ? SCH_HALF * 0.5 : SCH_HALF * 1.5);
-      const midX = (fromX + toX) / 2;
-      paths.push(`M${fromX},${fromY} H${midX} V${toY} H${toX}`);
-    }
-  }
-  // Connectors into dot: M11 (upper final) and M13 (lower final)
-  for (const matchNum of [11, 13]) {
-    const fromPos = SCH_POSITIONS[matchNum];
-    if (!fromPos) continue;
-    const fromX = fromPos.x + SCH_BOX_W;
-    const fromY = fromPos.y + SCH_HALF;
-    const midX = (fromX + schDotX) / 2;
-    paths.push(`M${fromX},${fromY} H${midX} V${schDotY} H${schDotX - schDotR}`);
-  }
-  // Connectors from dot to each finals match
-  for (const matchNum of [14, 15, 16]) {
-    const toPos = SCH_POSITIONS[matchNum];
-    if (!toPos) continue;
-    const toY = toPos.y + SCH_HALF;
-    paths.push(`M${schDotX + schDotR},${schDotY} H${(schDotX + toPos.x) / 2} V${toY} H${toPos.x}`);
-  }
-
-  const svgW = SCH_PAD + SCH_FINALS_X + SCH_BOX_W + 10;
-  const svgH = SCH_LB_TOP + 95;
-
-  function renderHalf(
-    x: number, y: number, teams: number[], seed: number | null,
-    score: number | null, isWinner: boolean, isLoser: boolean, isTop: boolean,
-    source: { type: string; seed?: number; match?: number },
-  ) {
-    const isOwner = seed === ownerSeedNum;
-    const halfY = isTop ? y : y + SCH_HALF;
-    const bgFill = isWinner ? "var(--color-bg-tertiary)" : "var(--color-bg-secondary)";
-    const textFill = isLoser ? "var(--color-text-tertiary)" : isOwner ? "var(--runnymede-red)" : "var(--color-text-primary)";
-    const weight = isWinner ? "bold" : "normal";
-    const seedStr = seed != null ? String(seed) : "?";
-    const scoreStr = score != null ? String(score) : "";
-    const hasTeams = teams.length > 0;
-
-    return (
-      <g>
-        <rect x={x} y={halfY} width={SCH_BOX_W} height={SCH_HALF} fill={bgFill} rx={isTop ? 3 : 0} />
-        {!isTop && <rect x={x} y={halfY} width={SCH_BOX_W} height={SCH_HALF} fill={bgFill} rx={3} />}
-        <rect x={x + 1} y={halfY + 1} width={16} height={SCH_HALF - 2} fill={isOwner ? "rgba(255,56,32,0.15)" : "rgba(128,128,128,0.1)"} rx={2} />
-        <text x={x + 9} y={halfY + SCH_HALF / 2 + 4} fill={isOwner ? "var(--runnymede-red)" : "var(--color-text-tertiary)"} fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily={SCH_FONT}>{seedStr}</text>
-        <text x={x + 20} y={halfY + SCH_HALF / 2 + 4} fill={textFill} fontSize="9" fontWeight={weight} fontFamily={SCH_FONT}>
-          {hasTeams
-            ? teams.map((t, ti) => (
-                <tspan key={t} fontWeight={captains.has(t) ? "bold" : weight}>{ti > 0 ? "  " : ""}{t}</tspan>
-              ))
-            : srcLabel(source)}
-        </text>
-        {scoreStr && (
-          <text x={x + SCH_BOX_W - 4} y={halfY + SCH_HALF / 2 + 4} fill={textFill} fontSize="10" fontWeight={weight} textAnchor="end" fontFamily={SCH_FONT}>{scoreStr}</text>
-        )}
-        {isWinner && <rect x={x + SCH_BOX_W - 3} y={halfY + 2} width={3} height={SCH_HALF - 4} fill="var(--color-success)" rx={1} />}
-      </g>
-    );
-  }
-
-  function renderMatch(rm: ResolvedMatch) {
-    const pos = SCH_POSITIONS[rm.slot.match];
-    if (!pos) return null;
-    const { x, y } = pos;
-    const isLive = rm.matchData != null && rm.winner === null;
-    return (
-      <g key={rm.slot.match}>
-        <rect x={x} y={y} width={SCH_BOX_W} height={SCH_BOX_H} fill="none" rx={3} stroke={isLive ? "var(--color-warning)" : "var(--color-bg-tertiary)"} strokeWidth={isLive ? 2 : 1} />
-        <text x={x - 3} y={y + SCH_BOX_H / 2 + 3} fill="var(--color-text-tertiary)" fontSize="7" textAnchor="end" fontFamily={SCH_FONT}>{rm.slot.label}</text>
-        {renderHalf(x, y, rm.redTeams, rm.redSeed, rm.redScore, rm.winner === "red", rm.winner === "blue", true, rm.slot.redSource)}
-        <line x1={x} y1={y + SCH_HALF} x2={x + SCH_BOX_W} y2={y + SCH_HALF} stroke="var(--color-bg-tertiary)" strokeWidth={0.5} />
-        {renderHalf(x, y, rm.blueTeams, rm.blueSeed, rm.blueScore, rm.winner === "blue", rm.winner === "red", false, rm.slot.blueSource)}
-      </g>
-    );
-  }
-
-  return (
-    <svg viewBox={`0 -15 ${svgW} ${svgH + 15}`} preserveAspectRatio="xMidYMid meet" width="100%" style={{ maxHeight: "400px" }}>
-      <text x={SCH_PAD} y={3} fill="var(--color-text-tertiary)" fontSize="8" fontWeight="bold" fontFamily={SCH_FONT} letterSpacing="0.5">UPPER BRACKET</text>
-      <text x={SCH_PAD} y={SCH_LB_TOP - 7} fill="var(--color-text-tertiary)" fontSize="8" fontWeight="bold" fontFamily={SCH_FONT} letterSpacing="0.5">LOWER BRACKET</text>
-      <text x={SCH_PAD + SCH_FINALS_X} y={125} fill="var(--color-text-tertiary)" fontSize="8" fontWeight="bold" fontFamily={SCH_FONT} letterSpacing="0.5">FINALS</text>
-      {paths.map((d, i) => <path key={i} d={d} fill="none" stroke="var(--color-bg-tertiary)" strokeWidth={1} />)}
-      <circle cx={schDotX} cy={schDotY} r={schDotR} fill="var(--color-bg-tertiary)" />
-      {resolvedMatches.map((rm) => renderMatch(rm))}
-    </svg>
-  );
+  return <BracketSvg resolvedMatches={resolvedMatches} ownerTeam={ownerTeam} captains={captains} />;
 }
 
 const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) => {
   const { list: activeTournaments, loading: tournamentsLoading } =
     useActiveTeamTournamentsFromApi();
   const { loggedIn } = useLoginStatus();
+  const { isSuperuser } = useRole();
   const [schedule, setSchedule] = useState<TeamScheduleResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -1066,6 +921,11 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
           >
             {showAll ? `${schedule.teamNumber} Only` : "All Teams"}
           </button>
+          {isSuperuser && (
+            <a href={`/kiosk-pit/${schedule.tournamentId}`} target="_blank" rel="noopener noreferrer" className="schedule-toggle-btn" style={{ textDecoration: "none" }}>
+              Kiosk View &#x2197;
+            </a>
+          )}
         </p>
       </div>
       <QueueBanner queueStatus={queueStatus} />

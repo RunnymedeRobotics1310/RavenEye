@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useParams } from "react-router";
 import {
   getActiveTeamTournaments,
   getTeamSchedulePublic,
   getNexusQueueStatus,
+  getTournamentList,
 } from "~/common/storage/rb.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type {
@@ -15,12 +17,12 @@ import logoUrl from "~/assets/images/logo.png";
 import Title from "~/common/icons/Title.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import {
-  BRACKET_8,
   deriveAlliances,
   resolveBracket,
   type Alliance,
   type ResolvedMatch,
 } from "~/common/bracket.ts";
+import BracketSvg from "~/common/BracketSvg.tsx";
 
 const REFRESH_MS = 15_000;
 const SCROLL_PX_PER_SEC = 18;
@@ -537,110 +539,6 @@ function AllianceListPanel({
 // ---------------------------------------------------------------------------
 
 // Layout: explicit x,y positions for each match to replicate the FRC manual bracket.
-// Upper bracket flows left→right top half, lower bracket left→right bottom half,
-// finals column on far right, vertically centered.
-
-const FONT = "-apple-system, system-ui, sans-serif";
-const BOX_W = 155;
-const BOX_H = 40;
-const HALF_H = BOX_H / 2;
-const COL_W = BOX_W + 50; // column spacing
-const LEFT_PAD = 22; // room for match labels to the left
-
-// Explicit positions: [matchNumber, x, y]
-// Upper bracket
-const UPPER_R1_Y = [10, 60, 110, 160]; // 4 matches
-const UPPER_SF_Y = [35, 135]; // 2 matches centered between feeders
-const UPPER_F_Y = [85]; // 1 match centered
-
-// Lower bracket — starts below upper with gap
-const LB_TOP = 230;
-const LOWER_R1_Y = [LB_TOP, LB_TOP + 50];
-const LOWER_R2_Y = [LB_TOP, LB_TOP + 50];
-const LOWER_R3_Y = [LB_TOP + 25];
-const LOWER_FINAL_Y = [LB_TOP + 25];
-
-// Finals — far right, vertically centered
-const FINALS_X = COL_W * 4 + COL_W / 2 + 40;
-const FINALS_Y = [140, 185, 230];
-
-const LB_SHIFT = COL_W / 2; // lower bracket offset: half a column right
-const MATCH_POSITIONS: Record<number, { x: number; y: number }> = {
-  // Upper R1 (col 0)
-  1: { x: LEFT_PAD, y: UPPER_R1_Y[0] },
-  2: { x: LEFT_PAD, y: UPPER_R1_Y[1] },
-  3: { x: LEFT_PAD, y: UPPER_R1_Y[2] },
-  4: { x: LEFT_PAD, y: UPPER_R1_Y[3] },
-  // Upper SF (col 1)
-  7: { x: LEFT_PAD + COL_W, y: UPPER_SF_Y[0] },
-  8: { x: LEFT_PAD + COL_W, y: UPPER_SF_Y[1] },
-  // Upper Final (col 2)
-  11: { x: LEFT_PAD + COL_W * 2, y: UPPER_F_Y[0] },
-  // Lower R1 (col 0)
-  5: { x: LEFT_PAD + LB_SHIFT, y: LOWER_R1_Y[0] },
-  6: { x: LEFT_PAD + LB_SHIFT, y: LOWER_R1_Y[1] },
-  // Lower R2 (col 1)
-  9: { x: LEFT_PAD + COL_W + LB_SHIFT, y: LOWER_R2_Y[0] },
-  10: { x: LEFT_PAD + COL_W + LB_SHIFT, y: LOWER_R2_Y[1] },
-  // Lower R3 (col 2)
-  12: { x: LEFT_PAD + COL_W * 2 + LB_SHIFT, y: LOWER_R3_Y[0] },
-  // Lower Final (col 3)
-  13: { x: LEFT_PAD + COL_W * 3 + LB_SHIFT, y: LOWER_FINAL_Y[0] },
-  // Finals
-  14: { x: LEFT_PAD + FINALS_X, y: FINALS_Y[0] },
-  15: { x: LEFT_PAD + FINALS_X, y: FINALS_Y[1] },
-  16: { x: LEFT_PAD + FINALS_X, y: FINALS_Y[2] },
-};
-
-const SVG_W = LEFT_PAD + FINALS_X + BOX_W + 10;
-const SVG_H = LB_TOP + 100;
-
-// Connector: from right edge of source match to left edge of target match
-// Uses classic bracket-tree right-angle connector paths
-// Finals dot node — sits to the right of M13, between bracket and finals
-const KIOSK_DOT_X = (MATCH_POSITIONS[13].x + BOX_W + MATCH_POSITIONS[14].x) / 2;
-const KIOSK_DOT_Y = (FINALS_Y[0] + FINALS_Y[2] + BOX_H) / 2;
-const KIOSK_DOT_R = 5;
-
-function buildConnectors(resolvedMatches: ResolvedMatch[]) {
-  const paths: string[] = [];
-  for (const rm of resolvedMatches) {
-    if (rm.slot.region === "finals") continue; // handled via dot node
-    const toPos = MATCH_POSITIONS[rm.slot.match];
-    if (!toPos) continue;
-    for (const [i, source] of [rm.slot.redSource, rm.slot.blueSource].entries()) {
-      if (source.type === "seed") continue;
-      const fromPos = MATCH_POSITIONS[source.match];
-      if (!fromPos) continue;
-
-      const fromX = fromPos.x + BOX_W;
-      const fromY = fromPos.y + HALF_H;
-      const toX = toPos.x;
-      const toY = toPos.y + (i === 0 ? HALF_H * 0.5 : HALF_H * 1.5);
-      const midX = (fromX + toX) / 2;
-
-      paths.push(`M${fromX},${fromY} H${midX} V${toY} H${toX}`);
-    }
-  }
-  // Connectors into dot: M11 (upper final) and M13 (lower final)
-  for (const matchNum of [11, 13]) {
-    const fromPos = MATCH_POSITIONS[matchNum];
-    if (!fromPos) continue;
-    const fromX = fromPos.x + BOX_W;
-    const fromY = fromPos.y + HALF_H;
-    const midX = (fromX + KIOSK_DOT_X) / 2;
-    paths.push(`M${fromX},${fromY} H${midX} V${KIOSK_DOT_Y} H${KIOSK_DOT_X - KIOSK_DOT_R}`);
-  }
-  // Connectors from dot to each finals match
-  for (const matchNum of [14, 15, 16]) {
-    const toPos = MATCH_POSITIONS[matchNum];
-    if (!toPos) continue;
-    const toY = toPos.y + HALF_H;
-    paths.push(`M${KIOSK_DOT_X + KIOSK_DOT_R},${KIOSK_DOT_Y} H${(KIOSK_DOT_X + toPos.x) / 2} V${toY} H${toPos.x}`);
-  }
-  return paths;
-}
-
 function BracketPanel({
   resolvedMatches,
   ownerTeam,
@@ -650,208 +548,9 @@ function BracketPanel({
   ownerTeam: number;
   captains: Set<number>;
 }) {
-  const ownerSeedNum = (() => {
-    for (const rm of resolvedMatches) {
-      if (rm.redTeams.includes(ownerTeam)) return rm.redSeed;
-      if (rm.blueTeams.includes(ownerTeam)) return rm.blueSeed;
-    }
-    return null;
-  })();
-
-  const connectorPaths = buildConnectors(resolvedMatches);
-
-  function sourceLabel(source: { type: string; seed?: number; match?: number }): string {
-    if (source.type === "seed") return `Alliance ${source.seed}`;
-    if (source.type === "winner") return `W ${BRACKET_8.find((s) => s.match === source.match)?.label ?? `M${source.match}`}`;
-    if (source.type === "loser") return `L ${BRACKET_8.find((s) => s.match === source.match)?.label ?? `M${source.match}`}`;
-    return "TBD";
-  }
-
-  function renderAllianceHalf(
-    x: number,
-    y: number,
-    teams: number[],
-    seed: number | null,
-    score: number | null,
-    isWinner: boolean,
-    isLoser: boolean,
-    isTop: boolean,
-    source: { type: string; seed?: number; match?: number },
-  ) {
-    const isOwner = seed === ownerSeedNum;
-    const halfY = isTop ? y : y + HALF_H;
-    const bgFill = isWinner ? "#3a3a3a" : "#2a2a2a";
-    const textFill = isLoser ? "#555" : isOwner ? "#FF5A47" : "#ddd";
-    const weight = isWinner ? "bold" : "normal";
-    const seedStr = seed != null ? String(seed) : "?";
-    const hasTeams = teams.length > 0;
-    const scoreStr = score != null ? String(score) : "";
-
-    return (
-      <g>
-        {/* Half background */}
-        <rect
-          x={x}
-          y={halfY}
-          width={BOX_W}
-          height={HALF_H}
-          fill={bgFill}
-          rx={isTop ? 3 : 0}
-          ry={isTop ? 3 : 0}
-        />
-        {/* Clip bottom corners for top half, top corners for bottom half */}
-        {!isTop && (
-          <rect x={x} y={halfY} width={BOX_W} height={HALF_H} fill={bgFill} rx={3} ry={3} />
-        )}
-        {/* Seed badge */}
-        <rect
-          x={x + 1}
-          y={halfY + 1}
-          width={18}
-          height={HALF_H - 2}
-          fill={isOwner ? "rgba(255,56,32,0.25)" : "rgba(255,255,255,0.06)"}
-          rx={2}
-        />
-        <text
-          x={x + 10}
-          y={halfY + HALF_H / 2 + 4}
-          fill={isOwner ? "#FF5A47" : "#999"}
-          fontSize="11"
-          fontWeight="bold"
-          textAnchor="middle"
-          fontFamily={FONT}
-        >
-          {seedStr}
-        </text>
-        {/* Team numbers */}
-        <text
-          x={x + 22}
-          y={halfY + HALF_H / 2 + 4}
-          fill={textFill}
-          fontSize="10"
-          fontWeight={weight}
-          fontFamily={FONT}
-        >
-          {hasTeams
-            ? teams.map((t, ti) => (
-                <tspan key={t} fontWeight={captains.has(t) ? "bold" : weight}>
-                  {ti > 0 ? "  " : ""}{t}
-                </tspan>
-              ))
-            : sourceLabel(source)}
-        </text>
-        {/* Score */}
-        {scoreStr && (
-          <text
-            x={x + BOX_W - 5}
-            y={halfY + HALF_H / 2 + 4}
-            fill={textFill}
-            fontSize="11"
-            fontWeight={weight}
-            textAnchor="end"
-            fontFamily={FONT}
-          >
-            {scoreStr}
-          </text>
-        )}
-        {/* Winner indicator */}
-        {isWinner && (
-          <rect
-            x={x + BOX_W - 3}
-            y={halfY + 2}
-            width={3}
-            height={HALF_H - 4}
-            fill="#4CAF50"
-            rx={1}
-          />
-        )}
-      </g>
-    );
-  }
-
-  function renderMatchBox(rm: ResolvedMatch) {
-    const pos = MATCH_POSITIONS[rm.slot.match];
-    if (!pos) return null;
-    const { x, y } = pos;
-    const isLive = rm.matchData != null && rm.winner === null;
-
-    return (
-      <g key={rm.slot.match}>
-        {/* Outer border */}
-        <rect
-          x={x}
-          y={y}
-          width={BOX_W}
-          height={BOX_H}
-          fill="none"
-          rx={3}
-          stroke={isLive ? "#e67e22" : "#444"}
-          strokeWidth={isLive ? 2 : 1}
-        />
-        {/* Match label to the left of box, vertically centered */}
-        <text
-          x={x - 4}
-          y={y + BOX_H / 2 + 3}
-          fill="#666"
-          fontSize="8"
-          textAnchor="end"
-          fontFamily={FONT}
-        >
-          {rm.slot.label}
-        </text>
-        {/* Top alliance (red side) */}
-        {renderAllianceHalf(
-          x, y,
-          rm.redTeams, rm.redSeed, rm.redScore,
-          rm.winner === "red", rm.winner === "blue",
-          true, rm.slot.redSource,
-        )}
-        {/* Divider */}
-        <line
-          x1={x} y1={y + HALF_H}
-          x2={x + BOX_W} y2={y + HALF_H}
-          stroke="#555" strokeWidth={0.5}
-        />
-        {/* Bottom alliance (blue side) */}
-        {renderAllianceHalf(
-          x, y,
-          rm.blueTeams, rm.blueSeed, rm.blueScore,
-          rm.winner === "blue", rm.winner === "red",
-          false, rm.slot.blueSource,
-        )}
-      </g>
-    );
-  }
-
   return (
     <div className="kiosk-bracket">
-      <svg
-        viewBox={`-5 -18 ${SVG_W + 10} ${SVG_H + 20}`}
-        preserveAspectRatio="xMidYMid meet"
-        width="100%"
-        height="100%"
-      >
-        {/* Region labels */}
-        <text x={0} y={3} fill="#555" fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">
-          UPPER BRACKET
-        </text>
-        <text x={0} y={LB_TOP - 7} fill="#555" fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">
-          LOWER BRACKET
-        </text>
-        <text x={FINALS_X} y={FINALS_Y[0] - 7} fill="#555" fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">
-          FINALS
-        </text>
-
-        {/* Connector lines */}
-        {connectorPaths.map((d, i) => (
-          <path key={i} d={d} fill="none" stroke="#444" strokeWidth={1} />
-        ))}
-        {/* Finals dot node */}
-        <circle cx={KIOSK_DOT_X} cy={KIOSK_DOT_Y} r={KIOSK_DOT_R} fill="#444" />
-
-        {/* Match boxes */}
-        {resolvedMatches.map((rm) => renderMatchBox(rm))}
-      </svg>
+      <BracketSvg resolvedMatches={resolvedMatches} ownerTeam={ownerTeam} captains={captains} darkOnly />
     </div>
   );
 }
@@ -861,9 +560,8 @@ function BracketPanel({
 // ---------------------------------------------------------------------------
 
 export default function PitKioskPage() {
-  const [activeTournaments, setActiveTournaments] = useState<RBTournament[]>(
-    [],
-  );
+  const { tournamentId: paramTournamentId } = useParams();
+  const [tournament, setTournament] = useState<RBTournament | null>(null);
   const [schedule, setSchedule] = useState<TeamScheduleResponse | null>(null);
   const [queueStatus, setQueueStatus] = useState<NexusQueueStatus | null>(
     null,
@@ -881,15 +579,24 @@ export default function PitKioskPage() {
     };
   }, []);
 
-  // Load active tournaments on mount
+  // Load tournament: use param if provided, otherwise auto-detect active
   useEffect(() => {
-    getActiveTeamTournaments()
-      .then(setActiveTournaments)
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+    if (paramTournamentId) {
+      getTournamentList()
+        .then((list) => {
+          const found = list.find((t) => t.id === paramTournamentId);
+          setTournament(found ?? { id: paramTournamentId } as RBTournament);
+        })
+        .catch(() => setTournament({ id: paramTournamentId } as RBTournament))
+        .finally(() => setLoading(false));
+    } else {
+      getActiveTeamTournaments()
+        .then((active) => setTournament(active.length > 0 ? active[0] : null))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }
+  }, [paramTournamentId]);
 
-  const tournament = activeTournaments.length > 0 ? activeTournaments[0] : null;
   const tournamentId = tournament?.id ?? null;
 
   const loadData = useCallback(

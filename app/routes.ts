@@ -127,5 +127,5 @@ export default [
     "./routes/report/sequence-tournament-sequences-page.tsx",
   ),
   route("track", "./routes/track/track-home-page.tsx"),
-  route("kiosk-pit", "./routes/report/pit-kiosk-page.tsx"),
+  route("kiosk-pit/:tournamentId?", "./routes/report/pit-kiosk-page.tsx"),
 ] satisfies RouteConfig;
