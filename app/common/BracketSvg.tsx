@@ -20,7 +20,7 @@ const LB_TOP = 230;
 const LOWER_R1_Y = [LB_TOP, LB_TOP + 50];
 const LOWER_R2_Y = [LB_TOP, LB_TOP + 50];
 const LOWER_R3_Y = [LB_TOP + 25];
-const LOWER_FINAL_Y = [LB_TOP + 25];
+const LOWER_FINAL_Y = [LB_TOP];
 
 const FINALS_Y = [115, 160, 205];
 
