@@ -1129,6 +1129,58 @@ export async function removeTournamentWebcast(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Match Videos
+// ---------------------------------------------------------------------------
+
+export async function getMatchVideos(
+  tournamentId: string,
+): Promise<import("~/types/MatchVideo.ts").MatchVideo[]> {
+  const resp = await rbfetch(`/api/match-video/${tournamentId}`, {});
+  if (resp.ok) return resp.json() as unknown as import("~/types/MatchVideo.ts").MatchVideo[];
+  return [];
+}
+
+export async function getMatchVideosByMatch(
+  tournamentId: string,
+  level: string,
+  match: number,
+): Promise<import("~/types/MatchVideo.ts").MatchVideo[]> {
+  const resp = await rbfetch(
+    `/api/match-video/${tournamentId}/${encodeURIComponent(level)}/${match}`,
+    {},
+  );
+  if (resp.ok) return resp.json() as unknown as import("~/types/MatchVideo.ts").MatchVideo[];
+  return [];
+}
+
+export async function addMatchVideo(
+  tournamentId: string,
+  matchLevel: string,
+  matchNumber: number,
+  label: string,
+  videoUrl: string,
+): Promise<boolean> {
+  try {
+    const resp = await rbfetch("/api/match-video", {
+      method: "POST",
+      body: JSON.stringify({ tournamentId, matchLevel, matchNumber, label, videoUrl }),
+    });
+    return resp.ok;
+  } catch {
+    return false;
+  }
+}
+
+export async function deleteMatchVideo(id: number): Promise<boolean> {
+  try {
+    const resp = await rbfetch(`/api/match-video/${id}`, { method: "DELETE" });
+    return resp.ok;
+  } catch {
+    return false;
+  }
+}
+
 export interface NexusDebugInfo {
   enabled: boolean;
   apiKey: string;

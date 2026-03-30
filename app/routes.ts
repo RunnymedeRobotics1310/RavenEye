@@ -51,6 +51,8 @@ export default [
   ),
   route("admin/nexus-debug", "./routes/admin/nexus-debug-page.tsx"),
   route("admin/tournament-streams", "./routes/admin/tournament-streams-page.tsx"),
+  route("admin/match-videos", "./routes/admin/match-videos-page.tsx"),
+  route("admin/match-videos/:tournamentId", "./routes/admin/match-videos-detail-page.tsx"),
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
   route("report/schedule", "./routes/report/team-schedule-page.tsx"),

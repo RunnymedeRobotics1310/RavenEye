@@ -78,6 +78,11 @@ const AdminMenu = () => {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/admin/match-videos" onClick={handleLinkClick}>
+                Match Videos
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/admin/design-system" onClick={handleLinkClick}>
                 Design System
               </NavLink>
