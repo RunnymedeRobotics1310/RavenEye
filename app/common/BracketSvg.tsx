@@ -131,7 +131,11 @@ function buildConnectors(resolvedMatches: ResolvedMatch[]): string[] {
       const fromY = fromPos.y + HALF_H;
       const toX = toPos.x;
       const toY = toPos.y + (i === 0 ? HALF_H * 0.5 : HALF_H * 1.5);
-      const midX = (fromX + toX) / 2;
+      let midX = (fromX + toX) / 2;
+      // Avoid vertical segment overlapping M12 (M11 loser → M13)
+      if (source.match === 11 && rm.slot.match === 13) {
+        midX = (POSITIONS[12].x + BOX_W + POSITIONS[13].x) / 2;
+      }
       paths.push(`M${fromX},${fromY} H${midX} V${toY} H${toX}`);
     }
   }
