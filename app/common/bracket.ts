@@ -93,11 +93,11 @@ export const BRACKET_8: BracketSlot[] = [
     redSource: { type: "loser", match: 11 }, blueSource: { type: "winner", match: 12 } },
 
   // Grand Finals (best of 3)
-  { match: 14, label: "F1", region: "finals", round: 0, row: 0,
+  { match: 14, label: "M14", region: "finals", round: 0, row: 0,
     redSource: { type: "winner", match: 11 }, blueSource: { type: "winner", match: 13 } },
-  { match: 15, label: "F2", region: "finals", round: 0, row: 1,
+  { match: 15, label: "M15", region: "finals", round: 0, row: 1,
     redSource: { type: "winner", match: 11 }, blueSource: { type: "winner", match: 13 } },
-  { match: 16, label: "F3", region: "finals", round: 0, row: 2,
+  { match: 16, label: "M16", region: "finals", round: 0, row: 2,
     redSource: { type: "winner", match: 11 }, blueSource: { type: "winner", match: 13 } },
 ];
 

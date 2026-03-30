@@ -621,17 +621,18 @@ const SCH_HALF = SCH_BOX_H / 2;
 const SCH_COL = SCH_BOX_W + 45;
 const SCH_PAD = 20;
 const SCH_LB_TOP = 210;
-const SCH_FINALS_X = SCH_COL * 4 + 35;
+const SCH_FINALS_X = SCH_COL * 4 + SCH_COL / 2 + 35;
 
+const SCH_LB_SHIFT = SCH_COL / 2; // lower bracket offset: half a column right
 const SCH_POSITIONS: Record<number, { x: number; y: number }> = {
   1: { x: SCH_PAD, y: 10 }, 2: { x: SCH_PAD, y: 55 },
   3: { x: SCH_PAD, y: 100 }, 4: { x: SCH_PAD, y: 145 },
   7: { x: SCH_PAD + SCH_COL, y: 32 }, 8: { x: SCH_PAD + SCH_COL, y: 122 },
   11: { x: SCH_PAD + SCH_COL * 2, y: 77 },
-  5: { x: SCH_PAD, y: SCH_LB_TOP }, 6: { x: SCH_PAD, y: SCH_LB_TOP + 45 },
-  9: { x: SCH_PAD + SCH_COL, y: SCH_LB_TOP }, 10: { x: SCH_PAD + SCH_COL, y: SCH_LB_TOP + 45 },
-  12: { x: SCH_PAD + SCH_COL * 2, y: SCH_LB_TOP + 22 },
-  13: { x: SCH_PAD + SCH_COL * 3, y: SCH_LB_TOP + 22 },
+  5: { x: SCH_PAD + SCH_LB_SHIFT, y: SCH_LB_TOP }, 6: { x: SCH_PAD + SCH_LB_SHIFT, y: SCH_LB_TOP + 45 },
+  9: { x: SCH_PAD + SCH_COL + SCH_LB_SHIFT, y: SCH_LB_TOP }, 10: { x: SCH_PAD + SCH_COL + SCH_LB_SHIFT, y: SCH_LB_TOP + 45 },
+  12: { x: SCH_PAD + SCH_COL * 2 + SCH_LB_SHIFT, y: SCH_LB_TOP + 22 },
+  13: { x: SCH_PAD + SCH_COL * 3 + SCH_LB_SHIFT, y: SCH_LB_TOP + 22 },
   14: { x: SCH_PAD + SCH_FINALS_X, y: 130 },
   15: { x: SCH_PAD + SCH_FINALS_X, y: 170 },
   16: { x: SCH_PAD + SCH_FINALS_X, y: 210 },
@@ -662,9 +663,18 @@ function ScheduleBracketSvg({
     return "TBD";
   }
 
+  // Finals dot node — sits to the right of M13, between bracket and finals
+  const m13Pos = SCH_POSITIONS[13];
+  const finalsFirst = SCH_POSITIONS[14];
+  const schDotX = (m13Pos.x + SCH_BOX_W + finalsFirst.x) / 2;
+  const finalsLast = SCH_POSITIONS[16];
+  const schDotY = (finalsFirst.y + finalsLast.y + SCH_BOX_H) / 2;
+  const schDotR = 4;
+
   // Build connectors
   const paths: string[] = [];
   for (const rm of resolvedMatches) {
+    if (rm.slot.region === "finals") continue; // handled via dot node
     const toPos = SCH_POSITIONS[rm.slot.match];
     if (!toPos) continue;
     for (const [i, source] of [rm.slot.redSource, rm.slot.blueSource].entries()) {
@@ -678,6 +688,22 @@ function ScheduleBracketSvg({
       const midX = (fromX + toX) / 2;
       paths.push(`M${fromX},${fromY} H${midX} V${toY} H${toX}`);
     }
+  }
+  // Connectors into dot: M11 (upper final) and M13 (lower final)
+  for (const matchNum of [11, 13]) {
+    const fromPos = SCH_POSITIONS[matchNum];
+    if (!fromPos) continue;
+    const fromX = fromPos.x + SCH_BOX_W;
+    const fromY = fromPos.y + SCH_HALF;
+    const midX = (fromX + schDotX) / 2;
+    paths.push(`M${fromX},${fromY} H${midX} V${schDotY} H${schDotX - schDotR}`);
+  }
+  // Connectors from dot to each finals match
+  for (const matchNum of [14, 15, 16]) {
+    const toPos = SCH_POSITIONS[matchNum];
+    if (!toPos) continue;
+    const toY = toPos.y + SCH_HALF;
+    paths.push(`M${schDotX + schDotR},${schDotY} H${(schDotX + toPos.x) / 2} V${toY} H${toPos.x}`);
   }
 
   const svgW = SCH_PAD + SCH_FINALS_X + SCH_BOX_W + 10;
@@ -739,8 +765,8 @@ function ScheduleBracketSvg({
       <text x={SCH_PAD} y={3} fill="var(--color-text-tertiary)" fontSize="8" fontWeight="bold" fontFamily={SCH_FONT} letterSpacing="0.5">UPPER BRACKET</text>
       <text x={SCH_PAD} y={SCH_LB_TOP - 7} fill="var(--color-text-tertiary)" fontSize="8" fontWeight="bold" fontFamily={SCH_FONT} letterSpacing="0.5">LOWER BRACKET</text>
       <text x={SCH_PAD + SCH_FINALS_X} y={125} fill="var(--color-text-tertiary)" fontSize="8" fontWeight="bold" fontFamily={SCH_FONT} letterSpacing="0.5">FINALS</text>
-      <line x1={SCH_PAD} y1={SCH_LB_TOP - 12} x2={SCH_PAD + SCH_FINALS_X - 10} y2={SCH_LB_TOP - 12} stroke="var(--color-bg-tertiary)" strokeWidth={1} />
       {paths.map((d, i) => <path key={i} d={d} fill="none" stroke="var(--color-bg-tertiary)" strokeWidth={1} />)}
+      <circle cx={schDotX} cy={schDotY} r={schDotR} fill="var(--color-bg-tertiary)" />
       {resolvedMatches.map((rm) => renderMatch(rm))}
     </svg>
   );

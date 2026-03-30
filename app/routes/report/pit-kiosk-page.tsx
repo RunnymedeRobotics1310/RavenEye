@@ -561,9 +561,10 @@ const LOWER_R3_Y = [LB_TOP + 25];
 const LOWER_FINAL_Y = [LB_TOP + 25];
 
 // Finals — far right, vertically centered
-const FINALS_X = COL_W * 4 + 40;
+const FINALS_X = COL_W * 4 + COL_W / 2 + 40;
 const FINALS_Y = [140, 185, 230];
 
+const LB_SHIFT = COL_W / 2; // lower bracket offset: half a column right
 const MATCH_POSITIONS: Record<number, { x: number; y: number }> = {
   // Upper R1 (col 0)
   1: { x: LEFT_PAD, y: UPPER_R1_Y[0] },
@@ -576,15 +577,15 @@ const MATCH_POSITIONS: Record<number, { x: number; y: number }> = {
   // Upper Final (col 2)
   11: { x: LEFT_PAD + COL_W * 2, y: UPPER_F_Y[0] },
   // Lower R1 (col 0)
-  5: { x: LEFT_PAD, y: LOWER_R1_Y[0] },
-  6: { x: LEFT_PAD, y: LOWER_R1_Y[1] },
+  5: { x: LEFT_PAD + LB_SHIFT, y: LOWER_R1_Y[0] },
+  6: { x: LEFT_PAD + LB_SHIFT, y: LOWER_R1_Y[1] },
   // Lower R2 (col 1)
-  9: { x: LEFT_PAD + COL_W, y: LOWER_R2_Y[0] },
-  10: { x: LEFT_PAD + COL_W, y: LOWER_R2_Y[1] },
+  9: { x: LEFT_PAD + COL_W + LB_SHIFT, y: LOWER_R2_Y[0] },
+  10: { x: LEFT_PAD + COL_W + LB_SHIFT, y: LOWER_R2_Y[1] },
   // Lower R3 (col 2)
-  12: { x: LEFT_PAD + COL_W * 2, y: LOWER_R3_Y[0] },
+  12: { x: LEFT_PAD + COL_W * 2 + LB_SHIFT, y: LOWER_R3_Y[0] },
   // Lower Final (col 3)
-  13: { x: LEFT_PAD + COL_W * 3, y: LOWER_FINAL_Y[0] },
+  13: { x: LEFT_PAD + COL_W * 3 + LB_SHIFT, y: LOWER_FINAL_Y[0] },
   // Finals
   14: { x: LEFT_PAD + FINALS_X, y: FINALS_Y[0] },
   15: { x: LEFT_PAD + FINALS_X, y: FINALS_Y[1] },
@@ -596,9 +597,15 @@ const SVG_H = LB_TOP + 100;
 
 // Connector: from right edge of source match to left edge of target match
 // Uses classic bracket-tree right-angle connector paths
+// Finals dot node — sits to the right of M13, between bracket and finals
+const KIOSK_DOT_X = (MATCH_POSITIONS[13].x + BOX_W + MATCH_POSITIONS[14].x) / 2;
+const KIOSK_DOT_Y = (FINALS_Y[0] + FINALS_Y[2] + BOX_H) / 2;
+const KIOSK_DOT_R = 5;
+
 function buildConnectors(resolvedMatches: ResolvedMatch[]) {
   const paths: string[] = [];
   for (const rm of resolvedMatches) {
+    if (rm.slot.region === "finals") continue; // handled via dot node
     const toPos = MATCH_POSITIONS[rm.slot.match];
     if (!toPos) continue;
     for (const [i, source] of [rm.slot.redSource, rm.slot.blueSource].entries()) {
@@ -614,6 +621,22 @@ function buildConnectors(resolvedMatches: ResolvedMatch[]) {
 
       paths.push(`M${fromX},${fromY} H${midX} V${toY} H${toX}`);
     }
+  }
+  // Connectors into dot: M11 (upper final) and M13 (lower final)
+  for (const matchNum of [11, 13]) {
+    const fromPos = MATCH_POSITIONS[matchNum];
+    if (!fromPos) continue;
+    const fromX = fromPos.x + BOX_W;
+    const fromY = fromPos.y + HALF_H;
+    const midX = (fromX + KIOSK_DOT_X) / 2;
+    paths.push(`M${fromX},${fromY} H${midX} V${KIOSK_DOT_Y} H${KIOSK_DOT_X - KIOSK_DOT_R}`);
+  }
+  // Connectors from dot to each finals match
+  for (const matchNum of [14, 15, 16]) {
+    const toPos = MATCH_POSITIONS[matchNum];
+    if (!toPos) continue;
+    const toY = toPos.y + HALF_H;
+    paths.push(`M${KIOSK_DOT_X + KIOSK_DOT_R},${KIOSK_DOT_Y} H${(KIOSK_DOT_X + toPos.x) / 2} V${toY} H${toPos.x}`);
   }
   return paths;
 }
@@ -819,17 +842,12 @@ function BracketPanel({
           FINALS
         </text>
 
-        {/* Separator between upper and lower */}
-        <line
-          x1={0} y1={LB_TOP - 15}
-          x2={FINALS_X - 15} y2={LB_TOP - 15}
-          stroke="#333" strokeWidth={1}
-        />
-
         {/* Connector lines */}
         {connectorPaths.map((d, i) => (
           <path key={i} d={d} fill="none" stroke="#444" strokeWidth={1} />
         ))}
+        {/* Finals dot node */}
+        <circle cx={KIOSK_DOT_X} cy={KIOSK_DOT_Y} r={KIOSK_DOT_R} fill="#444" />
 
         {/* Match boxes */}
         {resolvedMatches.map((rm) => renderMatchBox(rm))}
