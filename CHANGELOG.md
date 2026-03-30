@@ -1,3 +1,10 @@
+## [3.38.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.2...v3.38.3) (2026-03-30)
+
+
+### Bug Fixes
+
+* deploy properly-versioned artifact ([0aa345f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0aa345f70c88bd3313b72dd4af1cdb6a259b180c))
+
 ## [3.38.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.1...v3.38.2) (2026-03-30)
 
 
