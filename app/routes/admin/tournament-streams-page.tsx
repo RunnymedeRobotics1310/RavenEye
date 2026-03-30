@@ -11,7 +11,7 @@ import Spinner from "~/common/Spinner.tsx";
 function safeHref(url: string): string {
   try {
     const parsed = new URL(url);
-    if (parsed.protocol === "https:" || parsed.protocol === "http:") return url;
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") return parsed.href;
   } catch {
     /* invalid URL */
   }
