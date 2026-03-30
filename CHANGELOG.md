@@ -1,3 +1,15 @@
+# [3.38.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.37.1...v3.38.0) (2026-03-30)
+
+
+### Bug Fixes
+
+* schedule showing elimination bracket ([ead00b3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ead00b372eaa3b8cced602f2ae270e256b6bdb20))
+
+
+### Features
+
+* pmva with video review ([b0ee2be](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b0ee2be054df060a6acf1b102cee9eae7ec91d73))
+
 ## [3.37.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.37.0...v3.37.1) (2026-03-29)
 
 
