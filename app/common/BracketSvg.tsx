@@ -22,10 +22,17 @@ const LOWER_R2_Y = [LB_TOP, LB_TOP + 50];
 const LOWER_R3_Y = [LB_TOP + 25];
 const LOWER_FINAL_Y = [LB_TOP + 25];
 
-const FINALS_X = COL_W * 4 + COL_W / 2 + 40;
-const FINALS_Y = [140, 185, 230];
+const FINALS_Y = [115, 160, 205];
 
 const LB_SHIFT = COL_W / 2;
+
+// M13 right edge determines where the dot and finals go
+const M13_RIGHT = LEFT_PAD + COL_W * 3 + LB_SHIFT + BOX_W;
+const DOT_X = M13_RIGHT + 45;
+const DOT_Y = UPPER_F_Y[0] + BOX_H / 2; // aligned with M11 center
+const DOT_R = 5;
+const FINALS_LABEL_X = DOT_X + DOT_R + 6;
+
 const POSITIONS: Record<number, { x: number; y: number }> = {
   1: { x: LEFT_PAD, y: UPPER_R1_Y[0] },
   2: { x: LEFT_PAD, y: UPPER_R1_Y[1] },
@@ -40,18 +47,13 @@ const POSITIONS: Record<number, { x: number; y: number }> = {
   10: { x: LEFT_PAD + COL_W + LB_SHIFT, y: LOWER_R2_Y[1] },
   12: { x: LEFT_PAD + COL_W * 2 + LB_SHIFT, y: LOWER_R3_Y[0] },
   13: { x: LEFT_PAD + COL_W * 3 + LB_SHIFT, y: LOWER_FINAL_Y[0] },
-  14: { x: LEFT_PAD + FINALS_X, y: FINALS_Y[0] },
-  15: { x: LEFT_PAD + FINALS_X, y: FINALS_Y[1] },
-  16: { x: LEFT_PAD + FINALS_X, y: FINALS_Y[2] },
+  14: { x: FINALS_LABEL_X + 25, y: FINALS_Y[0] },
+  15: { x: FINALS_LABEL_X + 25, y: FINALS_Y[1] },
+  16: { x: FINALS_LABEL_X + 25, y: FINALS_Y[2] },
 };
 
-const SVG_W = LEFT_PAD + FINALS_X + BOX_W + 10;
+const SVG_W = FINALS_LABEL_X + 25 + BOX_W + 10;
 const SVG_H = LB_TOP + 100;
-
-// Finals dot node
-const DOT_X = (POSITIONS[13].x + BOX_W + POSITIONS[14].x) / 2;
-const DOT_Y = (FINALS_Y[0] + FINALS_Y[2] + BOX_H) / 2;
-const DOT_R = 5;
 
 // ---------------------------------------------------------------------------
 // Color themes
@@ -140,12 +142,6 @@ function buildConnectors(resolvedMatches: ResolvedMatch[]): string[] {
     const fromY = fromPos.y + HALF_H;
     const midX = (fromX + DOT_X) / 2;
     paths.push(`M${fromX},${fromY} H${midX} V${DOT_Y} H${DOT_X - DOT_R}`);
-  }
-  for (const matchNum of [14, 15, 16]) {
-    const toPos = POSITIONS[matchNum];
-    if (!toPos) continue;
-    const toY = toPos.y + HALF_H;
-    paths.push(`M${DOT_X + DOT_R},${DOT_Y} H${(DOT_X + toPos.x) / 2} V${toY} H${toPos.x}`);
   }
   return paths;
 }
@@ -254,9 +250,9 @@ export default function BracketSvg({
     >
       <text x={0} y={3} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">UPPER BRACKET</text>
       <text x={0} y={LB_TOP - 7} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">LOWER BRACKET</text>
-      <text x={FINALS_X} y={FINALS_Y[0] - 7} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">FINALS</text>
       {connectorPaths.map((d, i) => <path key={i} d={d} fill="none" stroke={c.connector} strokeWidth={1} />)}
       <circle cx={DOT_X} cy={DOT_Y} r={DOT_R} fill={c.connector} />
+      <text x={FINALS_LABEL_X} y={DOT_Y + 3} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">FINALS</text>
       {resolvedMatches.map((rm) => renderMatchBox(rm))}
     </svg>
   );
