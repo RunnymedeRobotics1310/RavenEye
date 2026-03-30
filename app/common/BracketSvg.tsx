@@ -22,16 +22,17 @@ const LOWER_R2_Y = [LB_TOP, LB_TOP + 50];
 const LOWER_R3_Y = [LB_TOP + 25];
 const LOWER_FINAL_Y = [LB_TOP];
 
-const FINALS_Y = [115, 160, 205];
-
 const LB_SHIFT = COL_W / 2;
 
 // M13 right edge determines where the dot and finals go
 const M13_RIGHT = LEFT_PAD + COL_W * 3 + LB_SHIFT + BOX_W;
-const DOT_X = M13_RIGHT + 45;
+const DOT_X = M13_RIGHT + 45 - 5;
 const DOT_Y = UPPER_F_Y[0] + BOX_H / 2; // aligned with M11 center
-const DOT_R = 5;
+const DOT_R = 3.5;
 const FINALS_LABEL_X = DOT_X + DOT_R + 6;
+
+// Finals matches positioned so dot aligns with the gap between M14 and M15
+const FINALS_Y = [DOT_Y - 42.5, DOT_Y + 2.5, DOT_Y + 47.5];
 
 const POSITIONS: Record<number, { x: number; y: number }> = {
   1: { x: LEFT_PAD, y: UPPER_R1_Y[0] },
@@ -265,7 +266,7 @@ export default function BracketSvg({
       <text x={0} y={LB_TOP - 7} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">LOWER BRACKET</text>
       {connectorPaths.map((d, i) => <path key={i} d={d} fill="none" stroke={c.connector} strokeWidth={1} />)}
       <circle cx={DOT_X} cy={DOT_Y} r={DOT_R} fill={c.connector} />
-      <text x={FINALS_LABEL_X} y={DOT_Y + 3} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">FINALS</text>
+      <text x={FINALS_LABEL_X} y={FINALS_Y[0] - 7} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">FINALS</text>
       {resolvedMatches.map((rm) => renderMatchBox(rm))}
     </svg>
   );
