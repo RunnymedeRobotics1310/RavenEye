@@ -1,3 +1,10 @@
+## [3.38.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.0...v3.38.1) (2026-03-30)
+
+
+### Bug Fixes
+
+* Fix security issue with url form field ([6fe991f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6fe991f74e9196bd3cfc4145dff24b2f26bf2b58))
+
 # [3.38.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.37.1...v3.38.0) (2026-03-30)
 
 
