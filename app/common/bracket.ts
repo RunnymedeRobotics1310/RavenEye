@@ -265,3 +265,17 @@ export function resolveBracket(
 
   return results;
 }
+
+/**
+ * Returns true if the finals series is already decided (same alliance won
+ * both M14 and M15), making M16 unnecessary.
+ */
+export function isFinalsDecided(resolved: ResolvedMatch[]): boolean {
+  const m14 = resolved.find((rm) => rm.slot.match === 14);
+  const m15 = resolved.find((rm) => rm.slot.match === 15);
+  return (
+    m14?.winner != null &&
+    m15?.winner != null &&
+    m14.winner === m15.winner
+  );
+}

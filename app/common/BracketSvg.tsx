@@ -1,4 +1,4 @@
-import { BRACKET_8 } from "~/common/bracket.ts";
+import { BRACKET_8, isFinalsDecided } from "~/common/bracket.ts";
 import type { ResolvedMatch } from "~/common/bracket.ts";
 
 // ---------------------------------------------------------------------------
@@ -184,6 +184,8 @@ export default function BracketSvg({
 
   const connectorPaths = buildConnectors(resolvedMatches);
 
+  const finalsDecided = isFinalsDecided(resolvedMatches);
+
   function renderAllianceHalf(
     x: number,
     y: number,
@@ -230,10 +232,11 @@ export default function BracketSvg({
     if (!pos) return null;
     const { x, y } = pos;
     const isLive = rm.matchData != null && rm.winner === null;
+    const isUnnecessary = rm.slot.match === 16 && finalsDecided && rm.winner === null;
 
     return (
-      <g key={rm.slot.match}>
-        <rect x={x} y={y} width={BOX_W} height={BOX_H} fill="none" rx={3} stroke={isLive ? c.borderLive : c.border} strokeWidth={isLive ? 2 : 1} />
+      <g key={rm.slot.match} opacity={isUnnecessary ? 0.3 : 1}>
+        <rect x={x} y={y} width={BOX_W} height={BOX_H} fill="none" rx={3} stroke={isLive ? c.borderLive : c.border} strokeWidth={isLive ? 2 : 1} strokeDasharray={isUnnecessary ? "4 2" : "none"} />
         <text x={x - 4} y={y + BOX_H / 2 + 3} fill={c.label} fontSize="8" textAnchor="end" fontFamily={FONT}>{rm.slot.label}</text>
         {renderAllianceHalf(x, y, rm.redTeams, rm.redSeed, rm.redScore, rm.winner === "red", rm.winner === "blue", true, rm.slot.redSource)}
         <line x1={x} y1={y + HALF_H} x2={x + BOX_W} y2={y + HALF_H} stroke={c.divider} strokeWidth={0.5} />

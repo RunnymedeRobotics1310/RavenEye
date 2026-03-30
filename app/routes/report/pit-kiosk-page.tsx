@@ -18,6 +18,7 @@ import Title from "~/common/icons/Title.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import {
   deriveAlliances,
+  isFinalsDecided,
   resolveBracket,
   type Alliance,
   type ResolvedMatch,
@@ -651,12 +652,14 @@ export default function PitKioskPage() {
   const captains = new Set(alliances.map((a) => a.captain).filter(Boolean) as number[]);
   const resolvedMatches = isPlayoffMode ? resolveBracket(playoffMatches) : [];
 
-  // Highlight the owner team's next unplayed match
+  // Highlight the owner team's next unplayed match (skip M16 if finals decided)
+  const finalsOver = isFinalsDecided(resolvedMatches);
   const nextOwnerMatch = matches.find(
     (m) =>
       getAllianceForTeam(m, ownerTeam) !== null &&
       m.redScore == null &&
-      m.blueScore == null,
+      m.blueScore == null &&
+      !(m.match === 16 && m.level === "Playoff" && finalsOver),
   );
   const highlightMatch = nextOwnerMatch?.match ?? null;
 

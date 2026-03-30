@@ -10,6 +10,7 @@ import { useLoginStatus, useRole } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import {
   deriveAlliances,
+  isFinalsDecided,
   resolveBracket,
   type Alliance,
   type ResolvedMatch,
@@ -794,10 +795,12 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
       const levelMatches = (schedule.matches ?? []).filter(
         (m) => m.level === section.level,
       );
+      const skipM16 = (m: TeamScheduleMatch) =>
+        !(m.match === 16 && m.level === "Playoff" && finalsOver);
       if (showAll) {
         // Highlight the next unplayed match for any team
         const nextUnplayed = levelMatches.find(
-          (m) => m.redScore == null && m.blueScore == null,
+          (m) => m.redScore == null && m.blueScore == null && skipM16(m),
         );
         highlightByLevel[section.level] = nextUnplayed?.match ?? null;
       } else {
@@ -805,7 +808,8 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
           (m) =>
             getAllianceForTeam(m, schedule.teamNumber) !== null &&
             m.redScore == null &&
-            m.blueScore == null,
+            m.blueScore == null &&
+            skipM16(m),
         );
         highlightByLevel[section.level] = nextOwner?.match ?? null;
       }
@@ -819,6 +823,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
     ? deriveAlliances(playoffMatches, schedule!.teamNumber, schedule!.rankings)
     : [];
   const playoffResolved = hasPlayoffBracket ? resolveBracket(playoffMatches) : [];
+  const finalsOver = isFinalsDecided(playoffResolved);
 
   // Livestream links — only show for active tournaments
   const isActiveTournament = activeTournaments.some(
