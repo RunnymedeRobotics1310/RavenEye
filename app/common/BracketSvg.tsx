@@ -76,6 +76,8 @@ interface BracketColors {
   connector: string;
   winIndicator: string;
   label: string;
+  allianceRed: string;
+  allianceBlue: string;
 }
 
 const DARK_COLORS: BracketColors = {
@@ -94,6 +96,8 @@ const DARK_COLORS: BracketColors = {
   connector: "#444",
   winIndicator: "#4CAF50",
   label: "#666",
+  allianceRed: "#FF5A47",
+  allianceBlue: "#4488ff",
 };
 
 const AUTO_COLORS: BracketColors = {
@@ -112,6 +116,8 @@ const AUTO_COLORS: BracketColors = {
   connector: "var(--color-bg-tertiary)",
   winIndicator: "var(--color-success)",
   label: "var(--color-text-tertiary)",
+  allianceRed: "var(--alliance-red)",
+  allianceBlue: "var(--alliance-blue)",
 };
 
 // ---------------------------------------------------------------------------
@@ -216,10 +222,13 @@ export default function BracketSvg({
     const hasTeams = teams.length > 0;
     const scoreStr = score != null ? String(score) : "";
 
+    const allianceColor = isTop ? c.allianceRed : c.allianceBlue;
+
     return (
       <g>
         <rect x={x} y={halfY} width={BOX_W} height={HALF_H} fill={bgFill} rx={isTop ? 3 : 0} ry={isTop ? 3 : 0} />
         {!isTop && <rect x={x} y={halfY} width={BOX_W} height={HALF_H} fill={bgFill} rx={3} ry={3} />}
+        <rect x={x} y={halfY + 1} width={3} height={HALF_H - 2} fill={allianceColor} rx={1} />
         <rect x={x + 1} y={halfY + 1} width={18} height={HALF_H - 2} fill={isOwner ? c.seedBgOwner : c.seedBgDefault} rx={2} />
         <text x={x + 10} y={halfY + HALF_H / 2 + 4} fill={isOwner ? c.seedOwner : c.seedDefault} fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily={FONT}>{seedStr}</text>
         <text x={x + 22} y={halfY + HALF_H / 2 + 4} fill={textFill} fontSize="10" fontWeight={weight} fontFamily={FONT}>
