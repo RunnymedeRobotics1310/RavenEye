@@ -8,6 +8,16 @@ import {
 import type { RBTournament } from "~/types/RBTournament.ts";
 import Spinner from "~/common/Spinner.tsx";
 
+function safeHref(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "https:" || parsed.protocol === "http:") return url;
+  } catch {
+    /* invalid URL */
+  }
+  return "";
+}
+
 function parseWebcasts(tournament: RBTournament): string[] {
   const raw = tournament.webcasts;
   if (Array.isArray(raw)) return raw;
@@ -66,7 +76,7 @@ function TournamentRow({ tournament }: { tournament: RBTournament }) {
         <ul className="admin-stream-list">
           {streams.map((s, i) => (
             <li key={i} className="admin-stream-item">
-              <a href={s} target="_blank" rel="noopener noreferrer">
+              <a href={safeHref(s)} target="_blank" rel="noopener noreferrer">
                 {s}
               </a>
               <button
