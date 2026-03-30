@@ -1,3 +1,22 @@
+## [3.38.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.1...v3.38.2) (2026-03-30)
+
+
+### Bug Fixes
+
+* Alliance colors on svg ([c6f528c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c6f528c0a2cb7ee4c7856b95ab5376d6fea4dfda))
+* Better bracket formatting ([bf8ccfa](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bf8ccfa038acb8eab997c7f69fa58dff95fd9ad7))
+* better html security fix ([3274620](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3274620caea246addcd0bee17ed4ef1e6bb0f05a))
+* Clean up kiosk and schedule views to share the bracket ([34dc46c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/34dc46ca5a27abe88847cfe1f8ad8012f4c788b1))
+* Finals alignment ([f1b02a8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f1b02a82575fbaf514ee1cc7cabd75d1ef28cfec))
+* Highlight owner team ([bdcbefe](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bdcbefecc527428ca4f7b36146eda69456dd3234))
+* Highlight owner team ([d8104e5](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d8104e53d94328e391b04e3ffc993200074adf22))
+* M1-M4 line fix ([16cc955](https://github.com/RunnymedeRobotics1310/RavenEye/commit/16cc955f30575659cf19918bb614ba4cbe0a7b2c))
+* M11-M13 line fix ([25d392e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/25d392e993efdafc9f2a820e747eae0db16c5223))
+* M16 shown as not needed when finals is decided in 2 matches ([c870049](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c8700497023563b7247bea49f89b8ee8a6878e6e))
+* Move M13 up ([dbbac55](https://github.com/RunnymedeRobotics1310/RavenEye/commit/dbbac5556575eb302e9b59515813eb2e02907e72))
+* Realign finals block ([7f0b489](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7f0b489a3d826486aa97c24eeea695c106911a73))
+* Separate overlapping lines ([f5138ee](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f5138ee7ef14e9cbe73f652077da7bedb3f3fa35))
+
 ## [3.38.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.0...v3.38.1) (2026-03-30)
 
 
