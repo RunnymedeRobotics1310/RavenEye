@@ -8,6 +8,8 @@
 
     /* Brand */
     --runnymede-red: #FF3820;
+    --runnymede-gold: #B8960A;
+    --runnymede-gold-bg: rgba(180,150,20,0.12);
 
     /* Spacing */
     --space-xs: 0.25rem;

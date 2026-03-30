@@ -786,6 +786,15 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
     ...allSections.slice(0, currentIndex),
   ];
 
+  // Playoff bracket data (needed before highlight logic for finalsOver check)
+  const playoffMatches = matches.filter((m) => m.level === "Playoff");
+  const hasPlayoffBracket = schedule?.hasPlayoff === true && playoffMatches.length >= 4;
+  const playoffAlliances = hasPlayoffBracket
+    ? deriveAlliances(playoffMatches, schedule!.teamNumber, schedule!.rankings)
+    : [];
+  const playoffResolved = hasPlayoffBracket ? resolveBracket(playoffMatches) : [];
+  const finalsOver = isFinalsDecided(playoffResolved);
+
   // Determine which match to highlight per level.
   // showAll → highlight the match currently being queued (from nexus).
   // owner-only → highlight the owner's next unplayed match.
@@ -815,15 +824,6 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
       }
     }
   }
-
-  // Playoff bracket data
-  const playoffMatches = matches.filter((m) => m.level === "Playoff");
-  const hasPlayoffBracket = schedule?.hasPlayoff === true && playoffMatches.length >= 4;
-  const playoffAlliances = hasPlayoffBracket
-    ? deriveAlliances(playoffMatches, schedule!.teamNumber, schedule!.rankings)
-    : [];
-  const playoffResolved = hasPlayoffBracket ? resolveBracket(playoffMatches) : [];
-  const finalsOver = isFinalsDecided(playoffResolved);
 
   // Livestream links — only show for active tournaments
   const isActiveTournament = activeTournaments.some(
