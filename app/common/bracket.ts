@@ -203,7 +203,10 @@ export function resolveBracket(
   for (const m of playoffMatches) matchByNum.set(m.match, m);
 
   // First pass: resolve seed assignments from match data
+  // Build both a team-list key map and a per-team map for robustness
+  // (team composition can change between matches due to backup robots)
   const seedByTeams = new Map<string, number>();
+  const seedByTeam = new Map<number, number>();
   for (const [matchNum, [redSeed, blueSeed]] of Object.entries(SEED_BY_MATCH)) {
     const m = matchByNum.get(Number(matchNum));
     if (!m) continue;
@@ -213,11 +216,20 @@ export function resolveBracket(
     const blueKey = blueTeams.sort().join(",");
     if (redKey) seedByTeams.set(redKey, redSeed);
     if (blueKey) seedByTeams.set(blueKey, blueSeed);
+    for (const t of redTeams) seedByTeam.set(t, redSeed);
+    for (const t of blueTeams) seedByTeam.set(t, blueSeed);
   }
 
   function getTeamSeed(teams: number[]): number | null {
     const key = [...teams].sort().join(",");
-    return seedByTeams.get(key) ?? null;
+    const exact = seedByTeams.get(key);
+    if (exact != null) return exact;
+    // Fallback: look up any individual team (handles backup robot substitutions)
+    for (const t of teams) {
+      const seed = seedByTeam.get(t);
+      if (seed != null) return seed;
+    }
+    return null;
   }
 
   const results: ResolvedMatch[] = [];

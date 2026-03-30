@@ -1407,8 +1407,8 @@ main.mega-report {
 }
 
 .schedule-alliance-owner {
-    border-left-color: var(--runnymede-red);
-    background: var(--alliance-red-bg);
+    border-left-color: #B8960A;
+    background: rgba(180,150,20,0.12);
 }
 
 .schedule-alliance-eliminated {
@@ -1450,7 +1450,7 @@ main.mega-report {
 
 .schedule-alliance-owner-team {
     font-weight: 700;
-    color: var(--runnymede-red);
+    color: #B8960A;
 }
 
 .schedule-livestream-links {

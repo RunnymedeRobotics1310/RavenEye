@@ -83,10 +83,10 @@ const DARK_COLORS: BracketColors = {
   bgLoser: "#2a2a2a",
   textPrimary: "#ddd",
   textSecondary: "#555",
-  textOwner: "#FF5A47",
-  seedOwner: "#FF5A47",
+  textOwner: "#E8C840",
+  seedOwner: "#E8C840",
   seedDefault: "#999",
-  seedBgOwner: "rgba(255,56,32,0.25)",
+  seedBgOwner: "rgba(200,170,40,0.2)",
   seedBgDefault: "rgba(255,255,255,0.06)",
   border: "#444",
   borderLive: "#e67e22",
@@ -101,10 +101,10 @@ const AUTO_COLORS: BracketColors = {
   bgLoser: "var(--color-bg-secondary)",
   textPrimary: "var(--color-text-primary)",
   textSecondary: "var(--color-text-tertiary)",
-  textOwner: "var(--runnymede-red)",
-  seedOwner: "var(--runnymede-red)",
+  textOwner: "#B8960A",
+  seedOwner: "#B8960A",
   seedDefault: "var(--color-text-tertiary)",
-  seedBgOwner: "rgba(255,56,32,0.15)",
+  seedBgOwner: "rgba(180,150,20,0.12)",
   seedBgDefault: "rgba(128,128,128,0.1)",
   border: "var(--color-bg-tertiary)",
   borderLive: "var(--color-warning)",
@@ -210,7 +210,7 @@ export default function BracketSvg({
     const isOwner = seed === ownerSeedNum;
     const halfY = isTop ? y : y + HALF_H;
     const bgFill = isWinner ? c.bgWinner : c.bgLoser;
-    const textFill = isLoser ? c.textSecondary : isOwner ? c.textOwner : c.textPrimary;
+    const textFill = isOwner ? c.textOwner : isLoser ? c.textSecondary : c.textPrimary;
     const weight = isWinner ? "bold" : "normal";
     const seedStr = seed != null ? String(seed) : "?";
     const hasTeams = teams.length > 0;
