@@ -8,7 +8,7 @@ import {
   type StoredStrategyPlan,
 } from "~/common/storage/db.ts";
 import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
-import { getDisplayName, getUserid } from "~/common/storage/rbauth.ts";
+import { getDisplayName, getUserid, useRole } from "~/common/storage/rbauth.ts";
 import {
   refreshStrategyPlanForMatch,
   syncStrategyPlans,
@@ -29,12 +29,10 @@ import {
   ExitFullscreenIcon,
   LabelsIcon,
   LineIcon,
-  LockedIcon,
   PanIcon,
   StopIcon,
   TrashIcon,
   UndoIcon,
-  UnlockedIcon,
 } from "~/common/strategy/icons.tsx";
 import { fieldImageForYear } from "~/common/strategy/fieldImage.ts";
 import { colorIndexForSlot } from "~/common/strategy/colors.ts";
@@ -225,7 +223,12 @@ const StrategyPlanPageInner = (props: {
   const [plan, setPlan] = useState<StoredStrategyPlan | null>(null);
   const [drawings, setDrawings] = useState<StoredStrategyDrawing[]>([]);
   const [activeLocalId, setActiveLocalId] = useState<string | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  // Edit mode is a pure function of the user's role. Expert scouts, admins,
+  // and superusers always edit; everyone else sees a read-only view. No
+  // lock / unlock toggle.
+  const roles = useRole();
+  const isEditing =
+    roles.isExpertScout || roles.isAdmin || roles.isSuperuser;
   const [selectedSlot, setSelectedSlot] = useState<RobotSlot>("R1");
   const [soloedSlot, setSoloedSlot] = useState<RobotSlot | null>(null);
   const handleSlotClick = (slot: RobotSlot) => {
@@ -238,12 +241,7 @@ const StrategyPlanPageInner = (props: {
       setSoloedSlot(null);
     }
   };
-  // Clear solo state whenever edit mode turns off or the active drawing
-  // changes, so the user can't get "stuck" viewing a filtered canvas with
-  // no visible palette.
-  useEffect(() => {
-    if (!isEditing) setSoloedSlot(null);
-  }, [isEditing]);
+  // Clear solo state when switching drawings.
   useEffect(() => {
     setSoloedSlot(null);
   }, [activeLocalId]);
@@ -735,24 +733,6 @@ const StrategyPlanPageInner = (props: {
             ← Back to matches
           </NavLink>
           {" "}
-          {!isEditing && (
-            <button
-              type="button"
-              onClick={() => setIsEditing(true)}
-              className="strategy-header-lock-btn"
-            >
-              <UnlockedIcon /> Unlock to Edit
-            </button>
-          )}
-          {isEditing && (
-            <button
-              type="button"
-              onClick={() => setIsEditing(false)}
-              className="btn-secondary strategy-header-lock-btn"
-            >
-              <LockedIcon /> Lock
-            </button>
-          )}
           <button
             type="button"
             onClick={handleManualSync}
@@ -995,21 +975,6 @@ const StrategyPlanPageInner = (props: {
                   {showLabels &&
                     (isCanvasFullscreen ? "Exit Fullscreen" : "Fullscreen")}
                 </button>
-                {isCanvasFullscreen && (
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing((v) => !v)}
-                    className={
-                      isEditing
-                        ? "btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
-                        : "strategy-toolbar-btn strategy-icon-text-btn"
-                    }
-                    title={isEditing ? "Lock (read-only)" : "Unlock to edit"}
-                  >
-                    {isEditing ? <LockedIcon /> : <UnlockedIcon />}
-                    {showLabels && (isEditing ? "Lock" : "Unlock to Edit")}
-                  </button>
-                )}
                 <button
                   type="button"
                   onClick={() => setShowLabels((v) => !v)}
@@ -1152,7 +1117,9 @@ const StrategyPlanPage = () => {
   const matchLevel = decodeURIComponent(params.level ?? "");
   const matchNumber = parseInt(params.matchNumber ?? "0", 10);
   return (
-    <RequireRole roles={["EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>
+    <RequireRole
+      roles={["MEMBER", "DATASCOUT", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}
+    >
       <StrategyPlanPageInner
         tournamentId={tournamentId}
         matchLevel={matchLevel}

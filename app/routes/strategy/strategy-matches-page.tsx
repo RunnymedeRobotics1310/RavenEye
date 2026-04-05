@@ -69,7 +69,9 @@ const StrategyMatchesPage = () => {
   }, [loading, hasMatchesForTournament, autoFetchTried, fetching]);
 
   return (
-    <RequireRole roles={["EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>
+    <RequireRole
+      roles={["MEMBER", "DATASCOUT", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}
+    >
       <main>
         <div className="page-header">
           <h1>Match Strategy — {tournamentId}</h1>

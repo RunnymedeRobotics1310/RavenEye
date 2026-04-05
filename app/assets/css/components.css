@@ -286,12 +286,6 @@ button.secondary:hover {
 .strategy-plan-grid.is-stacked {
     grid-template-columns: 1fr;
 }
-.strategy-header-lock-btn {
-    margin-left: 0.6rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-}
 /*
  * Strategy sync-status icon button — bare icon (no button chrome),
  * clickable to trigger a manual sync. Colour + rotation come from the
