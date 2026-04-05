@@ -254,6 +254,26 @@ export const ExitFullscreenIcon = ({ size = 20 }: IconProps) => (
   </svg>
 );
 
+export const ZoomIcon = ({ size = 20 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    style={{ verticalAlign: "-0.15em" }}
+  >
+    {/* Magnifying glass — circular lens + diagonal handle off the bottom-
+        right. The universal zoom glyph. */}
+    <circle cx="7" cy="7" r="4.5" />
+    <line x1="10.5" y1="10.5" x2="13.5" y2="13.5" />
+  </svg>
+);
+
 export const TrashIcon = ({ size = 20 }: IconProps) => (
   <svg
     width={size}

@@ -33,6 +33,7 @@ import {
   StopIcon,
   TrashIcon,
   UndoIcon,
+  ZoomIcon,
 } from "~/common/strategy/icons.tsx";
 import {
   fieldImageForYear,
@@ -373,33 +374,23 @@ const StrategyPlanPageInner = (props: {
   }, []);
 
   /**
-   * Step zoom up/down by snapping to the next/prev value in ZOOM_STEPS.
-   * When zoom changes, keep the currently-visible centre of the field
-   * centred under the new zoom so the content doesn't jump.
+   * Cycle through ZOOM_STEPS on each tap, wrapping around to 100% after the
+   * last step. Keeps the visible centre of the field stable so content
+   * doesn't jump. Replaces the three-button (−, %, +) zoom control.
    */
-  const stepZoom = useCallback((direction: 1 | -1) => {
+  const cycleZoom = useCallback(() => {
     setZoomPan((prev) => {
       const idx = ZOOM_STEPS.findIndex((z) => z >= prev.zoom - 1e-6);
-      const targetIdx = Math.max(
-        0,
-        Math.min(
-          ZOOM_STEPS.length - 1,
-          (idx === -1 ? 0 : idx) + direction,
-        ),
-      );
-      const nextZoom = ZOOM_STEPS[targetIdx]!;
+      const currentIdx = idx === -1 ? 0 : idx;
+      const nextIdx = (currentIdx + 1) % ZOOM_STEPS.length;
+      const nextZoom = ZOOM_STEPS[nextIdx]!;
       if (nextZoom === prev.zoom) return prev;
-      // Current visible centre, in field coords:
       const centerX = prev.panX + 0.5 / prev.zoom;
       const centerY = prev.panY + 0.5 / prev.zoom;
       const newPanX = clampPanValue(centerX - 0.5 / nextZoom, nextZoom);
       const newPanY = clampPanValue(centerY - 0.5 / nextZoom, nextZoom);
       return { zoom: nextZoom, panX: newPanX, panY: newPanY };
     });
-  }, []);
-
-  const resetZoom = useCallback(() => {
-    setZoomPan({ zoom: 1, panX: 0, panY: 0 });
   }, []);
 
   // Spacebar-hold temporarily activates the Pan tool (Photoshop convention).
@@ -985,55 +976,6 @@ const StrategyPlanPageInner = (props: {
                       <EraserIcon /> {showLabels && "Erase"}
                     </ToolButton>
                     <ToolbarDivider />
-                    {/* Navigate group: Pan + zoom controls. On touch-primary
-                        devices, two-finger drag pans natively, so hide the
-                        explicit Pan tool button. */}
-                    {!touchPrimary && (
-                      <ToolButton
-                        active={drawTool === "pan"}
-                        onClick={() => setDrawTool("pan")}
-                        title={
-                          zoom > 1
-                            ? "Pan — drag to move the view (or hold Space)"
-                            : "Pan (zoom in first)"
-                        }
-                        disabled={zoom <= 1}
-                      >
-                        <PanIcon /> {showLabels && "Pan"}
-                      </ToolButton>
-                    )}
-                    {!touchPrimary && (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => stepZoom(-1)}
-                          className="btn-secondary strategy-toolbar-btn strategy-zoom-btn"
-                          disabled={zoom <= MIN_ZOOM + 1e-6}
-                          title="Zoom out"
-                        >
-                          −
-                        </button>
-                        <button
-                          type="button"
-                          onClick={resetZoom}
-                          className="btn-secondary strategy-toolbar-btn strategy-zoom-pct-btn"
-                          disabled={zoom <= MIN_ZOOM + 1e-6}
-                          title="Reset to 100%"
-                        >
-                          {Math.round(zoom * 100)}%
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => stepZoom(1)}
-                          className="btn-secondary strategy-toolbar-btn strategy-zoom-btn"
-                          disabled={zoom >= MAX_ZOOM - 1e-6}
-                          title="Zoom in"
-                        >
-                          +
-                        </button>
-                      </>
-                    )}
-                    <ToolbarDivider />
                     <button
                       type="button"
                       onClick={handleUndo}
@@ -1081,6 +1023,33 @@ const StrategyPlanPageInner = (props: {
                     </>
                   )}
                 </button>
+                {!touchPrimary && (
+                  <>
+                    <ToolbarDivider />
+                    {isEditing && (
+                      <ToolButton
+                        active={drawTool === "pan"}
+                        onClick={() => setDrawTool("pan")}
+                        title={
+                          zoom > 1
+                            ? "Pan — drag to move the view (or hold Space)"
+                            : "Pan (zoom in first)"
+                        }
+                        disabled={zoom <= 1}
+                      >
+                        <PanIcon /> {showLabels && "Pan"}
+                      </ToolButton>
+                    )}
+                    <button
+                      type="button"
+                      onClick={cycleZoom}
+                      className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
+                      title="Zoom — tap to cycle through zoom levels"
+                    >
+                      <ZoomIcon /> {Math.round(zoom * 100)}%
+                    </button>
+                  </>
+                )}
                 <ToolbarDivider />
                 <button
                   type="button"
