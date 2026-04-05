@@ -374,16 +374,21 @@ const StrategyPlanPageInner = (props: {
   }, []);
 
   /**
-   * Cycle through ZOOM_STEPS on each tap, wrapping around to 100% after the
-   * last step. Keeps the visible centre of the field stable so content
-   * doesn't jump. Replaces the three-button (−, %, +) zoom control.
+   * Step zoom up/down by snapping to the next/prev value in ZOOM_STEPS,
+   * keeping the visible centre of the field stable under the new zoom so the
+   * content doesn't jump. Used by the zoom popover's − / + buttons.
    */
-  const cycleZoom = useCallback(() => {
+  const stepZoom = useCallback((direction: 1 | -1) => {
     setZoomPan((prev) => {
       const idx = ZOOM_STEPS.findIndex((z) => z >= prev.zoom - 1e-6);
-      const currentIdx = idx === -1 ? 0 : idx;
-      const nextIdx = (currentIdx + 1) % ZOOM_STEPS.length;
-      const nextZoom = ZOOM_STEPS[nextIdx]!;
+      const targetIdx = Math.max(
+        0,
+        Math.min(
+          ZOOM_STEPS.length - 1,
+          (idx === -1 ? 0 : idx) + direction,
+        ),
+      );
+      const nextZoom = ZOOM_STEPS[targetIdx]!;
       if (nextZoom === prev.zoom) return prev;
       const centerX = prev.panX + 0.5 / prev.zoom;
       const centerY = prev.panY + 0.5 / prev.zoom;
@@ -391,6 +396,10 @@ const StrategyPlanPageInner = (props: {
       const newPanY = clampPanValue(centerY - 0.5 / nextZoom, nextZoom);
       return { zoom: nextZoom, panX: newPanX, panY: newPanY };
     });
+  }, []);
+
+  const resetZoom = useCallback(() => {
+    setZoomPan({ zoom: 1, panX: 0, panY: 0 });
   }, []);
 
   // Spacebar-hold temporarily activates the Pan tool (Photoshop convention).
@@ -470,6 +479,29 @@ const StrategyPlanPageInner = (props: {
   const canvasRef = useRef<StrategyCanvasHandle>(null);
   const strategySyncStatus = useStrategyPlansSyncStatus();
   const [isCanvasFullscreen, setIsCanvasFullscreen] = useState(false);
+  const [showZoomMenu, setShowZoomMenu] = useState(false);
+  const zoomMenuWrapperRef = useRef<HTMLDivElement>(null);
+  // Close the zoom popover on outside click / Escape.
+  useEffect(() => {
+    if (!showZoomMenu) return;
+    const onDocDown = (e: MouseEvent | TouchEvent) => {
+      const el = zoomMenuWrapperRef.current;
+      if (el && e.target instanceof Node && !el.contains(e.target)) {
+        setShowZoomMenu(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowZoomMenu(false);
+    };
+    document.addEventListener("mousedown", onDocDown);
+    document.addEventListener("touchstart", onDocDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDocDown);
+      document.removeEventListener("touchstart", onDocDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [showZoomMenu]);
 
   // Exit fullscreen on Escape for quick keyboard dismiss.
   useEffect(() => {
@@ -1040,14 +1072,61 @@ const StrategyPlanPageInner = (props: {
                         <PanIcon /> {showLabels && "Pan"}
                       </ToolButton>
                     )}
-                    <button
-                      type="button"
-                      onClick={cycleZoom}
-                      className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
-                      title="Zoom — tap to cycle through zoom levels"
+                    <div
+                      ref={zoomMenuWrapperRef}
+                      className="strategy-zoom-menu-wrapper"
                     >
-                      <ZoomIcon /> {Math.round(zoom * 100)}%
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowZoomMenu((v) => !v)}
+                        className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
+                        aria-expanded={showZoomMenu}
+                        aria-haspopup="true"
+                        title="Zoom"
+                      >
+                        <ZoomIcon />
+                      </button>
+                      {showZoomMenu && (
+                        <div
+                          role="menu"
+                          className="strategy-zoom-menu"
+                        >
+                          <button
+                            type="button"
+                            onClick={() => stepZoom(-1)}
+                            className="btn-secondary strategy-toolbar-btn strategy-zoom-btn"
+                            disabled={zoom <= MIN_ZOOM + 1e-6}
+                            title="Zoom out"
+                          >
+                            −
+                          </button>
+                          <span className="strategy-zoom-menu-label">
+                            {Math.round(zoom * 100)}%
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => stepZoom(1)}
+                            className="btn-secondary strategy-toolbar-btn strategy-zoom-btn"
+                            disabled={zoom >= MAX_ZOOM - 1e-6}
+                            title="Zoom in"
+                          >
+                            +
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              resetZoom();
+                              setShowZoomMenu(false);
+                            }}
+                            className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
+                            disabled={zoom <= MIN_ZOOM + 1e-6}
+                            title="Reset zoom to 100%"
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
                 <ToolbarDivider />

@@ -396,6 +396,31 @@ button.secondary:hover {
 .strategy-zoom-pct-btn {
     min-width: 3.5rem;
 }
+.strategy-zoom-menu-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+.strategy-zoom-menu {
+    position: absolute;
+    top: calc(100% + 0.3rem);
+    left: 0;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-btn-secondary-border);
+    border-radius: 0.4rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    white-space: nowrap;
+}
+.strategy-zoom-menu-label {
+    min-width: 3rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
 .strategy-icon-text-btn {
     display: inline-flex;
     align-items: center;
