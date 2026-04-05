@@ -414,44 +414,7 @@ const StrategyPlanPageInner = (props: {
   const [undoStack, setUndoStack] = useState<UndoEntry[]>([]);
   const canvasRef = useRef<StrategyCanvasHandle>(null);
   const strategySyncStatus = useStrategyPlansSyncStatus();
-  const metadataRowRef = useRef<HTMLDivElement>(null);
-  const toolbarRowRef = useRef<HTMLDivElement>(null);
-  const [hideTitleInFs, setHideTitleInFs] = useState(false);
   const [isCanvasFullscreen, setIsCanvasFullscreen] = useState(false);
-
-  // Hide the drawing title (label input + stroke count) in fullscreen if
-  // EITHER the metadata row or the toolbar row is wrapping — that frees
-  // vertical space for the canvas. We only re-evaluate on viewport resize
-  // (via ResizeObserver on documentElement) so toggling the title's
-  // visibility doesn't feed back into the measurement.
-  useEffect(() => {
-    if (!isCanvasFullscreen) {
-      setHideTitleInFs(false);
-      return;
-    }
-    const didWrap = (el: HTMLElement | null): boolean => {
-      if (!el) return false;
-      const kids = Array.from(el.children) as HTMLElement[];
-      if (kids.length < 2) return false;
-      const firstTop = kids[0]!.offsetTop;
-      return kids.some((k) => k.offsetTop !== firstTop);
-    };
-    const check = () => {
-      const wrapped =
-        didWrap(metadataRowRef.current) || didWrap(toolbarRowRef.current);
-      setHideTitleInFs(wrapped);
-    };
-    // Check immediately (layout may already be settled), then again after
-    // one animation frame (covers the fullscreen-enter layout transition).
-    check();
-    const raf = requestAnimationFrame(check);
-    const obs = new ResizeObserver(check);
-    obs.observe(document.documentElement);
-    return () => {
-      obs.disconnect();
-      cancelAnimationFrame(raf);
-    };
-  }, [isCanvasFullscreen]);
 
   // Exit fullscreen on Escape for quick keyboard dismiss.
   useEffect(() => {
@@ -864,32 +827,28 @@ const StrategyPlanPageInner = (props: {
           }
         >
           {activeDrawing ? (
+            isCanvasFullscreen ? (
             <>
               {/*
-                Rows 1–2: drawing metadata (label + stroke count) + robot-slot
-                palette. In fullscreen mode these share a single row to
-                conserve vertical space; otherwise they stack.
+                Fullscreen view: full editor with metadata row (label input +
+                stroke count + palette), toolbar, and interactive canvas.
               */}
-              <div ref={metadataRowRef} className="strategy-metadata-row">
-                {!(isCanvasFullscreen && hideTitleInFs) && (
-                  <>
-                    <input
-                      type="text"
-                      maxLength={64}
-                      disabled={!isEditing}
-                      value={activeDrawing.label}
-                      onChange={(e) => handleLabelChange(e.target.value)}
-                      style={{
-                        flex: isCanvasFullscreen ? "0 1 14rem" : "1 1 12rem",
-                        minWidth: 0,
-                      }}
-                    />
-                    <span className="strategy-char-count">
-                      {strokeCountText}
-                    </span>
-                  </>
+              <div className="strategy-metadata-row">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    maxLength={64}
+                    value={activeDrawing.label}
+                    onChange={(e) => handleLabelChange(e.target.value)}
+                    style={{ flex: "0 1 14rem", minWidth: 0 }}
+                  />
+                ) : (
+                  <h2 className="strategy-drawing-title-heading">
+                    {activeDrawing.label || "(untitled)"}
+                  </h2>
                 )}
-                {isCanvasFullscreen && isEditing && (
+                <span className="strategy-char-count">{strokeCountText}</span>
+                {isEditing && (
                   <RobotSlotPalette
                     selected={selectedSlot}
                     onSelect={handleSlotClick}
@@ -898,18 +857,9 @@ const StrategyPlanPageInner = (props: {
                   />
                 )}
               </div>
-              {!isCanvasFullscreen && isEditing && (
-                <RobotSlotPalette
-                  selected={selectedSlot}
-                  onSelect={handleSlotClick}
-                  teamNumbers={teamNumbers}
-                  soloedSlot={soloedSlot}
-                  style={{ marginBottom: "0.4rem" }}
-                />
-              )}
 
               {/* Row 3: the toolbar — tools | navigate | history | playback | view */}
-              <div ref={toolbarRowRef} className="strategy-canvas-toolbar">
+              <div className="strategy-canvas-toolbar">
                 {isEditing && (
                   <>
                     <ToolButton
@@ -1120,6 +1070,31 @@ const StrategyPlanPageInner = (props: {
                 />
               )}
             </>
+            ) : (
+              // Windowed view: read-only canvas at 1×, click to enter fullscreen.
+              <>
+                <div className="strategy-metadata-row">
+                  <span className="strategy-drawing-title-static">
+                    {activeDrawing.label}
+                  </span>
+                  <span className="strategy-char-count">
+                    {strokeCountText}
+                  </span>
+                </div>
+                <div
+                  className="strategy-canvas-click-to-fullscreen"
+                  onClick={() => setIsCanvasFullscreen(true)}
+                  title="Tap to edit in fullscreen"
+                >
+                  <StrategyReadOnlyCanvas
+                    ref={canvasRef}
+                    backgroundSrc={backgroundSrc}
+                    strokes={activeDrawing.strokes}
+                    onPlaybackEnd={handlePlaybackEnd}
+                  />
+                </div>
+              </>
+            )
           ) : (
             <p>
               No drawings yet.{" "}

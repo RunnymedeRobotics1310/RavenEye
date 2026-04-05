@@ -833,7 +833,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           ...(fillHeight
             ? { flex: "1 1 0", minHeight: 0 }
             : { aspectRatio: String(imageAspect) }),
-          background: "var(--color-surface, #222)",
+          background: "var(--color-bg-tertiary)",
           touchAction: "none",
           userSelect: "none",
         }}

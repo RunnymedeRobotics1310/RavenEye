@@ -336,6 +336,29 @@ button.secondary:hover {
     max-height: 40vh;
     overflow-y: auto;
 }
+/*
+ * Strategy canvas — windowed read-only preview.
+ */
+.strategy-drawing-title-static {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+.strategy-drawing-title-heading {
+    flex: 0 1 14rem;
+    min-width: 0;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.strategy-canvas-click-to-fullscreen {
+    cursor: pointer;
+}
 .strategy-canvas-section.is-fullscreen {
     position: fixed;
     inset: 0;
@@ -343,7 +366,8 @@ button.secondary:hover {
     margin: 0;
     border-radius: 0;
     overflow: hidden;
-    background: var(--color-surface, #1a1a1a);
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
     display: flex;
     flex-direction: column;
 }
