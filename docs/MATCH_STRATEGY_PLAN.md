@@ -264,20 +264,20 @@ The canvas exposes an imperative `play(speed: number)` method that re-renders st
 
 ---
 
-## Colorblind-Friendly Palette
+## Alliance-Coded Palette
 
-`ROBOT_COLORS` is the Okabe-Ito-inspired palette:
+`ROBOT_COLORS` mirrors FRC alliance conventions — R1/R2/R3 are three shades of **red**; B1/B2/B3 are three shades of **blue**:
 
 | Slot | Index | Hex | Note |
 |---|---|---|---|
-| R1 | 0 | `#E69F00` | Orange |
-| R2 | 1 | `#D55E00` | Vermillion |
-| R3 | 2 | `#CC79A7` | Reddish purple |
-| B1 | 3 | `#0072B2` | Blue |
-| B2 | 4 | `#56B4E9` | Sky blue |
-| B3 | 5 | `#009E73` | Bluish green |
+| R1 | 0 | `#FF5252` | Bright red |
+| R2 | 1 | `#F06292` | Bright pink |
+| R3 | 2 | `#7F0000` | Dark red / maroon |
+| B1 | 3 | `#80DEEA` | Bright cyan |
+| B2 | 4 | `#1976D2` | Standard blue |
+| B3 | 5 | `#0D47A1` | Dark navy |
 
-Red-alliance slots lean warm; blue-alliance slots lean cool. All six are distinguishable under the common forms of color vision deficiency.
+Strokes instantly read as belonging to their alliance. Within each alliance the three shades vary in luminance (light / medium / dark) — this is the key to colorblind safety, since viewers with red-green colour vision deficiency still perceive brightness independently of hue and can distinguish the three reds (or three blues) apart.
 
 ---
 
