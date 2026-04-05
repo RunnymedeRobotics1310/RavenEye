@@ -13,6 +13,7 @@ import type {
   StrategyStroke,
 } from "~/types/StrategyStroke.ts";
 import { ROBOT_COLORS, colorIndexForSlot } from "~/common/strategy/colors.ts";
+import { loadFieldImage } from "~/common/strategy/fieldImage.ts";
 
 export type CanvasTool = "draw" | "erase";
 
@@ -86,41 +87,81 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       currentStrokeIndex: number;
     } | null>(null);
 
-    // Load background image.
+    // Load background image via the shared module-level cache. If this URL
+    // has been decoded before in this session, the promise resolves
+    // synchronously on the next microtask and we render with no visible
+    // delay. Otherwise the decode runs once and is cached.
     useEffect(() => {
-      const img = new Image();
-      img.onload = () => setBgImage(img);
-      img.src = backgroundSrc;
+      let cancelled = false;
+      loadFieldImage(backgroundSrc)
+        .then((img) => {
+          if (!cancelled) setBgImage(img);
+        })
+        .catch(() => {
+          // swallow — canvas simply renders without a background
+        });
+      return () => {
+        cancelled = true;
+      };
     }, [backgroundSrc]);
 
     // Ensure canvas backing store matches its display size (HiDPI-aware).
-    const resizeCanvas = useCallback(() => {
+    // Returns true if the backing store was actually reallocated (avoids the
+    // expensive `canvas.width = w` clear+realloc when dimensions didn't
+    // change, which would otherwise happen every time the parent re-renders).
+    const resizeCanvas = useCallback((): boolean => {
       const canvas = canvasRef.current;
       const wrapper = wrapperRef.current;
-      if (!canvas || !wrapper) return;
+      if (!canvas || !wrapper) return false;
       const dpr = window.devicePixelRatio || 1;
       const rect = wrapper.getBoundingClientRect();
       const w = Math.max(1, Math.floor(rect.width));
       const h = Math.max(1, Math.floor(rect.height));
+      const targetW = Math.floor(w * dpr);
+      const targetH = Math.floor(h * dpr);
+      if (canvas.width === targetW && canvas.height === targetH) {
+        return false; // nothing to do
+      }
       canvas.style.width = w + "px";
       canvas.style.height = h + "px";
-      canvas.width = Math.floor(w * dpr);
-      canvas.height = Math.floor(h * dpr);
+      canvas.width = targetW;
+      canvas.height = targetH;
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
+      return true;
     }, []);
 
+    // Keep the latest `redraw` in a ref so the ResizeObserver (installed once
+    // at mount) always calls the fresh closure with current strokes / bgImage
+    // / playback state, not the empty initial one.
+    const redrawRef = useRef<() => void>(() => {});
+
     useEffect(() => {
+      // Coalesce rapid resize fires (e.g. during a fullscreen-toggle layout
+      // settle) into a single `requestAnimationFrame` pass. Each
+      // `canvas.width = N` reallocates the backing store, so batching avoids
+      // 10+ MB of churn per transition on HiDPI iPads.
+      let rafId: number | null = null;
+      const scheduleResize = () => {
+        if (rafId != null) return;
+        rafId = requestAnimationFrame(() => {
+          rafId = null;
+          const changed = resizeCanvas();
+          if (changed) redrawRef.current();
+        });
+      };
+      // Initial sizing: resize + redraw immediately (the redraw happens via
+      // the `useEffect(() => redraw(), [redraw])` below once redraw closes
+      // over real state, but this gets pixels on the screen ASAP).
       resizeCanvas();
-      const obs = new ResizeObserver(() => {
-        resizeCanvas();
-        redraw();
-      });
+      const obs = new ResizeObserver(scheduleResize);
       if (wrapperRef.current) obs.observe(wrapperRef.current);
-      return () => obs.disconnect();
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      return () => {
+        obs.disconnect();
+        if (rafId != null) cancelAnimationFrame(rafId);
+      };
     }, [resizeCanvas]);
 
     const drawStroke = useCallback(
@@ -364,6 +405,10 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     ]);
 
     useEffect(() => {
+      // Keep the ref pointed at the latest redraw closure so the
+      // ResizeObserver callback (installed once) always runs the fresh
+      // version — with current strokes, bgImage, playback state, etc.
+      redrawRef.current = redraw;
       redraw();
     }, [redraw]);
 

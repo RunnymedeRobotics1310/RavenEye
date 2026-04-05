@@ -36,3 +36,31 @@ export function fieldImageForYear(year: number): string {
   if (years.length === 0) return BLANK_PIXEL;
   return FIELD_IMAGES[years[0]!]!;
 }
+
+// ---------- Module-level decoded-image cache ----------
+//
+// Field images are shared across all plan editor mounts. Caching the decoded
+// HTMLImageElement means the PNG only gets fetched + decoded once per URL per
+// page session — subsequent canvas mounts reuse the same in-memory bitmap and
+// render immediately.
+
+const imageCache = new Map<string, HTMLImageElement>();
+
+/**
+ * Resolve a bundled field image to a decoded `HTMLImageElement`. Returns the
+ * cached image synchronously if it's already been loaded; otherwise fetches
+ * and decodes it, then caches and resolves.
+ */
+export function loadFieldImage(src: string): Promise<HTMLImageElement> {
+  const cached = imageCache.get(src);
+  if (cached) return Promise.resolve(cached);
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      imageCache.set(src, img);
+      resolve(img);
+    };
+    img.onerror = (e) => reject(e);
+    img.src = src;
+  });
+}
