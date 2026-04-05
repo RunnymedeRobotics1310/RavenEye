@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import StrategyCanvas, {
+  type CanvasRotation,
   type StrategyCanvasHandle,
 } from "~/common/strategy/StrategyCanvas.tsx";
 import type { StrategyStroke } from "~/types/StrategyStroke.ts";
@@ -7,6 +8,7 @@ import type { StrategyStroke } from "~/types/StrategyStroke.ts";
 type Props = {
   backgroundSrc: string;
   strokes: StrategyStroke[];
+  rotation?: CanvasRotation;
   zoom?: number;
   panX?: number;
   panY?: number;
@@ -25,6 +27,7 @@ const StrategyReadOnlyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         strokes={props.strokes}
         readOnly={true}
         selectedSlot="R1"
+        rotation={props.rotation}
         zoom={props.zoom}
         panX={props.panX}
         panY={props.panY}

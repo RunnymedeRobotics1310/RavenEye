@@ -17,6 +17,7 @@ import {
 import SyncCountdown from "~/common/sync/SyncCountdown.tsx";
 import Sync from "~/common/icons/Sync.tsx";
 import StrategyCanvas, {
+  type CanvasRotation,
   type StrategyCanvasHandle,
 } from "~/common/strategy/StrategyCanvas.tsx";
 import StrategyReadOnlyCanvas from "~/common/strategy/StrategyReadOnlyCanvas.tsx";
@@ -201,6 +202,57 @@ function teamNumbersForMatch(
   };
 }
 
+/** Owner team — Team 1310. Determines which alliance goes at the bottom of
+ *  the rotated field diagram. (If 1310 isn't in the match, rotation falls
+ *  back to source orientation.) */
+const OWNER_TEAM_NUMBER = 1310;
+
+function ownerAllianceFromSchedule(
+  schedule: RBScheduleRecord[],
+  tournamentId: string,
+  level: string,
+  matchNumber: number,
+): "red" | "blue" | null {
+  const m = schedule.find(
+    (r) =>
+      r.tournamentId === tournamentId &&
+      r.level === level &&
+      r.match === matchNumber,
+  );
+  if (!m) return null;
+  if (
+    m.red1 === OWNER_TEAM_NUMBER ||
+    m.red2 === OWNER_TEAM_NUMBER ||
+    m.red3 === OWNER_TEAM_NUMBER ||
+    m.red4 === OWNER_TEAM_NUMBER
+  ) {
+    return "red";
+  }
+  if (
+    m.blue1 === OWNER_TEAM_NUMBER ||
+    m.blue2 === OWNER_TEAM_NUMBER ||
+    m.blue3 === OWNER_TEAM_NUMBER ||
+    m.blue4 === OWNER_TEAM_NUMBER
+  ) {
+    return "blue";
+  }
+  return null;
+}
+
+/** Map owner alliance to the display rotation that puts that alliance at the
+ *  bottom of the canvas. Source images have red on the left, blue on the
+ *  right:
+ *    red  → 270° CW (red edge rotates to the bottom)
+ *    blue →  90° CW (blue edge rotates to the bottom)
+ *    null →   0°    (fall back to native orientation) */
+function rotationForAlliance(
+  alliance: "red" | "blue" | null,
+): CanvasRotation {
+  if (alliance === "red") return 270;
+  if (alliance === "blue") return 90;
+  return 0;
+}
+
 const StrategyPlanPageInner = (props: {
   tournamentId: string;
   matchLevel: string;
@@ -216,6 +268,18 @@ const StrategyPlanPageInner = (props: {
   const { list: schedule } = useMatchSchedule();
   const teamNumbers = useMemo(
     () => teamNumbersForMatch(schedule, tournamentId, matchLevel, matchNumber),
+    [schedule, tournamentId, matchLevel, matchNumber],
+  );
+  const rotation = useMemo<CanvasRotation>(
+    () =>
+      rotationForAlliance(
+        ownerAllianceFromSchedule(
+          schedule,
+          tournamentId,
+          matchLevel,
+          matchNumber,
+        ),
+      ),
     [schedule, tournamentId, matchLevel, matchNumber],
   );
 
@@ -422,6 +486,30 @@ const StrategyPlanPageInner = (props: {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [isCanvasFullscreen]);
+
+  // When entering fullscreen on a rotated match (owner team on an alliance),
+  // fit the image to the canvas width with the bottom edge flush against the
+  // canvas bottom — the user pans up to see the opposing alliance. Retries
+  // across animation frames because the canvas + bgImage need a moment to
+  // lay out before computeDefaultFit() can return real dimensions.
+  useEffect(() => {
+    if (!isCanvasFullscreen || rotation === 0) return;
+    let cancelled = false;
+    let tries = 0;
+    const attempt = () => {
+      if (cancelled) return;
+      const fit = canvasRef.current?.computeDefaultFit();
+      if (fit) {
+        setZoomPan({ zoom: fit.zoom, panX: fit.panX, panY: fit.panY });
+        return;
+      }
+      if (tries++ < 60) requestAnimationFrame(attempt);
+    };
+    requestAnimationFrame(attempt);
+    return () => {
+      cancelled = true;
+    };
+  }, [isCanvasFullscreen, rotation]);
 
   // Initial load + poll for external updates (e.g. after sync).
   useEffect(() => {
@@ -1008,6 +1096,7 @@ const StrategyPlanPageInner = (props: {
                           : "draw"
                   }
                   soloedSlot={soloedSlot}
+                  rotation={rotation}
                   zoom={zoom}
                   panX={panX}
                   panY={panY}
@@ -1023,6 +1112,7 @@ const StrategyPlanPageInner = (props: {
                   ref={canvasRef}
                   backgroundSrc={backgroundSrc}
                   strokes={activeDrawing.strokes}
+                  rotation={rotation}
                   zoom={zoom}
                   panX={panX}
                   panY={panY}
@@ -1053,6 +1143,7 @@ const StrategyPlanPageInner = (props: {
                     ref={canvasRef}
                     backgroundSrc={backgroundSrc}
                     strokes={activeDrawing.strokes}
+                    rotation={rotation}
                     onPlaybackEnd={handlePlaybackEnd}
                   />
                 </div>

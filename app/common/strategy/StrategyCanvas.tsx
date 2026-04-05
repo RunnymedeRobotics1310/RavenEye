@@ -17,6 +17,18 @@ import { loadFieldImage } from "~/common/strategy/fieldImage.ts";
 
 export type CanvasTool = "draw" | "erase" | "pan";
 
+/**
+ * Display rotation applied to the field image and to stroke rendering. The
+ * source image is stored with red alliance on the left and blue on the right;
+ * strokes are persisted in that source frame. A non-zero rotation affects
+ * rendering only — stored data stays in source space.
+ *
+ *   0   — source orientation (red on left)
+ *   90  — clockwise 90°  (red on top, blue on bottom)
+ *   270 — counter-clockwise 90° (red on bottom, blue on top)
+ */
+export type CanvasRotation = 0 | 90 | 270;
+
 type Props = {
   backgroundSrc: string;
   strokes: StrategyStroke[];
@@ -35,15 +47,20 @@ type Props = {
    * hit-testable, and included in playback. Other strokes are hidden.
    */
   soloedSlot?: RobotSlot | null;
-  /** View transform. zoom ≥ 1, pan in 0..1 field coords. */
+  /**
+   * Display rotation. 0 is the native source frame; 90 / 270 rotate the
+   * field image + strokes to keep the owner team's alliance at the bottom.
+   */
+  rotation?: CanvasRotation;
+  /** View transform. zoom ≥ 1, pan in 0..1 canvas-normalized space. */
   zoom?: number;
   panX?: number;
   panY?: number;
   /**
    * When true, the canvas wrapper stretches to fill its parent's height
-   * (via `flex: 1`) instead of using a 16:9 aspect-ratio. Use this inside a
-   * flex-column container — e.g. the fullscreen overlay — to give the
-   * canvas all remaining vertical space without needing scroll.
+   * (via `flex: 1`) instead of using an aspect-ratio box matching the rotated
+   * image. Use this inside a flex-column container — e.g. the fullscreen
+   * overlay — to give the canvas all remaining vertical space.
    */
   fillHeight?: boolean;
   /** Called when the user pans via the Pan tool or two-finger drag. */
@@ -64,6 +81,50 @@ const ERASE_HIT_RADIUS_CSS_PX = 14;
 export type StrategyCanvasHandle = {
   play: (speed: number) => void;
   stop: () => void;
+  /**
+   * Compute a zoom/pan that makes the (rotated) image fill the canvas width,
+   * with the image's bottom flush against the canvas bottom. Returns null if
+   * the canvas / image dimensions aren't yet known, or if the fit would be a
+   * no-op (rotation === 0 already fills exactly when the wrapper matches the
+   * image aspect). Callers typically invoke this on entering fullscreen.
+   */
+  computeDefaultFit: () => { zoom: number; panX: number; panY: number } | null;
+};
+
+/**
+ * Rotate a source-normalized point (u, v) ∈ [0,1]² into rotated display-
+ * normalized space. Keep in sync with `unrotateNorm` (its exact inverse).
+ */
+function rotateNorm(
+  u: number,
+  v: number,
+  rotation: CanvasRotation,
+): [number, number] {
+  if (rotation === 0) return [u, v];
+  if (rotation === 90) return [1 - v, u];
+  // 270 CW
+  return [v, 1 - u];
+}
+
+/** Inverse of `rotateNorm`: rotated-normalized → source-normalized. */
+function unrotateNorm(
+  u: number,
+  v: number,
+  rotation: CanvasRotation,
+): [number, number] {
+  if (rotation === 0) return [u, v];
+  if (rotation === 90) return [v, 1 - u];
+  // 270 CW
+  return [1 - v, u];
+}
+
+type ImageRect = {
+  imgLeft: number;
+  imgTop: number;
+  imgW: number;
+  imgH: number;
+  cssW: number;
+  cssH: number;
 };
 
 const STROKE_WIDTH = 5;
@@ -80,6 +141,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       selectedArrow = true,
       tool = "draw",
       soloedSlot = null,
+      rotation = 0,
       zoom = 1,
       panX = 0,
       panY = 0,
@@ -138,51 +200,29 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       };
     }, [backgroundSrc]);
 
-    // Ensure canvas backing store matches its display size (HiDPI-aware).
-    // Returns true if the backing store was actually reallocated (avoids the
-    // expensive `canvas.width = w` clear+realloc when dimensions didn't
-    // change, which would otherwise happen every time the parent re-renders).
-    // Fit the canvas inside its wrapper at the image's aspect ratio, centered.
-    // This replaces relying on CSS aspect-ratio + max-height, which behaves
-    // inconsistently inside flex-1 parents. JS has precise control.
+    // Make the canvas fill the wrapper entirely (HiDPI-aware). The background
+    // image is then letterboxed *inside* the canvas with the rotated aspect,
+    // so the user-visible clipping region matches the wrapper (not just the
+    // image rect). This is what makes "default zoom = image fills wrapper
+    // width" work — at higher zoom the image scales past the image-fit-rect
+    // and into the letterbox area, which is still inside the canvas.
     const resizeCanvas = useCallback((): boolean => {
       const canvas = canvasRef.current;
       const wrapper = wrapperRef.current;
       if (!canvas || !wrapper) return false;
       const dpr = window.devicePixelRatio || 1;
       const wrapperRect = wrapper.getBoundingClientRect();
-      const wrapperW = wrapperRect.width;
-      const wrapperH = wrapperRect.height;
+      const wrapperW = Math.max(1, Math.floor(wrapperRect.width));
+      const wrapperH = Math.max(1, Math.floor(wrapperRect.height));
       if (wrapperW < 1 || wrapperH < 1) return false;
 
-      // Use the loaded image's aspect (falling back to 2.0 pre-load).
-      const imgAspect =
-        bgImage && bgImage.height > 0 ? bgImage.width / bgImage.height : 2;
-      const wrapperAspect = wrapperW / wrapperH;
-      let canvasCssW: number;
-      let canvasCssH: number;
-      if (wrapperAspect > imgAspect) {
-        // Wrapper is wider than the image — fit by height.
-        canvasCssH = wrapperH;
-        canvasCssW = wrapperH * imgAspect;
-      } else {
-        // Fit by width.
-        canvasCssW = wrapperW;
-        canvasCssH = wrapperW / imgAspect;
-      }
-      canvasCssW = Math.max(1, Math.floor(canvasCssW));
-      canvasCssH = Math.max(1, Math.floor(canvasCssH));
-      const left = Math.floor((wrapperW - canvasCssW) / 2);
-      const top = Math.floor((wrapperH - canvasCssH) / 2);
-      const targetW = Math.floor(canvasCssW * dpr);
-      const targetH = Math.floor(canvasCssH * dpr);
+      canvas.style.left = "0px";
+      canvas.style.top = "0px";
+      canvas.style.width = wrapperW + "px";
+      canvas.style.height = wrapperH + "px";
 
-      // Position + CSS size are applied every call (cheap string writes).
-      canvas.style.left = left + "px";
-      canvas.style.top = top + "px";
-      canvas.style.width = canvasCssW + "px";
-      canvas.style.height = canvasCssH + "px";
-
+      const targetW = Math.floor(wrapperW * dpr);
+      const targetH = Math.floor(wrapperH * dpr);
       if (canvas.width === targetW && canvas.height === targetH) {
         return false;
       }
@@ -193,7 +233,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
       return true;
-    }, [bgImage]);
+    }, []);
 
     // Keep the latest `redraw` in a ref so the ResizeObserver (installed once
     // at mount) always calls the fresh closure with current strokes / bgImage
@@ -233,13 +273,27 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       };
     }, [resizeCanvas]);
 
+    // Translate a source-normalized stroke point to display canvas pixels
+    // (pre-zoom/pan): first rotate into rotated-image space, then map onto
+    // the image's letterbox rect inside the canvas.
+    const pointToCanvasPx = useCallback(
+      (
+        u: number,
+        v: number,
+        rect: ImageRect,
+      ): [number, number] => {
+        const [ru, rv] = rotateNorm(u, v, rotation);
+        return [rect.imgLeft + ru * rect.imgW, rect.imgTop + rv * rect.imgH];
+      },
+      [rotation],
+    );
+
     const drawStroke = useCallback(
       (
         ctx: CanvasRenderingContext2D,
         stroke: StrategyStroke,
         points: StrategyPoint[],
-        cssW: number,
-        cssH: number,
+        rect: ImageRect,
         drawArrow: boolean,
       ) => {
         if (points.length === 0) return;
@@ -252,25 +306,29 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
         ctx.beginPath();
-        ctx.moveTo(points[0]!.x * cssW, points[0]!.y * cssH);
+        const [x0, y0] = pointToCanvasPx(points[0]!.x, points[0]!.y, rect);
+        ctx.moveTo(x0, y0);
         if (points.length < 3) {
           for (let i = 1; i < points.length; i++) {
-            ctx.lineTo(points[i]!.x * cssW, points[i]!.y * cssH);
+            const [x, y] = pointToCanvasPx(points[i]!.x, points[i]!.y, rect);
+            ctx.lineTo(x, y);
           }
         } else {
           // Quadratic smoothing: use midpoints as curve endpoints.
           for (let i = 1; i < points.length - 1; i++) {
-            const xc = ((points[i]!.x + points[i + 1]!.x) / 2) * cssW;
-            const yc = ((points[i]!.y + points[i + 1]!.y) / 2) * cssH;
-            ctx.quadraticCurveTo(
-              points[i]!.x * cssW,
-              points[i]!.y * cssH,
-              xc,
-              yc,
+            const [x, y] = pointToCanvasPx(points[i]!.x, points[i]!.y, rect);
+            const [xn, yn] = pointToCanvasPx(
+              points[i + 1]!.x,
+              points[i + 1]!.y,
+              rect,
             );
+            const xc = (x + xn) / 2;
+            const yc = (y + yn) / 2;
+            ctx.quadraticCurveTo(x, y, xc, yc);
           }
           const last = points[points.length - 1]!;
-          ctx.lineTo(last.x * cssW, last.y * cssH);
+          const [xL, yL] = pointToCanvasPx(last.x, last.y, rect);
+          ctx.lineTo(xL, yL);
         }
         ctx.stroke();
 
@@ -280,16 +338,18 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           // Use a point ~15 samples back to determine direction, if available.
           const refIdx = Math.max(0, points.length - 15);
           const ref = points[refIdx]!;
-          const dx = (last.x - ref.x) * cssW;
-          const dy = (last.y - ref.y) * cssH;
+          const [lastPx, lastPy] = pointToCanvasPx(last.x, last.y, rect);
+          const [refPx, refPy] = pointToCanvasPx(ref.x, ref.y, rect);
+          const dx = lastPx - refPx;
+          const dy = lastPy - refPy;
           if (dx * dx + dy * dy > 4) {
             const angle = Math.atan2(dy, dx);
             // The round line cap extends the stroke past `last` by
             // STROKE_WIDTH/.8. Advance the arrow tip forward by that amount so
             // it coincides with the visual end of the line.
             const advance = STROKE_WIDTH / .8;
-            const tipX = last.x * cssW + advance * Math.cos(angle);
-            const tipY = last.y * cssH + advance * Math.sin(angle);
+            const tipX = lastPx + advance * Math.cos(angle);
+            const tipY = lastPy + advance * Math.sin(angle);
             ctx.beginPath();
             ctx.moveTo(tipX, tipY);
             ctx.lineTo(
@@ -305,7 +365,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           }
         }
       },
-      [],
+      [pointToCanvasPx],
     );
 
     const getCanvasCssSize = useCallback((): { cssW: number; cssH: number } => {
@@ -314,6 +374,37 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       const dpr = window.devicePixelRatio || 1;
       return { cssW: canvas.width / dpr, cssH: canvas.height / dpr };
     }, []);
+
+    // Compute the rectangle inside the canvas where the (rotated) background
+    // image will be drawn. The image is fit-inside-canvas preserving its
+    // rotated aspect ratio, centered. Pre-load falls back to aspect 2.0 so
+    // the canvas doesn't jump when the image decodes.
+    const getImageRect = useCallback((): ImageRect | null => {
+      const { cssW, cssH } = getCanvasCssSize();
+      if (cssW < 1 || cssH < 1) return null;
+      const bgAspect =
+        bgImage && bgImage.height > 0 ? bgImage.width / bgImage.height : 2;
+      const rotAspect = rotation === 0 ? bgAspect : 1 / bgAspect;
+      const canvasAspect = cssW / cssH;
+      let imgW: number;
+      let imgH: number;
+      let imgLeft: number;
+      let imgTop: number;
+      if (rotAspect > canvasAspect) {
+        // Image is wider than the canvas — fit by width, letterbox top/bottom.
+        imgW = cssW;
+        imgH = cssW / rotAspect;
+        imgLeft = 0;
+        imgTop = (cssH - imgH) / 2;
+      } else {
+        // Fit by height, letterbox left/right.
+        imgH = cssH;
+        imgW = cssH * rotAspect;
+        imgTop = 0;
+        imgLeft = (cssW - imgW) / 2;
+      }
+      return { imgLeft, imgTop, imgW, imgH, cssW, cssH };
+    }, [bgImage, rotation, getCanvasCssSize]);
 
     /**
      * Distance in CSS pixels from point (px, py) to the segment (ax,ay)-(bx,by).
@@ -343,16 +434,16 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
 
     /**
      * Find the topmost (last-drawn) stroke whose closest point to the pointer
-     * is within ERASE_HIT_RADIUS_CSS_PX. Returns its index, or null.
+     * is within ERASE_HIT_RADIUS_CSS_PX. Both pointer and stroke points are
+     * converted to pre-zoom canvas pixels (via the image rect + rotation) and
+     * compared there. Returns its index, or null.
      */
     const hitTestStrokes = useCallback(
-      (normX: number, normY: number): number | null => {
-        const { cssW, cssH } = getCanvasCssSize();
-        if (cssW === 0 || cssH === 0) return null;
-        const px = normX * cssW;
-        const py = normY * cssH;
+      (pointerCanvasPxX: number, pointerCanvasPxY: number): number | null => {
+        const rect = getImageRect();
+        if (!rect) return null;
         // The pointer's ~14-px reach on screen is `14 / zoom` in the
-        // untransformed coord space we're testing in.
+        // pre-zoom canvas-pixel coord space we're testing in.
         const hitRadius = ERASE_HIT_RADIUS_CSS_PX / zoom;
         for (let i = strokes.length - 1; i >= 0; i--) {
           const s = strokes[i]!;
@@ -360,25 +451,32 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           const pts = s.points;
           if (pts.length === 0) continue;
           if (pts.length === 1) {
-            const d = Math.hypot(pts[0]!.x * cssW - px, pts[0]!.y * cssH - py);
+            const [ax, ay] = pointToCanvasPx(pts[0]!.x, pts[0]!.y, rect);
+            const d = Math.hypot(ax - pointerCanvasPxX, ay - pointerCanvasPxY);
             if (d <= hitRadius) return i;
             continue;
           }
           for (let j = 0; j < pts.length - 1; j++) {
+            const [ax, ay] = pointToCanvasPx(pts[j]!.x, pts[j]!.y, rect);
+            const [bx, by] = pointToCanvasPx(
+              pts[j + 1]!.x,
+              pts[j + 1]!.y,
+              rect,
+            );
             const d = distPointToSegment(
-              px,
-              py,
-              pts[j]!.x * cssW,
-              pts[j]!.y * cssH,
-              pts[j + 1]!.x * cssW,
-              pts[j + 1]!.y * cssH,
+              pointerCanvasPxX,
+              pointerCanvasPxY,
+              ax,
+              ay,
+              bx,
+              by,
             );
             if (d <= hitRadius) return i;
           }
         }
         return null;
       },
-      [strokes, getCanvasCssSize, distPointToSegment, soloedSlot, zoom],
+      [strokes, getImageRect, pointToCanvasPx, distPointToSegment, soloedSlot, zoom],
     );
 
     const redraw = useCallback(() => {
@@ -391,10 +489,14 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       const cssH = canvas.height / dpr;
       ctx.clearRect(0, 0, cssW, cssH);
 
-      // Zoom + pan transform on top of the existing dpr transform. Everything
-      // below this save/restore renders in the normalised field-coordinate
-      // space scaled by cssW/cssH. Background image + strokes + in-progress
-      // stroke + hover highlight all share the same transform.
+      const rect = getImageRect();
+      if (!rect) return;
+
+      // Zoom + pan transform on top of the existing dpr transform. Both the
+      // background image and all strokes render in pre-zoom canvas-px coords
+      // (i.e. 0..cssW × 0..cssH), so this single scale+translate is all we
+      // need — rotation lives inside each drawImage call and inside
+      // `pointToCanvasPx` for strokes.
       ctx.save();
       if (zoom !== 1 || panX !== 0 || panY !== 0) {
         ctx.scale(zoom, zoom);
@@ -402,22 +504,23 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       }
 
       if (bgImage) {
-        // Preserve aspect ratio of background image, fit inside canvas.
-        const aspectImg = bgImage.width / bgImage.height;
-        const aspectCanvas = cssW / cssH;
-        let drawW, drawH, dx, dy;
-        if (aspectImg > aspectCanvas) {
-          drawW = cssW;
-          drawH = cssW / aspectImg;
-          dx = 0;
-          dy = (cssH - drawH) / 2;
+        const { imgLeft, imgTop, imgW, imgH } = rect;
+        ctx.save();
+        if (rotation === 0) {
+          ctx.drawImage(bgImage, imgLeft, imgTop, imgW, imgH);
+        } else if (rotation === 90) {
+          // Rotate around the image rect: the source's (0,0) corner lands at
+          // the display rect's top-right.
+          ctx.translate(imgLeft + imgW, imgTop);
+          ctx.rotate(Math.PI / 2);
+          ctx.drawImage(bgImage, 0, 0, imgH, imgW);
         } else {
-          drawH = cssH;
-          drawW = cssH * aspectImg;
-          dx = (cssW - drawW) / 2;
-          dy = 0;
+          // 270° CW — source's (0,0) lands at the display rect's bottom-left.
+          ctx.translate(imgLeft, imgTop + imgH);
+          ctx.rotate(-Math.PI / 2);
+          ctx.drawImage(bgImage, 0, 0, imgH, imgW);
         }
-        ctx.drawImage(bgImage, dx, dy, drawW, drawH);
+        ctx.restore();
       }
 
       const indicesToDraw = playbackSlice
@@ -425,7 +528,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         : visibleIndices;
       for (const origIdx of indicesToDraw) {
         const s = strokes[origIdx]!;
-        drawStroke(ctx, s, s.points, cssW, cssH, true);
+        drawStroke(ctx, s, s.points, rect, true);
       }
       if (playbackSlice && playbackSlice.currentStrokePoints) {
         const origIdx = visibleIndices[playbackSlice.currentStrokeIndex];
@@ -436,8 +539,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
               ctx,
               stroke,
               playbackSlice.currentStrokePoints,
-              cssW,
-              cssH,
+              rect,
               false,
             );
           }
@@ -448,8 +550,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           ctx,
           currentStrokeRef.current,
           currentStrokeRef.current.points,
-          cssW,
-          cssH,
+          rect,
           false,
         );
       }
@@ -471,9 +572,19 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
           ctx.beginPath();
-          ctx.moveTo(target.points[0]!.x * cssW, target.points[0]!.y * cssH);
+          const [tx0, ty0] = pointToCanvasPx(
+            target.points[0]!.x,
+            target.points[0]!.y,
+            rect,
+          );
+          ctx.moveTo(tx0, ty0);
           for (let i = 1; i < target.points.length; i++) {
-            ctx.lineTo(target.points[i]!.x * cssW, target.points[i]!.y * cssH);
+            const [tx, ty] = pointToCanvasPx(
+              target.points[i]!.x,
+              target.points[i]!.y,
+              rect,
+            );
+            ctx.lineTo(tx, ty);
           }
           ctx.stroke();
           ctx.restore();
@@ -482,8 +593,11 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       ctx.restore();
     }, [
       bgImage,
+      rotation,
       strokes,
       drawStroke,
+      pointToCanvasPx,
+      getImageRect,
       playbackSlice,
       tool,
       eraseHoverIndex,
@@ -503,21 +617,42 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     }, [redraw]);
 
     // ----- Pointer events -----
-    // Converts a pointer event to a normalised (0..1) field coordinate,
-    // undoing the active zoom+pan transform. When zoom=1 and pan=0 this
-    // simplifies to the old behaviour.
+    // Returns the pointer's position in PRE-ZOOM canvas pixels (i.e.
+    // 0..cssW × 0..cssH). This is the coord space in which strokes are
+    // drawn (before the ctx.scale zoom), so hit-testing and stroke-
+    // creation both operate here.
+    const pointToCanvasPxEvent = useCallback(
+      (e: { clientX: number; clientY: number }): { x: number; y: number } => {
+        const canvas = canvasRef.current!;
+        const clientRect = canvas.getBoundingClientRect();
+        const { cssW, cssH } = getCanvasCssSize();
+        const x =
+          ((e.clientX - clientRect.left) / clientRect.width) * cssW / zoom +
+          panX * cssW;
+        const y =
+          ((e.clientY - clientRect.top) / clientRect.height) * cssH / zoom +
+          panY * cssH;
+        return { x, y };
+      },
+      [zoom, panX, panY, getCanvasCssSize],
+    );
+
+    // Converts a pointer event to a SOURCE-normalized (0..1) stroke coord,
+    // undoing zoom/pan + rotation + the image letterbox.
     const pointToNormalized = useCallback(
       (e: { clientX: number; clientY: number }) => {
-        const canvas = canvasRef.current!;
-        const rect = canvas.getBoundingClientRect();
-        const nx = (e.clientX - rect.left) / rect.width / zoom + panX;
-        const ny = (e.clientY - rect.top) / rect.height / zoom + panY;
+        const rect = getImageRect();
+        if (!rect) return { x: 0, y: 0 };
+        const { x, y } = pointToCanvasPxEvent(e);
+        const rotU = (x - rect.imgLeft) / rect.imgW;
+        const rotV = (y - rect.imgTop) / rect.imgH;
+        const [u, v] = unrotateNorm(rotU, rotV, rotation);
         return {
-          x: Math.max(0, Math.min(1, nx)),
-          y: Math.max(0, Math.min(1, ny)),
+          x: Math.max(0, Math.min(1, u)),
+          y: Math.max(0, Math.min(1, v)),
         };
       },
-      [zoom, panX, panY],
+      [getImageRect, pointToCanvasPxEvent, rotation],
     );
 
     // Multi-pointer state for two-finger gestures.
@@ -526,15 +661,11 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     );
     const gestureRef = useRef<{
       startDist: number;
-      startCentroidX: number;
-      startCentroidY: number;
       startZoom: number;
-      startPanX: number;
-      startPanY: number;
-      // Normalised field coords under the centroid at gesture start — we
+      // Pre-zoom canvas-px coords under the centroid at gesture start — we
       // anchor the zoom around this point so it stays put while pinching.
-      anchorNormX: number;
-      anchorNormY: number;
+      anchorCanvasPxX: number;
+      anchorCanvasPxY: number;
     } | null>(null);
     // Single-pointer pan drag (Pan tool).
     const panDragRef = useRef<{
@@ -563,23 +694,14 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       const pair = firstTwoPointers();
       if (!pair) return;
       const [p1, p2] = pair;
-      const canvas = canvasRef.current!;
-      const rect = canvas.getBoundingClientRect();
       const cx = (p1.x + p2.x) / 2;
       const cy = (p1.y + p2.y) / 2;
-      const anchorNormX =
-        (cx - rect.left) / rect.width / zoom + panX;
-      const anchorNormY =
-        (cy - rect.top) / rect.height / zoom + panY;
+      const anchor = pointToCanvasPxEvent({ clientX: cx, clientY: cy });
       gestureRef.current = {
         startDist: Math.hypot(p2.x - p1.x, p2.y - p1.y),
-        startCentroidX: cx,
-        startCentroidY: cy,
         startZoom: zoom,
-        startPanX: panX,
-        startPanY: panY,
-        anchorNormX,
-        anchorNormY,
+        anchorCanvasPxX: anchor.x,
+        anchorCanvasPxY: anchor.y,
       };
     };
 
@@ -590,21 +712,25 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       if (!pair) return;
       const [p1, p2] = pair;
       const canvas = canvasRef.current!;
-      const rect = canvas.getBoundingClientRect();
+      const clientRect = canvas.getBoundingClientRect();
+      const { cssW, cssH } = getCanvasCssSize();
+      if (cssW < 1 || cssH < 1) return;
       const cx = (p1.x + p2.x) / 2;
       const cy = (p1.y + p2.y) / 2;
       const currDist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
       const scale = g.startDist > 0 ? currDist / g.startDist : 1;
       const newZoom = clampZoom(g.startZoom * scale);
-      // Anchor the zoom at the gesture-start centroid: keep that field
-      // coordinate under the current centroid. That's the natural
-      // pinch-zoom feel.
-      const currCentroidCanvasX = cx - rect.left;
-      const currCentroidCanvasY = cy - rect.top;
+      // Pan so the anchor (a fixed pre-zoom canvas-px point) stays under the
+      // current centroid at the new zoom. Solving for pan (fraction of
+      // cssW/cssH) from:
+      //   anchor = (cx - clientRect.left) / clientRect.width * cssW / newZoom
+      //            + pan * cssDim
       let newPanX =
-        g.anchorNormX - currCentroidCanvasX / rect.width / newZoom;
+        g.anchorCanvasPxX / cssW -
+        ((cx - clientRect.left) / clientRect.width) / newZoom;
       let newPanY =
-        g.anchorNormY - currCentroidCanvasY / rect.height / newZoom;
+        g.anchorCanvasPxY / cssH -
+        ((cy - clientRect.top) / clientRect.height) / newZoom;
       newPanX = clampPan(newPanX, newZoom);
       newPanY = clampPan(newPanY, newZoom);
       onZoomChange?.(newZoom, newPanX, newPanY);
@@ -637,7 +763,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
 
       if (tool === "erase") {
         e.preventDefault();
-        const { x, y } = pointToNormalized(e);
+        const { x, y } = pointToCanvasPxEvent(e);
         const hit = hitTestStrokes(x, y);
         if (hit != null) {
           onEraseStroke?.(hit);
@@ -691,7 +817,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       }
 
       if (tool === "erase" && !readOnly && !currentStrokeRef.current) {
-        const { x, y } = pointToNormalized(e);
+        const { x, y } = pointToCanvasPxEvent(e);
         const hit = hitTestStrokes(x, y);
         setEraseHoverIndex((prev) => (prev === hit ? prev : hit));
         return;
@@ -794,8 +920,23 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           }
           setPlaybackSlice(null);
         },
+        computeDefaultFit() {
+          const rect = getImageRect();
+          if (!rect) return null;
+          const { cssW, cssH, imgLeft, imgTop, imgW, imgH } = rect;
+          if (imgW < 1 || imgH < 1) return null;
+          // Target zoom: make image width == canvas width.
+          const targetZoom = cssW / imgW;
+          const z = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, targetZoom));
+          // Pan so the bottom edge of the (zoomed) image sits at the bottom
+          // of the canvas, and the image is horizontally centered.
+          const panYRaw = (imgTop + imgH) / cssH - 1 / z;
+          const panY = Math.min(1 - 1 / z, Math.max(0, panYRaw));
+          const panX = Math.min(1 - 1 / z, Math.max(0, (1 - 1 / z) / 2));
+          return { zoom: z, panX, panY };
+        },
       }),
-      [strokes, visibleIndices, onPlaybackEnd],
+      [strokes, visibleIndices, onPlaybackEnd, getImageRect],
     );
 
     // Stop playback if strokes change mid-play.
@@ -820,13 +961,14 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     }, [strokes.length, eraseHoverIndex]);
 
     // The wrapper gives the canvas its bounding box. In windowed mode, its
-    // height is derived from width via aspect-ratio matching the image — so
-    // the canvas fills the wrapper exactly with no letterbox. In fullscreen
+    // height is derived from width via aspect-ratio matching the (rotated)
+    // image — so the canvas = image with no letterbox. In fullscreen
     // (fillHeight), the wrapper takes all remaining vertical space via
-    // flex:1, and `resizeCanvas()` fits the canvas inside with the image's
-    // aspect ratio, centered.
-    const imageAspect =
+    // flex:1 and the canvas fills it — the image is letterboxed *inside*
+    // the canvas.
+    const rawImageAspect =
       bgImage && bgImage.height > 0 ? bgImage.width / bgImage.height : 2;
+    const imageAspect = rotation === 0 ? rawImageAspect : 1 / rawImageAspect;
 
     return (
       <div
