@@ -557,13 +557,19 @@ const StrategyPlanPageInner = (props: {
     setUndoStack([]);
   }, [activeLocalId]);
 
-  // A stable callback for the <SyncCountdown> below to drive. Refreshing
-  // this specific plan every 30 s while the page is open bypasses the
-  // active-tournament filter (so past tournaments work) and covers the
-  // multi-device case — device B sees device A's edits without a manual
-  // Sync Now. The IDB merge respects locally-dirty records.
-  const refreshThisPlan = useCallback(() => {
-    return refreshStrategyPlanForMatch(tournamentId, matchLevel, matchNumber);
+  // A stable callback for the <SyncCountdown> below to drive. Every 30 s we:
+  //   1. Run a full syncStrategyPlans() — uploads any locally-dirty plans /
+  //      drawings / pending deletes and pulls down server state for active
+  //      tournaments. This is the ONLY push path reachable while the user is
+  //      in the fullscreen canvas (the manual Sync button in the page-header
+  //      sits behind the fullscreen overlay and can't be tapped).
+  //   2. Run refreshStrategyPlanForMatch() for the currently-open match —
+  //      bypasses the active-tournament filter (so past-tournament testing
+  //      still receives server updates) and covers the multi-device case.
+  // Both IDB merges respect locally-dirty records.
+  const refreshThisPlan = useCallback(async () => {
+    await syncStrategyPlans();
+    await refreshStrategyPlanForMatch(tournamentId, matchLevel, matchNumber);
   }, [tournamentId, matchLevel, matchNumber]);
 
   // Strategy plans are synced on a background interval (every 3 min) and
