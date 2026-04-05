@@ -17,6 +17,19 @@ import StrategyCanvas, {
 import StrategyReadOnlyCanvas from "~/common/strategy/StrategyReadOnlyCanvas.tsx";
 import RobotSlotPalette from "~/common/strategy/RobotSlotPalette.tsx";
 import DrawingList from "~/common/strategy/DrawingList.tsx";
+import {
+  ArrowIcon,
+  EnterFullscreenIcon,
+  EraserIcon,
+  ExitFullscreenIcon,
+  LabelsIcon,
+  LineIcon,
+  LockedIcon,
+  StopIcon,
+  TrashIcon,
+  UndoIcon,
+  UnlockedIcon,
+} from "~/common/strategy/icons.tsx";
 import { fieldImageForYear } from "~/common/strategy/fieldImage.ts";
 import { colorIndexForSlot } from "~/common/strategy/colors.ts";
 import type {
@@ -25,6 +38,50 @@ import type {
 } from "~/types/StrategyStroke.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
+
+const DRAW_TOOL_STORAGE_KEY = "raveneye_strategy_draw_tool";
+const TOOLBAR_LABELS_STORAGE_KEY = "raveneye_strategy_toolbar_labels";
+type PersistedDrawTool = "arrow" | "line" | "erase";
+
+function loadDrawTool(): PersistedDrawTool {
+  if (typeof localStorage === "undefined") return "line";
+  try {
+    const v = localStorage.getItem(DRAW_TOOL_STORAGE_KEY);
+    if (v === "arrow" || v === "line" || v === "erase") return v;
+  } catch {
+    // localStorage may throw in private mode or when disabled — fall through.
+  }
+  return "line";
+}
+
+function saveDrawTool(tool: PersistedDrawTool): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(DRAW_TOOL_STORAGE_KEY, tool);
+  } catch {
+    // Ignore quota/permission failures — preference is best-effort.
+  }
+}
+
+function loadShowLabels(): boolean {
+  if (typeof localStorage === "undefined") return true;
+  try {
+    const v = localStorage.getItem(TOOLBAR_LABELS_STORAGE_KEY);
+    if (v === "hide") return false;
+  } catch {
+    // Fall through.
+  }
+  return true;
+}
+
+function saveShowLabels(show: boolean): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(TOOLBAR_LABELS_STORAGE_KEY, show ? "show" : "hide");
+  } catch {
+    // Best-effort.
+  }
+}
 
 function generateLocalId(): string {
   const anyCrypto = (globalThis as { crypto?: Crypto }).crypto;
@@ -90,7 +147,27 @@ const StrategyPlanPageInner = (props: {
   const [activeLocalId, setActiveLocalId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<RobotSlot>("R1");
-  const [selectedArrow, setSelectedArrow] = useState<boolean>(true);
+  type DrawTool = "arrow" | "line" | "erase";
+  const [drawTool, setDrawTool] = useState<DrawTool>(() => loadDrawTool());
+  useEffect(() => {
+    saveDrawTool(drawTool);
+  }, [drawTool]);
+  const [showLabels, setShowLabels] = useState<boolean>(() => loadShowLabels());
+  useEffect(() => {
+    saveShowLabels(showLabels);
+  }, [showLabels]);
+  // Cycling playback speed: click plays at the current speed, then cycles
+  // 1× → 2× → 3× → 1×.
+  const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 3>(1);
+  const handlePlayCycle = () => {
+    canvasRef.current?.play(playbackSpeed);
+    setPlaybackSpeed((s) => (s === 3 ? 1 : ((s + 1) as 1 | 2 | 3)));
+  };
+  type UndoEntry =
+    | { kind: "add"; at: number; stroke: StrategyStroke }
+    | { kind: "erase"; at: number; stroke: StrategyStroke }
+    | { kind: "clear"; strokes: StrategyStroke[] };
+  const [undoStack, setUndoStack] = useState<UndoEntry[]>([]);
   const canvasRef = useRef<StrategyCanvasHandle>(null);
   const syncDebounceRef = useRef<number | null>(null);
   const [syncState, setSyncState] = useState<
@@ -129,6 +206,12 @@ const StrategyPlanPageInner = (props: {
       clearInterval(interval);
     };
   }, [localKey]);
+
+  // Reset the undo stack whenever the active drawing changes.
+  // The stack is in-memory only and scoped to one drawing.
+  useEffect(() => {
+    setUndoStack([]);
+  }, [activeLocalId]);
 
   const scheduleSync = useCallback(() => {
     if (syncDebounceRef.current != null) {
@@ -256,13 +339,13 @@ const StrategyPlanPageInner = (props: {
     [drawings, activeLocalId],
   );
 
-  const handleStrokeComplete = useCallback(
-    async (stroke: StrategyStroke) => {
+  const persistStrokes = useCallback(
+    async (nextStrokes: StrategyStroke[]) => {
       if (!activeDrawing) return;
       const now = new Date().toISOString();
       const updated: StoredStrategyDrawing = {
         ...activeDrawing,
-        strokes: [...activeDrawing.strokes, stroke],
+        strokes: nextStrokes,
         updatedByUserId: getUserid(),
         updatedByDisplayName: getDisplayName(),
         updatedAt: now,
@@ -277,41 +360,66 @@ const StrategyPlanPageInner = (props: {
     [activeDrawing, scheduleSync],
   );
 
+  const handleStrokeComplete = useCallback(
+    async (stroke: StrategyStroke) => {
+      if (!activeDrawing) return;
+      const at = activeDrawing.strokes.length;
+      await persistStrokes([...activeDrawing.strokes, stroke]);
+      setUndoStack((prev) => [...prev, { kind: "add", at, stroke }]);
+    },
+    [activeDrawing, persistStrokes],
+  );
+
+  const handleEraseStroke = useCallback(
+    async (index: number) => {
+      if (!activeDrawing) return;
+      const erased = activeDrawing.strokes[index];
+      if (!erased) return;
+      const next = activeDrawing.strokes.filter((_, i) => i !== index);
+      await persistStrokes(next);
+      setUndoStack((prev) => [...prev, { kind: "erase", at: index, stroke: erased }]);
+    },
+    [activeDrawing, persistStrokes],
+  );
+
+  const undoLabel = useMemo(() => {
+    const top = undoStack[undoStack.length - 1];
+    if (!top) return "Undo";
+    if (top.kind === "add")
+      return top.stroke.arrow === false ? "Undo Line" : "Undo Arrow";
+    if (top.kind === "erase") return "Undo Erase";
+    return "Undo Clear";
+  }, [undoStack]);
+
   const handleUndo = async () => {
-    if (!activeDrawing || activeDrawing.strokes.length === 0) return;
-    const now = new Date().toISOString();
-    const updated: StoredStrategyDrawing = {
-      ...activeDrawing,
-      strokes: activeDrawing.strokes.slice(0, -1),
-      updatedByUserId: getUserid(),
-      updatedByDisplayName: getDisplayName(),
-      updatedAt: now,
-      dirty: true,
-    };
-    await repository.putStrategyDrawing(updated);
-    setDrawings((prev) =>
-      prev.map((d) => (d.localId === updated.localId ? updated : d)),
-    );
-    scheduleSync();
+    if (!activeDrawing) return;
+    const top = undoStack[undoStack.length - 1];
+    if (!top) return;
+    let next: StrategyStroke[] = activeDrawing.strokes;
+    if (top.kind === "add") {
+      // Reverse of add: remove the stroke at its insertion index.
+      next = activeDrawing.strokes.filter((_, i) => i !== top.at);
+    } else if (top.kind === "erase") {
+      // Reverse of erase: splice the stroke back in at its original index.
+      next = [
+        ...activeDrawing.strokes.slice(0, top.at),
+        top.stroke,
+        ...activeDrawing.strokes.slice(top.at),
+      ];
+    } else {
+      // Reverse of clear: restore the whole snapshot.
+      next = top.strokes;
+    }
+    await persistStrokes(next);
+    setUndoStack((prev) => prev.slice(0, -1));
   };
 
   const handleClear = async () => {
     if (!activeDrawing || activeDrawing.strokes.length === 0) return;
     if (!confirm("Clear all strokes from this drawing?")) return;
-    const now = new Date().toISOString();
-    const updated: StoredStrategyDrawing = {
-      ...activeDrawing,
-      strokes: [],
-      updatedByUserId: getUserid(),
-      updatedByDisplayName: getDisplayName(),
-      updatedAt: now,
-      dirty: true,
-    };
-    await repository.putStrategyDrawing(updated);
-    setDrawings((prev) =>
-      prev.map((d) => (d.localId === updated.localId ? updated : d)),
-    );
-    scheduleSync();
+    const snapshot = activeDrawing.strokes;
+    await persistStrokes([]);
+    setUndoStack((prev) => [...prev, { kind: "clear", strokes: snapshot }]);
   };
 
   const handleLabelChange = async (value: string) => {
@@ -371,19 +479,29 @@ const StrategyPlanPageInner = (props: {
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              style={{ marginLeft: "0.6rem" }}
+              style={{
+                marginLeft: "0.6rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.3rem",
+              }}
             >
-              Unlock to Edit
+              <UnlockedIcon /> Unlock to Edit
             </button>
           )}
           {isEditing && (
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              style={{ marginLeft: "0.6rem" }}
+              style={{
+                marginLeft: "0.6rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.3rem",
+              }}
               className="btn-secondary"
             >
-              Lock
+              <LockedIcon /> Lock
             </button>
           )}
           <span style={{ marginLeft: "0.8rem" }}>{syncBadge}</span>
@@ -457,6 +575,11 @@ const StrategyPlanPageInner = (props: {
         >
           {activeDrawing ? (
             <>
+              {/*
+                Rows 1–2: drawing metadata (label + stroke count) + robot-slot
+                palette. In fullscreen mode these share a single row to
+                conserve vertical space; otherwise they stack.
+              */}
               <div
                 style={{
                   display: "flex",
@@ -472,29 +595,123 @@ const StrategyPlanPageInner = (props: {
                   disabled={!isEditing}
                   value={activeDrawing.label}
                   onChange={(e) => handleLabelChange(e.target.value)}
-                  style={{ flex: "1 1 12rem", minWidth: 0 }}
+                  style={{
+                    flex: isCanvasFullscreen ? "0 1 14rem" : "1 1 12rem",
+                    minWidth: 0,
+                  }}
                 />
+                <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>
+                  {strokeCountText}
+                </span>
+                {isCanvasFullscreen && isEditing && (
+                  <RobotSlotPalette
+                    selected={selectedSlot}
+                    onSelect={setSelectedSlot}
+                    teamNumbers={teamNumbers}
+                    disabled={drawTool === "erase"}
+                    style={{ margin: 0 }}
+                  />
+                )}
+              </div>
+              {!isCanvasFullscreen && isEditing && (
+                <RobotSlotPalette
+                  selected={selectedSlot}
+                  onSelect={setSelectedSlot}
+                  teamNumbers={teamNumbers}
+                  disabled={drawTool === "erase"}
+                  style={{ marginBottom: "0.4rem" }}
+                />
+              )}
+
+              {/* Row 3: the toolbar — tools | history | playback | view */}
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  marginBottom: "0.4rem",
+                  paddingBottom: "0.5rem",
+                  borderBottom: "1px solid rgba(128,128,128,0.25)",
+                }}
+              >
+                {isEditing && (
+                  <>
+                    <ToolButton
+                      active={drawTool === "arrow"}
+                      onClick={() => setDrawTool("arrow")}
+                      title="Arrow — draw with arrowhead"
+                    >
+                      <ArrowIcon /> {showLabels && "Arrow"}
+                    </ToolButton>
+                    <ToolButton
+                      active={drawTool === "line"}
+                      onClick={() => setDrawTool("line")}
+                      title="Line — draw a plain line"
+                    >
+                      <LineIcon /> {showLabels && "Line"}
+                    </ToolButton>
+                    <ToolButton
+                      active={drawTool === "erase"}
+                      onClick={() => setDrawTool("erase")}
+                      title="Eraser — tap a stroke to delete it"
+                    >
+                      <EraserIcon /> {showLabels && "Erase"}
+                    </ToolButton>
+                    <ToolbarDivider />
+                    <button
+                      type="button"
+                      onClick={handleUndo}
+                      className="btn-secondary"
+                      disabled={undoStack.length === 0}
+                      title={undoLabel}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                      }}
+                    >
+                      <UndoIcon /> {showLabels && undoLabel}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleClear}
+                      className="btn-secondary"
+                      disabled={activeDrawing.strokes.length === 0}
+                      title="Clear all strokes"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                      }}
+                    >
+                      <TrashIcon /> {showLabels && "Clear"}
+                    </button>
+                    <ToolbarDivider />
+                  </>
+                )}
                 <button
                   type="button"
-                  onClick={() => canvasRef.current?.play(1)}
+                  onClick={handlePlayCycle}
                   className="btn-secondary"
+                  title={`Play at ${playbackSpeed}× — click again to cycle speed`}
                 >
-                  ▶ Play
-                </button>
-                <button
-                  type="button"
-                  onClick={() => canvasRef.current?.play(2)}
-                  className="btn-secondary"
-                >
-                  ▶▶ Play 2×
+                  ▶{showLabels ? ` Play ${playbackSpeed}×` : ` ${playbackSpeed}×`}
                 </button>
                 <button
                   type="button"
                   onClick={() => canvasRef.current?.stop()}
                   className="btn-secondary"
+                  title="Stop playback"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                  }}
                 >
-                  Stop
+                  <StopIcon /> {showLabels && "Stop"}
                 </button>
+                <ToolbarDivider />
                 <button
                   type="button"
                   onClick={() => setIsCanvasFullscreen((v) => !v)}
@@ -504,82 +721,54 @@ const StrategyPlanPageInner = (props: {
                       ? "Exit fullscreen (Esc)"
                       : "Fullscreen"
                   }
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                  }}
                 >
-                  {isCanvasFullscreen ? "⤦ Exit Fullscreen" : "⤢ Fullscreen"}
+                  {isCanvasFullscreen ? (
+                    <ExitFullscreenIcon />
+                  ) : (
+                    <EnterFullscreenIcon />
+                  )}
+                  {showLabels &&
+                    (isCanvasFullscreen ? "Exit Fullscreen" : "Fullscreen")}
                 </button>
-                {isEditing && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={handleUndo}
-                      className="btn-secondary"
-                      disabled={activeDrawing.strokes.length === 0}
-                    >
-                      Undo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleClear}
-                      className="btn-secondary"
-                      disabled={activeDrawing.strokes.length === 0}
-                    >
-                      Clear
-                    </button>
-                  </>
-                )}
-                <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>
-                  {strokeCountText}
-                </span>
-              </div>
-              {isEditing && (
-                <>
-                  <div
+                {isCanvasFullscreen && (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing((v) => !v)}
+                    className={isEditing ? "btn-secondary" : undefined}
+                    title={isEditing ? "Lock (read-only)" : "Unlock to edit"}
                     style={{
-                      display: "flex",
-                      gap: "0.4rem",
-                      margin: "0.5rem 0 0",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.3rem",
                     }}
                   >
-                    <button
-                      type="button"
-                      onClick={() => setSelectedArrow(true)}
-                      aria-pressed={selectedArrow}
-                      style={{
-                        background: selectedArrow
-                          ? "var(--color-btn-primary-bg, #38f)"
-                          : "transparent",
-                        color: selectedArrow
-                          ? "var(--color-btn-primary-text, #fff)"
-                          : "var(--color-text-primary)",
-                        border: "2px solid var(--color-btn-primary-bg, #38f)",
-                      }}
-                    >
-                      → Arrow
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedArrow(false)}
-                      aria-pressed={!selectedArrow}
-                      style={{
-                        background: !selectedArrow
-                          ? "var(--color-btn-primary-bg, #38f)"
-                          : "transparent",
-                        color: !selectedArrow
-                          ? "var(--color-btn-primary-text, #fff)"
-                          : "var(--color-text-primary)",
-                        border: "2px solid var(--color-btn-primary-bg, #38f)",
-                      }}
-                    >
-                      — Line
-                    </button>
-                  </div>
-                  <RobotSlotPalette
-                    selected={selectedSlot}
-                    onSelect={setSelectedSlot}
-                    teamNumbers={teamNumbers}
-                  />
-                </>
-              )}
+                    {isEditing ? <LockedIcon /> : <UnlockedIcon />}
+                    {showLabels && (isEditing ? "Lock" : "Unlock to Edit")}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowLabels((v) => !v)}
+                  className="btn-secondary"
+                  aria-pressed={!showLabels}
+                  title={
+                    showLabels ? "Show icons only" : "Show labels"
+                  }
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.3rem",
+                  }}
+                >
+                  <LabelsIcon /> {showLabels && "Show Icons Only"}
+                </button>
+              </div>
+
               {isEditing ? (
                 <StrategyCanvas
                   ref={canvasRef}
@@ -591,8 +780,10 @@ const StrategyPlanPageInner = (props: {
                   }))}
                   readOnly={false}
                   selectedSlot={selectedSlot}
-                  selectedArrow={selectedArrow}
+                  selectedArrow={drawTool === "arrow"}
+                  tool={drawTool === "erase" ? "erase" : "draw"}
                   onStrokeComplete={handleStrokeComplete}
+                  onEraseStroke={handleEraseStroke}
                 />
               ) : (
                 <StrategyReadOnlyCanvas
@@ -615,6 +806,50 @@ const StrategyPlanPageInner = (props: {
     </main>
   );
 };
+
+const ToolbarDivider = () => (
+  <div
+    aria-hidden="true"
+    style={{
+      width: 1,
+      height: "1.6rem",
+      background: "rgba(128,128,128,0.35)",
+      margin: "0 0.15rem",
+    }}
+  />
+);
+
+const ToolButton = (props: {
+  active: boolean;
+  onClick: () => void;
+  title?: string;
+  children: React.ReactNode;
+}) => (
+  <button
+    type="button"
+    onClick={props.onClick}
+    aria-pressed={props.active}
+    title={props.title}
+    style={{
+      background: props.active
+        ? "var(--color-btn-primary-bg)"
+        : "var(--color-btn-secondary-bg)",
+      color: props.active
+        ? "var(--color-btn-primary-text)"
+        : "var(--color-btn-secondary-text)",
+      border: `2px solid ${
+        props.active
+          ? "var(--color-btn-primary-bg)"
+          : "var(--color-btn-secondary-border)"
+      }`,
+      display: "inline-flex",
+      alignItems: "center",
+      gap: "0.3rem",
+    }}
+  >
+    {props.children}
+  </button>
+);
 
 const StrategyPlanPage = () => {
   const params = useParams();

@@ -6,17 +6,19 @@ type Props = {
   onSelect: (slot: RobotSlot) => void;
   teamNumbers: Record<RobotSlot, number | null>;
   disabled?: boolean;
+  /** Optional CSS overrides merged into the container. */
+  style?: React.CSSProperties;
 };
 
 export default function RobotSlotPalette(props: Props) {
-  const { selected, onSelect, teamNumbers, disabled } = props;
+  const { selected, onSelect, teamNumbers, disabled, style } = props;
   return (
     <div
       style={{
         display: "flex",
         flexWrap: "wrap",
         gap: "0.4rem",
-        margin: "0.5rem 0",
+        ...style,
       }}
     >
       {ROBOT_SLOTS.map((slot, i) => {

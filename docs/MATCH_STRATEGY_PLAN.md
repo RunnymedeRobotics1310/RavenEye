@@ -191,16 +191,43 @@ iPad-landscape optimized (1024×768 reference viewport):
 
 - **Header** — match identifier, "LOCKED" badge, Unlock button (only visible if user has edit role), save-status indicator ("Saved locally" / "Syncing…" / "Synced to server").
 - **Left column (narrow)** — Short Summary input (`maxLength=32`, live character counter), Strategy textarea, drawing list with labels + creator names, "+ New Drawing" button.
-- **Right column (dominant)** — canvas with field background, a stroke-style toggle (**Arrow** / **Line**), robot-slot palette (6 swatches R1/R2/R3/B1/B2/B3 prefilled with team numbers from the schedule), and tools: Clear, Undo, Play, Play 2×, Fullscreen (CSS-based overlay, Esc exits). The stroke-style toggle sets the mode for *new* strokes only; existing strokes preserve their own `arrow` flag.
+- **Right column (dominant)** — canvas with field background. Above the canvas, a single-row **toolbar** (drawing-tool layout) groups buttons into clusters separated by vertical dividers:
+  - **Tools**: Arrow / Line / Eraser (mutually exclusive, inline SVG icons)
+  - **History**: Undo (context-aware label — "Undo Arrow" / "Undo Line" / "Undo Erase" / "Undo Clear", plain "Undo" when the stack is empty) + Clear
+  - **Playback**: Play (cycling speed: click to play at 1×, click again to play at 2×, again for 3×, then back to 1×) + Stop
+  - **View**: Fullscreen (CSS overlay, `position: fixed; inset: 0; z-index: 1000`, Esc exits) + a Lock/Unlock toggle that **appears only while in fullscreen** (since the page-header Lock button is obscured by the overlay) + Labels toggle (hides text labels on every toolbar button to compact the row; icon-only mode with `title` tooltips for hover). The labels toggle's own state is persisted to `localStorage` under `raveneye_strategy_toolbar_labels` (values: `"show"` | `"hide"`).
+
+  Above the toolbar: the drawing label + stroke count, and the robot-slot palette (6 swatches R1/R2/R3/B1/B2/B3 prefilled with team numbers from the schedule). In **fullscreen mode** the label and the palette share a single row to save vertical space; otherwise they stack. The palette is dimmed while the Eraser tool is active. Order from top to bottom: metadata row → (palette row, windowed mode only) → toolbar → canvas.
+
+### Tools
+
+- **Arrow** — new strokes get an arrowhead at the tip.
+- **Line** — new strokes are plain lines (`arrow: false` on the stroke).
+- **Eraser** — tap on (or within ~14 CSS px of) an existing stroke to delete it. Hit-test iterates strokes back-to-front (topmost wins) and measures distance from the pointer to each segment between consecutive points. A red dashed highlight indicates the stroke under the pointer on devices that support hover. No confirmation dialog — Undo reverses the erase.
+
+The stroke-style toggle sets the mode for *new* strokes only; existing strokes preserve their own `arrow` flag.
+
+**Default tool**: "line". The last-selected tool (arrow / line / erase) is persisted to `localStorage` under the key `raveneye_strategy_draw_tool` and restored next time the user opens the plan editor. On first use (or if `localStorage` is unavailable), the editor starts in Line mode.
+
+### Undo stack
+
+An in-memory per-drawing history stack tracks three kinds of entries:
+
+- `{ kind: "add", at, stroke }` — reversed by removing the stroke at `at`.
+- `{ kind: "erase", at, stroke }` — reversed by splicing the stroke back in at `at`.
+- `{ kind: "clear", strokes }` — reversed by restoring the snapshot.
+
+Pressing Undo pops the latest entry and applies the inverse, then re-persists the drawing (marking it dirty for sync). The stack is session-scoped (never persisted) and **reset** when the user switches to a different drawing. Accidentally erased strokes are recoverable via Undo as long as the user hasn't switched drawings or reloaded the page.
 
 ### Components (`app/common/strategy/`)
 
-- `StrategyCanvas.tsx` — edit canvas
+- `StrategyCanvas.tsx` — edit canvas (supports `tool: "draw" | "erase"`)
 - `StrategyReadOnlyCanvas.tsx` — same renderer, no pointer capture
 - `RobotSlotPalette.tsx` — 6 swatches with team numbers from `useMatchSchedule()`
 - `DrawingList.tsx` — list + active selection + "+ New Drawing"
 - `colors.ts` — `ROBOT_COLORS` palette
 - `fieldImage.ts` — `fieldImageForYear(year)` helper
+- `icons.tsx` — inline SVG toolbar icons (Arrow, Line, Eraser, Undo)
 
 ### Input handling
 
@@ -221,7 +248,7 @@ Implementation notes:
 
 ### Playback
 
-The canvas exposes an imperative `play(speed: 1 | 2)` method that re-renders strokes point-by-point, honoring the recorded `t` deltas scaled by `1 / speed`, using `requestAnimationFrame`.
+The canvas exposes an imperative `play(speed: number)` method that re-renders strokes point-by-point, honoring the recorded `t` deltas scaled by `1 / speed`, using `requestAnimationFrame`. The plan editor wraps this in a cycling **Play** button whose state rotates 1× → 2× → 3× → 1× on each click; each click immediately plays at the shown speed, then advances the state for the next click.
 
 ---
 

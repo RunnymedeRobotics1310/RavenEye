@@ -14,6 +14,8 @@ import type {
 } from "~/types/StrategyStroke.ts";
 import { ROBOT_COLORS, colorIndexForSlot } from "~/common/strategy/colors.ts";
 
+export type CanvasTool = "draw" | "erase";
+
 type Props = {
   backgroundSrc: string;
   strokes: StrategyStroke[];
@@ -21,14 +23,20 @@ type Props = {
   selectedSlot: RobotSlot;
   /**
    * Whether new strokes should be drawn with an arrowhead (true) or as a
-   * plain line (false). Defaults to true for backward compatibility.
+   * plain line (false). Only meaningful when `tool === "draw"`. Defaults to
+   * true for backward compatibility.
    */
   selectedArrow?: boolean;
+  /** Active canvas tool. "draw" creates new strokes; "erase" deletes them. */
+  tool?: CanvasTool;
   onStrokeComplete?: (stroke: StrategyStroke) => void;
+  onEraseStroke?: (strokeIndex: number) => void;
 };
 
+const ERASE_HIT_RADIUS_CSS_PX = 14;
+
 export type StrategyCanvasHandle = {
-  play: (speed: 1 | 2) => void;
+  play: (speed: number) => void;
   stop: () => void;
 };
 
@@ -44,8 +52,11 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       readOnly,
       selectedSlot,
       selectedArrow = true,
+      tool = "draw",
       onStrokeComplete,
+      onEraseStroke,
     } = props;
+    const [eraseHoverIndex, setEraseHoverIndex] = useState<number | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null);
@@ -166,6 +177,75 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       [],
     );
 
+    const getCanvasCssSize = useCallback((): { cssW: number; cssH: number } => {
+      const canvas = canvasRef.current;
+      if (!canvas) return { cssW: 0, cssH: 0 };
+      const dpr = window.devicePixelRatio || 1;
+      return { cssW: canvas.width / dpr, cssH: canvas.height / dpr };
+    }, []);
+
+    /**
+     * Distance in CSS pixels from point (px, py) to the segment (ax,ay)-(bx,by).
+     */
+    const distPointToSegment = useCallback(
+      (
+        px: number,
+        py: number,
+        ax: number,
+        ay: number,
+        bx: number,
+        by: number,
+      ): number => {
+        const dx = bx - ax;
+        const dy = by - ay;
+        const lenSq = dx * dx + dy * dy;
+        let t = lenSq === 0 ? 0 : ((px - ax) * dx + (py - ay) * dy) / lenSq;
+        t = Math.max(0, Math.min(1, t));
+        const cx = ax + t * dx;
+        const cy = ay + t * dy;
+        const ex = px - cx;
+        const ey = py - cy;
+        return Math.sqrt(ex * ex + ey * ey);
+      },
+      [],
+    );
+
+    /**
+     * Find the topmost (last-drawn) stroke whose closest point to the pointer
+     * is within ERASE_HIT_RADIUS_CSS_PX. Returns its index, or null.
+     */
+    const hitTestStrokes = useCallback(
+      (normX: number, normY: number): number | null => {
+        const { cssW, cssH } = getCanvasCssSize();
+        if (cssW === 0 || cssH === 0) return null;
+        const px = normX * cssW;
+        const py = normY * cssH;
+        for (let i = strokes.length - 1; i >= 0; i--) {
+          const s = strokes[i]!;
+          const pts = s.points;
+          if (pts.length === 0) continue;
+          if (pts.length === 1) {
+            const d = Math.hypot(pts[0]!.x * cssW - px, pts[0]!.y * cssH - py);
+            if (d <= ERASE_HIT_RADIUS_CSS_PX) return i;
+            continue;
+          }
+          for (let j = 0; j < pts.length - 1; j++) {
+            const d = distPointToSegment(
+              px,
+              py,
+              pts[j]!.x * cssW,
+              pts[j]!.y * cssH,
+              pts[j + 1]!.x * cssW,
+              pts[j + 1]!.y * cssH,
+            );
+            if (d <= ERASE_HIT_RADIUS_CSS_PX) return i;
+          }
+        }
+        return null;
+      },
+      [strokes, getCanvasCssSize, distPointToSegment],
+    );
+
     const redraw = useCallback(() => {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -224,7 +304,30 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           false,
         );
       }
-    }, [bgImage, strokes, drawStroke, playbackSlice]);
+      // Erase hover highlight — draw a red-dashed outline behind the candidate.
+      if (
+        tool === "erase" &&
+        eraseHoverIndex != null &&
+        eraseHoverIndex < strokes.length
+      ) {
+        const target = strokes[eraseHoverIndex]!;
+        if (target.points.length > 0) {
+          ctx.save();
+          ctx.strokeStyle = "#ff3b30";
+          ctx.lineWidth = STROKE_WIDTH + 6;
+          ctx.setLineDash([6, 4]);
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          ctx.beginPath();
+          ctx.moveTo(target.points[0]!.x * cssW, target.points[0]!.y * cssH);
+          for (let i = 1; i < target.points.length; i++) {
+            ctx.lineTo(target.points[i]!.x * cssW, target.points[i]!.y * cssH);
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    }, [bgImage, strokes, drawStroke, playbackSlice, tool, eraseHoverIndex]);
 
     useEffect(() => {
       redraw();
@@ -246,6 +349,16 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
       if (readOnly) return;
       if (playbackRef.current) return;
+      if (tool === "erase") {
+        e.preventDefault();
+        const { x, y } = pointToNormalized(e);
+        const hit = hitTestStrokes(x, y);
+        if (hit != null) {
+          onEraseStroke?.(hit);
+          setEraseHoverIndex(null);
+        }
+        return;
+      }
       e.preventDefault();
       canvasRef.current?.setPointerCapture(e.pointerId);
       strokeStartMsRef.current = performance.now();
@@ -260,6 +373,12 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     };
 
     const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+      if (tool === "erase" && !readOnly && !currentStrokeRef.current) {
+        const { x, y } = pointToNormalized(e);
+        const hit = hitTestStrokes(x, y);
+        setEraseHoverIndex((prev) => (prev === hit ? prev : hit));
+        return;
+      }
       if (!currentStrokeRef.current) return;
       e.preventDefault();
       const { x, y } = pointToNormalized(e);
@@ -279,6 +398,10 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       } else {
         redraw();
       }
+    };
+
+    const handlePointerLeave = () => {
+      if (tool === "erase") setEraseHoverIndex(null);
     };
 
     // ----- Imperative playback -----
@@ -344,10 +467,18 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       };
     }, []);
 
-    const cursorStyle = useMemo(
-      () => (readOnly ? "default" : "crosshair"),
-      [readOnly],
-    );
+    const cursorStyle = useMemo(() => {
+      if (readOnly) return "default";
+      if (tool === "erase") return "cell";
+      return "crosshair";
+    }, [readOnly, tool]);
+
+    // Clamp the hover index if strokes shrink (e.g. after an erase).
+    useEffect(() => {
+      if (eraseHoverIndex != null && eraseHoverIndex >= strokes.length) {
+        setEraseHoverIndex(null);
+      }
+    }, [strokes.length, eraseHoverIndex]);
 
     return (
       <div
@@ -373,6 +504,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
+          onPointerLeave={handlePointerLeave}
         />
       </div>
     );
