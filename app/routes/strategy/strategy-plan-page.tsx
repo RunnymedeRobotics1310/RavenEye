@@ -876,19 +876,23 @@ const StrategyPlanPageInner = (props: {
                       <EraserIcon /> {showLabels && "Erase"}
                     </ToolButton>
                     <ToolbarDivider />
-                    {/* Navigate group: Pan + zoom controls */}
-                    <ToolButton
-                      active={drawTool === "pan"}
-                      onClick={() => setDrawTool("pan")}
-                      title={
-                        zoom > 1
-                          ? "Pan — drag to move the view (or hold Space)"
-                          : "Pan (zoom in first)"
-                      }
-                      disabled={zoom <= 1}
-                    >
-                      <PanIcon /> {showLabels && "Pan"}
-                    </ToolButton>
+                    {/* Navigate group: Pan + zoom controls. On touch-primary
+                        devices, two-finger drag pans natively, so hide the
+                        explicit Pan tool button. */}
+                    {!touchPrimary && (
+                      <ToolButton
+                        active={drawTool === "pan"}
+                        onClick={() => setDrawTool("pan")}
+                        title={
+                          zoom > 1
+                            ? "Pan — drag to move the view (or hold Space)"
+                            : "Pan (zoom in first)"
+                        }
+                        disabled={zoom <= 1}
+                      >
+                        <PanIcon /> {showLabels && "Pan"}
+                      </ToolButton>
+                    )}
                     {!touchPrimary && (
                       <>
                         <button
