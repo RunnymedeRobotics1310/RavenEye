@@ -93,8 +93,8 @@ const ZOOM_STORAGE_KEY = "raveneye_strategy_zoom";
 const PAN_X_STORAGE_KEY = "raveneye_strategy_pan_x";
 const PAN_Y_STORAGE_KEY = "raveneye_strategy_pan_y";
 const MIN_ZOOM = 1.0;
-const MAX_ZOOM = 4.0;
-const ZOOM_STEPS: readonly number[] = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0];
+const MAX_ZOOM = 5.0;
+const ZOOM_STEPS: readonly number[] = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0];
 
 function clampZoomValue(z: number): number {
   if (!Number.isFinite(z)) return MIN_ZOOM;

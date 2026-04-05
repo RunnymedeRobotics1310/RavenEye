@@ -73,7 +73,7 @@ type Props = {
   onPlaybackEnd?: () => void;
 };
 
-export const MAX_ZOOM = 4.0;
+export const MAX_ZOOM = 5.0;
 export const MIN_ZOOM = 1.0;
 
 const ERASE_HIT_RADIUS_CSS_PX = 14;
