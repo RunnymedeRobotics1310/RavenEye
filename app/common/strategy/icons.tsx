@@ -135,6 +135,30 @@ export const UnlockedIcon = ({ size = 20 }: IconProps) => (
   </svg>
 );
 
+export const PanIcon = ({ size = 20 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.6"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    style={{ verticalAlign: "-0.15em" }}
+  >
+    {/* Four-way arrows emanating from the centre — the conventional
+        "move / pan" glyph. */}
+    <line x1="8" y1="2.5" x2="8" y2="13.5" />
+    <line x1="2.5" y1="8" x2="13.5" y2="8" />
+    <polyline points="5.5,5 8,2.5 10.5,5" />
+    <polyline points="5.5,11 8,13.5 10.5,11" />
+    <polyline points="5,5.5 2.5,8 5,10.5" />
+    <polyline points="11,5.5 13.5,8 11,10.5" />
+  </svg>
+);
+
 export const LabelsIcon = ({ size = 20 }: IconProps) => (
   <svg
     width={size}

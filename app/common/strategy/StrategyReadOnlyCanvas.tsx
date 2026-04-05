@@ -7,6 +7,11 @@ import type { StrategyStroke } from "~/types/StrategyStroke.ts";
 type Props = {
   backgroundSrc: string;
   strokes: StrategyStroke[];
+  zoom?: number;
+  panX?: number;
+  panY?: number;
+  onPanChange?: (panX: number, panY: number) => void;
+  onZoomChange?: (zoom: number, panX: number, panY: number) => void;
 };
 
 const StrategyReadOnlyCanvas = forwardRef<StrategyCanvasHandle, Props>(
@@ -18,6 +23,11 @@ const StrategyReadOnlyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         strokes={props.strokes}
         readOnly={true}
         selectedSlot="R1"
+        zoom={props.zoom}
+        panX={props.panX}
+        panY={props.panY}
+        onPanChange={props.onPanChange}
+        onZoomChange={props.onZoomChange}
       />
     );
   },

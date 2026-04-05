@@ -196,10 +196,13 @@ iPad-landscape optimized (1024×768 reference viewport):
 - **Header** — match identifier, "LOCKED" badge, Unlock button (only visible if user has edit role), save-status indicator ("Saved locally" / "Syncing…" / "Synced to server").
 - **Left column (narrow)** — Short Summary input (`maxLength=32`, live character counter), Strategy textarea, drawing list with labels + creator names, "+ New Drawing" button.
 - **Right column (dominant)** — canvas with field background. Above the canvas, a single-row **toolbar** (drawing-tool layout) groups buttons into clusters separated by vertical dividers:
-  - **Tools**: Arrow / Line / Eraser (mutually exclusive, inline SVG icons)
+  - **Tools**: Arrow / Line / Eraser (mutually exclusive drawing tools, inline SVG icons)
+  - **Navigate**: Pan + zoom controls `[Pan] [−] [150%] [+]` — tap the percentage to reset to 100%
   - **History**: Undo (context-aware label — "Undo Arrow" / "Undo Line" / "Undo Erase" / "Undo Clear", plain "Undo" when the stack is empty) + Clear
   - **Playback**: Play (cycling speed: click to play at 1×, click again to play at 2×, again for 3×, then back to 1×) + Stop
   - **View**: Fullscreen (CSS overlay, `position: fixed; inset: 0; z-index: 1000`, Esc exits) + a Lock/Unlock toggle that **appears only while in fullscreen** (since the page-header Lock button is obscured by the overlay) + Labels toggle (hides text labels on every toolbar button to compact the row; icon-only mode with `title` tooltips for hover). The labels toggle's own state is persisted to `localStorage` under `raveneye_strategy_toolbar_labels` (values: `"show"` | `"hide"`).
+
+  The Pan tool button is always visible. The zoom `+` / `−` / `%` buttons are **hidden on touch-primary devices** (iPads, phones) — those users pinch to zoom. Detection: `matchMedia('(pointer: coarse)').matches && navigator.maxTouchPoints > 1`.
 
   Above the toolbar: the drawing label + stroke count, and the robot-slot palette (6 swatches R1/R2/R3/B1/B2/B3 prefilled with team numbers from the schedule). In **fullscreen mode** the label and the palette share a single row to save vertical space; otherwise they stack. Order from top to bottom: metadata row → (palette row, windowed mode only) → toolbar → canvas.
 
@@ -216,6 +219,7 @@ iPad-landscape optimized (1024×768 reference viewport):
 - **Arrow** — new strokes get an arrowhead at the tip.
 - **Line** — new strokes are plain lines (`arrow: false` on the stroke).
 - **Eraser** — tap on (or within ~14 CSS px of) an existing stroke to delete it. Hit-test iterates strokes back-to-front (topmost wins) and measures distance from the pointer to each segment between consecutive points. A red dashed highlight indicates the stroke under the pointer on devices that support hover. No confirmation dialog — Undo reverses the erase.
+- **Pan** — single-pointer drag moves the viewport. Disabled at zoom = 1×. **Hold Space** on desktop to temporarily engage Pan mode (Photoshop convention) without switching tools — release Space to return to your previous tool. Space-hold is suppressed when focus is in an input/textarea.
 
 The stroke-style toggle sets the mode for *new* strokes only; existing strokes preserve their own `arrow` flag.
 
@@ -257,6 +261,37 @@ Implementation notes:
 - Coordinates normalized to 0..1 against canvas bounding rect.
 - `t` recorded as `performance.now() - strokeStartMs` per point.
 - Rendered with quadratic-curve smoothing between points.
+
+### Zoom & Pan
+
+The canvas supports zooming in and panning across the field. All strokes stay pixel-perfect because they're stored in normalised 0..1 field coordinates and the zoom/pan transform is applied at render-time via `ctx.scale` + `ctx.translate`.
+
+- **Zoom range**: `MIN_ZOOM = 1.0` to `MAX_ZOOM = 4.0`. Cannot shrink past full size.
+- **Discrete zoom steps** (toolbar `+`/`−` buttons): 1.0, 1.5, 2.0, 2.5, 3.0, 4.0. The label button (`100%` / `150%` / …) resets to 100%.
+- **Pan clamping**: `panX`, `panY` ∈ `[0, 1 − 1/zoom]` so the viewport can never show blank space outside the field.
+- **Continuous zoom** (pinch-gesture): smoothly scales between MIN and MAX; zoom is anchored at the gesture's starting centroid so the content under the user's fingers stays put.
+- **Erase hit radius** is divided by zoom so tap precision stays consistent on screen at any zoom level.
+
+**Persistence** (global, in `localStorage`):
+
+| Key | Type |
+|---|---|
+| `raveneye_strategy_zoom` | number, 1.0–4.0 |
+| `raveneye_strategy_pan_x` | number, 0–(1−1/z) |
+| `raveneye_strategy_pan_y` | number, 0–(1−1/z) |
+
+Values are clamped on load in case they were saved under a previous zoom that's now stricter.
+
+**Interaction model:**
+
+| Device | Zoom | Pan |
+|---|---|---|
+| Desktop (`pointer: fine`) / touch laptop | Toolbar `+`/`−` buttons | Pan tool (drag with mouse) **or hold Space + drag** |
+| Touch-primary (iPad / phone: `pointer: coarse` + `maxTouchPoints > 1`) | Two-finger pinch | Two-finger drag |
+
+The zoom `+`/`−` toolbar buttons are **hidden on touch-primary devices** (pinch is expected). The Pan tool button remains visible on all devices — it's cheap toolbar space and harmless on touch, where two-finger drag is still preferred.
+
+Two-finger gestures work regardless of the active tool: when a second pointer arrives, any in-progress single-pointer stroke is cancelled (not committed) and the canvas enters gesture mode until the pointer count drops below 2.
 
 ### Playback
 

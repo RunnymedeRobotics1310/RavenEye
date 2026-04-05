@@ -15,7 +15,7 @@ import type {
 import { ROBOT_COLORS, colorIndexForSlot } from "~/common/strategy/colors.ts";
 import { loadFieldImage } from "~/common/strategy/fieldImage.ts";
 
-export type CanvasTool = "draw" | "erase";
+export type CanvasTool = "draw" | "erase" | "pan";
 
 type Props = {
   backgroundSrc: string;
@@ -35,9 +35,20 @@ type Props = {
    * hit-testable, and included in playback. Other strokes are hidden.
    */
   soloedSlot?: RobotSlot | null;
+  /** View transform. zoom ≥ 1, pan in 0..1 field coords. */
+  zoom?: number;
+  panX?: number;
+  panY?: number;
+  /** Called when the user pans via the Pan tool or two-finger drag. */
+  onPanChange?: (panX: number, panY: number) => void;
+  /** Called when the user pinches to zoom (also receives centroid for pan). */
+  onZoomChange?: (zoom: number, panX: number, panY: number) => void;
   onStrokeComplete?: (stroke: StrategyStroke) => void;
   onEraseStroke?: (strokeIndex: number) => void;
 };
+
+export const MAX_ZOOM = 4.0;
+export const MIN_ZOOM = 1.0;
 
 const ERASE_HIT_RADIUS_CSS_PX = 14;
 
@@ -60,9 +71,20 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       selectedArrow = true,
       tool = "draw",
       soloedSlot = null,
+      zoom = 1,
+      panX = 0,
+      panY = 0,
+      onPanChange,
+      onZoomChange,
       onStrokeComplete,
       onEraseStroke,
     } = props;
+
+    // Clamp helpers for zoom/pan.
+    const clampZoom = (z: number) =>
+      Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
+    const clampPan = (p: number, z: number) =>
+      Math.min(1 - 1 / z, Math.max(0, p));
 
     // Indices into `strokes` that should be visible under the current solo
     // filter. Used by rendering, hit-testing, and playback.
@@ -278,6 +300,9 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         if (cssW === 0 || cssH === 0) return null;
         const px = normX * cssW;
         const py = normY * cssH;
+        // The pointer's ~14-px reach on screen is `14 / zoom` in the
+        // untransformed coord space we're testing in.
+        const hitRadius = ERASE_HIT_RADIUS_CSS_PX / zoom;
         for (let i = strokes.length - 1; i >= 0; i--) {
           const s = strokes[i]!;
           if (soloedSlot && s.robotSlot !== soloedSlot) continue;
@@ -285,7 +310,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           if (pts.length === 0) continue;
           if (pts.length === 1) {
             const d = Math.hypot(pts[0]!.x * cssW - px, pts[0]!.y * cssH - py);
-            if (d <= ERASE_HIT_RADIUS_CSS_PX) return i;
+            if (d <= hitRadius) return i;
             continue;
           }
           for (let j = 0; j < pts.length - 1; j++) {
@@ -297,12 +322,12 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
               pts[j + 1]!.x * cssW,
               pts[j + 1]!.y * cssH,
             );
-            if (d <= ERASE_HIT_RADIUS_CSS_PX) return i;
+            if (d <= hitRadius) return i;
           }
         }
         return null;
       },
-      [strokes, getCanvasCssSize, distPointToSegment, soloedSlot],
+      [strokes, getCanvasCssSize, distPointToSegment, soloedSlot, zoom],
     );
 
     const redraw = useCallback(() => {
@@ -314,6 +339,16 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       const cssW = canvas.width / dpr;
       const cssH = canvas.height / dpr;
       ctx.clearRect(0, 0, cssW, cssH);
+
+      // Zoom + pan transform on top of the existing dpr transform. Everything
+      // below this save/restore renders in the normalised field-coordinate
+      // space scaled by cssW/cssH. Background image + strokes + in-progress
+      // stroke + hover highlight all share the same transform.
+      ctx.save();
+      if (zoom !== 1 || panX !== 0 || panY !== 0) {
+        ctx.scale(zoom, zoom);
+        ctx.translate(-panX * cssW, -panY * cssH);
+      }
 
       if (bgImage) {
         // Preserve aspect ratio of background image, fit inside canvas.
@@ -380,8 +415,8 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         if (target.points.length > 0) {
           ctx.save();
           ctx.strokeStyle = "#ff3b30";
-          ctx.lineWidth = STROKE_WIDTH + 6;
-          ctx.setLineDash([6, 4]);
+          ctx.lineWidth = (STROKE_WIDTH + 6) / zoom;
+          ctx.setLineDash([6 / zoom, 4 / zoom]);
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
           ctx.beginPath();
@@ -393,6 +428,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           ctx.restore();
         }
       }
+      ctx.restore();
     }, [
       bgImage,
       strokes,
@@ -402,6 +438,9 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       eraseHoverIndex,
       visibleIndices,
       soloedSlot,
+      zoom,
+      panX,
+      panY,
     ]);
 
     useEffect(() => {
@@ -413,21 +452,138 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     }, [redraw]);
 
     // ----- Pointer events -----
+    // Converts a pointer event to a normalised (0..1) field coordinate,
+    // undoing the active zoom+pan transform. When zoom=1 and pan=0 this
+    // simplifies to the old behaviour.
     const pointToNormalized = useCallback(
-      (e: React.PointerEvent<HTMLCanvasElement>) => {
+      (e: { clientX: number; clientY: number }) => {
         const canvas = canvasRef.current!;
         const rect = canvas.getBoundingClientRect();
+        const nx = (e.clientX - rect.left) / rect.width / zoom + panX;
+        const ny = (e.clientY - rect.top) / rect.height / zoom + panY;
         return {
-          x: Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)),
-          y: Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height)),
+          x: Math.max(0, Math.min(1, nx)),
+          y: Math.max(0, Math.min(1, ny)),
         };
       },
-      [],
+      [zoom, panX, panY],
     );
 
+    // Multi-pointer state for two-finger gestures.
+    const pointersRef = useRef<Map<number, { x: number; y: number }>>(
+      new Map(),
+    );
+    const gestureRef = useRef<{
+      startDist: number;
+      startCentroidX: number;
+      startCentroidY: number;
+      startZoom: number;
+      startPanX: number;
+      startPanY: number;
+      // Normalised field coords under the centroid at gesture start — we
+      // anchor the zoom around this point so it stays put while pinching.
+      anchorNormX: number;
+      anchorNormY: number;
+    } | null>(null);
+    // Single-pointer pan drag (Pan tool).
+    const panDragRef = useRef<{
+      startClientX: number;
+      startClientY: number;
+      startPanX: number;
+      startPanY: number;
+    } | null>(null);
+
+    const firstTwoPointers = (): [
+      { x: number; y: number },
+      { x: number; y: number },
+    ] | null => {
+      const iter = pointersRef.current.values();
+      const p1 = iter.next();
+      if (p1.done) return null;
+      const p2 = iter.next();
+      if (p2.done) return null;
+      return [p1.value, p2.value];
+    };
+
+    const beginGesture = () => {
+      // Cancel any in-progress single-pointer action without committing.
+      currentStrokeRef.current = null;
+      panDragRef.current = null;
+      const pair = firstTwoPointers();
+      if (!pair) return;
+      const [p1, p2] = pair;
+      const canvas = canvasRef.current!;
+      const rect = canvas.getBoundingClientRect();
+      const cx = (p1.x + p2.x) / 2;
+      const cy = (p1.y + p2.y) / 2;
+      const anchorNormX =
+        (cx - rect.left) / rect.width / zoom + panX;
+      const anchorNormY =
+        (cy - rect.top) / rect.height / zoom + panY;
+      gestureRef.current = {
+        startDist: Math.hypot(p2.x - p1.x, p2.y - p1.y),
+        startCentroidX: cx,
+        startCentroidY: cy,
+        startZoom: zoom,
+        startPanX: panX,
+        startPanY: panY,
+        anchorNormX,
+        anchorNormY,
+      };
+    };
+
+    const updateGesture = () => {
+      const g = gestureRef.current;
+      if (!g) return;
+      const pair = firstTwoPointers();
+      if (!pair) return;
+      const [p1, p2] = pair;
+      const canvas = canvasRef.current!;
+      const rect = canvas.getBoundingClientRect();
+      const cx = (p1.x + p2.x) / 2;
+      const cy = (p1.y + p2.y) / 2;
+      const currDist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+      const scale = g.startDist > 0 ? currDist / g.startDist : 1;
+      const newZoom = clampZoom(g.startZoom * scale);
+      // Anchor the zoom at the gesture-start centroid: keep that field
+      // coordinate under the current centroid. That's the natural
+      // pinch-zoom feel.
+      const currCentroidCanvasX = cx - rect.left;
+      const currCentroidCanvasY = cy - rect.top;
+      let newPanX =
+        g.anchorNormX - currCentroidCanvasX / rect.width / newZoom;
+      let newPanY =
+        g.anchorNormY - currCentroidCanvasY / rect.height / newZoom;
+      newPanX = clampPan(newPanX, newZoom);
+      newPanY = clampPan(newPanY, newZoom);
+      onZoomChange?.(newZoom, newPanX, newPanY);
+    };
+
     const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+      pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      // Second pointer down → enter gesture mode (overrides any tool).
+      if (pointersRef.current.size >= 2) {
+        e.preventDefault();
+        beginGesture();
+        return;
+      }
+
       if (readOnly) return;
       if (playbackRef.current) return;
+
+      if (tool === "pan") {
+        e.preventDefault();
+        canvasRef.current?.setPointerCapture(e.pointerId);
+        panDragRef.current = {
+          startClientX: e.clientX,
+          startClientY: e.clientY,
+          startPanX: panX,
+          startPanY: panY,
+        };
+        return;
+      }
+
       if (tool === "erase") {
         e.preventDefault();
         const { x, y } = pointToNormalized(e);
@@ -438,6 +594,8 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         }
         return;
       }
+
+      // tool === "draw"
       e.preventDefault();
       canvasRef.current?.setPointerCapture(e.pointerId);
       strokeStartMsRef.current = performance.now();
@@ -452,6 +610,35 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     };
 
     const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+      if (pointersRef.current.has(e.pointerId)) {
+        pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      }
+
+      if (gestureRef.current && pointersRef.current.size >= 2) {
+        e.preventDefault();
+        updateGesture();
+        return;
+      }
+
+      if (panDragRef.current) {
+        e.preventDefault();
+        const rect = canvasRef.current!.getBoundingClientRect();
+        const dx = e.clientX - panDragRef.current.startClientX;
+        const dy = e.clientY - panDragRef.current.startClientY;
+        const dxN = dx / (rect.width * zoom);
+        const dyN = dy / (rect.height * zoom);
+        const newPanX = clampPan(
+          panDragRef.current.startPanX - dxN,
+          zoom,
+        );
+        const newPanY = clampPan(
+          panDragRef.current.startPanY - dyN,
+          zoom,
+        );
+        onPanChange?.(newPanX, newPanY);
+        return;
+      }
+
       if (tool === "erase" && !readOnly && !currentStrokeRef.current) {
         const { x, y } = pointToNormalized(e);
         const hit = hitTestStrokes(x, y);
@@ -467,6 +654,21 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     };
 
     const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+      pointersRef.current.delete(e.pointerId);
+
+      // Exit gesture mode when we drop below 2 pointers. Don't resume any
+      // single-pointer action mid-gesture — user needs a fresh pointerdown.
+      if (gestureRef.current && pointersRef.current.size < 2) {
+        gestureRef.current = null;
+        return;
+      }
+
+      if (panDragRef.current) {
+        canvasRef.current?.releasePointerCapture(e.pointerId);
+        panDragRef.current = null;
+        return;
+      }
+
       if (!currentStrokeRef.current) return;
       e.preventDefault();
       canvasRef.current?.releasePointerCapture(e.pointerId);
@@ -479,7 +681,8 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       }
     };
 
-    const handlePointerLeave = () => {
+    const handlePointerLeave = (e: React.PointerEvent<HTMLCanvasElement>) => {
+      pointersRef.current.delete(e.pointerId);
       if (tool === "erase") setEraseHoverIndex(null);
     };
 
@@ -550,6 +753,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     const cursorStyle = useMemo(() => {
       if (readOnly) return "default";
       if (tool === "erase") return "cell";
+      if (tool === "pan") return "grab";
       return "crosshair";
     }, [readOnly, tool]);
 

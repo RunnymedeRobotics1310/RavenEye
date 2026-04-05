@@ -28,6 +28,7 @@ import {
   LabelsIcon,
   LineIcon,
   LockedIcon,
+  PanIcon,
   StopIcon,
   TrashIcon,
   UndoIcon,
@@ -46,6 +47,24 @@ const DRAW_TOOL_STORAGE_KEY = "raveneye_strategy_draw_tool";
 const TOOLBAR_LABELS_STORAGE_KEY = "raveneye_strategy_toolbar_labels";
 type PersistedDrawTool = "arrow" | "line" | "erase";
 
+/**
+ * True on devices where the primary input is touch AND multi-touch is
+ * available — iPads, phones. False on desktops, touch laptops (primary input
+ * is the trackpad/mouse even though a touchscreen exists). Used to hide the
+ * zoom/pan toolbar buttons, since on touch-primary devices the user naturally
+ * pinches to zoom and drags with two fingers to pan.
+ */
+function isTouchPrimaryDevice(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
+    const multi = (navigator.maxTouchPoints ?? 0) > 1;
+    return coarse && multi;
+  } catch {
+    return false;
+  }
+}
+
 function loadDrawTool(): PersistedDrawTool {
   if (typeof localStorage === "undefined") return "line";
   try {
@@ -63,6 +82,57 @@ function saveDrawTool(tool: PersistedDrawTool): void {
     localStorage.setItem(DRAW_TOOL_STORAGE_KEY, tool);
   } catch {
     // Ignore quota/permission failures — preference is best-effort.
+  }
+}
+
+const ZOOM_STORAGE_KEY = "raveneye_strategy_zoom";
+const PAN_X_STORAGE_KEY = "raveneye_strategy_pan_x";
+const PAN_Y_STORAGE_KEY = "raveneye_strategy_pan_y";
+const MIN_ZOOM = 1.0;
+const MAX_ZOOM = 4.0;
+const ZOOM_STEPS: readonly number[] = [1.0, 1.5, 2.0, 2.5, 3.0, 4.0];
+
+function clampZoomValue(z: number): number {
+  if (!Number.isFinite(z)) return MIN_ZOOM;
+  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
+}
+
+function clampPanValue(p: number, z: number): number {
+  if (!Number.isFinite(p)) return 0;
+  const max = Math.max(0, 1 - 1 / z);
+  return Math.min(max, Math.max(0, p));
+}
+
+function loadZoomPan(): { zoom: number; panX: number; panY: number } {
+  if (typeof localStorage === "undefined") {
+    return { zoom: 1, panX: 0, panY: 0 };
+  }
+  try {
+    const z = clampZoomValue(
+      parseFloat(localStorage.getItem(ZOOM_STORAGE_KEY) ?? "1"),
+    );
+    const x = clampPanValue(
+      parseFloat(localStorage.getItem(PAN_X_STORAGE_KEY) ?? "0"),
+      z,
+    );
+    const y = clampPanValue(
+      parseFloat(localStorage.getItem(PAN_Y_STORAGE_KEY) ?? "0"),
+      z,
+    );
+    return { zoom: z, panX: x, panY: y };
+  } catch {
+    return { zoom: 1, panX: 0, panY: 0 };
+  }
+}
+
+function saveZoomPan(zoom: number, panX: number, panY: number): void {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(ZOOM_STORAGE_KEY, zoom.toString());
+    localStorage.setItem(PAN_X_STORAGE_KEY, panX.toString());
+    localStorage.setItem(PAN_Y_STORAGE_KEY, panY.toString());
+  } catch {
+    // best-effort
   }
 }
 
@@ -170,15 +240,126 @@ const StrategyPlanPageInner = (props: {
   useEffect(() => {
     setSoloedSlot(null);
   }, [activeLocalId]);
-  type DrawTool = "arrow" | "line" | "erase";
-  const [drawTool, setDrawTool] = useState<DrawTool>(() => loadDrawTool());
+  type DrawTool = "arrow" | "line" | "erase" | "pan";
+  const [drawTool, setDrawTool] = useState<DrawTool>(() => {
+    const persisted = loadDrawTool();
+    // "pan" is allowed in-memory but never persisted (it's transient).
+    return persisted as DrawTool;
+  });
   useEffect(() => {
-    saveDrawTool(drawTool);
+    // Don't persist "pan" — fall back to arrow/line/erase on reload.
+    if (drawTool !== "pan") saveDrawTool(drawTool);
   }, [drawTool]);
   const [showLabels, setShowLabels] = useState<boolean>(() => loadShowLabels());
   useEffect(() => {
     saveShowLabels(showLabels);
   }, [showLabels]);
+
+  // Zoom + pan state, persisted to localStorage (one global value across
+  // matches). Max zoom is 4×; min is 1× (can't shrink past full size).
+  const [{ zoom, panX, panY }, setZoomPan] = useState(() => loadZoomPan());
+  useEffect(() => {
+    saveZoomPan(zoom, panX, panY);
+  }, [zoom, panX, panY]);
+  const touchPrimary = useMemo(() => isTouchPrimaryDevice(), []);
+
+  const handleZoomChange = useCallback(
+    (next: number, pX: number, pY: number) => {
+      setZoomPan({
+        zoom: clampZoomValue(next),
+        panX: clampPanValue(pX, next),
+        panY: clampPanValue(pY, next),
+      });
+    },
+    [],
+  );
+  const handlePanChange = useCallback((pX: number, pY: number) => {
+    setZoomPan((prev) => ({
+      ...prev,
+      panX: clampPanValue(pX, prev.zoom),
+      panY: clampPanValue(pY, prev.zoom),
+    }));
+  }, []);
+
+  /**
+   * Step zoom up/down by snapping to the next/prev value in ZOOM_STEPS.
+   * When zoom changes, keep the currently-visible centre of the field
+   * centred under the new zoom so the content doesn't jump.
+   */
+  const stepZoom = useCallback((direction: 1 | -1) => {
+    setZoomPan((prev) => {
+      const idx = ZOOM_STEPS.findIndex((z) => z >= prev.zoom - 1e-6);
+      const targetIdx = Math.max(
+        0,
+        Math.min(
+          ZOOM_STEPS.length - 1,
+          (idx === -1 ? 0 : idx) + direction,
+        ),
+      );
+      const nextZoom = ZOOM_STEPS[targetIdx]!;
+      if (nextZoom === prev.zoom) return prev;
+      // Current visible centre, in field coords:
+      const centerX = prev.panX + 0.5 / prev.zoom;
+      const centerY = prev.panY + 0.5 / prev.zoom;
+      const newPanX = clampPanValue(centerX - 0.5 / nextZoom, nextZoom);
+      const newPanY = clampPanValue(centerY - 0.5 / nextZoom, nextZoom);
+      return { zoom: nextZoom, panX: newPanX, panY: newPanY };
+    });
+  }, []);
+
+  const resetZoom = useCallback(() => {
+    setZoomPan({ zoom: 1, panX: 0, panY: 0 });
+  }, []);
+
+  // Spacebar-hold temporarily activates the Pan tool (Photoshop convention).
+  // Ignored when the user is typing in an input/textarea or when zoom = 1.
+  const [spaceHeld, setSpaceHeld] = useState(false);
+  useEffect(() => {
+    const isTypingTarget = (el: EventTarget | null) => {
+      if (!(el instanceof HTMLElement)) return false;
+      const tag = el.tagName;
+      return (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        el.isContentEditable
+      );
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== "Space") return;
+      if (isTypingTarget(document.activeElement)) return;
+      if (e.repeat) {
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
+      setSpaceHeld(true);
+    };
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code !== "Space") return;
+      setSpaceHeld(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    const onBlur = () => setSpaceHeld(false);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("blur", onBlur);
+    };
+  }, []);
+  // Only pan-while-zoomed matters; don't flip the tool if nothing to pan.
+  const spacePanActive = spaceHeld && zoom > 1;
+
+  // If the user was in Pan mode and zoomed back out to 1.0, switch back to
+  // their previously-persisted draw tool — pan has nothing to do at 1×.
+  useEffect(() => {
+    if (drawTool === "pan" && zoom <= 1) {
+      setDrawTool(loadDrawTool() as DrawTool);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoom]);
   // Cycling playback speed: click plays at the current speed, then cycles
   // 1× → 2× → 3× → 1×.
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 3>(1);
@@ -640,7 +821,7 @@ const StrategyPlanPageInner = (props: {
                 />
               )}
 
-              {/* Row 3: the toolbar — tools | history | playback | view */}
+              {/* Row 3: the toolbar — tools | navigate | history | playback | view */}
               <div
                 style={{
                   display: "flex",
@@ -675,6 +856,54 @@ const StrategyPlanPageInner = (props: {
                     >
                       <EraserIcon /> {showLabels && "Erase"}
                     </ToolButton>
+                    <ToolbarDivider />
+                    {/* Navigate group: Pan + zoom controls */}
+                    <ToolButton
+                      active={drawTool === "pan"}
+                      onClick={() => setDrawTool("pan")}
+                      title={
+                        zoom > 1
+                          ? "Pan — drag to move the view (or hold Space)"
+                          : "Pan (zoom in first)"
+                      }
+                      disabled={zoom <= 1}
+                    >
+                      <PanIcon /> {showLabels && "Pan"}
+                    </ToolButton>
+                    {!touchPrimary && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => stepZoom(-1)}
+                          className="btn-secondary"
+                          disabled={zoom <= MIN_ZOOM + 1e-6}
+                          title="Zoom out"
+                          style={{ minWidth: "2rem" }}
+                        >
+                          −
+                        </button>
+                        <button
+                          type="button"
+                          onClick={resetZoom}
+                          className="btn-secondary"
+                          disabled={zoom <= MIN_ZOOM + 1e-6}
+                          title="Reset to 100%"
+                          style={{ minWidth: "3.5rem" }}
+                        >
+                          {Math.round(zoom * 100)}%
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => stepZoom(1)}
+                          className="btn-secondary"
+                          disabled={zoom >= MAX_ZOOM - 1e-6}
+                          title="Zoom in"
+                          style={{ minWidth: "2rem" }}
+                        >
+                          +
+                        </button>
+                      </>
+                    )}
                     <ToolbarDivider />
                     <button
                       type="button"
@@ -798,16 +1027,34 @@ const StrategyPlanPageInner = (props: {
                   readOnly={false}
                   selectedSlot={selectedSlot}
                   selectedArrow={drawTool === "arrow"}
-                  tool={drawTool === "erase" ? "erase" : "draw"}
+                  tool={
+                    spacePanActive
+                      ? "pan"
+                      : drawTool === "erase"
+                        ? "erase"
+                        : drawTool === "pan"
+                          ? "pan"
+                          : "draw"
+                  }
                   soloedSlot={soloedSlot}
+                  zoom={zoom}
+                  panX={panX}
+                  panY={panY}
                   onStrokeComplete={handleStrokeComplete}
                   onEraseStroke={handleEraseStroke}
+                  onPanChange={handlePanChange}
+                  onZoomChange={handleZoomChange}
                 />
               ) : (
                 <StrategyReadOnlyCanvas
                   ref={canvasRef}
                   backgroundSrc={backgroundSrc}
                   strokes={activeDrawing.strokes}
+                  zoom={zoom}
+                  panX={panX}
+                  panY={panY}
+                  onPanChange={handlePanChange}
+                  onZoomChange={handleZoomChange}
                 />
               )}
             </>
@@ -841,6 +1088,7 @@ const ToolButton = (props: {
   active: boolean;
   onClick: () => void;
   title?: string;
+  disabled?: boolean;
   children: React.ReactNode;
 }) => (
   <button
@@ -848,6 +1096,7 @@ const ToolButton = (props: {
     onClick={props.onClick}
     aria-pressed={props.active}
     title={props.title}
+    disabled={props.disabled}
     style={{
       background: props.active
         ? "var(--color-btn-primary-bg)"
