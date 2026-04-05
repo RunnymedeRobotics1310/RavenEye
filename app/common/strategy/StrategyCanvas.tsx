@@ -19,6 +19,11 @@ type Props = {
   strokes: StrategyStroke[];
   readOnly: boolean;
   selectedSlot: RobotSlot;
+  /**
+   * Whether new strokes should be drawn with an arrowhead (true) or as a
+   * plain line (false). Defaults to true for backward compatibility.
+   */
+  selectedArrow?: boolean;
   onStrokeComplete?: (stroke: StrategyStroke) => void;
 };
 
@@ -33,8 +38,14 @@ const ARROW_HEAD_ANGLE = Math.PI / 6;
 
 const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
   function StrategyCanvas(props, ref) {
-    const { backgroundSrc, strokes, readOnly, selectedSlot, onStrokeComplete } =
-      props;
+    const {
+      backgroundSrc,
+      strokes,
+      readOnly,
+      selectedSlot,
+      selectedArrow = true,
+      onStrokeComplete,
+    } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
     const [bgImage, setBgImage] = useState<HTMLImageElement | null>(null);
@@ -125,7 +136,8 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         }
         ctx.stroke();
 
-        if (drawArrow && points.length >= 2) {
+        const strokeWantsArrow = stroke.arrow !== false;
+        if (drawArrow && strokeWantsArrow && points.length >= 2) {
           const last = points[points.length - 1]!;
           // Use a point ~15 samples back to determine direction, if available.
           const refIdx = Math.max(0, points.length - 15);
@@ -242,6 +254,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         robotSlot: selectedSlot,
         colorIndex: colorIndexForSlot(selectedSlot),
         points: [{ x, y, t: 0 }],
+        arrow: selectedArrow,
       };
       redraw();
     };

@@ -90,6 +90,7 @@ const StrategyPlanPageInner = (props: {
   const [activeLocalId, setActiveLocalId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<RobotSlot>("R1");
+  const [selectedArrow, setSelectedArrow] = useState<boolean>(true);
   const canvasRef = useRef<StrategyCanvasHandle>(null);
   const syncDebounceRef = useRef<number | null>(null);
   const [syncState, setSyncState] = useState<
@@ -531,11 +532,53 @@ const StrategyPlanPageInner = (props: {
                 </span>
               </div>
               {isEditing && (
-                <RobotSlotPalette
-                  selected={selectedSlot}
-                  onSelect={setSelectedSlot}
-                  teamNumbers={teamNumbers}
-                />
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.4rem",
+                      margin: "0.5rem 0 0",
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedArrow(true)}
+                      aria-pressed={selectedArrow}
+                      style={{
+                        background: selectedArrow
+                          ? "var(--color-btn-primary-bg, #38f)"
+                          : "transparent",
+                        color: selectedArrow
+                          ? "var(--color-btn-primary-text, #fff)"
+                          : "var(--color-text-primary)",
+                        border: "2px solid var(--color-btn-primary-bg, #38f)",
+                      }}
+                    >
+                      → Arrow
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedArrow(false)}
+                      aria-pressed={!selectedArrow}
+                      style={{
+                        background: !selectedArrow
+                          ? "var(--color-btn-primary-bg, #38f)"
+                          : "transparent",
+                        color: !selectedArrow
+                          ? "var(--color-btn-primary-text, #fff)"
+                          : "var(--color-text-primary)",
+                        border: "2px solid var(--color-btn-primary-bg, #38f)",
+                      }}
+                    >
+                      — Line
+                    </button>
+                  </div>
+                  <RobotSlotPalette
+                    selected={selectedSlot}
+                    onSelect={setSelectedSlot}
+                    teamNumbers={teamNumbers}
+                  />
+                </>
               )}
               {isEditing ? (
                 <StrategyCanvas
@@ -548,6 +591,7 @@ const StrategyPlanPageInner = (props: {
                   }))}
                   readOnly={false}
                   selectedSlot={selectedSlot}
+                  selectedArrow={selectedArrow}
                   onStrokeComplete={handleStrokeComplete}
                 />
               ) : (

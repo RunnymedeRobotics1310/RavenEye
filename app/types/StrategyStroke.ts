@@ -10,4 +10,11 @@ export interface StrategyStroke {
   robotSlot: RobotSlot;
   colorIndex: number;
   points: StrategyPoint[];
+  /**
+   * When true, the stroke renders with an arrowhead at its tip (direction of
+   * travel). When false, it renders as a plain line. Absent on strokes stored
+   * before this field existed — treat missing as `true` for backward
+   * compatibility.
+   */
+  arrow?: boolean;
 }

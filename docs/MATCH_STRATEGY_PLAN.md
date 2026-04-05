@@ -75,11 +75,13 @@ type StrategyStroke = {
   robotSlot: "R1" | "R2" | "R3" | "B1" | "B2" | "B3";
   colorIndex: number;  // index into ROBOT_COLORS
   points: { x: number; y: number; t: number }[];
+  arrow?: boolean;     // true → arrowhead at tip, false → plain line
 };
 ```
 
 - `x` and `y` are **normalized to 0..1** against the canvas bounds so drawings render at any resolution.
 - `t` is **milliseconds since the stroke's pointerdown** — enables faithful real-time and 2x playback.
+- `arrow` controls the stroke's rendering style. If absent (strokes saved before this field existed), the stroke is treated as **arrow = true** for backward compatibility.
 
 ---
 
@@ -189,7 +191,7 @@ iPad-landscape optimized (1024×768 reference viewport):
 
 - **Header** — match identifier, "LOCKED" badge, Unlock button (only visible if user has edit role), save-status indicator ("Saved locally" / "Syncing…" / "Synced to server").
 - **Left column (narrow)** — Short Summary input (`maxLength=32`, live character counter), Strategy textarea, drawing list with labels + creator names, "+ New Drawing" button.
-- **Right column (dominant)** — canvas with field background, robot-slot palette (6 swatches R1/R2/R3/B1/B2/B3 prefilled with team numbers from the schedule), tools: Clear, Undo, Play, Play 2×.
+- **Right column (dominant)** — canvas with field background, a stroke-style toggle (**Arrow** / **Line**), robot-slot palette (6 swatches R1/R2/R3/B1/B2/B3 prefilled with team numbers from the schedule), and tools: Clear, Undo, Play, Play 2×, Fullscreen (CSS-based overlay, Esc exits). The stroke-style toggle sets the mode for *new* strokes only; existing strokes preserve their own `arrow` flag.
 
 ### Components (`app/common/strategy/`)
 
