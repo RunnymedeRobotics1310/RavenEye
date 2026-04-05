@@ -147,6 +147,26 @@ const StrategyPlanPageInner = (props: {
   const [activeLocalId, setActiveLocalId] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<RobotSlot>("R1");
+  const [soloedSlot, setSoloedSlot] = useState<RobotSlot | null>(null);
+  const handleSlotClick = (slot: RobotSlot) => {
+    if (slot === selectedSlot) {
+      // Double-tap on the selected slot toggles solo mode.
+      setSoloedSlot((prev) => (prev === slot ? null : slot));
+    } else {
+      // Switching teams clears any solo and selects the new one.
+      setSelectedSlot(slot);
+      setSoloedSlot(null);
+    }
+  };
+  // Clear solo state whenever edit mode turns off or the active drawing
+  // changes, so the user can't get "stuck" viewing a filtered canvas with
+  // no visible palette.
+  useEffect(() => {
+    if (!isEditing) setSoloedSlot(null);
+  }, [isEditing]);
+  useEffect(() => {
+    setSoloedSlot(null);
+  }, [activeLocalId]);
   type DrawTool = "arrow" | "line" | "erase";
   const [drawTool, setDrawTool] = useState<DrawTool>(() => loadDrawTool());
   useEffect(() => {
@@ -606,9 +626,9 @@ const StrategyPlanPageInner = (props: {
                 {isCanvasFullscreen && isEditing && (
                   <RobotSlotPalette
                     selected={selectedSlot}
-                    onSelect={setSelectedSlot}
+                    onSelect={handleSlotClick}
                     teamNumbers={teamNumbers}
-                    disabled={drawTool === "erase"}
+                    soloedSlot={soloedSlot}
                     style={{ margin: 0 }}
                   />
                 )}
@@ -616,9 +636,9 @@ const StrategyPlanPageInner = (props: {
               {!isCanvasFullscreen && isEditing && (
                 <RobotSlotPalette
                   selected={selectedSlot}
-                  onSelect={setSelectedSlot}
+                  onSelect={handleSlotClick}
                   teamNumbers={teamNumbers}
-                  disabled={drawTool === "erase"}
+                  soloedSlot={soloedSlot}
                   style={{ marginBottom: "0.4rem" }}
                 />
               )}
@@ -782,6 +802,7 @@ const StrategyPlanPageInner = (props: {
                   selectedSlot={selectedSlot}
                   selectedArrow={drawTool === "arrow"}
                   tool={drawTool === "erase" ? "erase" : "draw"}
+                  soloedSlot={soloedSlot}
                   onStrokeComplete={handleStrokeComplete}
                   onEraseStroke={handleEraseStroke}
                 />

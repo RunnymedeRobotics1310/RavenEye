@@ -29,6 +29,11 @@ type Props = {
   selectedArrow?: boolean;
   /** Active canvas tool. "draw" creates new strokes; "erase" deletes them. */
   tool?: CanvasTool;
+  /**
+   * When non-null, only strokes whose `robotSlot === soloedSlot` are rendered,
+   * hit-testable, and included in playback. Other strokes are hidden.
+   */
+  soloedSlot?: RobotSlot | null;
   onStrokeComplete?: (stroke: StrategyStroke) => void;
   onEraseStroke?: (strokeIndex: number) => void;
 };
@@ -53,9 +58,21 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       selectedSlot,
       selectedArrow = true,
       tool = "draw",
+      soloedSlot = null,
       onStrokeComplete,
       onEraseStroke,
     } = props;
+
+    // Indices into `strokes` that should be visible under the current solo
+    // filter. Used by rendering, hit-testing, and playback.
+    const visibleIndices = useMemo(() => {
+      if (!soloedSlot) return strokes.map((_, i) => i);
+      const out: number[] = [];
+      for (let i = 0; i < strokes.length; i++) {
+        if (strokes[i]!.robotSlot === soloedSlot) out.push(i);
+      }
+      return out;
+    }, [strokes, soloedSlot]);
     const [eraseHoverIndex, setEraseHoverIndex] = useState<number | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -222,6 +239,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         const py = normY * cssH;
         for (let i = strokes.length - 1; i >= 0; i--) {
           const s = strokes[i]!;
+          if (soloedSlot && s.robotSlot !== soloedSlot) continue;
           const pts = s.points;
           if (pts.length === 0) continue;
           if (pts.length === 1) {
@@ -243,7 +261,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         }
         return null;
       },
-      [strokes, getCanvasCssSize, distPointToSegment],
+      [strokes, getCanvasCssSize, distPointToSegment, soloedSlot],
     );
 
     const redraw = useCallback(() => {
@@ -275,23 +293,27 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         ctx.drawImage(bgImage, dx, dy, drawW, drawH);
       }
 
-      const strokesToDraw = playbackSlice
-        ? strokes.slice(0, playbackSlice.doneStrokes)
-        : strokes;
-      for (const s of strokesToDraw) {
+      const indicesToDraw = playbackSlice
+        ? visibleIndices.slice(0, playbackSlice.doneStrokes)
+        : visibleIndices;
+      for (const origIdx of indicesToDraw) {
+        const s = strokes[origIdx]!;
         drawStroke(ctx, s, s.points, cssW, cssH, true);
       }
       if (playbackSlice && playbackSlice.currentStrokePoints) {
-        const stroke = strokes[playbackSlice.currentStrokeIndex];
-        if (stroke) {
-          drawStroke(
-            ctx,
-            stroke,
-            playbackSlice.currentStrokePoints,
-            cssW,
-            cssH,
-            false,
-          );
+        const origIdx = visibleIndices[playbackSlice.currentStrokeIndex];
+        if (origIdx != null) {
+          const stroke = strokes[origIdx];
+          if (stroke) {
+            drawStroke(
+              ctx,
+              stroke,
+              playbackSlice.currentStrokePoints,
+              cssW,
+              cssH,
+              false,
+            );
+          }
         }
       }
       if (currentStrokeRef.current) {
@@ -305,10 +327,13 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         );
       }
       // Erase hover highlight — draw a red-dashed outline behind the candidate.
+      // (hitTestStrokes already skips hidden strokes so the hover index will
+      // only ever point at a visible one, but we double-check here.)
       if (
         tool === "erase" &&
         eraseHoverIndex != null &&
-        eraseHoverIndex < strokes.length
+        eraseHoverIndex < strokes.length &&
+        (!soloedSlot || strokes[eraseHoverIndex]!.robotSlot === soloedSlot)
       ) {
         const target = strokes[eraseHoverIndex]!;
         if (target.points.length > 0) {
@@ -327,7 +352,16 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           ctx.restore();
         }
       }
-    }, [bgImage, strokes, drawStroke, playbackSlice, tool, eraseHoverIndex]);
+    }, [
+      bgImage,
+      strokes,
+      drawStroke,
+      playbackSlice,
+      tool,
+      eraseHoverIndex,
+      visibleIndices,
+      soloedSlot,
+    ]);
 
     useEffect(() => {
       redraw();
@@ -415,17 +449,18 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           const token = { cancelled: false };
           playbackRef.current = token;
           (async () => {
-            for (let i = 0; i < strokes.length; i++) {
+            for (let v = 0; v < visibleIndices.length; v++) {
               if (token.cancelled) break;
-              const stroke = strokes[i]!;
+              const origIdx = visibleIndices[v]!;
+              const stroke = strokes[origIdx]!;
               const start = performance.now();
               for (let p = 1; p <= stroke.points.length; p++) {
                 if (token.cancelled) break;
                 const slice = stroke.points.slice(0, p);
                 setPlaybackSlice({
-                  doneStrokes: i,
+                  doneStrokes: v,
                   currentStrokePoints: slice,
-                  currentStrokeIndex: i,
+                  currentStrokeIndex: v,
                 });
                 const nextT =
                   p < stroke.points.length ? stroke.points[p]!.t : slice[slice.length - 1]!.t;
@@ -436,9 +471,9 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
                 }
               }
               setPlaybackSlice({
-                doneStrokes: i + 1,
+                doneStrokes: v + 1,
                 currentStrokePoints: null,
-                currentStrokeIndex: i + 1,
+                currentStrokeIndex: v + 1,
               });
               // brief pause between strokes
               await new Promise((r) => setTimeout(r, 150 / speed));
@@ -457,7 +492,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           setPlaybackSlice(null);
         },
       }),
-      [strokes],
+      [strokes, visibleIndices],
     );
 
     // Stop playback if strokes change mid-play.

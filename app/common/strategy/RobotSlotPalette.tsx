@@ -6,12 +6,24 @@ type Props = {
   onSelect: (slot: RobotSlot) => void;
   teamNumbers: Record<RobotSlot, number | null>;
   disabled?: boolean;
+  /**
+   * When non-null, only this slot's strokes are visible on the canvas. All
+   * other slot buttons are rendered as hidden/dimmed in the palette.
+   */
+  soloedSlot?: RobotSlot | null;
   /** Optional CSS overrides merged into the container. */
   style?: React.CSSProperties;
 };
 
 export default function RobotSlotPalette(props: Props) {
-  const { selected, onSelect, teamNumbers, disabled, style } = props;
+  const {
+    selected,
+    onSelect,
+    teamNumbers,
+    disabled,
+    soloedSlot = null,
+    style,
+  } = props;
   return (
     <div
       style={{
@@ -25,22 +37,29 @@ export default function RobotSlotPalette(props: Props) {
         const isSelected = selected === slot;
         const color = ROBOT_COLORS[i]!;
         const team = teamNumbers[slot];
+        const isHidden = soloedSlot != null && slot !== soloedSlot;
+        const effectiveOpacity = disabled ? 0.5 : isHidden ? 0.4 : 1;
         return (
           <button
             key={slot}
             type="button"
             disabled={disabled}
             onClick={() => onSelect(slot)}
+            title={
+              isHidden
+                ? `${slot} strokes hidden — tap to show everyone`
+                : undefined
+            }
             style={{
               background: isSelected ? color : "transparent",
               color: isSelected ? "#fff" : color,
-              border: `3px solid ${color}`,
+              border: `3px ${isHidden ? "dotted" : "solid"} ${color}`,
               borderRadius: "0.5rem",
               padding: "0.4rem 0.7rem",
               minWidth: "4.2rem",
               fontWeight: 700,
               cursor: disabled ? "not-allowed" : "pointer",
-              opacity: disabled ? 0.5 : 1,
+              opacity: effectiveOpacity,
               textTransform: "none",
               letterSpacing: 0,
             }}

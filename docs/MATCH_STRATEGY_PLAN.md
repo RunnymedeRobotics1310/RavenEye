@@ -197,7 +197,15 @@ iPad-landscape optimized (1024×768 reference viewport):
   - **Playback**: Play (cycling speed: click to play at 1×, click again to play at 2×, again for 3×, then back to 1×) + Stop
   - **View**: Fullscreen (CSS overlay, `position: fixed; inset: 0; z-index: 1000`, Esc exits) + a Lock/Unlock toggle that **appears only while in fullscreen** (since the page-header Lock button is obscured by the overlay) + Labels toggle (hides text labels on every toolbar button to compact the row; icon-only mode with `title` tooltips for hover). The labels toggle's own state is persisted to `localStorage` under `raveneye_strategy_toolbar_labels` (values: `"show"` | `"hide"`).
 
-  Above the toolbar: the drawing label + stroke count, and the robot-slot palette (6 swatches R1/R2/R3/B1/B2/B3 prefilled with team numbers from the schedule). In **fullscreen mode** the label and the palette share a single row to save vertical space; otherwise they stack. The palette is dimmed while the Eraser tool is active. Order from top to bottom: metadata row → (palette row, windowed mode only) → toolbar → canvas.
+  Above the toolbar: the drawing label + stroke count, and the robot-slot palette (6 swatches R1/R2/R3/B1/B2/B3 prefilled with team numbers from the schedule). In **fullscreen mode** the label and the palette share a single row to save vertical space; otherwise they stack. Order from top to bottom: metadata row → (palette row, windowed mode only) → toolbar → canvas.
+
+  **Palette interaction (double-tap to solo):**
+  - Tap a team whose button is *not* selected → switch colour (clears any solo).
+  - Tap the currently-selected team again → **solo** that team: only its strokes remain visible on the canvas. All five other team buttons render with dotted borders + reduced opacity to mark them as hidden.
+  - Tap the soloed team again → show everyone (solo cleared; selection unchanged).
+  - Tap a different team while soloed → that team becomes the new selection and solo is cleared.
+
+  Solo mode filters rendering, erase hit-testing, and playback: while soloed, only the soloed team's strokes are drawn, erasable, and played back. Solo state is session-scoped — it's reset automatically whenever the user locks the plan, switches to a different drawing, or changes active drawing.
 
 ### Tools
 
