@@ -403,7 +403,7 @@ button.secondary:hover {
 .strategy-zoom-menu {
     position: absolute;
     top: calc(100% + 0.3rem);
-    left: 0;
+    right: 0;
     z-index: 10;
     display: inline-flex;
     align-items: center;
