@@ -394,7 +394,44 @@ const StrategyPlanPageInner = (props: {
   const [undoStack, setUndoStack] = useState<UndoEntry[]>([]);
   const canvasRef = useRef<StrategyCanvasHandle>(null);
   const strategySyncStatus = useStrategyPlansSyncStatus();
+  const metadataRowRef = useRef<HTMLDivElement>(null);
+  const toolbarRowRef = useRef<HTMLDivElement>(null);
+  const [hideTitleInFs, setHideTitleInFs] = useState(false);
   const [isCanvasFullscreen, setIsCanvasFullscreen] = useState(false);
+
+  // Hide the drawing title (label input + stroke count) in fullscreen if
+  // EITHER the metadata row or the toolbar row is wrapping — that frees
+  // vertical space for the canvas. We only re-evaluate on viewport resize
+  // (via ResizeObserver on documentElement) so toggling the title's
+  // visibility doesn't feed back into the measurement.
+  useEffect(() => {
+    if (!isCanvasFullscreen) {
+      setHideTitleInFs(false);
+      return;
+    }
+    const didWrap = (el: HTMLElement | null): boolean => {
+      if (!el) return false;
+      const kids = Array.from(el.children) as HTMLElement[];
+      if (kids.length < 2) return false;
+      const firstTop = kids[0]!.offsetTop;
+      return kids.some((k) => k.offsetTop !== firstTop);
+    };
+    const check = () => {
+      const wrapped =
+        didWrap(metadataRowRef.current) || didWrap(toolbarRowRef.current);
+      setHideTitleInFs(wrapped);
+    };
+    // Check immediately (layout may already be settled), then again after
+    // one animation frame (covers the fullscreen-enter layout transition).
+    check();
+    const raf = requestAnimationFrame(check);
+    const obs = new ResizeObserver(check);
+    obs.observe(document.documentElement);
+    return () => {
+      obs.disconnect();
+      cancelAnimationFrame(raf);
+    };
+  }, [isCanvasFullscreen]);
 
   // Exit fullscreen on Escape for quick keyboard dismiss.
   useEffect(() => {
@@ -814,6 +851,7 @@ const StrategyPlanPageInner = (props: {
                 conserve vertical space; otherwise they stack.
               */}
               <div
+                ref={metadataRowRef}
                 style={{
                   display: "flex",
                   flexWrap: "wrap",
@@ -822,20 +860,24 @@ const StrategyPlanPageInner = (props: {
                   marginBottom: "0.4rem",
                 }}
               >
-                <input
-                  type="text"
-                  maxLength={64}
-                  disabled={!isEditing}
-                  value={activeDrawing.label}
-                  onChange={(e) => handleLabelChange(e.target.value)}
-                  style={{
-                    flex: isCanvasFullscreen ? "0 1 14rem" : "1 1 12rem",
-                    minWidth: 0,
-                  }}
-                />
-                <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>
-                  {strokeCountText}
-                </span>
+                {!(isCanvasFullscreen && hideTitleInFs) && (
+                  <>
+                    <input
+                      type="text"
+                      maxLength={64}
+                      disabled={!isEditing}
+                      value={activeDrawing.label}
+                      onChange={(e) => handleLabelChange(e.target.value)}
+                      style={{
+                        flex: isCanvasFullscreen ? "0 1 14rem" : "1 1 12rem",
+                        minWidth: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>
+                      {strokeCountText}
+                    </span>
+                  </>
+                )}
                 {isCanvasFullscreen && isEditing && (
                   <RobotSlotPalette
                     selected={selectedSlot}
@@ -858,6 +900,7 @@ const StrategyPlanPageInner = (props: {
 
               {/* Row 3: the toolbar — tools | navigate | history | playback | view */}
               <div
+                ref={toolbarRowRef}
                 style={{
                   display: "flex",
                   flexWrap: "wrap",
