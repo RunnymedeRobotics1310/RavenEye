@@ -910,30 +910,30 @@ const StrategyPlanPageInner = (props: {
                         <button
                           type="button"
                           onClick={() => stepZoom(-1)}
-                          className="btn-secondary"
+                          className="btn-secondary strategy-toolbar-btn"
                           disabled={zoom <= MIN_ZOOM + 1e-6}
                           title="Zoom out"
-                          style={{ ...TOOLBAR_BTN_STYLE, minWidth: "2rem" }}
+                          style={{ minWidth: "2rem" }}
                         >
                           −
                         </button>
                         <button
                           type="button"
                           onClick={resetZoom}
-                          className="btn-secondary"
+                          className="btn-secondary strategy-toolbar-btn"
                           disabled={zoom <= MIN_ZOOM + 1e-6}
                           title="Reset to 100%"
-                          style={{ ...TOOLBAR_BTN_STYLE, minWidth: "3.5rem" }}
+                          style={{ minWidth: "3.5rem" }}
                         >
                           {Math.round(zoom * 100)}%
                         </button>
                         <button
                           type="button"
                           onClick={() => stepZoom(1)}
-                          className="btn-secondary"
+                          className="btn-secondary strategy-toolbar-btn"
                           disabled={zoom >= MAX_ZOOM - 1e-6}
                           title="Zoom in"
-                          style={{ ...TOOLBAR_BTN_STYLE, minWidth: "2rem" }}
+                          style={{ minWidth: "2rem" }}
                         >
                           +
                         </button>
@@ -943,11 +943,10 @@ const StrategyPlanPageInner = (props: {
                     <button
                       type="button"
                       onClick={handleUndo}
-                      className="btn-secondary"
+                      className="btn-secondary strategy-toolbar-btn"
                       disabled={undoStack.length === 0}
                       title={undoLabel}
                       style={{
-                        ...TOOLBAR_BTN_STYLE,
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.3rem",
@@ -958,11 +957,10 @@ const StrategyPlanPageInner = (props: {
                     <button
                       type="button"
                       onClick={handleClear}
-                      className="btn-secondary"
+                      className="btn-secondary strategy-toolbar-btn"
                       disabled={activeDrawing.strokes.length === 0}
                       title="Clear all strokes"
                       style={{
-                        ...TOOLBAR_BTN_STYLE,
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.3rem",
@@ -976,19 +974,17 @@ const StrategyPlanPageInner = (props: {
                 <button
                   type="button"
                   onClick={handlePlayCycle}
-                  className="btn-secondary"
+                  className="btn-secondary strategy-toolbar-btn"
                   title={`Play at ${playbackSpeed}× — click again to cycle speed`}
-                  style={TOOLBAR_BTN_STYLE}
                 >
                   ▶{showLabels ? ` Play ${playbackSpeed}×` : ` ${playbackSpeed}×`}
                 </button>
                 <button
                   type="button"
                   onClick={() => canvasRef.current?.stop()}
-                  className="btn-secondary"
+                  className="btn-secondary strategy-toolbar-btn"
                   title="Stop playback"
                   style={{
-                    ...TOOLBAR_BTN_STYLE,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.3rem",
@@ -1000,14 +996,13 @@ const StrategyPlanPageInner = (props: {
                 <button
                   type="button"
                   onClick={() => setIsCanvasFullscreen((v) => !v)}
-                  className="btn-secondary"
+                  className="btn-secondary strategy-toolbar-btn"
                   title={
                     isCanvasFullscreen
                       ? "Exit fullscreen (Esc)"
                       : "Fullscreen"
                   }
                   style={{
-                    ...TOOLBAR_BTN_STYLE,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.3rem",
@@ -1025,10 +1020,13 @@ const StrategyPlanPageInner = (props: {
                   <button
                     type="button"
                     onClick={() => setIsEditing((v) => !v)}
-                    className={isEditing ? "btn-secondary" : undefined}
+                    className={
+                      isEditing
+                        ? "btn-secondary strategy-toolbar-btn"
+                        : "strategy-toolbar-btn"
+                    }
                     title={isEditing ? "Lock (read-only)" : "Unlock to edit"}
                     style={{
-                      ...TOOLBAR_BTN_STYLE,
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "0.3rem",
@@ -1041,13 +1039,12 @@ const StrategyPlanPageInner = (props: {
                 <button
                   type="button"
                   onClick={() => setShowLabels((v) => !v)}
-                  className="btn-secondary"
+                  className="btn-secondary strategy-toolbar-btn"
                   aria-pressed={!showLabels}
                   title={
                     showLabels ? "Show icons only" : "Show labels"
                   }
                   style={{
-                    ...TOOLBAR_BTN_STYLE,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.3rem",
@@ -1116,18 +1113,6 @@ const StrategyPlanPageInner = (props: {
   );
 };
 
-/**
- * Shared style for every toolbar button:
- *   - trims horizontal padding (~2.4 px tighter per side than the default
- *     `button` CSS) so the toolbar row fits more comfortably,
- *   - `min-height: 2.3rem` pins every button's outer box to at least the
- *     natural height of an icon-containing button (~36.8 px), so text-only
- *     buttons don't render shorter.
- */
-const TOOLBAR_BTN_STYLE: React.CSSProperties = {
-  padding: "0.25rem 0.85rem",
-  minHeight: "2rem",
-};
 
 const ToolbarDivider = () => (
   <div
@@ -1154,8 +1139,8 @@ const ToolButton = (props: {
     aria-pressed={props.active}
     title={props.title}
     disabled={props.disabled}
+    className="strategy-toolbar-btn"
     style={{
-      ...TOOLBAR_BTN_STYLE,
       background: props.active
         ? "var(--color-btn-primary-bg)"
         : "var(--color-btn-secondary-bg)",

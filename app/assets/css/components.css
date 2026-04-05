@@ -125,6 +125,32 @@ button.secondary:hover {
     color: var(--color-btn-secondary-text);
 }
 
+/*
+ * Strategy canvas toolbar button. Overrides the default `button` padding
+ * to get a tighter, consistently-sized control. Scales modestly across
+ * breakpoints (matching typography.css) but NOT as aggressively as rem
+ * would — buttons are chrome, not content, and shouldn't blow up 1.78×
+ * between phone and desktop the way body text does.
+ */
+.strategy-toolbar-btn {
+    padding: 4px 12px;
+    min-height: 36px;
+}
+
+@media screen and (min-width: 700px) and (min-height: 500px) {
+    .strategy-toolbar-btn {
+        padding: 6px 18px;
+        min-height: 44px;
+    }
+}
+
+@media screen and (min-width: 1000px) and (min-height: 1000px) {
+    .strategy-toolbar-btn {
+        padding: 8px 22px;
+        min-height: 52px;
+    }
+}
+
 .btn-danger {
     background-color: var(--color-danger, #c0392b);
     color: #fff;
