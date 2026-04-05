@@ -37,6 +37,29 @@ export function fieldImageForYear(year: number): string {
   return FIELD_IMAGES[years[0]!]!;
 }
 
+/**
+ * Per-year blank-margin widths (in SOURCE-image pixels) at the left and right
+ * edges of the field image — the dead space before the interesting content
+ * begins. Red alliance is on the source image's left; blue on the right. When
+ * the strategy canvas rotates the field to place an alliance at the bottom of
+ * the view, the matching margin is used as a bottom inset so the canvas
+ * bottom lands on the interesting edge rather than the image's physical edge.
+ *
+ * Add a new year by dropping an entry in here. Years without an entry
+ * default to zero margins.
+ */
+export type FieldMargins = { leftPx: number; rightPx: number };
+
+const FIELD_MARGINS: Record<number, FieldMargins> = {
+  2026: { leftPx: 140, rightPx: 140 },
+};
+
+const NO_MARGINS: FieldMargins = { leftPx: 0, rightPx: 0 };
+
+export function fieldMarginsForYear(year: number): FieldMargins {
+  return FIELD_MARGINS[year] ?? NO_MARGINS;
+}
+
 // ---------- Module-level decoded-image cache ----------
 //
 // Field images are shared across all plan editor mounts. Caching the decoded

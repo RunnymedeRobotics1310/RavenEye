@@ -82,13 +82,17 @@ export type StrategyCanvasHandle = {
   play: (speed: number) => void;
   stop: () => void;
   /**
-   * Compute a zoom/pan that makes the (rotated) image fill the canvas width,
-   * with the image's bottom flush against the canvas bottom. Returns null if
-   * the canvas / image dimensions aren't yet known, or if the fit would be a
-   * no-op (rotation === 0 already fills exactly when the wrapper matches the
-   * image aspect). Callers typically invoke this on entering fullscreen.
+   * Compute a zoom/pan that makes the (rotated) image fill the canvas width.
+   * The image's bottom edge sits at the canvas bottom by default; pass
+   * `bottomInsetSourcePx` (in *source-image* pixels, along the source X axis)
+   * to shift the image further down — i.e., slide the "interesting" edge of
+   * the field up to the canvas bottom while the image's physical bottom
+   * extends past it. Returns null if the canvas / image dimensions aren't
+   * yet known.
    */
-  computeDefaultFit: () => { zoom: number; panX: number; panY: number } | null;
+  computeDefaultFit: (options?: {
+    bottomInsetSourcePx?: number;
+  }) => { zoom: number; panX: number; panY: number } | null;
 };
 
 /**
@@ -127,8 +131,8 @@ type ImageRect = {
   cssH: number;
 };
 
-const STROKE_WIDTH = 5;
-const ARROW_HEAD_LEN = 18;
+const STROKE_WIDTH = 2.5;
+const ARROW_HEAD_LEN = 9;
 const ARROW_HEAD_ANGLE = Math.PI / 6;
 
 const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
@@ -920,7 +924,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           }
           setPlaybackSlice(null);
         },
-        computeDefaultFit() {
+        computeDefaultFit(options) {
           const rect = getImageRect();
           if (!rect) return null;
           const { cssW, cssH, imgLeft, imgTop, imgW, imgH } = rect;
@@ -928,15 +932,33 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           // Target zoom: make image width == canvas width.
           const targetZoom = cssW / imgW;
           const z = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, targetZoom));
-          // Pan so the bottom edge of the (zoomed) image sits at the bottom
-          // of the canvas, and the image is horizontally centered.
-          const panYRaw = (imgTop + imgH) / cssH - 1 / z;
+          // Convert the source-pixel inset to a normalized fraction of the
+          // source image's X axis (where left/right margins live). Both 90°
+          // and 270° rotations map the source X axis onto the rotated image's
+          // Y axis, so the inset applies to rotV the same way in both cases.
+          // At rotation=0 the inset is ignored — there's no "rotate blank
+          // space to the bottom" to compensate for.
+          const sourceXpx = bgImage && bgImage.width > 0 ? bgImage.width : 1;
+          const insetPx = options?.bottomInsetSourcePx ?? 0;
+          const insetFrac =
+            rotation !== 0 && sourceXpx > 0
+              ? Math.max(0, Math.min(1, insetPx / sourceXpx))
+              : 0;
+          // Canvas-pixel y of the "content bottom" edge inside the image rect:
+          // the image rect's bottom shifted *up* by insetFrac of the image's
+          // (rotated) height. Setting this coord at the canvas bottom means
+          // the physical image bottom sits `insetFrac * imgH` px below the
+          // canvas — which is what the caller wants.
+          const contentBottomCanvasPx = imgTop + (1 - insetFrac) * imgH;
+          const panYRaw = contentBottomCanvasPx / cssH - 1 / z;
+          // Clamp to the valid pan range. Note this may silently lose some
+          // inset if the inset would require panning past the image top.
           const panY = Math.min(1 - 1 / z, Math.max(0, panYRaw));
           const panX = Math.min(1 - 1 / z, Math.max(0, (1 - 1 / z) / 2));
           return { zoom: z, panX, panY };
         },
       }),
-      [strokes, visibleIndices, onPlaybackEnd, getImageRect],
+      [strokes, visibleIndices, onPlaybackEnd, getImageRect, bgImage, rotation],
     );
 
     // Stop playback if strokes change mid-play.

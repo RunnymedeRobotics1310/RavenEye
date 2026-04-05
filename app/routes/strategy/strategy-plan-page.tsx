@@ -34,7 +34,10 @@ import {
   TrashIcon,
   UndoIcon,
 } from "~/common/strategy/icons.tsx";
-import { fieldImageForYear } from "~/common/strategy/fieldImage.ts";
+import {
+  fieldImageForYear,
+  fieldMarginsForYear,
+} from "~/common/strategy/fieldImage.ts";
 import { colorIndexForSlot } from "~/common/strategy/colors.ts";
 import type {
   RobotSlot,
@@ -487,6 +490,19 @@ const StrategyPlanPageInner = (props: {
     return () => window.removeEventListener("keydown", onKey);
   }, [isCanvasFullscreen]);
 
+  const year = tournament?.startTime
+    ? new Date(tournament.startTime).getUTCFullYear()
+    : new Date().getUTCFullYear();
+  const fieldMargins = useMemo(() => fieldMarginsForYear(year), [year]);
+  // The bottom inset applied when snapping the rotated image bottom-flush is
+  // whichever source margin rotates to the bottom: red (rotation=270) lifts
+  // from source-left, blue (rotation=90) lifts from source-right.
+  const bottomInsetSourcePx = useMemo(() => {
+    if (rotation === 270) return fieldMargins.leftPx;
+    if (rotation === 90) return fieldMargins.rightPx;
+    return 0;
+  }, [rotation, fieldMargins]);
+
   // When entering fullscreen on a rotated match (owner team on an alliance),
   // fit the image to the canvas width with the bottom edge flush against the
   // canvas bottom — the user pans up to see the opposing alliance. Retries
@@ -498,7 +514,9 @@ const StrategyPlanPageInner = (props: {
     let tries = 0;
     const attempt = () => {
       if (cancelled) return;
-      const fit = canvasRef.current?.computeDefaultFit();
+      const fit = canvasRef.current?.computeDefaultFit({
+        bottomInsetSourcePx,
+      });
       if (fit) {
         setZoomPan({ zoom: fit.zoom, panX: fit.panX, panY: fit.panY });
         return;
@@ -509,7 +527,7 @@ const StrategyPlanPageInner = (props: {
     return () => {
       cancelled = true;
     };
-  }, [isCanvasFullscreen, rotation]);
+  }, [isCanvasFullscreen, rotation, bottomInsetSourcePx]);
 
   // Initial load + poll for external updates (e.g. after sync).
   useEffect(() => {
@@ -557,9 +575,6 @@ const StrategyPlanPageInner = (props: {
     return drawings.some((d) => d.dirty || d.pendingDelete);
   }, [plan, drawings]);
 
-  const year = tournament?.startTime
-    ? new Date(tournament.startTime).getUTCFullYear()
-    : new Date().getUTCFullYear();
   const backgroundSrc = fieldImageForYear(year);
 
   // Create the plan lazily on first edit.
