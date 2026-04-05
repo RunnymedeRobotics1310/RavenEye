@@ -331,6 +331,15 @@ button.secondary:hover {
     overflow-y: auto;
 }
 /*
+ * Strategy fullscreen close button — standard toolbar-button box styled
+ * via the existing .btn-secondary + .strategy-toolbar-btn classes; the
+ * auto-margin here pushes it to the right edge of the metadata row.
+ */
+.strategy-close-fullscreen-btn {
+    margin-left: auto;
+}
+
+/*
  * Strategy canvas — windowed read-only preview.
  */
 .strategy-drawing-title-static {

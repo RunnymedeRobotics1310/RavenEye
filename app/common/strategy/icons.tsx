@@ -159,6 +159,24 @@ export const PanIcon = ({ size = 20 }: IconProps) => (
   </svg>
 );
 
+export const CloseIcon = ({ size = 20 }: IconProps) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 16 16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    aria-hidden="true"
+    style={{ verticalAlign: "-0.15em" }}
+  >
+    {/* X glyph — standard close/dismiss. */}
+    <line x1="3.5" y1="3.5" x2="12.5" y2="12.5" />
+    <line x1="12.5" y1="3.5" x2="3.5" y2="12.5" />
+  </svg>
+);
+
 export const LabelsIcon = ({ size = 20 }: IconProps) => (
   <svg
     width={size}

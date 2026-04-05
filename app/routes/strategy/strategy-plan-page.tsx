@@ -24,9 +24,8 @@ import RobotSlotPalette from "~/common/strategy/RobotSlotPalette.tsx";
 import DrawingList from "~/common/strategy/DrawingList.tsx";
 import {
   ArrowIcon,
-  EnterFullscreenIcon,
+  CloseIcon,
   EraserIcon,
-  ExitFullscreenIcon,
   LabelsIcon,
   LineIcon,
   PanIcon,
@@ -813,6 +812,7 @@ const StrategyPlanPageInner = (props: {
                 Fullscreen view: full editor with metadata row (label input +
                 stroke count + palette), toolbar, and interactive canvas.
               */}
+              {/* Row 1: title + stroke count + close button. */}
               <div className="strategy-metadata-row">
                 {isEditing ? (
                   <input
@@ -828,15 +828,27 @@ const StrategyPlanPageInner = (props: {
                   </h2>
                 )}
                 <span className="strategy-char-count">{strokeCountText}</span>
-                {isEditing && (
+                <button
+                  type="button"
+                  onClick={() => setIsCanvasFullscreen(false)}
+                  className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn strategy-close-fullscreen-btn"
+                  title="Exit fullscreen (Esc)"
+                  aria-label="Exit fullscreen"
+                >
+                  <CloseIcon />
+                </button>
+              </div>
+              {/* Row 2: robot-slot palette (only in edit mode). */}
+              {isEditing && (
+                <div className="strategy-metadata-row">
                   <RobotSlotPalette
                     selected={selectedSlot}
                     onSelect={handleSlotClick}
                     teamNumbers={teamNumbers}
                     soloedSlot={soloedSlot}
                   />
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Row 3: the toolbar — tools | navigate | history | playback | view */}
               <div className="strategy-canvas-toolbar">
@@ -957,24 +969,6 @@ const StrategyPlanPageInner = (props: {
                   )}
                 </button>
                 <ToolbarDivider />
-                <button
-                  type="button"
-                  onClick={() => setIsCanvasFullscreen((v) => !v)}
-                  className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
-                  title={
-                    isCanvasFullscreen
-                      ? "Exit fullscreen (Esc)"
-                      : "Fullscreen"
-                  }
-                >
-                  {isCanvasFullscreen ? (
-                    <ExitFullscreenIcon />
-                  ) : (
-                    <EnterFullscreenIcon />
-                  )}
-                  {showLabels &&
-                    (isCanvasFullscreen ? "Exit Fullscreen" : "Fullscreen")}
-                </button>
                 <button
                   type="button"
                   onClick={() => setShowLabels((v) => !v)}
