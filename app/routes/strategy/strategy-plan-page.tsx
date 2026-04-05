@@ -387,13 +387,26 @@ const StrategyPlanPageInner = (props: {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoom]);
-  // Cycling playback speed: click plays at the current speed, then cycles
-  // 1× → 2× → 3× → 1×.
-  const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 3>(1);
-  const handlePlayCycle = () => {
-    canvasRef.current?.play(playbackSpeed);
-    setPlaybackSpeed((s) => (s === 3 ? 1 : ((s + 1) as 1 | 2 | 3)));
+  // Cycling play/stop button. One button with three states:
+  //   stopped        → label "▶ 1×",   click → play at 1×, move to playing-1x
+  //   playing at 1×  → label "▶ 3×",   click → play at 3× (change speed)
+  //   playing at 3×  → label "■ Stop", click → stop playback
+  // Playback ending naturally also returns the state to "stopped".
+  type PlayState = "stopped" | "playing-1x" | "playing-3x";
+  const [playState, setPlayState] = useState<PlayState>("stopped");
+  const handlePlayStopClick = () => {
+    if (playState === "stopped") {
+      canvasRef.current?.play(1);
+      setPlayState("playing-1x");
+    } else if (playState === "playing-1x") {
+      canvasRef.current?.play(3);
+      setPlayState("playing-3x");
+    } else {
+      canvasRef.current?.stop();
+      setPlayState("stopped");
+    }
   };
+  const handlePlaybackEnd = useCallback(() => setPlayState("stopped"), []);
   type UndoEntry =
     | { kind: "add"; at: number; stroke: StrategyStroke }
     | { kind: "erase"; at: number; stroke: StrategyStroke }
@@ -989,19 +1002,29 @@ const StrategyPlanPageInner = (props: {
                 )}
                 <button
                   type="button"
-                  onClick={handlePlayCycle}
-                  className="btn-secondary strategy-toolbar-btn"
-                  title={`Play at ${playbackSpeed}× — click again to cycle speed`}
+                  onClick={handlePlayStopClick}
+                  className={
+                    playState === "playing-3x"
+                      ? "btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
+                      : "btn-secondary strategy-toolbar-btn"
+                  }
+                  title={
+                    playState === "stopped"
+                      ? "Play at 1× — tap again to speed up"
+                      : playState === "playing-1x"
+                        ? "Speed up to 3×"
+                        : "Stop playback"
+                  }
                 >
-                  ▶{showLabels ? ` Play ${playbackSpeed}×` : ` ${playbackSpeed}×`}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => canvasRef.current?.stop()}
-                  className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
-                  title="Stop playback"
-                >
-                  <StopIcon /> {showLabels && "Stop"}
+                  {playState === "stopped" &&
+                    `▶${showLabels ? " Play 1×" : " 1×"}`}
+                  {playState === "playing-1x" &&
+                    `▶${showLabels ? " Play 3×" : " 3×"}`}
+                  {playState === "playing-3x" && (
+                    <>
+                      <StopIcon /> {showLabels && "Stop"}
+                    </>
+                  )}
                 </button>
                 <ToolbarDivider />
                 <button
@@ -1080,6 +1103,7 @@ const StrategyPlanPageInner = (props: {
                   onEraseStroke={handleEraseStroke}
                   onPanChange={handlePanChange}
                   onZoomChange={handleZoomChange}
+                  onPlaybackEnd={handlePlaybackEnd}
                 />
               ) : (
                 <StrategyReadOnlyCanvas
@@ -1092,6 +1116,7 @@ const StrategyPlanPageInner = (props: {
                   fillHeight={isCanvasFullscreen}
                   onPanChange={handlePanChange}
                   onZoomChange={handleZoomChange}
+                  onPlaybackEnd={handlePlaybackEnd}
                 />
               )}
             </>

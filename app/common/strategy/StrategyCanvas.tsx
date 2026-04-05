@@ -52,6 +52,8 @@ type Props = {
   onZoomChange?: (zoom: number, panX: number, panY: number) => void;
   onStrokeComplete?: (stroke: StrategyStroke) => void;
   onEraseStroke?: (strokeIndex: number) => void;
+  /** Fires when playback completes naturally (not when stop() is called). */
+  onPlaybackEnd?: () => void;
 };
 
 export const MAX_ZOOM = 4.0;
@@ -86,6 +88,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       onZoomChange,
       onStrokeComplete,
       onEraseStroke,
+      onPlaybackEnd,
     } = props;
 
     // Clamp helpers for zoom/pan.
@@ -776,6 +779,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
             if (!token.cancelled) {
               setPlaybackSlice(null);
               playbackRef.current = null;
+              onPlaybackEnd?.();
             }
           })();
         },
@@ -787,7 +791,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           setPlaybackSlice(null);
         },
       }),
-      [strokes, visibleIndices],
+      [strokes, visibleIndices, onPlaybackEnd],
     );
 
     // Stop playback if strokes change mid-play.

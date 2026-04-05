@@ -13,6 +13,7 @@ type Props = {
   fillHeight?: boolean;
   onPanChange?: (panX: number, panY: number) => void;
   onZoomChange?: (zoom: number, panX: number, panY: number) => void;
+  onPlaybackEnd?: () => void;
 };
 
 const StrategyReadOnlyCanvas = forwardRef<StrategyCanvasHandle, Props>(
@@ -30,6 +31,7 @@ const StrategyReadOnlyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         fillHeight={props.fillHeight}
         onPanChange={props.onPanChange}
         onZoomChange={props.onZoomChange}
+        onPlaybackEnd={props.onPlaybackEnd}
       />
     );
   },
