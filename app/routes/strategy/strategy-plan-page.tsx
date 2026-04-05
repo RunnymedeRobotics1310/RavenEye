@@ -913,7 +913,7 @@ const StrategyPlanPageInner = (props: {
                           className="btn-secondary"
                           disabled={zoom <= MIN_ZOOM + 1e-6}
                           title="Zoom out"
-                          style={{ minWidth: "2rem" }}
+                          style={{ ...TOOLBAR_BTN_STYLE, minWidth: "2rem" }}
                         >
                           −
                         </button>
@@ -923,7 +923,7 @@ const StrategyPlanPageInner = (props: {
                           className="btn-secondary"
                           disabled={zoom <= MIN_ZOOM + 1e-6}
                           title="Reset to 100%"
-                          style={{ minWidth: "3.5rem" }}
+                          style={{ ...TOOLBAR_BTN_STYLE, minWidth: "3.5rem" }}
                         >
                           {Math.round(zoom * 100)}%
                         </button>
@@ -933,7 +933,7 @@ const StrategyPlanPageInner = (props: {
                           className="btn-secondary"
                           disabled={zoom >= MAX_ZOOM - 1e-6}
                           title="Zoom in"
-                          style={{ minWidth: "2rem" }}
+                          style={{ ...TOOLBAR_BTN_STYLE, minWidth: "2rem" }}
                         >
                           +
                         </button>
@@ -947,6 +947,7 @@ const StrategyPlanPageInner = (props: {
                       disabled={undoStack.length === 0}
                       title={undoLabel}
                       style={{
+                        ...TOOLBAR_BTN_STYLE,
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.3rem",
@@ -961,6 +962,7 @@ const StrategyPlanPageInner = (props: {
                       disabled={activeDrawing.strokes.length === 0}
                       title="Clear all strokes"
                       style={{
+                        ...TOOLBAR_BTN_STYLE,
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "0.3rem",
@@ -976,6 +978,7 @@ const StrategyPlanPageInner = (props: {
                   onClick={handlePlayCycle}
                   className="btn-secondary"
                   title={`Play at ${playbackSpeed}× — click again to cycle speed`}
+                  style={TOOLBAR_BTN_STYLE}
                 >
                   ▶{showLabels ? ` Play ${playbackSpeed}×` : ` ${playbackSpeed}×`}
                 </button>
@@ -985,6 +988,7 @@ const StrategyPlanPageInner = (props: {
                   className="btn-secondary"
                   title="Stop playback"
                   style={{
+                    ...TOOLBAR_BTN_STYLE,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.3rem",
@@ -1003,6 +1007,7 @@ const StrategyPlanPageInner = (props: {
                       : "Fullscreen"
                   }
                   style={{
+                    ...TOOLBAR_BTN_STYLE,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.3rem",
@@ -1023,6 +1028,7 @@ const StrategyPlanPageInner = (props: {
                     className={isEditing ? "btn-secondary" : undefined}
                     title={isEditing ? "Lock (read-only)" : "Unlock to edit"}
                     style={{
+                      ...TOOLBAR_BTN_STYLE,
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "0.3rem",
@@ -1041,6 +1047,7 @@ const StrategyPlanPageInner = (props: {
                     showLabels ? "Show icons only" : "Show labels"
                   }
                   style={{
+                    ...TOOLBAR_BTN_STYLE,
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "0.3rem",
@@ -1109,6 +1116,19 @@ const StrategyPlanPageInner = (props: {
   );
 };
 
+/**
+ * Shared style for every toolbar button:
+ *   - trims horizontal padding (~2.4 px tighter per side than the default
+ *     `button` CSS) so the toolbar row fits more comfortably,
+ *   - `min-height: 2.3rem` pins every button's outer box to at least the
+ *     natural height of an icon-containing button (~36.8 px), so text-only
+ *     buttons don't render shorter.
+ */
+const TOOLBAR_BTN_STYLE: React.CSSProperties = {
+  padding: "0.25rem 0.85rem",
+  minHeight: "2rem",
+};
+
 const ToolbarDivider = () => (
   <div
     aria-hidden="true"
@@ -1135,6 +1155,7 @@ const ToolButton = (props: {
     title={props.title}
     disabled={props.disabled}
     style={{
+      ...TOOLBAR_BTN_STYLE,
       background: props.active
         ? "var(--color-btn-primary-bg)"
         : "var(--color-btn-secondary-bg)",
