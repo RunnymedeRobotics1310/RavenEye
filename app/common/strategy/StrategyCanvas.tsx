@@ -284,8 +284,12 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           const dy = (last.y - ref.y) * cssH;
           if (dx * dx + dy * dy > 4) {
             const angle = Math.atan2(dy, dx);
-            const tipX = last.x * cssW;
-            const tipY = last.y * cssH;
+            // The round line cap extends the stroke past `last` by
+            // STROKE_WIDTH/.8. Advance the arrow tip forward by that amount so
+            // it coincides with the visual end of the line.
+            const advance = STROKE_WIDTH / .8;
+            const tipX = last.x * cssW + advance * Math.cos(angle);
+            const tipY = last.y * cssH + advance * Math.sin(angle);
             ctx.beginPath();
             ctx.moveTo(tipX, tipY);
             ctx.lineTo(
