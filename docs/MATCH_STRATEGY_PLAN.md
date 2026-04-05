@@ -21,6 +21,8 @@ All strategy routes on the frontend are wrapped in `<RequireRole roles={["EXPERT
 
 Pages open in **read-only mode** by default. The user clicks **Unlock** to enter edit mode. Locking is a UI guard only — there is no server-side edit lock.
 
+> **Pre-launch only:** The "Match Strategy" nav link on the home page is temporarily hidden for everyone except `SUPERUSER` (see `routes/home-page.tsx` — the `canStrategize` check). The routes themselves remain open to EXPERTSCOUT/ADMIN/SUPERUSER via direct URL. This restriction must be reverted to `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
+
 ---
 
 ## Data Model
@@ -113,7 +115,10 @@ Write endpoints take `Authentication authentication` as a parameter. Current use
 
 ### Config-sync
 
-The two new tables must be included in the truncation list in `ca.team1310.ravenbrain.sync` (config-sync UI). Strategy plans are **truncated only** during config-sync, never copied across instances — they are user-generated data specific to the target tournament.
+Strategy plans and drawings are treated as scouting data by the config-sync UI:
+- **Source endpoint** `GET /api/config-sync/scouting-data` includes `plans` + `drawings` alongside `events`, `comments`, `alerts`.
+- **Target service** truncates `RB_MATCH_STRATEGY_DRAWING` + `RB_MATCH_STRATEGY_PLAN` (in that order — drawings → plans to respect the FK) when `clearExistingScoutingData=true`, then inserts rows from the source payload with preserved IDs. Plans are inserted before drawings. When tournaments are also being cleared, the two strategy tables are truncated before `RB_SCHEDULE` and `RB_TOURNAMENT`.
+- `SyncResult` now carries `matchStrategyPlans` + `matchStrategyDrawings` counts; the config-sync admin UI displays these alongside the other scouting-data counts.
 
 ---
 
@@ -127,15 +132,16 @@ The two new tables must be included in the truncation list in `ca.team1310.raven
 
 ### IndexedDB (extend `app/common/storage/db.ts`)
 
-`DB_VERSION` = 13. Three new object stores:
+`DB_VERSION` = 13. Two new object stores:
 
 | Store | KeyPath | Purpose |
 |---|---|---|
-| `strategyPlans` | `localKey` (= `${tournamentId}\|${level}\|${matchNumber}`) | Mirror of server plans |
-| `strategyPlansNew` | (out-of-line, keyed by `localKey`) | Dirty plans awaiting sync |
-| `strategyDrawings` | `localId` (server id as string, or `new-${uuid}` before first sync) | All drawings with `dirty` flag + `planLocalKey` index |
+| `strategyPlans` | `localKey` (= `${tournamentId}\|${level}\|${matchNumber}`) | All plans, each with a `dirty` flag |
+| `strategyDrawings` | `localId` (`srv-${serverId}` once synced, `new-${uuid}` before first sync) | All drawings, each with a `dirty` flag and a `pendingDelete` flag; `planLocalKey` index for lookup by match |
 
-Repository methods mirror the existing `captureEvent` / `getUnsynchronizedEvents` / `markEventSynchronized` triplet (see `db.ts` — event-log pattern).
+Each record carries its own `dirty` flag rather than a separate "new" store — the upload-sync pass finds dirty records and pushes them; after a successful save the record is rewritten with `dirty = false` (and for drawings, the `localId` is renamed from `new-${uuid}` to `srv-${serverId}`). A `pendingDelete` flag on drawings defers server deletion until the next sync.
+
+Repository methods: `putStrategyPlan`, `getStrategyPlan`, `getStrategyPlansForTournament`, `getDirtyStrategyPlans`, `putStrategyDrawing`, `getStrategyDrawing`, `getStrategyDrawingsForPlan`, `getDirtyStrategyDrawings`, `getPendingDeleteStrategyDrawings`, `deleteStrategyDrawingLocal`, `renameStrategyDrawing`.
 
 ### API wrappers (`app/common/storage/rb.ts`)
 
@@ -149,9 +155,9 @@ Repository methods mirror the existing `captureEvent` / `getUnsynchronizedEvents
 
 New sync component `STRATEGY_PLANS`:
 
-- `syncStrategyPlansUpload()` — push dirty plans, dirty drawings, and pending drawing deletions to the server. Called from `doManualSync()`, alongside `syncTrackingData`.
-- `syncStrategyPlansDownload()` — pull server copies for active tournaments. Called from `doServerDataSync()`, alongside `syncMatchSchedule`.
+- `syncStrategyPlans()` — single entry point that first **uploads** pending deletions, dirty plans, and dirty drawings, then **downloads** server copies for active tournaments (without overwriting locally-dirty records). Called from `doManualSync()` alongside `syncTrackingData`. Both directions share one `STRATEGY_PLANS` sync-status row.
 - `useStrategyPlansSyncStatus()` hook; included in `useManualSyncStatus` aggregation.
+- `updateStrategyPlansUnsyncCount()` updates the unsync counter (called from `initializeSyncSchedule`).
 
 ### Routes (`app/routes.ts`)
 
@@ -163,11 +169,17 @@ New sync component `STRATEGY_PLANS`:
 
 All three wrapped in `<RequireRole roles={["EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>`.
 
-A "Match Strategy" link is added to `routes/home-page.tsx`, shown only when `useRole()` reports `isExpertScout || isAdmin || isSuperuser`.
+A "Match Strategy" link is added to `routes/home-page.tsx`, gated by the role check in the access-control section above (currently SUPERUSER-only during pre-launch).
 
-### Shared selection UI
+### Tournament picker (`/strategy`)
 
-Tournament + match selection reuses patterns from `app/common/track/` (`CompStart.tsx`, `MatchForm.tsx`, `useMatchSchedule()`). Strategy pages use thin wrappers that navigate to `/strategy/...` instead of touching the scouting-session session storage.
+The strategy home page is split into two sections:
+- **Active Tournaments** — the team's active or upcoming tournaments (via `useActiveTeamTournaments()`), shown as primary buttons.
+- **Current Season** — every tournament in the latest season present in IndexedDB (derived as `max(season)` across all locally-cached tournaments), sorted by start date, shown as secondary buttons. Useful for planning against past matches.
+
+### Match picker (`/strategy/:tournamentId`)
+
+Reads the match schedule from IndexedDB via `useMatchSchedule()`, groups matches by `level`, and renders a grid per level. **Auto-fetches** the schedule from RavenBrain (once per page load) when no matches are cached locally for the selected tournament — this is the path that makes past tournaments usable without a prior sync. Falls back to a manual "Fetch Schedule" button with an error banner if the server is unreachable. Uses the same `fetchTournamentSchedule` / `getScheduleForTournament` / `mergeMatchSchedule` pattern as `app/common/track/MatchForm.tsx`.
 
 ---
 
@@ -230,14 +242,13 @@ Red-alliance slots lean warm; blue-alliance slots lean cool. All six are disting
 
 ## Field Image Assets
 
-Static PNGs shipped with the frontend under `app/assets/fields/`:
+Static PNGs shipped with the frontend under `app/assets/<year>/field.png` — one file per game year.
 
-- `field-2026.png`, `field-2025.png`, … (per game year)
-- `field-default.png` — neutral grid fallback used when a year-specific image isn't yet bundled
+`fieldImageForYear(year: number): string` in `app/common/strategy/fieldImage.ts` returns the bundled URL for the matching year's image, falling back to the most recent bundled year if the requested year isn't available. Year is derived from `RBTournament.season` (or `startTime`) — see `app/types/RBTournament.ts`.
 
-`fieldImageForYear(year: number): string` returns the URL for the matching image with a fallback to the default. Year is derived from `RBTournament.startTime` (existing `app/types/RBTournament.ts`).
+Discovery is automatic via Vite's **eager `import.meta.glob`** pattern `../../assets/*/field.png`, so every matching file is bundled at build time and indexed by the four-digit year directory.
 
-To add a new year: drop `field-YYYY.png` into `app/assets/fields/` and update `fieldImage.ts`.
+**To add a new year**: drop `field.png` into `app/assets/YYYY/`. No code change is required — Vite picks it up on the next build/HMR cycle.
 
 ---
 
@@ -247,9 +258,12 @@ All edits write to IndexedDB first and mark the record dirty; the upload sync pu
 
 | Trigger | Action |
 |---|---|
-| Short summary / strategy text keystroke | Debounced 500ms, write to IDB, mark plan dirty |
+| Short summary / strategy text keystroke | Write to IDB immediately, mark plan dirty; a shared 1500 ms debounce kicks off the background sync |
 | Stroke completed (`pointerup`) | Write updated drawing blob to IDB, mark drawing dirty |
 | "+ New Drawing" clicked | Insert drawing into IDB with `localId = new-${uuid}`, mark dirty |
+| Stroke undone (Undo button) | Remove last stroke from drawing, write to IDB, mark dirty |
+| Drawing cleared | Empty drawing's strokes array, write to IDB, mark dirty |
+| Drawing label edited | Write to IDB, mark dirty |
 | Drawing deleted | Record pending-delete in IDB; sync issues `DELETE` on next upload |
 | Successful upload | Replace `localId` with server id, clear dirty flag, stamp `updatedAt` |
 

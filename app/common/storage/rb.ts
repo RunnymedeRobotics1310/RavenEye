@@ -28,6 +28,9 @@ import type {
 import type { TeamScheduleResponse } from "~/types/TeamSchedule.ts";
 import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 import type { PmvaReportResponse } from "~/types/PmvaReport.ts";
+import type { MatchStrategyPlan } from "~/types/MatchStrategyPlan.ts";
+import type { MatchStrategyDrawing } from "~/types/MatchStrategyDrawing.ts";
+import type { StrategyStroke } from "~/types/StrategyStroke.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -623,6 +626,8 @@ export interface ConfigSyncResult {
   events: number;
   comments: number;
   alerts: number;
+  matchStrategyPlans: number;
+  matchStrategyDrawings: number;
   tournamentsCleared: boolean;
   message: string;
 }
@@ -1250,5 +1255,106 @@ export async function forgotPassword(login: string): Promise<void> {
   );
   if (!resp.ok) {
     throw new Error("Failed to flag forgotten password: " + resp.status);
+  }
+}
+
+// ------- Match Strategy Plans -------
+
+export interface RBPlanWithDrawings {
+  plan: RBMatchStrategyPlan;
+  drawings: RBMatchStrategyDrawing[];
+}
+
+export interface RBMatchStrategyPlan {
+  id: number;
+  tournamentId: string;
+  matchLevel: string;
+  matchNumber: number;
+  shortSummary: string;
+  strategyText: string | null;
+  updatedByUserId: number;
+  updatedByDisplayName: string;
+  updatedAt: string;
+}
+
+export interface RBMatchStrategyDrawing {
+  id: number;
+  planId: number;
+  label: string;
+  strokes: string; // JSON string server-side
+  createdByUserId: number;
+  createdByDisplayName: string;
+  updatedByUserId: number;
+  updatedByDisplayName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function parseDrawingStrokes(
+  drawing: RBMatchStrategyDrawing,
+): StrategyStroke[] {
+  try {
+    return JSON.parse(drawing.strokes) as StrategyStroke[];
+  } catch {
+    return [];
+  }
+}
+
+export async function getStrategyPlansForTournament(
+  tournamentId: string,
+): Promise<RBPlanWithDrawings[]> {
+  const resp = await rbfetch(
+    "/api/match-strategy/" + encodeURIComponent(tournamentId),
+    {},
+  );
+  if (!resp.ok) {
+    throw new Error(
+      "Failure fetching strategy plans for tournament " + tournamentId,
+    );
+  }
+  return resp.json() as unknown as RBPlanWithDrawings[];
+}
+
+export async function saveStrategyPlan(req: {
+  tournamentId: string;
+  matchLevel: string;
+  matchNumber: number;
+  shortSummary: string;
+  strategyText: string | null;
+}): Promise<MatchStrategyPlan> {
+  const resp = await rbfetch("/api/match-strategy", {
+    method: "POST",
+    body: JSON.stringify(req),
+  });
+  if (!resp.ok) {
+    throw new Error("Failed to save strategy plan: " + resp.status);
+  }
+  return resp.json() as unknown as MatchStrategyPlan;
+}
+
+export async function saveStrategyDrawing(req: {
+  id: number | null;
+  tournamentId: string;
+  matchLevel: string;
+  matchNumber: number;
+  label: string;
+  strokes: string; // already JSON.stringified
+}): Promise<MatchStrategyDrawing> {
+  const resp = await rbfetch("/api/match-strategy/drawing", {
+    method: "POST",
+    body: JSON.stringify(req),
+  });
+  if (!resp.ok) {
+    throw new Error("Failed to save strategy drawing: " + resp.status);
+  }
+  return resp.json() as unknown as MatchStrategyDrawing;
+}
+
+export async function deleteStrategyDrawing(id: number): Promise<void> {
+  const resp = await rbfetch("/api/match-strategy/drawing/" + id, {
+    method: "DELETE",
+  });
+  if (!resp.ok && resp.status !== 204) {
+    throw new Error("Failed to delete strategy drawing: " + resp.status);
   }
 }
