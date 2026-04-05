@@ -41,9 +41,10 @@ const LoggedIn = () => {
   const fullName = getDisplayName();
   const hasActive = useHasActiveTournament();
   const roles = useRole();
-  // TEMPORARY: hide Match Strategy from everyone but superusers until launch.
-  // Restore to `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
-  const canStrategize = roles.isSuperuser;
+  // TEMPORARY: hide Match Strategy from scouts until launch — admins and
+  // superusers can see it. Restore to
+  // `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
+  const canStrategize = roles.isAdmin || roles.isSuperuser;
   const [copyToast, setCopyToast] = useState(false);
   return (
     <main>

@@ -21,7 +21,7 @@ All strategy routes on the frontend are wrapped in `<RequireRole roles={["EXPERT
 
 Pages open in **read-only mode** by default. The user clicks **Unlock** to enter edit mode. Locking is a UI guard only — there is no server-side edit lock.
 
-> **Pre-launch only:** The "Match Strategy" nav link on the home page is temporarily hidden for everyone except `SUPERUSER` (see `routes/home-page.tsx` — the `canStrategize` check). The routes themselves remain open to EXPERTSCOUT/ADMIN/SUPERUSER via direct URL. This restriction must be reverted to `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
+> **Pre-launch only:** The "Match Strategy" nav link on the home page is temporarily hidden from scouts — only `ADMIN` and `SUPERUSER` see it (see `routes/home-page.tsx` — the `canStrategize` check). The routes themselves remain open to EXPERTSCOUT/ADMIN/SUPERUSER via direct URL. This restriction must be reverted to `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
 
 ---
 
@@ -175,7 +175,7 @@ New sync component `STRATEGY_PLANS`:
 
 All three wrapped in `<RequireRole roles={["EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>`.
 
-A "Match Strategy" link is added to `routes/home-page.tsx`, gated by the role check in the access-control section above (currently SUPERUSER-only during pre-launch).
+A "Match Strategy" link is added to `routes/home-page.tsx`, gated by the role check in the access-control section above (currently ADMIN/SUPERUSER only during pre-launch).
 
 ### Tournament picker (`/strategy`)
 
