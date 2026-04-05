@@ -9,6 +9,7 @@ import SyncSequenceTypes from "~/common/sync/SyncSequenceTypes.tsx";
 import SyncQuickComments from "~/common/sync/SyncQuickComments.tsx";
 import SyncTrackingData from "~/common/sync/SyncTrackingData.tsx";
 import SyncRobotAlerts from "~/common/sync/SyncRobotAlerts.tsx";
+import SyncStrategyPlans from "~/common/sync/SyncStrategyPlans.tsx";
 import SyncRobotAlertList from "~/common/sync/SyncRobotAlertList.tsx";
 import SyncDashboardData from "~/common/sync/SyncDashboardData.tsx";
 import SyncNowButton from "~/common/sync/SyncNowButton.tsx";
@@ -44,6 +45,7 @@ const SyncPage = () => {
           <SyncQuickComments />
           <SyncTrackingData />
           <SyncRobotAlerts />
+          <SyncStrategyPlans />
           <SyncNowButton />
         </section>
         <section className="card">

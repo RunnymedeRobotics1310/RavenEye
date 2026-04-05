@@ -157,8 +157,12 @@ Repository methods: `putStrategyPlan`, `getStrategyPlan`, `getStrategyPlansForTo
 
 New sync component `STRATEGY_PLANS`:
 
-- `syncStrategyPlans()` — single entry point that first **uploads** pending deletions, dirty plans, and dirty drawings, then **downloads** server copies for active tournaments (without overwriting locally-dirty records). Called from `doManualSync()` alongside `syncTrackingData`. Both directions share one `STRATEGY_PLANS` sync-status row.
-- `useStrategyPlansSyncStatus()` hook; included in `useManualSyncStatus` aggregation.
+- `syncStrategyPlans()` — single entry point that first **uploads** pending deletions, dirty plans, and dirty drawings, then **downloads** server copies for active tournaments (without overwriting locally-dirty records). Both directions share one `STRATEGY_PLANS` sync-status row.
+- **Triggers** (consistent with the rest of the app — *no* per-edit push):
+  - Called from `doManualSync()` alongside `syncTrackingData` when the user taps **Sync Now**.
+  - Called every 3 minutes from `initializeSyncSchedule()` as `autoSyncStrategyPlans()` (piggybacks on the existing `SCHEDULE_SYNC_INTERVAL`, same guards: requires a session + an active tournament + a reachable server).
+- `refreshStrategyPlanForMatch(tournamentId, matchLevel, matchNumber)` — fetches one specific plan from the server via `GET /api/match-strategy/{tid}/{level}/{match}` and merges it into IndexedDB. **Bypasses the active-tournament filter**, so past tournaments still refresh correctly. Respects locally-dirty records. Driven by a reusable `<SyncCountdown intervalMs={30_000} onSync={...} />` component in the plan editor header — it fires on mount and every 30 s, and displays "next sync in Ns" beside the sync status so users can see how fresh the data is. This is what lets a second device see the first device's work without a manual sync on past or current tournaments alike.
+- `useStrategyPlansSyncStatus()` hook; included in `useManualSyncStatus` aggregation and surfaced on the Sync Central page via `SyncStrategyPlans.tsx`.
 - `updateStrategyPlansUnsyncCount()` updates the unsync counter (called from `initializeSyncSchedule`).
 
 ### Routes (`app/routes.ts`)
@@ -177,7 +181,7 @@ A "Match Strategy" link is added to `routes/home-page.tsx`, gated by the role ch
 
 The strategy home page is split into two sections:
 - **Active Tournaments** — the team's active or upcoming tournaments (via `useActiveTeamTournaments()`), shown as primary buttons.
-- **Current Season** — every tournament in the latest season present in IndexedDB (derived as `max(season)` across all locally-cached tournaments), sorted by start date, shown as secondary buttons. Useful for planning against past matches.
+- **Current Season** — every tournament in the latest season present in IndexedDB (derived as `max(season)` across all locally-cached tournaments), grouped by week in collapsible `<details>` sections (matching the tournament-streams page pattern), sorted by start date within each week, shown as secondary buttons. The current week's section is open by default. Useful for planning against past matches.
 
 ### Match picker (`/strategy/:tournamentId`)
 
@@ -295,7 +299,7 @@ All edits write to IndexedDB first and mark the record dirty; the upload sync pu
 
 | Trigger | Action |
 |---|---|
-| Short summary / strategy text keystroke | Write to IDB immediately, mark plan dirty; a shared 1500 ms debounce kicks off the background sync |
+| Short summary / strategy text keystroke | Write to IDB immediately, mark plan dirty. The server push waits for the next interval tick or a manual Sync Now — no per-edit debounce. |
 | Stroke completed (`pointerup`) | Write updated drawing blob to IDB, mark drawing dirty |
 | "+ New Drawing" clicked | Insert drawing into IDB with `localId = new-${uuid}`, mark dirty |
 | Stroke undone (Undo button) | Remove last stroke from drawing, write to IDB, mark dirty |

@@ -1300,6 +1300,34 @@ export function parseDrawingStrokes(
   }
 }
 
+export async function getStrategyPlan(
+  tournamentId: string,
+  matchLevel: string,
+  matchNumber: number,
+): Promise<RBPlanWithDrawings | null> {
+  const resp = await rbfetch(
+    "/api/match-strategy/" +
+      encodeURIComponent(tournamentId) +
+      "/" +
+      encodeURIComponent(matchLevel) +
+      "/" +
+      matchNumber,
+    {},
+  );
+  if (resp.status === 404) return null;
+  if (!resp.ok) {
+    throw new Error(
+      "Failure fetching strategy plan " +
+        tournamentId +
+        "/" +
+        matchLevel +
+        "/" +
+        matchNumber,
+    );
+  }
+  return resp.json() as unknown as RBPlanWithDrawings;
+}
+
 export async function getStrategyPlansForTournament(
   tournamentId: string,
 ): Promise<RBPlanWithDrawings[]> {

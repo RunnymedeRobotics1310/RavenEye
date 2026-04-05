@@ -9,8 +9,11 @@ import {
 } from "~/common/storage/db.ts";
 import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
 import { getDisplayName, getUserid } from "~/common/storage/rbauth.ts";
-import { ping } from "~/common/storage/rb.ts";
-import { syncStrategyPlans } from "~/common/sync/sync.ts";
+import {
+  refreshStrategyPlanForMatch,
+  useStrategyPlansSyncStatus,
+} from "~/common/sync/sync.ts";
+import SyncCountdown from "~/common/sync/SyncCountdown.tsx";
 import StrategyCanvas, {
   type StrategyCanvasHandle,
 } from "~/common/strategy/StrategyCanvas.tsx";
@@ -189,10 +192,7 @@ const StrategyPlanPageInner = (props: {
     | { kind: "clear"; strokes: StrategyStroke[] };
   const [undoStack, setUndoStack] = useState<UndoEntry[]>([]);
   const canvasRef = useRef<StrategyCanvasHandle>(null);
-  const syncDebounceRef = useRef<number | null>(null);
-  const [syncState, setSyncState] = useState<
-    "idle" | "saved" | "syncing" | "synced" | "error"
-  >("idle");
+  const strategySyncStatus = useStrategyPlansSyncStatus();
   const [isCanvasFullscreen, setIsCanvasFullscreen] = useState(false);
 
   // Exit fullscreen on Escape for quick keyboard dismiss.
@@ -233,23 +233,23 @@ const StrategyPlanPageInner = (props: {
     setUndoStack([]);
   }, [activeLocalId]);
 
-  const scheduleSync = useCallback(() => {
-    if (syncDebounceRef.current != null) {
-      window.clearTimeout(syncDebounceRef.current);
-    }
-    setSyncState("saved");
-    syncDebounceRef.current = window.setTimeout(async () => {
-      const alive = await ping();
-      if (!alive) return;
-      setSyncState("syncing");
-      try {
-        await syncStrategyPlans();
-        setSyncState("synced");
-      } catch {
-        setSyncState("error");
-      }
-    }, 1500);
-  }, []);
+  // A stable callback for the <SyncCountdown> below to drive. Refreshing
+  // this specific plan every 30 s while the page is open bypasses the
+  // active-tournament filter (so past tournaments work) and covers the
+  // multi-device case — device B sees device A's edits without a manual
+  // Sync Now. The IDB merge respects locally-dirty records.
+  const refreshThisPlan = useCallback(() => {
+    return refreshStrategyPlanForMatch(tournamentId, matchLevel, matchNumber);
+  }, [tournamentId, matchLevel, matchNumber]);
+
+  // Strategy plans are synced on a background interval (every 3 min) and
+  // on manual "Sync Now", matching the app's pattern for other user-generated
+  // data (events, comments, alerts). Local edits are persisted to IndexedDB
+  // immediately below; the server push happens on those existing triggers.
+  const hasUnsyncedChanges = useMemo(() => {
+    if (plan?.dirty) return true;
+    return drawings.some((d) => d.dirty || d.pendingDelete);
+  }, [plan, drawings]);
 
   const year = tournament?.startTime
     ? new Date(tournament.startTime).getUTCFullYear()
@@ -291,7 +291,7 @@ const StrategyPlanPageInner = (props: {
     };
     await repository.putStrategyPlan(updated);
     setPlan(updated);
-    scheduleSync();
+
   };
 
   const handleStrategyTextChange = async (value: string) => {
@@ -306,7 +306,7 @@ const StrategyPlanPageInner = (props: {
     };
     await repository.putStrategyPlan(updated);
     setPlan(updated);
-    scheduleSync();
+
   };
 
   const handleAddDrawing = async () => {
@@ -332,7 +332,7 @@ const StrategyPlanPageInner = (props: {
     await repository.putStrategyDrawing(stored);
     setDrawings((prev) => [...prev, stored]);
     setActiveLocalId(stored.localId);
-    scheduleSync();
+
   };
 
   const handleDeleteDrawing = async (localId: string) => {
@@ -351,7 +351,7 @@ const StrategyPlanPageInner = (props: {
     if (activeLocalId === localId) {
       setActiveLocalId(remaining[0]?.localId ?? null);
     }
-    scheduleSync();
+
   };
 
   const activeDrawing = useMemo(
@@ -375,9 +375,9 @@ const StrategyPlanPageInner = (props: {
       setDrawings((prev) =>
         prev.map((d) => (d.localId === updated.localId ? updated : d)),
       );
-      scheduleSync();
+  
     },
-    [activeDrawing, scheduleSync],
+    [activeDrawing],
   );
 
   const handleStrokeComplete = useCallback(
@@ -457,7 +457,7 @@ const StrategyPlanPageInner = (props: {
     setDrawings((prev) =>
       prev.map((d) => (d.localId === updated.localId ? updated : d)),
     );
-    scheduleSync();
+
   };
 
   const strokeCountText = activeDrawing
@@ -465,20 +465,20 @@ const StrategyPlanPageInner = (props: {
     : "";
 
   const syncBadge = (() => {
-    switch (syncState) {
-      case "saved":
-        return <span>Saved locally</span>;
-      case "syncing":
-        return <span>Syncing…</span>;
-      case "synced":
-        return <span>Synced to server</span>;
-      case "error":
-        return (
-          <span className="banner banner-warning">Sync failed — will retry</span>
-        );
-      default:
-        return null;
+    if (strategySyncStatus.inProgress) {
+      return <span>Syncing…</span>;
     }
+    if (strategySyncStatus.error) {
+      return (
+        <span className="banner banner-warning">
+          Sync failed — will retry on next interval
+        </span>
+      );
+    }
+    if (hasUnsyncedChanges) {
+      return <span>Saved locally — pending sync</span>;
+    }
+    return <span style={{ opacity: 0.6 }}>Synced</span>;
   })();
 
   return (
@@ -525,13 +525,10 @@ const StrategyPlanPageInner = (props: {
             </button>
           )}
           <span style={{ marginLeft: "0.8rem" }}>{syncBadge}</span>
+          <span style={{ marginLeft: "0.6rem" }}>
+            <SyncCountdown intervalMs={30_000} onSync={refreshThisPlan} />
+          </span>
         </p>
-        {!isEditing && (
-          <div className="banner banner-warning">
-            This plan is LOCKED (read-only). Click Unlock to Edit to make
-            changes.
-          </div>
-        )}
       </div>
 
       <div

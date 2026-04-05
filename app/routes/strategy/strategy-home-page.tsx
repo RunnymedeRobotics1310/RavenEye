@@ -64,6 +64,26 @@ const ActiveTournamentList = () => {
   );
 };
 
+function getCurrentWeek(tournaments: RBTournament[]): number | null {
+  const now = Date.now();
+  for (const t of tournaments) {
+    const start = new Date(t.startTime).getTime();
+    const end = new Date(t.endTime).getTime();
+    if (start <= now && end >= now) return t.weekNumber;
+  }
+  let closest: RBTournament | null = null;
+  for (const t of tournaments) {
+    const start = new Date(t.startTime).getTime();
+    if (
+      start > now &&
+      (!closest || start < new Date(closest.startTime).getTime())
+    ) {
+      closest = t;
+    }
+  }
+  return closest?.weekNumber ?? null;
+}
+
 const CurrentSeasonTournamentList = () => {
   const { list, loading } = useAllTournaments();
   const currentSeasonTournaments = useMemo(() => {
@@ -82,17 +102,45 @@ const CurrentSeasonTournamentList = () => {
     return <p>No tournaments for the current season.</p>;
   }
   const season = currentSeasonTournaments[0]!.season;
+  const currentWeek = getCurrentWeek(currentSeasonTournaments);
+
+  const byWeek = new Map<number, RBTournament[]>();
+  for (const t of currentSeasonTournaments) {
+    const week = t.weekNumber ?? 0;
+    if (!byWeek.has(week)) byWeek.set(week, []);
+    byWeek.get(week)!.push(t);
+  }
+  const weeks = [...byWeek.keys()].sort((a, b) => a - b);
+
   return (
     <>
       <p style={{ opacity: 0.7, fontSize: "0.85rem", marginTop: 0 }}>
         Season {season} — pick any tournament to plan (useful for testing on
         past matches).
       </p>
-      <ul style={{ listStyle: "none", padding: 0 }}>
-        {currentSeasonTournaments.map((t) => (
-          <TournamentLink key={t.id} t={t} />
-        ))}
-      </ul>
+      {weeks.map((week) => {
+        const weekTournaments = byWeek.get(week)!;
+        return (
+          <details
+            key={week}
+            className="admin-stream-week"
+            open={week === currentWeek}
+          >
+            <summary>
+              Week {week}
+              <span className="admin-stream-week-count">
+                {weekTournaments.length} tournament
+                {weekTournaments.length !== 1 ? "s" : ""}
+              </span>
+            </summary>
+            <ul style={{ listStyle: "none", padding: 0 }}>
+              {weekTournaments.map((t) => (
+                <TournamentLink key={t.id} t={t} />
+              ))}
+            </ul>
+          </details>
+        );
+      })}
     </>
   );
 };
