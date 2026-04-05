@@ -756,8 +756,11 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
                 });
                 const nextT =
                   p < stroke.points.length ? stroke.points[p]!.t : slice[slice.length - 1]!.t;
-                const elapsed = (performance.now() - start) * speed;
-                const wait = nextT - elapsed;
+                const elapsedAnimation = (performance.now() - start) * speed;
+                // Convert the remaining animation-time gap back to real-time
+                // by dividing by speed, so setTimeout waits the correct
+                // wall-clock interval.
+                const wait = (nextT - elapsedAnimation) / speed;
                 if (wait > 0) {
                   await new Promise((r) => setTimeout(r, wait));
                 }

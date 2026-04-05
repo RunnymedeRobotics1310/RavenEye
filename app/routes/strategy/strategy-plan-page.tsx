@@ -11,9 +11,11 @@ import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
 import { getDisplayName, getUserid } from "~/common/storage/rbauth.ts";
 import {
   refreshStrategyPlanForMatch,
+  syncStrategyPlans,
   useStrategyPlansSyncStatus,
 } from "~/common/sync/sync.ts";
 import SyncCountdown from "~/common/sync/SyncCountdown.tsx";
+import Sync from "~/common/icons/Sync.tsx";
 import StrategyCanvas, {
   type StrategyCanvasHandle,
 } from "~/common/strategy/StrategyCanvas.tsx";
@@ -42,6 +44,7 @@ import type {
 } from "~/types/StrategyStroke.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { RBScheduleRecord } from "~/types/RBScheduleRecord.ts";
+import type { SyncStatus } from "~/types/SyncStatus.ts";
 
 const DRAW_TOOL_STORAGE_KEY = "raveneye_strategy_draw_tool";
 const TOOLBAR_LABELS_STORAGE_KEY = "raveneye_strategy_toolbar_labels";
@@ -706,22 +709,41 @@ const StrategyPlanPageInner = (props: {
     ? `${activeDrawing.strokes.length} stroke${activeDrawing.strokes.length === 1 ? "" : "s"}`
     : "";
 
-  const syncBadge = (() => {
-    if (strategySyncStatus.inProgress) {
-      return <span>Syncing…</span>;
-    }
-    if (strategySyncStatus.error) {
-      return (
-        <span className="banner banner-warning">
-          Sync failed — will retry on next interval
-        </span>
+  // Derive a SyncStatus for the Sync icon. The global sync-status row's
+  // `remaining` count only updates after sync cycles fire, but locally we
+  // know in real time whether this plan has unsynced edits — override
+  // `remaining`/`isComplete` so the icon colour reflects the authoritative
+  // local dirty state immediately.
+  const syncIconStatus: SyncStatus = {
+    ...strategySyncStatus,
+    remaining: hasUnsyncedChanges ? 1 : 0,
+    isComplete: !hasUnsyncedChanges && !strategySyncStatus.error,
+  };
+  const [manualSyncing, setManualSyncing] = useState(false);
+  const handleManualSync = async () => {
+    if (manualSyncing || strategySyncStatus.inProgress) return;
+    setManualSyncing(true);
+    try {
+      await syncStrategyPlans();
+      // Also pull this specific match's server state — handles the case
+      // where the tournament is past and wouldn't be covered by the
+      // active-tournament filter inside syncStrategyPlans().
+      await refreshStrategyPlanForMatch(
+        tournamentId,
+        matchLevel,
+        matchNumber,
       );
+    } finally {
+      setManualSyncing(false);
     }
-    if (hasUnsyncedChanges) {
-      return <span>Saved locally — pending sync</span>;
-    }
-    return <span className="strategy-sync-synced-label">Synced</span>;
-  })();
+  };
+  const syncTitle = strategySyncStatus.error
+    ? "Sync failed — tap to retry"
+    : strategySyncStatus.inProgress || manualSyncing
+      ? "Syncing…"
+      : hasUnsyncedChanges
+        ? "Local changes pending — tap to sync now"
+        : "Synced — tap to sync again";
 
   return (
     <main>
@@ -755,9 +777,22 @@ const StrategyPlanPageInner = (props: {
               <LockedIcon /> Lock
             </button>
           )}
-          <span className="strategy-sync-status">{syncBadge}</span>
+          <button
+            type="button"
+            onClick={handleManualSync}
+            disabled={strategySyncStatus.inProgress || manualSyncing}
+            title={syncTitle}
+            aria-label={syncTitle}
+            className="strategy-sync-btn"
+          >
+            <Sync status={syncIconStatus} />
+          </button>
           <span className="strategy-sync-countdown-wrap">
-            <SyncCountdown intervalMs={30_000} onSync={refreshThisPlan} />
+            <SyncCountdown
+              intervalMs={30_000}
+              onSync={refreshThisPlan}
+              label=""
+            />
           </span>
         </p>
       </div>

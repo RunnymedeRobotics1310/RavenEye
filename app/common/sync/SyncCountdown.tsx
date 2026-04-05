@@ -54,7 +54,8 @@ export default function SyncCountdown(props: Props) {
 
   return (
     <span style={{ opacity: 0.7, fontSize: "0.8rem" }}>
-      {label} {remaining}s
+      {label ? `${label} ` : ""}
+      {remaining}s
     </span>
   );
 }

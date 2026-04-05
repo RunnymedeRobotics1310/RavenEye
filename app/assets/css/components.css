@@ -292,14 +292,33 @@ button.secondary:hover {
     align-items: center;
     gap: 0.3rem;
 }
-.strategy-sync-status {
+/*
+ * Strategy sync-status icon button — bare icon (no button chrome),
+ * clickable to trigger a manual sync. Colour + rotation come from the
+ * nested Sync icon's status classes.
+ */
+.strategy-sync-btn {
     margin-left: 0.8rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    vertical-align: middle;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: inherit;
+}
+.strategy-sync-btn:hover,
+.strategy-sync-btn:active {
+    background: transparent;
+    transform: none;
+}
+.strategy-sync-btn:disabled {
+    cursor: wait;
+    opacity: 1; /* icon's own state colour is the visual cue */
 }
 .strategy-sync-countdown-wrap {
     margin-left: 0.6rem;
-}
-.strategy-sync-synced-label {
-    opacity: 0.6;
 }
 .strategy-sidebar-field {
     display: block;
