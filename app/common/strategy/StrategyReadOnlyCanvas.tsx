@@ -10,6 +10,7 @@ type Props = {
   zoom?: number;
   panX?: number;
   panY?: number;
+  fillHeight?: boolean;
   onPanChange?: (panX: number, panY: number) => void;
   onZoomChange?: (zoom: number, panX: number, panY: number) => void;
 };
@@ -26,6 +27,7 @@ const StrategyReadOnlyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         zoom={props.zoom}
         panX={props.panX}
         panY={props.panY}
+        fillHeight={props.fillHeight}
         onPanChange={props.onPanChange}
         onZoomChange={props.onZoomChange}
       />

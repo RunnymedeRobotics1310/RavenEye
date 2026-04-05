@@ -79,7 +79,7 @@ type StrategyStroke = {
 };
 ```
 
-- `x` and `y` are **normalized to 0..1** against the canvas bounds so drawings render at any resolution.
+- `x` and `y` are **normalized to 0..1** against the **canvas/field**, which always has the same aspect ratio as the field background image. This keeps strokes aligned with the image under any window size — no letterbox drift.
 - `t` is **milliseconds since the stroke's pointerdown** — enables faithful real-time and 2x playback.
 - `arrow` controls the stroke's rendering style. If absent (strokes saved before this field existed), the stroke is treated as **arrow = true** for backward compatibility.
 
@@ -200,7 +200,7 @@ iPad-landscape optimized (1024×768 reference viewport):
   - **Navigate**: Pan + zoom controls `[Pan] [−] [150%] [+]` — tap the percentage to reset to 100%
   - **History**: Undo (context-aware label — "Undo Arrow" / "Undo Line" / "Undo Erase" / "Undo Clear", plain "Undo" when the stack is empty) + Clear
   - **Playback**: Play (cycling speed: click to play at 1×, click again to play at 2×, again for 3×, then back to 1×) + Stop
-  - **View**: Fullscreen (CSS overlay, `position: fixed; inset: 0; z-index: 1000`, Esc exits) + a Lock/Unlock toggle that **appears only while in fullscreen** (since the page-header Lock button is obscured by the overlay) + Labels toggle (hides text labels on every toolbar button to compact the row; icon-only mode with `title` tooltips for hover). The labels toggle's own state is persisted to `localStorage` under `raveneye_strategy_toolbar_labels` (values: `"show"` | `"hide"`).
+  - **View**: Fullscreen (CSS overlay, `position: fixed; inset: 0; z-index: 1000`, `overflow: hidden`, `display: flex; flex-direction: column` — metadata + palette + toolbar take natural heights, the canvas wrapper uses `flex: 1 1 0` via its `fillHeight` prop so it fills all remaining vertical space and the view **never scrolls**. Esc exits.) + a Lock/Unlock toggle that **appears only while in fullscreen** (since the page-header Lock button is obscured by the overlay) + Labels toggle (hides text labels on every toolbar button to compact the row; icon-only mode with `title` tooltips for hover). The labels toggle's own state is persisted to `localStorage` under `raveneye_strategy_toolbar_labels` (values: `"show"` | `"hide"`).
 
   The Pan tool button is always visible. The zoom `+` / `−` / `%` buttons are **hidden on touch-primary devices** (iPads, phones) — those users pinch to zoom. Detection: `matchMedia('(pointer: coarse)').matches && navigator.maxTouchPoints > 1`.
 

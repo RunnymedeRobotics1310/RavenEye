@@ -263,6 +263,26 @@ const StrategyPlanPageInner = (props: {
   }, [zoom, panX, panY]);
   const touchPrimary = useMemo(() => isTouchPrimaryDevice(), []);
 
+  // Stack the two cards vertically on narrow viewports (below iPad mini
+  // portrait width). Keeps the sidebar + canvas side-by-side on anything
+  // tablet-sized and up.
+  const [isNarrow, setIsNarrow] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia("(max-width: 767px)").matches;
+  });
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 767px)");
+    const onChange = (e: MediaQueryListEvent) => setIsNarrow(e.matches);
+    // addEventListener isn't on the oldest MediaQueryList shape; fall back
+    // if missing.
+    if (mql.addEventListener) mql.addEventListener("change", onChange);
+    else mql.addListener(onChange);
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener("change", onChange);
+      else mql.removeListener(onChange);
+    };
+  }, []);
+
   const handleZoomChange = useCallback(
     (next: number, pX: number, pY: number) => {
       setZoomPan({
@@ -715,7 +735,9 @@ const StrategyPlanPageInner = (props: {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(18rem, 28%) 1fr",
+          gridTemplateColumns: isNarrow
+            ? "1fr"
+            : "minmax(18rem, 28%) 1fr",
           gap: "1rem",
           alignItems: "start",
         }}
@@ -745,14 +767,22 @@ const StrategyPlanPageInner = (props: {
               style={{ width: "100%", marginTop: "0.2rem" }}
             />
           </label>
-          <DrawingList
-            drawings={drawings}
-            activeLocalId={activeLocalId}
-            onSelect={setActiveLocalId}
-            onAdd={handleAddDrawing}
-            onDelete={handleDeleteDrawing}
-            canEdit={isEditing}
-          />
+          <div
+            style={
+              isNarrow
+                ? { maxHeight: "40vh", overflowY: "auto" }
+                : undefined
+            }
+          >
+            <DrawingList
+              drawings={drawings}
+              activeLocalId={activeLocalId}
+              onSelect={setActiveLocalId}
+              onAdd={handleAddDrawing}
+              onDelete={handleDeleteDrawing}
+              canEdit={isEditing}
+            />
+          </div>
         </section>
 
         <section
@@ -765,8 +795,13 @@ const StrategyPlanPageInner = (props: {
                   zIndex: 1000,
                   margin: 0,
                   borderRadius: 0,
-                  overflow: "auto",
+                  overflow: "hidden",
                   background: "var(--color-surface, #1a1a1a)",
+                  // Flex column so the canvas below can take remaining space
+                  // via `fillHeight` instead of using a fixed 16:9 ratio.
+                  // Nothing ever scrolls in fullscreen.
+                  display: "flex",
+                  flexDirection: "column",
                 }
               : undefined
           }
@@ -1040,6 +1075,7 @@ const StrategyPlanPageInner = (props: {
                   zoom={zoom}
                   panX={panX}
                   panY={panY}
+                  fillHeight={isCanvasFullscreen}
                   onStrokeComplete={handleStrokeComplete}
                   onEraseStroke={handleEraseStroke}
                   onPanChange={handlePanChange}
@@ -1053,6 +1089,7 @@ const StrategyPlanPageInner = (props: {
                   zoom={zoom}
                   panX={panX}
                   panY={panY}
+                  fillHeight={isCanvasFullscreen}
                   onPanChange={handlePanChange}
                   onZoomChange={handleZoomChange}
                 />

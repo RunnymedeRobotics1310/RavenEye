@@ -39,6 +39,13 @@ type Props = {
   zoom?: number;
   panX?: number;
   panY?: number;
+  /**
+   * When true, the canvas wrapper stretches to fill its parent's height
+   * (via `flex: 1`) instead of using a 16:9 aspect-ratio. Use this inside a
+   * flex-column container — e.g. the fullscreen overlay — to give the
+   * canvas all remaining vertical space without needing scroll.
+   */
+  fillHeight?: boolean;
   /** Called when the user pans via the Pan tool or two-finger drag. */
   onPanChange?: (panX: number, panY: number) => void;
   /** Called when the user pinches to zoom (also receives centroid for pan). */
@@ -74,6 +81,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       zoom = 1,
       panX = 0,
       panY = 0,
+      fillHeight = false,
       onPanChange,
       onZoomChange,
       onStrokeComplete,
@@ -131,21 +139,50 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
     // Returns true if the backing store was actually reallocated (avoids the
     // expensive `canvas.width = w` clear+realloc when dimensions didn't
     // change, which would otherwise happen every time the parent re-renders).
+    // Fit the canvas inside its wrapper at the image's aspect ratio, centered.
+    // This replaces relying on CSS aspect-ratio + max-height, which behaves
+    // inconsistently inside flex-1 parents. JS has precise control.
     const resizeCanvas = useCallback((): boolean => {
       const canvas = canvasRef.current;
       const wrapper = wrapperRef.current;
       if (!canvas || !wrapper) return false;
       const dpr = window.devicePixelRatio || 1;
-      const rect = wrapper.getBoundingClientRect();
-      const w = Math.max(1, Math.floor(rect.width));
-      const h = Math.max(1, Math.floor(rect.height));
-      const targetW = Math.floor(w * dpr);
-      const targetH = Math.floor(h * dpr);
-      if (canvas.width === targetW && canvas.height === targetH) {
-        return false; // nothing to do
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const wrapperW = wrapperRect.width;
+      const wrapperH = wrapperRect.height;
+      if (wrapperW < 1 || wrapperH < 1) return false;
+
+      // Use the loaded image's aspect (falling back to 2.0 pre-load).
+      const imgAspect =
+        bgImage && bgImage.height > 0 ? bgImage.width / bgImage.height : 2;
+      const wrapperAspect = wrapperW / wrapperH;
+      let canvasCssW: number;
+      let canvasCssH: number;
+      if (wrapperAspect > imgAspect) {
+        // Wrapper is wider than the image — fit by height.
+        canvasCssH = wrapperH;
+        canvasCssW = wrapperH * imgAspect;
+      } else {
+        // Fit by width.
+        canvasCssW = wrapperW;
+        canvasCssH = wrapperW / imgAspect;
       }
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
+      canvasCssW = Math.max(1, Math.floor(canvasCssW));
+      canvasCssH = Math.max(1, Math.floor(canvasCssH));
+      const left = Math.floor((wrapperW - canvasCssW) / 2);
+      const top = Math.floor((wrapperH - canvasCssH) / 2);
+      const targetW = Math.floor(canvasCssW * dpr);
+      const targetH = Math.floor(canvasCssH * dpr);
+
+      // Position + CSS size are applied every call (cheap string writes).
+      canvas.style.left = left + "px";
+      canvas.style.top = top + "px";
+      canvas.style.width = canvasCssW + "px";
+      canvas.style.height = canvasCssH + "px";
+
+      if (canvas.width === targetW && canvas.height === targetH) {
+        return false;
+      }
       canvas.width = targetW;
       canvas.height = targetH;
       const ctx = canvas.getContext("2d");
@@ -153,7 +190,7 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
       return true;
-    }, []);
+    }, [bgImage]);
 
     // Keep the latest `redraw` in a ref so the ResizeObserver (installed once
     // at mount) always calls the fresh closure with current strokes / bgImage
@@ -162,16 +199,21 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
 
     useEffect(() => {
       // Coalesce rapid resize fires (e.g. during a fullscreen-toggle layout
-      // settle) into a single `requestAnimationFrame` pass. Each
-      // `canvas.width = N` reallocates the backing store, so batching avoids
-      // 10+ MB of churn per transition on HiDPI iPads.
+      // settle or a window-drag resize) into a single `requestAnimationFrame`
+      // pass. Each `canvas.width = N` reallocates the backing store, so
+      // batching avoids 10+ MB of churn per transition on HiDPI iPads.
+      //
+      // When ResizeObserver fires we ALWAYS redraw — the observed element's
+      // size changed, so the previous draw (which used old cssW/cssH) is
+      // stale for the background image aspect-fit + stroke placement even
+      // when `resizeCanvas()` happens to return `false`.
       let rafId: number | null = null;
       const scheduleResize = () => {
         if (rafId != null) return;
         rafId = requestAnimationFrame(() => {
           rafId = null;
-          const changed = resizeCanvas();
-          if (changed) redrawRef.current();
+          resizeCanvas();
+          redrawRef.current();
         });
       };
       // Initial sizing: resize + redraw immediately (the redraw happens via
@@ -179,6 +221,8 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       // over real state, but this gets pixels on the screen ASAP).
       resizeCanvas();
       const obs = new ResizeObserver(scheduleResize);
+      // Observe the wrapper — its size determines the canvas's fit, which
+      // resizeCanvas() computes from the wrapper rect + image aspect.
       if (wrapperRef.current) obs.observe(wrapperRef.current);
       return () => {
         obs.disconnect();
@@ -764,13 +808,24 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       }
     }, [strokes.length, eraseHoverIndex]);
 
+    // The wrapper gives the canvas its bounding box. In windowed mode, its
+    // height is derived from width via aspect-ratio matching the image — so
+    // the canvas fills the wrapper exactly with no letterbox. In fullscreen
+    // (fillHeight), the wrapper takes all remaining vertical space via
+    // flex:1, and `resizeCanvas()` fits the canvas inside with the image's
+    // aspect ratio, centered.
+    const imageAspect =
+      bgImage && bgImage.height > 0 ? bgImage.width / bgImage.height : 2;
+
     return (
       <div
         ref={wrapperRef}
         style={{
           position: "relative",
           width: "100%",
-          aspectRatio: "16 / 9",
+          ...(fillHeight
+            ? { flex: "1 1 0", minHeight: 0 }
+            : { aspectRatio: String(imageAspect) }),
           background: "var(--color-surface, #222)",
           touchAction: "none",
           userSelect: "none",
@@ -780,7 +835,6 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
           ref={canvasRef}
           style={{
             position: "absolute",
-            inset: 0,
             touchAction: "none",
             cursor: cursorStyle,
           }}
