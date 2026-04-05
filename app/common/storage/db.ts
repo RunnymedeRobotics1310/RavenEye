@@ -31,12 +31,38 @@ const CUSTOM_STATS_CACHE_STORE = "customStatsCache";
 const STRATEGY_PLAN_STORE = "strategyPlans";
 const STRATEGY_DRAWING_STORE = "strategyDrawings";
 
-export function strategyPlanLocalKey(
-  tournamentId: string,
-  matchLevel: string,
-  matchNumber: number,
-): string {
-  return `${tournamentId}|${matchLevel}|${matchNumber}`;
+/**
+ * Minimal typed reference to a single match in a tournament — the three
+ * fields that uniquely identify a strategy plan. Mirrors the pattern of
+ * `ScoutingSessionId` but with only the match-identifying fields (no
+ * alliance / team / user). Used as both the input to, and the parsed
+ * output from, the strategy-plan local-key serialisation below.
+ */
+export interface StrategyPlanMatchRef {
+  tournamentId: string;
+  matchLevel: string;
+  matchNumber: number;
+}
+
+const LOCAL_KEY_SEPARATOR = "|";
+
+export function strategyPlanLocalKey(ref: StrategyPlanMatchRef): string {
+  return (
+    ref.tournamentId +
+    LOCAL_KEY_SEPARATOR +
+    ref.matchLevel +
+    LOCAL_KEY_SEPARATOR +
+    ref.matchNumber
+  );
+}
+
+export function parseStrategyPlanLocalKey(key: string): StrategyPlanMatchRef {
+  const parts = key.split(LOCAL_KEY_SEPARATOR);
+  return {
+    tournamentId: parts[0] ?? "",
+    matchLevel: parts[1] ?? "",
+    matchNumber: parseInt(parts[2] ?? "0", 10),
+  };
 }
 
 export interface StoredStrategyPlan {

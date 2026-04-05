@@ -1,5 +1,9 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
-import { repository, type StoredStrategyDrawing } from "~/common/storage/db.ts";
+import {
+  parseStrategyPlanLocalKey,
+  repository,
+  type StoredStrategyDrawing,
+} from "~/common/storage/db.ts";
 import {
   getEventTypeList,
   getSequenceTypeList,
@@ -505,11 +509,12 @@ async function uploadDirtyStrategyPlans(): Promise<void> {
     // 3. Dirty drawings.
     const dirtyDrawings = await repository.getDirtyStrategyDrawings();
     for (const d of dirtyDrawings) {
+      const matchRef = parseStrategyPlanLocalKey(d.planLocalKey);
       const saved = await saveStrategyDrawing({
         id: d.id,
-        tournamentId: extractTournamentFromLocalKey(d.planLocalKey),
-        matchLevel: extractLevelFromLocalKey(d.planLocalKey),
-        matchNumber: extractMatchNumberFromLocalKey(d.planLocalKey),
+        tournamentId: matchRef.tournamentId,
+        matchLevel: matchRef.matchLevel,
+        matchNumber: matchRef.matchNumber,
         label: d.label,
         strokes: JSON.stringify(d.strokes),
       });
@@ -530,16 +535,6 @@ async function uploadDirtyStrategyPlans(): Promise<void> {
       };
       await repository.renameStrategyDrawing(d.localId, replacement);
     }
-}
-
-function extractTournamentFromLocalKey(key: string): string {
-  return key.split("|")[0]!;
-}
-function extractLevelFromLocalKey(key: string): string {
-  return key.split("|")[1]!;
-}
-function extractMatchNumberFromLocalKey(key: string): number {
-  return parseInt(key.split("|")[2]!, 10);
 }
 
 async function downloadStrategyPlansForActiveTournaments(): Promise<void> {

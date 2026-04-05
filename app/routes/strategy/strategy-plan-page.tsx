@@ -207,7 +207,11 @@ const StrategyPlanPageInner = (props: {
   matchNumber: number;
 }) => {
   const { tournamentId, matchLevel, matchNumber } = props;
-  const localKey = strategyPlanLocalKey(tournamentId, matchLevel, matchNumber);
+  const localKey = strategyPlanLocalKey({
+    tournamentId,
+    matchLevel,
+    matchNumber,
+  });
   const tournament = useTournament(tournamentId);
   const { list: schedule } = useMatchSchedule();
   const teamNumbers = useMemo(
@@ -716,7 +720,7 @@ const StrategyPlanPageInner = (props: {
     if (hasUnsyncedChanges) {
       return <span>Saved locally — pending sync</span>;
     }
-    return <span style={{ opacity: 0.6 }}>Synced</span>;
+    return <span className="strategy-sync-synced-label">Synced</span>;
   })();
 
   return (
@@ -737,12 +741,7 @@ const StrategyPlanPageInner = (props: {
             <button
               type="button"
               onClick={() => setIsEditing(true)}
-              style={{
-                marginLeft: "0.6rem",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.3rem",
-              }}
+              className="strategy-header-lock-btn"
             >
               <UnlockedIcon /> Unlock to Edit
             </button>
@@ -751,38 +750,29 @@ const StrategyPlanPageInner = (props: {
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              style={{
-                marginLeft: "0.6rem",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.3rem",
-              }}
-              className="btn-secondary"
+              className="btn-secondary strategy-header-lock-btn"
             >
               <LockedIcon /> Lock
             </button>
           )}
-          <span style={{ marginLeft: "0.8rem" }}>{syncBadge}</span>
-          <span style={{ marginLeft: "0.6rem" }}>
+          <span className="strategy-sync-status">{syncBadge}</span>
+          <span className="strategy-sync-countdown-wrap">
             <SyncCountdown intervalMs={30_000} onSync={refreshThisPlan} />
           </span>
         </p>
       </div>
 
       <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: isNarrow
-            ? "1fr"
-            : "minmax(18rem, 28%) 1fr",
-          gap: "1rem",
-          alignItems: "start",
-        }}
+        className={
+          isNarrow
+            ? "strategy-plan-grid is-stacked"
+            : "strategy-plan-grid"
+        }
       >
         <section className="card">
-          <label style={{ display: "block", marginBottom: "0.6rem" }}>
+          <label className="strategy-sidebar-field">
             <strong>Short Summary</strong>{" "}
-            <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>
+            <span className="strategy-char-count">
               ({(plan?.shortSummary ?? "").length}/32)
             </span>
             <input
@@ -791,25 +781,21 @@ const StrategyPlanPageInner = (props: {
               disabled={!isEditing}
               value={plan?.shortSummary ?? ""}
               onChange={(e) => handleSummaryChange(e.target.value)}
-              style={{ width: "100%", marginTop: "0.2rem" }}
+              className="strategy-sidebar-input-control"
             />
           </label>
-          <label style={{ display: "block", marginBottom: "0.6rem" }}>
+          <label className="strategy-sidebar-field">
             <strong>Strategy</strong>
             <textarea
               rows={6}
               disabled={!isEditing}
               value={plan?.strategyText ?? ""}
               onChange={(e) => handleStrategyTextChange(e.target.value)}
-              style={{ width: "100%", marginTop: "0.2rem" }}
+              className="strategy-sidebar-input-control"
             />
           </label>
           <div
-            style={
-              isNarrow
-                ? { maxHeight: "40vh", overflowY: "auto" }
-                : undefined
-            }
+            className={isNarrow ? "strategy-drawing-list-scroll" : undefined}
           >
             <DrawingList
               drawings={drawings}
@@ -823,24 +809,10 @@ const StrategyPlanPageInner = (props: {
         </section>
 
         <section
-          className="card"
-          style={
+          className={
             isCanvasFullscreen
-              ? {
-                  position: "fixed",
-                  inset: 0,
-                  zIndex: 1000,
-                  margin: 0,
-                  borderRadius: 0,
-                  overflow: "hidden",
-                  background: "var(--color-surface, #1a1a1a)",
-                  // Flex column so the canvas below can take remaining space
-                  // via `fillHeight` instead of using a fixed 16:9 ratio.
-                  // Nothing ever scrolls in fullscreen.
-                  display: "flex",
-                  flexDirection: "column",
-                }
-              : undefined
+              ? "card strategy-canvas-section is-fullscreen"
+              : "card strategy-canvas-section"
           }
         >
           {activeDrawing ? (
@@ -850,16 +822,7 @@ const StrategyPlanPageInner = (props: {
                 palette. In fullscreen mode these share a single row to
                 conserve vertical space; otherwise they stack.
               */}
-              <div
-                ref={metadataRowRef}
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginBottom: "0.4rem",
-                }}
-              >
+              <div ref={metadataRowRef} className="strategy-metadata-row">
                 {!(isCanvasFullscreen && hideTitleInFs) && (
                   <>
                     <input
@@ -873,7 +836,7 @@ const StrategyPlanPageInner = (props: {
                         minWidth: 0,
                       }}
                     />
-                    <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>
+                    <span className="strategy-char-count">
                       {strokeCountText}
                     </span>
                   </>
@@ -884,7 +847,6 @@ const StrategyPlanPageInner = (props: {
                     onSelect={handleSlotClick}
                     teamNumbers={teamNumbers}
                     soloedSlot={soloedSlot}
-                    style={{ margin: 0 }}
                   />
                 )}
               </div>
@@ -899,18 +861,7 @@ const StrategyPlanPageInner = (props: {
               )}
 
               {/* Row 3: the toolbar — tools | navigate | history | playback | view */}
-              <div
-                ref={toolbarRowRef}
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  marginBottom: "0.4rem",
-                  paddingBottom: "0.5rem",
-                  borderBottom: "1px solid rgba(128,128,128,0.25)",
-                }}
-              >
+              <div ref={toolbarRowRef} className="strategy-canvas-toolbar">
                 {isEditing && (
                   <>
                     <ToolButton
@@ -953,30 +904,27 @@ const StrategyPlanPageInner = (props: {
                         <button
                           type="button"
                           onClick={() => stepZoom(-1)}
-                          className="btn-secondary strategy-toolbar-btn"
+                          className="btn-secondary strategy-toolbar-btn strategy-zoom-btn"
                           disabled={zoom <= MIN_ZOOM + 1e-6}
                           title="Zoom out"
-                          style={{ minWidth: "2rem" }}
                         >
                           −
                         </button>
                         <button
                           type="button"
                           onClick={resetZoom}
-                          className="btn-secondary strategy-toolbar-btn"
+                          className="btn-secondary strategy-toolbar-btn strategy-zoom-pct-btn"
                           disabled={zoom <= MIN_ZOOM + 1e-6}
                           title="Reset to 100%"
-                          style={{ minWidth: "3.5rem" }}
                         >
                           {Math.round(zoom * 100)}%
                         </button>
                         <button
                           type="button"
                           onClick={() => stepZoom(1)}
-                          className="btn-secondary strategy-toolbar-btn"
+                          className="btn-secondary strategy-toolbar-btn strategy-zoom-btn"
                           disabled={zoom >= MAX_ZOOM - 1e-6}
                           title="Zoom in"
-                          style={{ minWidth: "2rem" }}
                         >
                           +
                         </button>
@@ -986,28 +934,18 @@ const StrategyPlanPageInner = (props: {
                     <button
                       type="button"
                       onClick={handleUndo}
-                      className="btn-secondary strategy-toolbar-btn"
+                      className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
                       disabled={undoStack.length === 0}
                       title={undoLabel}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "0.3rem",
-                      }}
                     >
                       <UndoIcon /> {showLabels && undoLabel}
                     </button>
                     <button
                       type="button"
                       onClick={handleClear}
-                      className="btn-secondary strategy-toolbar-btn"
+                      className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
                       disabled={activeDrawing.strokes.length === 0}
                       title="Clear all strokes"
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "0.3rem",
-                      }}
                     >
                       <TrashIcon /> {showLabels && "Clear"}
                     </button>
@@ -1025,13 +963,8 @@ const StrategyPlanPageInner = (props: {
                 <button
                   type="button"
                   onClick={() => canvasRef.current?.stop()}
-                  className="btn-secondary strategy-toolbar-btn"
+                  className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
                   title="Stop playback"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.3rem",
-                  }}
                 >
                   <StopIcon /> {showLabels && "Stop"}
                 </button>
@@ -1039,17 +972,12 @@ const StrategyPlanPageInner = (props: {
                 <button
                   type="button"
                   onClick={() => setIsCanvasFullscreen((v) => !v)}
-                  className="btn-secondary strategy-toolbar-btn"
+                  className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
                   title={
                     isCanvasFullscreen
                       ? "Exit fullscreen (Esc)"
                       : "Fullscreen"
                   }
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.3rem",
-                  }}
                 >
                   {isCanvasFullscreen ? (
                     <ExitFullscreenIcon />
@@ -1065,15 +993,10 @@ const StrategyPlanPageInner = (props: {
                     onClick={() => setIsEditing((v) => !v)}
                     className={
                       isEditing
-                        ? "btn-secondary strategy-toolbar-btn"
-                        : "strategy-toolbar-btn"
+                        ? "btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
+                        : "strategy-toolbar-btn strategy-icon-text-btn"
                     }
                     title={isEditing ? "Lock (read-only)" : "Unlock to edit"}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "0.3rem",
-                    }}
                   >
                     {isEditing ? <LockedIcon /> : <UnlockedIcon />}
                     {showLabels && (isEditing ? "Lock" : "Unlock to Edit")}
@@ -1082,16 +1005,11 @@ const StrategyPlanPageInner = (props: {
                 <button
                   type="button"
                   onClick={() => setShowLabels((v) => !v)}
-                  className="btn-secondary strategy-toolbar-btn"
+                  className="btn-secondary strategy-toolbar-btn strategy-icon-text-btn"
                   aria-pressed={!showLabels}
                   title={
                     showLabels ? "Show icons only" : "Show labels"
                   }
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.3rem",
-                  }}
                 >
                   <LabelsIcon /> {showLabels && "Show Icons Only"}
                 </button>
@@ -1158,15 +1076,7 @@ const StrategyPlanPageInner = (props: {
 
 
 const ToolbarDivider = () => (
-  <div
-    aria-hidden="true"
-    style={{
-      width: 1,
-      height: "1.6rem",
-      background: "rgba(128,128,128,0.35)",
-      margin: "0 0.15rem",
-    }}
-  />
+  <div aria-hidden="true" className="strategy-toolbar-divider" />
 );
 
 const ToolButton = (props: {
@@ -1182,7 +1092,7 @@ const ToolButton = (props: {
     aria-pressed={props.active}
     title={props.title}
     disabled={props.disabled}
-    className="strategy-toolbar-btn"
+    className="strategy-toolbar-btn strategy-icon-text-btn"
     style={{
       background: props.active
         ? "var(--color-btn-primary-bg)"
@@ -1195,9 +1105,6 @@ const ToolButton = (props: {
           ? "var(--color-btn-primary-bg)"
           : "var(--color-btn-secondary-border)"
       }`,
-      display: "inline-flex",
-      alignItems: "center",
-      gap: "0.3rem",
     }}
   >
     {props.children}

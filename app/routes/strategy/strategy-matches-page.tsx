@@ -86,20 +86,12 @@ const StrategyMatchesPage = () => {
             return (
               <section className="card" key={level}>
                 <h2>{level}</h2>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "repeat(auto-fill, minmax(4rem, 1fr))",
-                    gap: "0.4rem",
-                  }}
-                >
+                <div className="strategy-match-grid">
                   {matches.map((m) => (
                     <NavLink
                       key={m.id}
                       to={`/strategy/${encodeURIComponent(tournamentId)}/${encodeURIComponent(level)}/${m.match}`}
                       className="btn-secondary"
-                      style={{ textAlign: "center" }}
                     >
                       {m.match}
                     </NavLink>

@@ -25,20 +25,19 @@ export default function RobotSlotPalette(props: Props) {
     style,
   } = props;
   return (
-    <div
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: "0.4rem",
-        ...style,
-      }}
-    >
+    <div className="strategy-palette" style={style}>
       {ROBOT_SLOTS.map((slot, i) => {
         const isSelected = selected === slot;
         const color = ROBOT_COLORS[i]!;
         const team = teamNumbers[slot];
         const isHidden = soloedSlot != null && slot !== soloedSlot;
-        const effectiveOpacity = disabled ? 0.5 : isHidden ? 0.4 : 1;
+        const classes = [
+          "strategy-palette-slot",
+          isSelected && "is-selected",
+          isHidden && "is-hidden",
+        ]
+          .filter(Boolean)
+          .join(" ");
         return (
           <button
             key={slot}
@@ -50,22 +49,11 @@ export default function RobotSlotPalette(props: Props) {
                 ? `${slot} strokes hidden — tap to show everyone`
                 : undefined
             }
-            style={{
-              background: isSelected ? color : "transparent",
-              color: isSelected ? "#fff" : color,
-              border: `3px ${isHidden ? "dotted" : "solid"} ${color}`,
-              borderRadius: "0.5rem",
-              padding: "0.4rem 0.7rem",
-              minWidth: "4.2rem",
-              fontWeight: 700,
-              cursor: disabled ? "not-allowed" : "pointer",
-              opacity: effectiveOpacity,
-              textTransform: "none",
-              letterSpacing: 0,
-            }}
+            className={classes}
+            style={{ "--slot-color": color } as React.CSSProperties}
           >
-            <div style={{ fontSize: "0.75rem" }}>{slot}</div>
-            <div style={{ fontSize: "1rem" }}>
+            <div className="strategy-palette-slot-label">{slot}</div>
+            <div className="strategy-palette-slot-team">
               {team != null && team > 0 ? team : "—"}
             </div>
           </button>

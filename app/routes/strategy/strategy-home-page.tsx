@@ -33,11 +33,10 @@ function useAllTournaments(): {
 }
 
 const TournamentLink = ({ t }: { t: RBTournament }) => (
-  <li style={{ margin: "0.5rem 0" }}>
+  <li>
     <NavLink
       to={`/strategy/${encodeURIComponent(t.id)}`}
       className="btn-secondary"
-      style={{ display: "inline-block" }}
     >
       {t.name}
     </NavLink>
@@ -56,7 +55,7 @@ const ActiveTournamentList = () => {
     );
   }
   return (
-    <ul style={{ listStyle: "none", padding: 0 }}>
+    <ul className="strategy-tournament-list">
       {list.map((t) => (
         <TournamentLink key={t.id} t={t} />
       ))}
@@ -114,7 +113,7 @@ const CurrentSeasonTournamentList = () => {
 
   return (
     <>
-      <p style={{ opacity: 0.7, fontSize: "0.85rem", marginTop: 0 }}>
+      <p className="strategy-season-hint">
         Season {season} — pick any tournament to plan (useful for testing on
         past matches).
       </p>
@@ -133,7 +132,7 @@ const CurrentSeasonTournamentList = () => {
                 {weekTournaments.length !== 1 ? "s" : ""}
               </span>
             </summary>
-            <ul style={{ listStyle: "none", padding: 0 }}>
+            <ul className="strategy-tournament-list">
               {weekTournaments.map((t) => (
                 <TournamentLink key={t.id} t={t} />
               ))}
