@@ -94,7 +94,7 @@ const LoggedIn = () => {
               <td><NavLink to="/kiosk-pit" className="btn-secondary">Pit Kiosk</NavLink></td>
               <td>
                 Load this URL in the pit (you do not need to be logged in):<br />
-                <pre style={{ display: "inline", margin: 0 }}>{window.location.origin}/kiosk-pit</pre>
+                <code>{window.location.origin}/kiosk-pit</code>
               </td>
             </tr>
           </tbody>

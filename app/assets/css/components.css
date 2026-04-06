@@ -1206,6 +1206,10 @@ table tbody tr:nth-child(odd).forgot-password-row {
     color: var(--color-text-secondary);
 }
 
+.status-table code {
+    word-break: break-all;
+}
+
 .nav-list {
     list-style: none;
     padding: 0;
