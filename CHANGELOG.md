@@ -1,3 +1,42 @@
+# [3.39.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.4...v3.39.0) (2026-04-06)
+
+
+### Bug Fixes
+
+* Add support for arrows and lines ([c6e243f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c6e243f808e3cb38e1a0dce75e903ecabd5d1da8))
+* allow admins to see this section ([de57f58](https://github.com/RunnymedeRobotics1310/RavenEye/commit/de57f58a0974cb575733df9aa29ab9c1928f1e2d))
+* Better colors ([fdd4224](https://github.com/RunnymedeRobotics1310/RavenEye/commit/fdd422404372d39f053629446536d8a6e4c2c8da))
+* consolidate play/stop ([4e06f09](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4e06f093d35918914c1a593674c5fee6ee94d348))
+* css cleanup ([a675e5f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a675e5f8ffa991dae6bf4c96624a16858b4f3f86))
+* field edit only available in full screen mode ([843e54a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/843e54ad24eab09e7249e6b9df462a532ff07af3))
+* fix arrowhead ([105bdb1](https://github.com/RunnymedeRobotics1310/RavenEye/commit/105bdb116f4a33849d26fa1a3246893d3a6e55cc))
+* get rid of lock state - always editable if privs exist ([ad2ad36](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ad2ad361fe606bae3eb021589916e0d77cc94353))
+* hide pan button on touch devices ([33dc535](https://github.com/RunnymedeRobotics1310/RavenEye/commit/33dc535b69103407aceb259fb1420b3f6e55b996))
+* hide title if toolbar wraps in full screen mode ([4efe8a3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4efe8a3149b99d6c3deecb012296c0b0ad0e5991))
+* Image resizing ([e1d2b74](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e1d2b749ec36b308d9a1379dd03a67e93bbddd6c))
+* layout and zoom fixes ([eb97375](https://github.com/RunnymedeRobotics1310/RavenEye/commit/eb97375bf54b128b711c0754867beb542a4bdcbf))
+* layout and zoom fixes ([a83403f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a83403f8ef6ee593bfaf9d58d655c79f7d6e2f3f))
+* More concise sync demo ([23de7d9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/23de7d9ba393e62a27529f2a8c781acb37b86cd2))
+* move close icon ([2fe4527](https://github.com/RunnymedeRobotics1310/RavenEye/commit/2fe45275980ad0479c653e5419b55780c1d4d6c4))
+* Pan arrowhead fix ([46e5608](https://github.com/RunnymedeRobotics1310/RavenEye/commit/46e5608fae56da749561c77022e81e32355f730c))
+* pan/zoom controls ([69e2f86](https://github.com/RunnymedeRobotics1310/RavenEye/commit/69e2f86bb2292f8337716e30935c65f1f5506475))
+* Plan sync timing fix ([80143b4](https://github.com/RunnymedeRobotics1310/RavenEye/commit/80143b4a4faae865c1127efad51ed51a85437a85))
+* Rotate cavas ([19120bc](https://github.com/RunnymedeRobotics1310/RavenEye/commit/19120bc5e65b083c6edfded452f1461c3c32f263))
+* Rotate cavas with offset ([4dd9228](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4dd9228ced3fe9fdf155d6c9c7e5424004bdf22f))
+* standardize font sizes for strat page ([0379efb](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0379efb815b75531b29924f75a3e2e10d3e3ecf8))
+* Sync messaging ([58c9de2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/58c9de265a76bf318fa544227716d2f0b616ee2f))
+* Toggle team strokes ([8b34562](https://github.com/RunnymedeRobotics1310/RavenEye/commit/8b34562a483c2a2c4f300d1d48217f6be20a365a))
+* Toolbar enhancements ([6159338](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6159338c6d305b34342390a1c5cf0d2ddc4d5bad))
+* Toolbar tweaks ([8f1f2f7](https://github.com/RunnymedeRobotics1310/RavenEye/commit/8f1f2f7cbf47a9210bed42ca8cb06c96280f7c8f))
+* Toolbar tweaks ([e925170](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e9251706766929b3f227ffde1d69a3a0ebbbbfa6))
+* Toolbar tweaks ([41f846a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/41f846acfb0f81c1cc6f310b79fee986654b19c6))
+* Toolbar tweaks ([88672d9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/88672d9afb397820ab4f13b228c31995e3734b31))
+
+
+### Features
+
+* Match strategy canvas ([c075045](https://github.com/RunnymedeRobotics1310/RavenEye/commit/c075045b75bb79252962a29ac16d0a604aefff5d))
+
 ## [3.38.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.3...v3.38.4) (2026-03-30)
 
 
