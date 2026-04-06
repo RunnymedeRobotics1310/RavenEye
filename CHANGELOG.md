@@ -1,3 +1,10 @@
+## [3.39.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.39.0...v3.39.1) (2026-04-06)
+
+
+### Bug Fixes
+
+* Fix word wrap on home page due to url length ([a08b7ff](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a08b7ff8a66da64d1e7acc7db01aa217b3303814))
+
 # [3.39.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.38.4...v3.39.0) (2026-04-06)
 
 
