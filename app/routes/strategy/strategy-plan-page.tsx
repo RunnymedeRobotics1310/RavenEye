@@ -479,6 +479,9 @@ const StrategyPlanPageInner = (props: {
   const canvasRef = useRef<StrategyCanvasHandle>(null);
   const strategySyncStatus = useStrategyPlansSyncStatus();
   const [isCanvasFullscreen, setIsCanvasFullscreen] = useState(false);
+  // Incrementing this key forces SyncCountdown to remount (resetting its
+  // internal timer) after a manual sync.
+  const [syncResetKey, setSyncResetKey] = useState(0);
   const [showZoomMenu, setShowZoomMenu] = useState(false);
   const zoomMenuWrapperRef = useRef<HTMLDivElement>(null);
   // Close the zoom popover on outside click / Escape.
@@ -840,6 +843,7 @@ const StrategyPlanPageInner = (props: {
       );
     } finally {
       setManualSyncing(false);
+      setSyncResetKey((k) => k + 1);
     }
   };
   const syncTitle = strategySyncStatus.error
@@ -874,13 +878,16 @@ const StrategyPlanPageInner = (props: {
           >
             <Sync status={syncIconStatus} />
           </button>
-          <span className="strategy-sync-countdown-wrap">
-            <SyncCountdown
-              intervalMs={30_000}
-              onSync={refreshThisPlan}
-              label=""
-            />
-          </span>
+          {!isCanvasFullscreen && (
+            <span className="strategy-sync-countdown-wrap">
+              <SyncCountdown
+                key={syncResetKey}
+                intervalMs={30_000}
+                onSync={refreshThisPlan}
+                label=""
+              />
+            </span>
+          )}
         </p>
       </div>
 
@@ -944,7 +951,7 @@ const StrategyPlanPageInner = (props: {
                 Fullscreen view: full editor with metadata row (label input +
                 stroke count + palette), toolbar, and interactive canvas.
               */}
-              {/* Row 1: title + stroke count + close button. */}
+              {/* Row 1: title + sync + countdown + stroke count + close. */}
               <div className="strategy-metadata-row">
                 {isEditing ? (
                   <input
@@ -959,6 +966,24 @@ const StrategyPlanPageInner = (props: {
                     {activeDrawing.label || "(untitled)"}
                   </h2>
                 )}
+                <button
+                  type="button"
+                  onClick={handleManualSync}
+                  disabled={strategySyncStatus.inProgress || manualSyncing}
+                  title={syncTitle}
+                  aria-label={syncTitle}
+                  className="strategy-sync-btn"
+                >
+                  <Sync status={syncIconStatus} />
+                </button>
+                <span className="strategy-sync-countdown-wrap">
+                  <SyncCountdown
+                    key={syncResetKey}
+                    intervalMs={30_000}
+                    onSync={refreshThisPlan}
+                    label=""
+                  />
+                </span>
                 <span className="strategy-char-count">{strokeCountText}</span>
                 <button
                   type="button"

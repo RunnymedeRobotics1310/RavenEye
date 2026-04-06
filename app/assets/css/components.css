@@ -311,14 +311,21 @@ button.secondary:hover {
     cursor: wait;
     opacity: 1; /* icon's own state colour is the visual cue */
 }
+.strategy-sync-btn .icon {
+    width: 1.3rem;
+    height: 1.15rem;
+}
 .strategy-sync-countdown-wrap {
-    margin-left: 0.6rem;
+}
+.page-header .strategy-sync-countdown-wrap {
+    margin-left: 0.8rem;
 }
 .strategy-sidebar-field {
     display: block;
     margin-bottom: 0.6rem;
 }
-.strategy-char-count {
+.strategy-char-count,
+.strategy-sync-countdown-wrap {
     font-size: 0.75rem;
     opacity: 0.7;
 }
