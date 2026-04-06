@@ -9,9 +9,10 @@ import type { RBQuickComment } from "~/types/RBQuickComment.ts";
 import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
 import type { CustomTournamentStats } from "~/types/TeamSummaryReport.ts";
+import type { StrategyStroke } from "~/types/StrategyStroke.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 12;
+const DB_VERSION = 13;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -27,6 +28,73 @@ const SYNC_ALERT_STORE = "robotAlertsSynced";
 const ROBOT_ALERTS_STORE = "robotAlerts";
 const TEAM_TOURNAMENT_IDS_STORE = "teamTournamentIds";
 const CUSTOM_STATS_CACHE_STORE = "customStatsCache";
+const STRATEGY_PLAN_STORE = "strategyPlans";
+const STRATEGY_DRAWING_STORE = "strategyDrawings";
+
+/**
+ * Minimal typed reference to a single match in a tournament — the three
+ * fields that uniquely identify a strategy plan. Mirrors the pattern of
+ * `ScoutingSessionId` but with only the match-identifying fields (no
+ * alliance / team / user). Used as both the input to, and the parsed
+ * output from, the strategy-plan local-key serialisation below.
+ */
+export interface StrategyPlanMatchRef {
+  tournamentId: string;
+  matchLevel: string;
+  matchNumber: number;
+}
+
+const LOCAL_KEY_SEPARATOR = "|";
+
+export function strategyPlanLocalKey(ref: StrategyPlanMatchRef): string {
+  return (
+    ref.tournamentId +
+    LOCAL_KEY_SEPARATOR +
+    ref.matchLevel +
+    LOCAL_KEY_SEPARATOR +
+    ref.matchNumber
+  );
+}
+
+export function parseStrategyPlanLocalKey(key: string): StrategyPlanMatchRef {
+  const parts = key.split(LOCAL_KEY_SEPARATOR);
+  return {
+    tournamentId: parts[0] ?? "",
+    matchLevel: parts[1] ?? "",
+    matchNumber: parseInt(parts[2] ?? "0", 10),
+  };
+}
+
+export interface StoredStrategyPlan {
+  localKey: string;
+  id: number | null;
+  tournamentId: string;
+  matchLevel: string;
+  matchNumber: number;
+  shortSummary: string;
+  strategyText: string | null;
+  updatedByUserId: number;
+  updatedByDisplayName: string;
+  updatedAt: string;
+  dirty: boolean;
+}
+
+export interface StoredStrategyDrawing {
+  localId: string; // `srv-${serverId}` once synced; `new-${uuid}` while pending
+  planLocalKey: string;
+  id: number | null;
+  planId: number | null;
+  label: string;
+  strokes: StrategyStroke[];
+  createdByUserId: number | null;
+  createdByDisplayName: string | null;
+  updatedByUserId: number | null;
+  updatedByDisplayName: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  dirty: boolean;
+  pendingDelete: boolean;
+}
 
 export class Repository {
   private db: IDBDatabase | null = null;
@@ -89,6 +157,17 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(CUSTOM_STATS_CACHE_STORE)) {
           db.createObjectStore(CUSTOM_STATS_CACHE_STORE, { keyPath: "key" });
+        }
+        if (!db.objectStoreNames.contains(STRATEGY_PLAN_STORE)) {
+          db.createObjectStore(STRATEGY_PLAN_STORE, { keyPath: "localKey" });
+        }
+        if (!db.objectStoreNames.contains(STRATEGY_DRAWING_STORE)) {
+          const drawingStore = db.createObjectStore(STRATEGY_DRAWING_STORE, {
+            keyPath: "localId",
+          });
+          drawingStore.createIndex("planLocalKey", "planLocalKey", {
+            unique: false,
+          });
         }
       };
     });
@@ -582,6 +661,156 @@ export class Repository {
         resolve({ stats: result.stats, cachedAt: result.cachedAt });
       };
       request.onerror = () => reject(request.error);
+    });
+  }
+
+  // -------- Match Strategy Plans --------
+
+  async putStrategyPlan(stored: StoredStrategyPlan): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_PLAN_STORE], "readwrite");
+      tx.objectStore(STRATEGY_PLAN_STORE).put(stored);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async getStrategyPlan(localKey: string): Promise<StoredStrategyPlan | null> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_PLAN_STORE], "readonly");
+      const req = tx.objectStore(STRATEGY_PLAN_STORE).get(localKey);
+      req.onsuccess = () =>
+        resolve((req.result as StoredStrategyPlan | undefined) ?? null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getStrategyPlansForTournament(
+    tournamentId: string,
+  ): Promise<StoredStrategyPlan[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_PLAN_STORE], "readonly");
+      const req = tx.objectStore(STRATEGY_PLAN_STORE).getAll();
+      req.onsuccess = () => {
+        const all = (req.result as StoredStrategyPlan[]) ?? [];
+        resolve(all.filter((p) => p.tournamentId === tournamentId));
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getDirtyStrategyPlans(): Promise<StoredStrategyPlan[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_PLAN_STORE], "readonly");
+      const req = tx.objectStore(STRATEGY_PLAN_STORE).getAll();
+      req.onsuccess = () => {
+        const all = (req.result as StoredStrategyPlan[]) ?? [];
+        resolve(all.filter((p) => p.dirty));
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  // -------- Match Strategy Drawings --------
+
+  async putStrategyDrawing(stored: StoredStrategyDrawing): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_DRAWING_STORE], "readwrite");
+      tx.objectStore(STRATEGY_DRAWING_STORE).put(stored);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async getStrategyDrawing(
+    localId: string,
+  ): Promise<StoredStrategyDrawing | null> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_DRAWING_STORE], "readonly");
+      const req = tx.objectStore(STRATEGY_DRAWING_STORE).get(localId);
+      req.onsuccess = () =>
+        resolve((req.result as StoredStrategyDrawing | undefined) ?? null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getStrategyDrawingsForPlan(
+    planLocalKey: string,
+  ): Promise<StoredStrategyDrawing[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_DRAWING_STORE], "readonly");
+      const store = tx.objectStore(STRATEGY_DRAWING_STORE);
+      const index = store.index("planLocalKey");
+      const req = index.getAll(IDBKeyRange.only(planLocalKey));
+      req.onsuccess = () => {
+        const all = (req.result as StoredStrategyDrawing[]) ?? [];
+        resolve(all.filter((d) => !d.pendingDelete));
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getDirtyStrategyDrawings(): Promise<StoredStrategyDrawing[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_DRAWING_STORE], "readonly");
+      const req = tx.objectStore(STRATEGY_DRAWING_STORE).getAll();
+      req.onsuccess = () => {
+        const all = (req.result as StoredStrategyDrawing[]) ?? [];
+        resolve(all.filter((d) => d.dirty && !d.pendingDelete));
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getPendingDeleteStrategyDrawings(): Promise<StoredStrategyDrawing[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_DRAWING_STORE], "readonly");
+      const req = tx.objectStore(STRATEGY_DRAWING_STORE).getAll();
+      req.onsuccess = () => {
+        const all = (req.result as StoredStrategyDrawing[]) ?? [];
+        resolve(all.filter((d) => d.pendingDelete));
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async deleteStrategyDrawingLocal(localId: string): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_DRAWING_STORE], "readwrite");
+      tx.objectStore(STRATEGY_DRAWING_STORE).delete(localId);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  /**
+   * Replace a drawing's localId with a new one (used when a `new-*` localId
+   * is upgraded to `srv-<serverId>` after first successful sync).
+   */
+  async renameStrategyDrawing(
+    oldLocalId: string,
+    replacement: StoredStrategyDrawing,
+  ): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([STRATEGY_DRAWING_STORE], "readwrite");
+      const store = tx.objectStore(STRATEGY_DRAWING_STORE);
+      if (oldLocalId !== replacement.localId) {
+        store.delete(oldLocalId);
+      }
+      store.put(replacement);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
     });
   }
 

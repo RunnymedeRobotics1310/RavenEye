@@ -235,7 +235,9 @@ const ConfigSyncForm = () => {
               )}
               {(result.events > 0 ||
                 result.comments > 0 ||
-                result.alerts > 0) && (
+                result.alerts > 0 ||
+                result.matchStrategyPlans > 0 ||
+                result.matchStrategyDrawings > 0) && (
                 <>
                   <tr>
                     <td>Events</td>
@@ -248,6 +250,14 @@ const ConfigSyncForm = () => {
                   <tr>
                     <td>Alerts</td>
                     <td>{result.alerts}</td>
+                  </tr>
+                  <tr>
+                    <td>Match Strategy Plans</td>
+                    <td>{result.matchStrategyPlans}</td>
+                  </tr>
+                  <tr>
+                    <td>Match Strategy Drawings</td>
+                    <td>{result.matchStrategyDrawings}</td>
                   </tr>
                 </>
               )}

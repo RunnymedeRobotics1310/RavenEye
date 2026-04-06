@@ -3,6 +3,7 @@ import type { Route } from "../routes/+types/home-page";
 import {
   getDisplayName,
   useLoginStatus,
+  useRole,
 } from "~/common/storage/rbauth.ts";
 import { getActiveTeamTournaments } from "~/common/storage/rb.ts";
 import { NavLink } from "react-router";
@@ -39,6 +40,11 @@ export function meta({}: Route.MetaArgs) {
 const LoggedIn = () => {
   const fullName = getDisplayName();
   const hasActive = useHasActiveTournament();
+  const roles = useRole();
+  // TEMPORARY: hide Match Strategy from scouts until launch — admins and
+  // superusers can see it. Restore to
+  // `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
+  const canStrategize = roles.isAdmin || roles.isSuperuser;
   const [copyToast, setCopyToast] = useState(false);
   return (
     <main>
@@ -53,6 +59,7 @@ const LoggedIn = () => {
           <div className="home-nav-primary">
             <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
             <NavLink to={"/report"} className="btn">View Reports</NavLink>
+            {canStrategize && <NavLink to={"/strategy"} className="btn">Match Strategy</NavLink>}
             {hasActive && <NavLink to={"/report/schedule/active"} className="btn-secondary">Current Tournament Schedule & Scores</NavLink>}
             {hasActive && <NavLink to={"/report/schedule"} className="btn-secondary">Schedule & Scores</NavLink>}
           </div>

@@ -1,5 +1,9 @@
 import type { SyncStatus } from "~/types/SyncStatus.ts";
-import { repository } from "~/common/storage/db.ts";
+import {
+  parseStrategyPlanLocalKey,
+  repository,
+  type StoredStrategyDrawing,
+} from "~/common/storage/db.ts";
 import {
   getEventTypeList,
   getSequenceTypeList,
@@ -12,7 +16,14 @@ import {
   saveEventLogRecords,
   saveRobotAlertRecords,
   getRobotAlertListBulk,
+  getStrategyPlansForTournament,
+  getStrategyPlan,
+  saveStrategyPlan,
+  saveStrategyDrawing,
+  deleteStrategyDrawing,
+  parseDrawingStrokes,
 } from "~/common/storage/rb.ts";
+import type { RBPlanWithDrawings } from "~/common/storage/rb.ts";
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
 
 const TOURNAMENT_LIST = "Tournament List";
@@ -26,6 +37,7 @@ const TRACKING_DATA = "Tracking Data";
 const ROBOT_ALERTS = "Robot Alerts";
 const ROBOT_ALERT_LIST = "Robot Alert List";
 const DASHBOARD_DATA = "Dashboard Data";
+const STRATEGY_PLANS = "Strategy Plans";
 
 function log(msg: string): void {
   console.log(
@@ -91,6 +103,7 @@ export function initializeSyncSchedule() {
   updateCommentUnsyncCount();
   updateEventUnsyncCount();
   updateRobotAlertUnsyncCount();
+  updateStrategyPlansUnsyncCount();
 
   // Sync server data on startup if the user has a session
   const hasSession =
@@ -101,6 +114,19 @@ export function initializeSyncSchedule() {
   }
 
   setInterval(autoSyncMatchSchedule, SCHEDULE_SYNC_INTERVAL);
+  setInterval(autoSyncStrategyPlans, SCHEDULE_SYNC_INTERVAL);
+}
+
+async function autoSyncStrategyPlans(): Promise<void> {
+  const hasSession =
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem("raveneye_access_token") !== null;
+  if (!hasSession) return;
+  const active = await hasActiveTournament();
+  if (!active) return;
+  const alive = await ping();
+  if (!alive) return;
+  await syncStrategyPlans();
 }
 
 async function hasActiveTournament(): Promise<boolean> {
@@ -131,6 +157,7 @@ export async function doManualSync() {
       syncQuickComments(),
       syncTrackingData(),
       syncRobotAlerts(),
+      syncStrategyPlans(),
     ]);
   } else {
     log("Skipping Manual Sync - not connected");
@@ -435,6 +462,244 @@ export async function syncRobotAlerts() {
   }
 }
 
+export async function syncStrategyPlans() {
+  await runSync(STRATEGY_PLANS, async () => {
+    await uploadDirtyStrategyPlans();
+    await downloadStrategyPlansForActiveTournaments();
+  });
+}
+
+async function uploadDirtyStrategyPlans(): Promise<void> {
+    // 1. Pending deletes first (drawings the user removed locally).
+    const pendingDeletes = await repository.getPendingDeleteStrategyDrawings();
+    for (const d of pendingDeletes) {
+      if (d.id != null) {
+        try {
+          await deleteStrategyDrawing(d.id);
+        } catch (e) {
+          console.warn("[sync] failed to delete strategy drawing", d.id, e);
+          continue; // keep for retry
+        }
+      }
+      await repository.deleteStrategyDrawingLocal(d.localId);
+    }
+
+    // 2. Dirty plans.
+    const dirtyPlans = await repository.getDirtyStrategyPlans();
+    for (const p of dirtyPlans) {
+      const saved = await saveStrategyPlan({
+        tournamentId: p.tournamentId,
+        matchLevel: p.matchLevel,
+        matchNumber: p.matchNumber,
+        shortSummary: p.shortSummary,
+        strategyText: p.strategyText,
+      });
+      await repository.putStrategyPlan({
+        ...p,
+        id: saved.id,
+        shortSummary: saved.shortSummary,
+        strategyText: saved.strategyText,
+        updatedByUserId: saved.updatedByUserId,
+        updatedByDisplayName: saved.updatedByDisplayName,
+        updatedAt: saved.updatedAt,
+        dirty: false,
+      });
+    }
+
+    // 3. Dirty drawings.
+    const dirtyDrawings = await repository.getDirtyStrategyDrawings();
+    for (const d of dirtyDrawings) {
+      const matchRef = parseStrategyPlanLocalKey(d.planLocalKey);
+      const saved = await saveStrategyDrawing({
+        id: d.id,
+        tournamentId: matchRef.tournamentId,
+        matchLevel: matchRef.matchLevel,
+        matchNumber: matchRef.matchNumber,
+        label: d.label,
+        strokes: JSON.stringify(d.strokes),
+      });
+      const replacement: StoredStrategyDrawing = {
+        ...d,
+        localId: "srv-" + saved.id,
+        id: saved.id,
+        planId: saved.planId,
+        label: saved.label,
+        createdByUserId: saved.createdByUserId,
+        createdByDisplayName: saved.createdByDisplayName,
+        updatedByUserId: saved.updatedByUserId,
+        updatedByDisplayName: saved.updatedByDisplayName,
+        createdAt: saved.createdAt,
+        updatedAt: saved.updatedAt,
+        dirty: false,
+        pendingDelete: false,
+      };
+      await repository.renameStrategyDrawing(d.localId, replacement);
+    }
+}
+
+async function downloadStrategyPlansForActiveTournaments(): Promise<void> {
+    const tournaments = await repository.getTournamentList();
+    const cutoff = Date.now() - ACTIVE_TOURNAMENT_CUTOFF;
+    const activeTournamentIds = tournaments
+      .filter((t) => new Date(t.endTime).getTime() > cutoff)
+      .map((t) => t.id);
+    for (const tid of activeTournamentIds) {
+      const remote = await getStrategyPlansForTournament(tid);
+      for (const pwd of remote) {
+        const localKey =
+          pwd.plan.tournamentId +
+          "|" +
+          pwd.plan.matchLevel +
+          "|" +
+          pwd.plan.matchNumber;
+        const existingPlan = await repository.getStrategyPlan(localKey);
+        // Do not overwrite a locally-dirty plan with a server copy.
+        if (!existingPlan || !existingPlan.dirty) {
+          await repository.putStrategyPlan({
+            localKey,
+            id: pwd.plan.id,
+            tournamentId: pwd.plan.tournamentId,
+            matchLevel: pwd.plan.matchLevel,
+            matchNumber: pwd.plan.matchNumber,
+            shortSummary: pwd.plan.shortSummary,
+            strategyText: pwd.plan.strategyText,
+            updatedByUserId: pwd.plan.updatedByUserId,
+            updatedByDisplayName: pwd.plan.updatedByDisplayName,
+            updatedAt: pwd.plan.updatedAt,
+            dirty: false,
+          });
+        }
+        for (const sd of pwd.drawings) {
+          const localId = "srv-" + sd.id;
+          const existingDrawing = await repository.getStrategyDrawing(localId);
+          if (
+            !existingDrawing ||
+            (!existingDrawing.dirty && !existingDrawing.pendingDelete)
+          ) {
+            await repository.putStrategyDrawing({
+              localId,
+              planLocalKey: localKey,
+              id: sd.id,
+              planId: sd.planId,
+              label: sd.label,
+              strokes: parseDrawingStrokes(sd),
+              createdByUserId: sd.createdByUserId,
+              createdByDisplayName: sd.createdByDisplayName,
+              updatedByUserId: sd.updatedByUserId,
+              updatedByDisplayName: sd.updatedByDisplayName,
+              createdAt: sd.createdAt,
+              updatedAt: sd.updatedAt,
+              dirty: false,
+              pendingDelete: false,
+            });
+          }
+        }
+      }
+    }
+}
+
+/**
+ * Fetch a single plan (with its drawings) from the server and merge into
+ * IndexedDB, regardless of whether the tournament is "active". Used by the
+ * plan editor on mount so users always see the latest server state for the
+ * specific match they opened — covers past-tournament testing and the
+ * "come back to yesterday's match" case.
+ *
+ * Respects locally-dirty records: will not overwrite unsynced user edits.
+ */
+export async function refreshStrategyPlanForMatch(
+  tournamentId: string,
+  matchLevel: string,
+  matchNumber: number,
+): Promise<void> {
+  const hasSession =
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem("raveneye_access_token") !== null;
+  if (!hasSession) return;
+  const alive = await ping();
+  if (!alive) return;
+  let pwd: RBPlanWithDrawings | null;
+  try {
+    pwd = await getStrategyPlan(tournamentId, matchLevel, matchNumber);
+  } catch (e) {
+    console.warn("[sync] refreshStrategyPlanForMatch failed", e);
+    return;
+  }
+  if (pwd == null) return; // no plan on server yet
+  const localKey =
+    pwd.plan.tournamentId +
+    "|" +
+    pwd.plan.matchLevel +
+    "|" +
+    pwd.plan.matchNumber;
+  const existingPlan = await repository.getStrategyPlan(localKey);
+  if (!existingPlan || !existingPlan.dirty) {
+    await repository.putStrategyPlan({
+      localKey,
+      id: pwd.plan.id,
+      tournamentId: pwd.plan.tournamentId,
+      matchLevel: pwd.plan.matchLevel,
+      matchNumber: pwd.plan.matchNumber,
+      shortSummary: pwd.plan.shortSummary,
+      strategyText: pwd.plan.strategyText,
+      updatedByUserId: pwd.plan.updatedByUserId,
+      updatedByDisplayName: pwd.plan.updatedByDisplayName,
+      updatedAt: pwd.plan.updatedAt,
+      dirty: false,
+    });
+  }
+  for (const sd of pwd.drawings) {
+    const localId = "srv-" + sd.id;
+    const existing = await repository.getStrategyDrawing(localId);
+    if (!existing || (!existing.dirty && !existing.pendingDelete)) {
+      await repository.putStrategyDrawing({
+        localId,
+        planLocalKey: localKey,
+        id: sd.id,
+        planId: sd.planId,
+        label: sd.label,
+        strokes: parseDrawingStrokes(sd),
+        createdByUserId: sd.createdByUserId,
+        createdByDisplayName: sd.createdByDisplayName,
+        updatedByUserId: sd.updatedByUserId,
+        updatedByDisplayName: sd.updatedByDisplayName,
+        createdAt: sd.createdAt,
+        updatedAt: sd.updatedAt,
+        dirty: false,
+        pendingDelete: false,
+      });
+    }
+  }
+}
+
+export async function updateStrategyPlansUnsyncCount() {
+  const dirtyPlans = await repository.getDirtyStrategyPlans();
+  const dirtyDrawings = await repository.getDirtyStrategyDrawings();
+  const pendingDeletes = await repository.getPendingDeleteStrategyDrawings();
+  const total =
+    dirtyPlans.length + dirtyDrawings.length + pendingDeletes.length;
+  const stat = await repository.getSyncStatus(STRATEGY_PLANS);
+  if (stat) {
+    stat.remaining = total;
+    stat.isComplete = total === 0;
+    await repository.putSyncStatus(stat);
+  } else {
+    await repository.putSyncStatus({
+      loading: false,
+      component: STRATEGY_PLANS,
+      lastSync: new Date(),
+      inProgress: false,
+      isComplete: total === 0,
+      remaining: total,
+      error: null,
+    });
+  }
+}
+
+export const useStrategyPlansSyncStatus = (): SyncStatus => {
+  return useSyncStatus(STRATEGY_PLANS);
+};
+
 export async function syncRobotAlertList() {
   await runSync(ROBOT_ALERT_LIST, async () => {
     const tournaments = await repository.getTournamentList();
@@ -587,7 +852,8 @@ export const useManualSyncStatus = (): SyncStatus => {
   const comments = useQuickCommentsSyncStatus();
   const track = useTrackingDataSyncStatus();
   const alerts = useRobotAlertsSyncStatus();
-  return aggregateStatuses("Manual Sync", [comments, track, alerts]);
+  const strategy = useStrategyPlansSyncStatus();
+  return aggregateStatuses("Manual Sync", [comments, track, alerts, strategy]);
 };
 
 export const useServerDataSyncStatus = (): SyncStatus => {

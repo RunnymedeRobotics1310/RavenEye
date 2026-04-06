@@ -125,6 +125,321 @@ button.secondary:hover {
     color: var(--color-btn-secondary-text);
 }
 
+/*
+ * Strategy canvas toolbar button. Overrides the default `button` padding
+ * to get a tighter, consistently-sized control. Scales modestly across
+ * breakpoints (matching typography.css) but NOT as aggressively as rem
+ * would — buttons are chrome, not content, and shouldn't blow up 1.78×
+ * between phone and desktop the way body text does.
+ */
+.strategy-toolbar-btn {
+    padding: 4px 12px;
+    min-height: 36px;
+}
+
+@media screen and (min-width: 700px) and (min-height: 500px) {
+    .strategy-toolbar-btn {
+        padding: 6px 18px;
+        min-height: 44px;
+    }
+}
+
+@media screen and (min-width: 1000px) and (min-height: 1000px) {
+    .strategy-toolbar-btn {
+        padding: 8px 22px;
+        min-height: 52px;
+    }
+}
+
+/*
+ * Strategy canvas — drawing list (sidebar).
+ */
+.strategy-drawing-list h3 {
+    margin: 0.5rem 0;
+}
+.strategy-drawing-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.strategy-drawing-list li {
+    padding: 0.5rem;
+    margin-bottom: 0.3rem;
+    border-radius: 0.4rem;
+    border: 2px solid transparent;
+    background: rgba(128, 128, 128, 0.08);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+.strategy-drawing-list li.is-active {
+    border-color: var(--color-btn-primary-bg, #38f);
+    background: rgba(56, 136, 255, 0.12);
+}
+.strategy-drawing-list .strategy-drawing-label {
+    flex: 1;
+    min-width: 0;
+}
+.strategy-drawing-list .strategy-drawing-title {
+    font-weight: 600;
+}
+.strategy-drawing-list .strategy-drawing-meta {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+.strategy-drawing-list .strategy-drawing-delete {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.7rem;
+    background: transparent;
+    color: var(--color-text-primary);
+    border: 1px solid currentColor;
+}
+.strategy-drawing-list .strategy-drawing-add {
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+/*
+ * Strategy canvas — robot-slot palette (six alliance colour swatches).
+ * Per-slot colour is provided inline via `--slot-color`; everything else
+ * sits here.
+ */
+.strategy-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+.strategy-palette .strategy-palette-slot {
+    background: transparent;
+    color: var(--slot-color);
+    border: 3px solid var(--slot-color);
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.7rem;
+    min-width: 4.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    opacity: 1;
+    text-transform: none;
+    letter-spacing: 0;
+}
+.strategy-palette .strategy-palette-slot.is-selected {
+    background: var(--slot-color);
+    color: #fff;
+}
+.strategy-palette .strategy-palette-slot.is-hidden {
+    border-style: dotted;
+    opacity: 0.4;
+}
+.strategy-palette .strategy-palette-slot:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+.strategy-palette .strategy-palette-slot-label {
+    font-size: 0.75rem;
+}
+.strategy-palette .strategy-palette-slot-team {
+    font-size: 1rem;
+}
+
+/*
+ * Strategy tournament picker (home + matches pages).
+ */
+.strategy-tournament-list {
+    list-style: none;
+    padding: 0;
+}
+.strategy-tournament-list li {
+    margin: 0.5rem 0;
+}
+.strategy-tournament-list li a {
+    display: inline-block;
+}
+.strategy-season-hint {
+    opacity: 0.7;
+    font-size: 0.85rem;
+    margin-top: 0;
+}
+
+/*
+ * Strategy match picker — grid of match-number buttons per level.
+ */
+.strategy-match-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr));
+    gap: 0.4rem;
+}
+.strategy-match-grid a {
+    text-align: center;
+}
+
+/*
+ * Strategy plan editor — page layout + sidebar + canvas-card chrome.
+ */
+.strategy-plan-grid {
+    display: grid;
+    grid-template-columns: minmax(18rem, 28%) 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+.strategy-plan-grid.is-stacked {
+    grid-template-columns: 1fr;
+}
+/*
+ * Strategy sync-status icon button — bare icon (no button chrome),
+ * clickable to trigger a manual sync. Colour + rotation come from the
+ * nested Sync icon's status classes.
+ */
+.strategy-sync-btn {
+    margin-left: 0.8rem;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    vertical-align: middle;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: inherit;
+}
+.strategy-sync-btn:hover,
+.strategy-sync-btn:active {
+    background: transparent;
+    transform: none;
+}
+.strategy-sync-btn:disabled {
+    cursor: wait;
+    opacity: 1; /* icon's own state colour is the visual cue */
+}
+.strategy-sync-btn .icon {
+    width: 1.3rem;
+    height: 1.15rem;
+}
+.strategy-sync-countdown-wrap {
+}
+.page-header .strategy-sync-countdown-wrap {
+    margin-left: 0.8rem;
+}
+.strategy-sidebar-field {
+    display: block;
+    margin-bottom: 0.6rem;
+}
+.strategy-char-count,
+.strategy-sync-countdown-wrap {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+.strategy-sidebar-input-control {
+    width: 100%;
+    margin-top: 0.2rem;
+}
+.strategy-drawing-list-scroll {
+    max-height: 40vh;
+    overflow-y: auto;
+}
+/*
+ * Strategy fullscreen close button — standard toolbar-button box styled
+ * via the existing .btn-secondary + .strategy-toolbar-btn classes; the
+ * auto-margin here pushes it to the right edge of the metadata row.
+ */
+.strategy-close-fullscreen-btn {
+    margin-left: auto;
+}
+
+/*
+ * Strategy canvas — windowed read-only preview.
+ */
+.strategy-drawing-title-static {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+.strategy-drawing-title-heading {
+    flex: 0 1 14rem;
+    min-width: 0;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.strategy-canvas-click-to-fullscreen {
+    cursor: pointer;
+}
+.strategy-canvas-section.is-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    margin: 0;
+    border-radius: 0;
+    overflow: hidden;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    display: flex;
+    flex-direction: column;
+}
+.strategy-metadata-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+}
+.strategy-canvas-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+}
+.strategy-zoom-btn {
+    min-width: 2rem;
+}
+.strategy-zoom-pct-btn {
+    min-width: 3.5rem;
+}
+.strategy-zoom-menu-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+.strategy-zoom-menu {
+    position: absolute;
+    top: calc(100% + 0.3rem);
+    right: 0;
+    z-index: 10;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem;
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-btn-secondary-border);
+    border-radius: 0.4rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    white-space: nowrap;
+}
+.strategy-zoom-menu-label {
+    min-width: 3rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+.strategy-icon-text-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.strategy-toolbar-divider {
+    width: 1px;
+    height: 1.6rem;
+    background: rgba(128, 128, 128, 0.35);
+    margin: 0 0.15rem;
+}
+
 .btn-danger {
     background-color: var(--color-danger, #c0392b);
     color: #fff;
