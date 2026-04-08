@@ -58,7 +58,7 @@ export async function authenticate(
       sessionStorage.setItem(SESSION_KEY_DISPLAY_NAME, jwt.displayName);
       sessionStorage.setItem(SESSION_KEY_ROLES, JSON.stringify(jwt.roles));
       if (json.refresh_token) {
-        sessionStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
+        localStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
       }
       window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
       return;
@@ -140,8 +140,8 @@ export async function refreshAccessToken(): Promise<boolean> {
     return refreshInProgress;
   }
   const refreshToken =
-    typeof sessionStorage !== "undefined"
-      ? sessionStorage.getItem(SESSION_KEY_REFRESH_TOKEN)
+    typeof localStorage !== "undefined"
+      ? localStorage.getItem(SESSION_KEY_REFRESH_TOKEN)
       : null;
   if (!refreshToken) {
     return false;
@@ -179,7 +179,7 @@ async function doRefresh(refreshToken: string): Promise<boolean> {
     sessionStorage.setItem(SESSION_KEY_DISPLAY_NAME, jwt.displayName);
     sessionStorage.setItem(SESSION_KEY_ROLES, JSON.stringify(jwt.roles));
     if (json.refresh_token) {
-      sessionStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
+      localStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
     }
     return true;
   } catch {
@@ -359,7 +359,21 @@ export function useLoginStatus() {
         }
         if (accessToken === null) {
           setHasToken(false);
-          setLoading(false);
+          // No access token but server is alive — try refresh from localStorage
+          refreshAccessToken()
+            .then((refreshed) => {
+              if (refreshed) {
+                return validate().then(() => {
+                  setHasToken(true);
+                  setLoggedIn(true);
+                  setLoading(false);
+                });
+              }
+              setLoading(false);
+            })
+            .catch(() => {
+              setLoading(false);
+            });
           return;
         } else {
           setHasToken(true);

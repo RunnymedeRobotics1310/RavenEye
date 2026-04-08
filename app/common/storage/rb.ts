@@ -609,6 +609,45 @@ export async function deleteUser(id: number): Promise<void> {
   }
 }
 
+export async function forceLogoutUser(id: number): Promise<void> {
+  const resp = await rbfetch("/api/users/" + id + "/logout", {
+    method: "POST",
+  });
+  if (!resp.ok) {
+    let detail = "Status: " + resp.status;
+    try {
+      const body = await resp.json();
+      if (body?.message) detail = body.message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(detail);
+  }
+}
+
+export function useActiveSessions(): {
+  data: string[] | null;
+  loading: boolean;
+} {
+  const [data, setData] = useState<string[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    rbfetch("/api/users/active-sessions", {})
+      .then((resp) => {
+        if (resp.ok) return resp.json();
+        throw new Error("Failed to fetch active sessions");
+      })
+      .then((json: string[]) => {
+        setData(json);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
+  }, []);
+  return { data, loading };
+}
+
 export interface ConfigSyncRequest {
   sourceUrl: string;
   sourceUser: string;
