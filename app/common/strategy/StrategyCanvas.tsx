@@ -867,6 +867,53 @@ const StrategyCanvas = forwardRef<StrategyCanvasHandle, Props>(
       if (tool === "erase") setEraseHoverIndex(null);
     };
 
+    // ----- Trackpad wheel events (two-finger pan + pinch-to-zoom) -----
+    // Must be a non-passive listener so we can preventDefault and stop the
+    // page from scrolling/zooming while the pointer is over the canvas.
+    useEffect(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const clamp = (lo: number, hi: number, v: number) =>
+        Math.min(hi, Math.max(lo, v));
+
+      const handleWheel = (e: WheelEvent) => {
+        e.preventDefault();
+
+        if (e.ctrlKey) {
+          // Trackpad pinch (or Ctrl+scroll wheel): zoom centred on cursor.
+          const rect = canvas.getBoundingClientRect();
+          const { cssW, cssH } = getCanvasCssSize();
+          if (cssW < 1 || cssH < 1) return;
+
+          const newZoom = clamp(MIN_ZOOM, MAX_ZOOM, zoom * Math.exp(-e.deltaY * 0.01));
+          if (newZoom === zoom) return;
+
+          // Keep the point under the cursor stationary after zoom.
+          const cursorNormX = (e.clientX - rect.left) / rect.width;
+          const cursorNormY = (e.clientY - rect.top) / rect.height;
+          // Pre-zoom canvas-px under the cursor:
+          const anchorX = cursorNormX / zoom + panX;
+          const anchorY = cursorNormY / zoom + panY;
+          const newPanX = clamp(0, 1 - 1 / newZoom, anchorX - cursorNormX / newZoom);
+          const newPanY = clamp(0, 1 - 1 / newZoom, anchorY - cursorNormY / newZoom);
+          onZoomChange?.(newZoom, newPanX, newPanY);
+        } else {
+          // Two-finger pan (regular scroll deltas).
+          if (zoom <= 1) return; // nothing to pan at 1×
+          const rect = canvas.getBoundingClientRect();
+          const dxN = e.deltaX / (rect.width * zoom);
+          const dyN = e.deltaY / (rect.height * zoom);
+          const newPanX = clamp(0, 1 - 1 / zoom, panX + dxN);
+          const newPanY = clamp(0, 1 - 1 / zoom, panY + dyN);
+          onPanChange?.(newPanX, newPanY);
+        }
+      };
+
+      canvas.addEventListener("wheel", handleWheel, { passive: false });
+      return () => canvas.removeEventListener("wheel", handleWheel);
+    }, [zoom, panX, panY, getCanvasCssSize, onZoomChange, onPanChange]);
+
     // ----- Imperative playback -----
     useImperativeHandle(
       ref,
