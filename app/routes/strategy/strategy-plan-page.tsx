@@ -1301,7 +1301,7 @@ const StrategyPlanPage = () => {
   const matchNumber = parseInt(params.matchNumber ?? "0", 10);
   return (
     <RequireRole
-      roles={["MEMBER", "DATASCOUT", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}
+      roles={["DRIVE_TEAM", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}
     >
       <StrategyPlanPageInner
         tournamentId={tournamentId}

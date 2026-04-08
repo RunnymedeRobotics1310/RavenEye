@@ -147,7 +147,7 @@ const CurrentSeasonTournamentList = () => {
 const StrategyHomePage = () => {
   return (
     <RequireRole
-      roles={["MEMBER", "DATASCOUT", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}
+      roles={["MEMBER", "DRIVE_TEAM", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}
     >
       <main>
         <div className="page-header">

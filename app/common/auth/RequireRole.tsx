@@ -2,7 +2,7 @@ import { useRole } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import LoginForm from "~/common/auth/LoginForm.tsx";
 
-type Role = "SUPERUSER" | "ADMIN" | "EXPERTSCOUT" | "DATASCOUT" | "MEMBER";
+type Role = "SUPERUSER" | "ADMIN" | "EXPERTSCOUT" | "DATASCOUT" | "DRIVE_TEAM" | "MEMBER";
 
 type PropTypes = {
   children: React.ReactNode;
@@ -24,6 +24,7 @@ const ROLE_MAP: Record<Role, keyof ReturnType<typeof useRole>> = {
   ADMIN: "isAdmin",
   EXPERTSCOUT: "isExpertScout",
   DATASCOUT: "isDataScout",
+  DRIVE_TEAM: "isDriveTeam",
   MEMBER: "isMember",
 };
 

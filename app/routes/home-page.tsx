@@ -44,7 +44,7 @@ const LoggedIn = () => {
   // TEMPORARY: hide Match Strategy from scouts until launch — admins and
   // superusers can see it. Restore to
   // `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
-  const canStrategize = roles.isAdmin || roles.isSuperuser;
+  const canStrategize = roles.isDriveTeam || roles.isAdmin || roles.isSuperuser;
   const [copyToast, setCopyToast] = useState(false);
   return (
     <main>

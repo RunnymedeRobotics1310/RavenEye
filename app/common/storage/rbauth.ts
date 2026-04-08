@@ -465,6 +465,7 @@ export function useRole() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isExpertScout, setIsExpertScout] = useState(false);
   const [isDataScout, setIsDataScout] = useState(false);
+  const [isDriveTeam, setIsDriveTeam] = useState(false);
   const [isMember, setIsMember] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -475,12 +476,14 @@ export function useRole() {
       setIsAdmin(roles.includes("ROLE_ADMIN"));
       setIsExpertScout(roles.includes("ROLE_EXPERTSCOUT"));
       setIsDataScout(roles.includes("ROLE_DATASCOUT"));
+      setIsDriveTeam(roles.includes("ROLE_DRIVE_TEAM"));
       setIsMember(roles.includes("ROLE_MEMBER"));
     } catch {
       setIsSuperuser(false);
       setIsAdmin(false);
       setIsExpertScout(false);
       setIsDataScout(false);
+      setIsDriveTeam(false);
       setIsMember(false);
     }
     setLoading(false);
@@ -497,6 +500,7 @@ export function useRole() {
     isAdmin,
     isExpertScout,
     isDataScout,
+    isDriveTeam,
     isMember,
     loading,
   };

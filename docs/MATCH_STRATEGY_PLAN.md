@@ -14,14 +14,14 @@ This document is the canonical source of truth for the feature. Any change to th
 |---|---|
 | Create plan | EXPERTSCOUT, ADMIN, SUPERUSER |
 | Edit plan / drawings | EXPERTSCOUT, ADMIN, SUPERUSER |
-| View plan / drawings | EXPERTSCOUT, ADMIN, SUPERUSER |
+| View plan / drawings (read-only) | DRIVE_TEAM, EXPERTSCOUT, ADMIN, SUPERUSER |
 | Delete drawing | EXPERTSCOUT, ADMIN, SUPERUSER |
 
-All strategy routes on the frontend are wrapped in `<RequireRole roles={["EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>`. All backend endpoints use `@Secured({"ROLE_EXPERTSCOUT", "ROLE_ADMIN", "ROLE_SUPERUSER"})`.
+Frontend strategy routes use `<RequireRole roles={["MEMBER", "DATASCOUT", "DRIVE_TEAM", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>`. Backend GET endpoints use `@Secured({"ROLE_DRIVE_TEAM", "ROLE_EXPERTSCOUT", "ROLE_ADMIN", "ROLE_SUPERUSER"})`. Write endpoints (POST/DELETE) use `@Secured({"ROLE_EXPERTSCOUT", "ROLE_ADMIN", "ROLE_SUPERUSER"})`.
 
 Pages open in **read-only mode** by default. The user clicks **Unlock** to enter edit mode. Locking is a UI guard only — there is no server-side edit lock.
 
-> **Pre-launch only:** The "Match Strategy" nav link on the home page is temporarily hidden from scouts — only `ADMIN` and `SUPERUSER` see it (see `routes/home-page.tsx` — the `canStrategize` check). The routes themselves remain open to EXPERTSCOUT/ADMIN/SUPERUSER via direct URL. This restriction must be reverted to `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
+> **Pre-launch only:** The "Match Strategy" nav link on the home page is temporarily hidden from scouts — only `DRIVE_TEAM`, `ADMIN`, and `SUPERUSER` see it (see `routes/home-page.tsx` — the `canStrategize` check). The routes themselves remain open via direct URL. This restriction must be reverted to include `roles.isExpertScout` before launch.
 
 ---
 
@@ -101,7 +101,7 @@ type StrategyStroke = {
 
 ### Endpoints
 
-All mounted on `/api/match-strategy` with `@Secured({"ROLE_EXPERTSCOUT", "ROLE_ADMIN", "ROLE_SUPERUSER"})`.
+All mounted on `/api/match-strategy`. GET endpoints allow `ROLE_DRIVE_TEAM`, `ROLE_EXPERTSCOUT`, `ROLE_ADMIN`, `ROLE_SUPERUSER`. Write endpoints (POST/DELETE) allow `ROLE_EXPERTSCOUT`, `ROLE_ADMIN`, `ROLE_SUPERUSER`.
 
 | Method | Path | Purpose |
 |---|---|---|
@@ -173,9 +173,9 @@ New sync component `STRATEGY_PLANS`:
 | `/strategy/:tournamentId` | Match selection (`routes/strategy/strategy-matches-page.tsx`) |
 | `/strategy/:tournamentId/:level/:matchNumber` | Plan editor (`routes/strategy/strategy-plan-page.tsx`) |
 
-All three wrapped in `<RequireRole roles={["EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>`.
+All three wrapped in `<RequireRole roles={["MEMBER", "DATASCOUT", "DRIVE_TEAM", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}>`.
 
-A "Match Strategy" link is added to `routes/home-page.tsx`, gated by the role check in the access-control section above (currently ADMIN/SUPERUSER only during pre-launch).
+A "Match Strategy" link is added to `routes/home-page.tsx`, gated by the role check in the access-control section above (currently DRIVE_TEAM/ADMIN/SUPERUSER only during pre-launch).
 
 ### Tournament picker (`/strategy`)
 
