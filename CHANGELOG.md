@@ -1,3 +1,17 @@
+# [3.40.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.39.1...v3.40.0) (2026-04-08)
+
+
+### Bug Fixes
+
+* Remove embedded youtube player on PMVA page ([57e4e7a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/57e4e7a2ba76699e79377ecc325776d39a3ea883))
+
+
+### Features
+
+* Introduce DRIVE TEAM role to have read-only access to match strategy ([4cade55](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4cade55f2daeb0dba438a0f5ae54969429e1e3b0))
+* Pinch to zoom on desktop support for strategy drawing ([4d6eaa8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4d6eaa80a901dd9cae142752f7cda4d2ad530035))
+* Refresh token stored in local storage ([5ae04af](https://github.com/RunnymedeRobotics1310/RavenEye/commit/5ae04af0141dff8789da264f50fc69f42a503d6c))
+
 ## [3.39.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.39.0...v3.39.1) (2026-04-06)
 
 
