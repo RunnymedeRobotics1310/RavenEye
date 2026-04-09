@@ -1,3 +1,14 @@
+## [3.40.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.40.0...v3.40.1) (2026-04-09)
+
+
+### Bug Fixes
+
+* Display numbers on bar chart ([e8f5da2](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e8f5da2f08ee2bb7f70c19dbd617b65eae09e4a9))
+* Reorder track cards ([1037237](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1037237fa22b5877e508bccfaa5bddf555ebfd2d))
+* Sequence report cleanup ([a1b4ad3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a1b4ad37fe6edd2f5078c69e4e489912fd414e68))
+* Sequence report cleanup ([ae8170d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ae8170d233d9770f63bdcfed3d8d31ef9ea7eb35))
+* Sequence report cleanup ([0e9d11f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0e9d11f6ec66274006d57377062f634721ddfeb7))
+
 # [3.40.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.39.1...v3.40.0) (2026-04-08)
 
 
