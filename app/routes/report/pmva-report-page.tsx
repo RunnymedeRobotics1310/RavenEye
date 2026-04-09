@@ -130,12 +130,8 @@ const COLOR_SCORES_SEC = "#06b6d4";
 
 function MatchCyclesChart({
   data,
-  avg,
-  max,
 }: {
   data: MatchCycleData[];
-  avg: number;
-  max: number;
 }) {
   if (data.length === 0) return null;
   const W = 500;
@@ -143,12 +139,14 @@ function MatchCyclesChart({
   const pad = { top: 20, right: 20, bottom: 40, left: 35 };
   const plotW = W - pad.left - pad.right;
   const plotH = H - pad.top - pad.bottom;
+  const max = Math.max(...data.map((d) => d.cycleCount));
+  const avg = data.reduce((sum, d) => sum + d.cycleCount, 0) / data.length;
   const yMax = Math.max(max, 1);
   const barW = Math.min(plotW / data.length - 4, 40);
 
   return (
     <div className="pmva-svg-chart">
-      <h4>Cycles per Match</h4>
+      <h4>Cycles per Tracked Match</h4>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet">
         {/* Y axis gridlines */}
         {Array.from({ length: 5 }, (_, i) => {
@@ -668,7 +666,7 @@ function ShootingSection({
           </tbody>
         </table>
 
-        <MatchCyclesChart data={view.matchCycles} avg={view.avgCyclesPerMatch} max={view.maxCyclesPerMatch} />
+        <MatchCyclesChart data={view.matchCycles} />
 
         <HitsMissesChart data={view.matchCycles} />
 
