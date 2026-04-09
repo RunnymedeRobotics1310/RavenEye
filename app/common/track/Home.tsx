@@ -16,30 +16,6 @@ const Home = ({}: TrackScreenProps) => {
       </p>
 
       <div className="card">
-        <h2>Comments & Alerts</h2>
-        <p>
-          <button onClick={() => navigate("comment")}>Quick Comment</button>
-        </p>
-        <p>
-          Record a quick comment about a team for the scouting team to consider
-          during deliberations.
-        </p>
-        <p>
-          <button
-            onClick={() => navigate("robot-alert")}
-            disabled={loading || !canTrack}
-          >
-            Robot Alert
-          </button>
-        </p>
-        <p>
-          Record an important alert about a robot that scouts should use while
-          tracking the robot, or that the scouting team should use when
-          deliberating.
-        </p>
-      </div>
-
-      <div className="card">
         <h2>Track a Robot</h2>
         <p>
           <button
@@ -66,6 +42,31 @@ const Home = ({}: TrackScreenProps) => {
           interval, and other training activities when not in competition.
         </p>
       </div>
+
+      <div className="card">
+        <h2>Comments & Alerts</h2>
+        <p>
+          <button onClick={() => navigate("comment")}>Quick Comment</button>
+        </p>
+        <p>
+          Record a quick comment about a team for the scouting team to consider
+          during deliberations.
+        </p>
+        <p>
+          <button
+              onClick={() => navigate("robot-alert")}
+              disabled={loading || !canTrack}
+          >
+            Robot Alert
+          </button>
+        </p>
+        <p>
+          Record an important alert about a robot that scouts should use while
+          tracking the robot, or that the scouting team should use when
+          deliberating.
+        </p>
+      </div>
+
     </main>
   );
 };
