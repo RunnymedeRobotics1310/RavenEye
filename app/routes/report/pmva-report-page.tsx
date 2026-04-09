@@ -273,7 +273,9 @@ function HitsMissesChart({ data }: { data: MatchCycleData[] }) {
                     height={barH}
                     fill={s.color}
                     rx={1}
-                  />
+                  >
+                    <title>{matchLabel(d.level, d.matchId)} {s.label}: {val}</title>
+                  </rect>
                 );
               })}
               <text className="axis-label" x={cx} y={H - pad.bottom + 14} textAnchor="middle">
@@ -639,6 +641,8 @@ function ShootingSection({
   const totalTime = view.sequenceShots.reduce((sum, s) => sum + s.unloadSeconds, 0);
   const totalScores = view.sequenceShots.reduce((sum, s) => sum + s.scores, 0);
   const successPct = safeDivide(totalScores * 100, totalShots);
+  const trackedMatches = view.matchCycles.length;
+  const avgScoresPerMatch = safeDivide(totalScores, trackedMatches);
 
   return (
     <details className="pmva-accordion" open={defaultOpen}>
@@ -647,6 +651,10 @@ function ShootingSection({
 
         <table className="pmva-stats-table">
           <tbody>
+          <tr>
+            <td>Average Scores Per Match</td>
+            <td>{formatNum(avgScoresPerMatch)}</td>
+          </tr>
           <tr>
             <td>Average Shots Per Second</td>
             <td>{formatNum(safeDivide(totalShots, totalTime))}</td>
