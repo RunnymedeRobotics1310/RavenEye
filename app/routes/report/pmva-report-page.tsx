@@ -650,20 +650,20 @@ function ShootingSection({
         <table className="pmva-stats-table">
           <tbody>
           <tr>
-            <td>Average Unload Time Per Cycle</td>
-            <td>{formatNum(avgUnload)}s</td>
-          </tr>
-          <tr>
-            <td>Shots Per Second</td>
+            <td>Average Shots Per Second</td>
             <td>{formatNum(safeDivide(totalShots, totalTime))}</td>
           </tr>
           <tr>
-            <td>Scores Per Second</td>
+            <td>Average Scores Per Second</td>
             <td>{formatNum(safeDivide(totalScores, totalTime))}</td>
           </tr>
           <tr>
             <td>Shot Success Rate</td>
             <td>{formatPct(successPct)} ({totalScores}/{totalShots})</td>
+          </tr>
+          <tr>
+            <td>Average Unload Time Per Cycle</td>
+            <td>{formatNum(avgUnload)}s</td>
           </tr>
           </tbody>
         </table>
