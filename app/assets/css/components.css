@@ -651,6 +651,15 @@ section.usersAdmin {
     max-width: 24rem;
 }
 
+.typeahead .form-field {
+    margin-bottom: 0;
+}
+
+.typeahead .form-field:has(+ .typeahead-suggestions) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
 .typeahead-suggestions {
     position: absolute;
     z-index: 10;
@@ -662,7 +671,8 @@ section.usersAdmin {
     list-style: none;
     background: var(--color-bg-tertiary);
     border: 1px solid var(--color-border);
-    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    border-top: none;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
