@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { getSequenceTournaments } from "~/common/storage/rb.ts";
-import { useSequenceTypeList } from "~/common/storage/dbhooks.ts";
+import { useTournamentList, useSequenceTypeList } from "~/common/storage/dbhooks.ts";
 import Spinner from "~/common/Spinner.tsx";
+import TournamentPicker from "~/common/components/TournamentPicker.tsx";
 
 const SequenceTournamentTournamentsPage = () => {
   const { sequenceTypeCode, teamId } = useParams<{
@@ -11,7 +12,8 @@ const SequenceTournamentTournamentsPage = () => {
     teamId: string;
   }>();
   const { list: sequenceTypes } = useSequenceTypeList();
-  const [tournaments, setTournaments] = useState<string[] | null>(null);
+  const { list: allTournaments } = useTournamentList();
+  const [tournamentIds, setTournamentIds] = useState<string[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +23,7 @@ const SequenceTournamentTournamentsPage = () => {
     if (!teamId) return;
     getSequenceTournaments(Number(teamId))
       .then((data) => {
-        setTournaments(data);
+        setTournamentIds(data);
         setLoading(false);
       })
       .catch((e) => {
@@ -29,6 +31,11 @@ const SequenceTournamentTournamentsPage = () => {
         setLoading(false);
       });
   }, [teamId]);
+
+  // Tournament IDs not found in local tournament list
+  const unknownIds = tournamentIds
+    ? tournamentIds.filter((id) => !allTournaments.some((t) => t.id === id))
+    : [];
 
   return (
     <main>
@@ -45,15 +52,33 @@ const SequenceTournamentTournamentsPage = () => {
       <RequireLogin>
         {loading && <Spinner />}
         {error && <p className="banner banner-warning">{error}</p>}
-        {tournaments && tournaments.length === 0 && (
+        {tournamentIds && tournamentIds.length === 0 && (
           <section className="card">
             <p>No tournaments with data found for this team.</p>
           </section>
         )}
-        {tournaments && tournaments.length > 0 && (
+        {tournamentIds && tournamentIds.length > 0 && (
+          <TournamentPicker
+            tournaments={allTournaments}
+            filterToIds={tournamentIds}
+            showTypeahead={false}
+            groupBy="season"
+            renderTournament={(t) => (
+              <NavLink
+                to={`/report/tournament/${sequenceTypeCode}/${teamId}/${t.id}`}
+                className="btn-secondary"
+              >
+                {t.name}
+              </NavLink>
+            )}
+            emptyMessage="No tournaments with data found for this team."
+          />
+        )}
+        {unknownIds.length > 0 && (
           <section className="card">
+            <h2>Other</h2>
             <ul className="nav-list">
-              {tournaments.map((tid) => (
+              {unknownIds.map((tid) => (
                 <li key={tid}>
                   <NavLink
                     to={`/report/tournament/${sequenceTypeCode}/${teamId}/${tid}`}

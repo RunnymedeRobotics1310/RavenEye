@@ -4,7 +4,7 @@ import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import { getMegaReportTournaments } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
-import type { RBTournament } from "~/types/RBTournament.ts";
+import TournamentPicker from "~/common/components/TournamentPicker.tsx";
 
 const ChronoReportTournamentsPage = () => {
   const { list: allTournaments } = useTournamentList();
@@ -24,22 +24,6 @@ const ChronoReportTournamentsPage = () => {
       });
   }, []);
 
-  const tournamentsWithData: RBTournament[] = tournamentIds
-    ? tournamentIds
-        .map((id) => allTournaments.find((t) => t.id === id))
-        .filter((t): t is RBTournament => t !== undefined)
-    : [];
-
-  const grouped = new Map<number, RBTournament[]>();
-  for (const t of tournamentsWithData) {
-    const year = t.season;
-    if (!grouped.has(year)) {
-      grouped.set(year, []);
-    }
-    grouped.get(year)!.push(t);
-  }
-  const sortedYears = [...grouped.keys()].sort((a, b) => b - a);
-
   const unknownIds = tournamentIds
     ? tournamentIds.filter((id) => !allTournaments.some((t) => t.id === id))
     : [];
@@ -58,23 +42,23 @@ const ChronoReportTournamentsPage = () => {
         {tournamentIds && tournamentIds.length === 0 && (
           <p>No tournaments have tracking data recorded.</p>
         )}
-        {sortedYears.map((year) => (
-          <section key={year} className="card">
-            <h2>{year}</h2>
-            <ul className="nav-list">
-              {grouped.get(year)!.map((t) => (
-                <li key={t.id}>
-                  <NavLink
-                    to={`/report/chrono/${t.id}`}
-                    className="btn-secondary"
-                  >
-                    {t.name}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
+        {tournamentIds && tournamentIds.length > 0 && (
+          <TournamentPicker
+            tournaments={allTournaments}
+            filterToIds={tournamentIds}
+            showTypeahead={false}
+            groupBy="season"
+            renderTournament={(t) => (
+              <NavLink
+                to={`/report/chrono/${t.id}`}
+                className="btn-secondary"
+              >
+                {t.name}
+              </NavLink>
+            )}
+            emptyMessage="No tournaments have tracking data recorded."
+          />
+        )}
         {unknownIds.length > 0 && (
           <section className="card">
             <h2>Other</h2>

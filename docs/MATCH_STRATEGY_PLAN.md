@@ -185,7 +185,7 @@ The strategy home page is split into two sections:
 
 ### Match picker (`/strategy/:tournamentId`)
 
-Reads the match schedule from IndexedDB via `useMatchSchedule()`, groups matches by `level`, and renders a grid per level. **Auto-fetches** the schedule from RavenBrain (once per page load) when no matches are cached locally for the selected tournament — this is the path that makes past tournaments usable without a prior sync. Falls back to a manual "Fetch Schedule" button with an error banner if the server is unreachable. Uses the same `fetchTournamentSchedule` / `getScheduleForTournament` / `mergeMatchSchedule` pattern as `app/common/track/MatchForm.tsx`.
+Reads the match schedule from IndexedDB via `useMatchSchedule()`, groups matches by `level`, and renders a grid per level. **Auto-fetches** the schedule from RavenBrain (once per page load) when no matches are cached locally for the selected tournament — this is the path that makes past tournaments usable without a prior sync. Falls back to a manual "Fetch Schedule" button with an error banner if the server is unreachable. Uses the shared `useFetchSchedule` hook from `app/common/storage/useFetchSchedule.ts`.
 
 ---
 

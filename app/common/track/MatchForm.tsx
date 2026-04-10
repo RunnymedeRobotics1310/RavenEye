@@ -1,17 +1,13 @@
-import { useState } from "react";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
 import {
   getScoutingSession,
   setScoutingSession,
 } from "~/common/storage/track.ts";
+import { getUserid } from "~/common/storage/rbauth.ts";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
-import {
-  fetchTournamentSchedule,
-  getScheduleForTournament,
-  ping,
-} from "~/common/storage/rb.ts";
-import { repository } from "~/common/storage/db.ts";
+import { useFetchSchedule } from "~/common/storage/useFetchSchedule.ts";
+import MatchTeamPicker from "~/common/components/MatchTeamPicker.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
@@ -20,8 +16,9 @@ const MatchForm = ({}: TrackScreenProps) => {
   const session = getScoutingSession();
   const { list: tournaments } = useTournamentList();
   const { list: schedule } = useMatchSchedule();
-  const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { fetching, error, handleFetchSchedule } = useFetchSchedule(
+    session.tournamentId,
+  );
 
   const tournamentName =
     tournaments.find((t) => t.id === session.tournamentId)?.name ??
@@ -34,36 +31,19 @@ const MatchForm = ({}: TrackScreenProps) => {
     )
     .sort((a, b) => a.match - b.match);
 
-  const selectMatch = (matchId: number) => {
+  const selectTeam = (
+    matchId: number,
+    teamNumber: number,
+    alliance: "red" | "blue",
+  ) => {
     setScoutingSession({
       ...session,
+      userId: getUserid(),
       matchId,
+      teamNumber,
+      alliance,
     });
-    navigate("comp-teams");
-  };
-
-  const handleFetchSchedule = async () => {
-    setError(null);
-    const online = await ping();
-    if (!online) {
-      setError(
-        "No schedule is available. You must be able to connect to RavenBrain to load the schedule.",
-      );
-      return;
-    }
-    setFetching(true);
-    try {
-      await fetchTournamentSchedule(session.tournamentId);
-      const records = await getScheduleForTournament(session.tournamentId);
-      await repository.mergeMatchSchedule(records);
-    } catch (e) {
-      setError(
-        "Failed to fetch schedule: " +
-          (e instanceof Error ? e.message : String(e)),
-      );
-    } finally {
-      setFetching(false);
-    }
+    navigate("area-menu");
   };
 
   return (
@@ -72,6 +52,7 @@ const MatchForm = ({}: TrackScreenProps) => {
       <h2>
         {tournamentName} – {session.level}
       </h2>
+      <p>Select a team to scout:</p>
       {matches.length === 0 ? (
         <div>
           <p>No matches found for this level.</p>
@@ -81,36 +62,7 @@ const MatchForm = ({}: TrackScreenProps) => {
           </button>
         </div>
       ) : (
-        <table className="tools">
-          <thead>
-            <tr>
-              <th>Match</th>
-              <th colSpan={3} className="alliance-red-text">
-                Red
-              </th>
-              <th colSpan={3} className="alliance-blue-text">
-                Blue
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {matches.map((m) => (
-              <tr key={m.match}>
-                <td>
-                  <button onClick={() => selectMatch(m.match)}>
-                    {m.match}
-                  </button>
-                </td>
-                <td className="alliance-red-text">{m.red1}</td>
-                <td className="alliance-red-text">{m.red2}</td>
-                <td className="alliance-red-text">{m.red3}</td>
-                <td className="alliance-blue-text">{m.blue1}</td>
-                <td className="alliance-blue-text">{m.blue2}</td>
-                <td className="alliance-blue-text">{m.blue3}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <MatchTeamPicker matches={matches} onSelectTeam={selectTeam} />
       )}
     </main>
   );

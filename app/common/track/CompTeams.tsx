@@ -5,6 +5,7 @@ import {
 } from "~/common/storage/track.ts";
 import { getUserid } from "~/common/storage/rbauth.ts";
 import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
+import MatchTeamPicker from "~/common/components/MatchTeamPicker.tsx";
 import TrackNav from "~/common/track/TrackNav.tsx";
 import { useTrackNav } from "~/common/track/TrackNavContext.tsx";
 
@@ -13,14 +14,18 @@ const CompTeams = ({}: TrackScreenProps) => {
   const session = getScoutingSession();
   const { list: schedule } = useMatchSchedule();
 
-  const match = schedule.find(
+  const matches = schedule.filter(
     (s) =>
       s.tournamentId === session.tournamentId &&
       s.match === session.matchId &&
       s.level === session.level,
   );
 
-  const handleTeam = (teamNumber: number, alliance: string) => {
+  const handleTeam = (
+    _matchNumber: number,
+    teamNumber: number,
+    alliance: "red" | "blue",
+  ) => {
     setScoutingSession({
       ...session,
       userId: getUserid(),
@@ -30,41 +35,13 @@ const CompTeams = ({}: TrackScreenProps) => {
     navigate("area-menu");
   };
 
-  const redTeams = match ? [match.red1, match.red2, match.red3] : [];
-  const blueTeams = match ? [match.blue1, match.blue2, match.blue3] : [];
-
   return (
     <main className="track">
       <TrackNav />
       <h2>Match {session.matchId}</h2>
       <p>Select a team to scout:</p>
-      {match ? (
-        <div className="team-select">
-          <div className="team-select-row">
-            {redTeams.map((team, i) => (
-              <button
-                key={team}
-                id={`red${i + 1}`}
-                className="allianceRed"
-                onClick={() => handleTeam(team, "red")}
-              >
-                {team}
-              </button>
-            ))}
-          </div>
-          <div className="team-select-row">
-            {blueTeams.map((team, i) => (
-              <button
-                key={team}
-                id={`blue${i + 1}`}
-                className="allianceBlue"
-                onClick={() => handleTeam(team, "blue")}
-              >
-                {team}
-              </button>
-            ))}
-          </div>
-        </div>
+      {matches.length > 0 ? (
+        <MatchTeamPicker matches={matches} onSelectTeam={handleTeam} />
       ) : (
         <p>No schedule found for this match.</p>
       )}

@@ -1,13 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
-import { NavLink, useParams } from "react-router";
+import { NavLink, useNavigate, useParams } from "react-router";
 import RequireRole from "~/common/auth/RequireRole.tsx";
 import { useMatchSchedule } from "~/common/storage/dbhooks.ts";
-import {
-  fetchTournamentSchedule,
-  getScheduleForTournament,
-  ping,
-} from "~/common/storage/rb.ts";
-import { repository } from "~/common/storage/db.ts";
+import { useFetchSchedule } from "~/common/storage/useFetchSchedule.ts";
+import MatchTeamPicker from "~/common/components/MatchTeamPicker.tsx";
 import Spinner from "~/common/Spinner.tsx";
 
 const MATCH_LEVELS = ["Qualification", "Playoff", "Practice"] as const;
@@ -15,9 +11,10 @@ const MATCH_LEVELS = ["Qualification", "Playoff", "Practice"] as const;
 const StrategyMatchesPage = () => {
   const params = useParams();
   const tournamentId = decodeURIComponent(params.tournamentId ?? "");
+  const navigate = useNavigate();
   const { list, loading } = useMatchSchedule();
-  const [fetching, setFetching] = useState(false);
-  const [fetchError, setFetchError] = useState<string | null>(null);
+  const { fetching, error: fetchError, handleFetchSchedule } =
+    useFetchSchedule(tournamentId);
   const [autoFetchTried, setAutoFetchTried] = useState(false);
 
   const matchesByLevel = useMemo(() => {
@@ -34,30 +31,6 @@ const StrategyMatchesPage = () => {
 
   const hasMatchesForTournament = Object.keys(matchesByLevel).length > 0;
 
-  const handleFetchSchedule = async () => {
-    setFetchError(null);
-    const online = await ping();
-    if (!online) {
-      setFetchError(
-        "No local schedule is available and RavenBrain is unreachable. Try again when you're online.",
-      );
-      return;
-    }
-    setFetching(true);
-    try {
-      await fetchTournamentSchedule(tournamentId);
-      const records = await getScheduleForTournament(tournamentId);
-      await repository.mergeMatchSchedule(records);
-    } catch (e) {
-      setFetchError(
-        "Failed to fetch schedule: " +
-          (e instanceof Error ? e.message : String(e)),
-      );
-    } finally {
-      setFetching(false);
-    }
-  };
-
   // When the schedule has loaded but no matches exist for this tournament,
   // try fetching from the server automatically — once per page load.
   useEffect(() => {
@@ -68,6 +41,12 @@ const StrategyMatchesPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, hasMatchesForTournament, autoFetchTried, fetching]);
 
+  const selectMatch = (matchNumber: number, level: string) => {
+    navigate(
+      `/strategy/${encodeURIComponent(tournamentId)}/${encodeURIComponent(level)}/${matchNumber}`,
+    );
+  };
+
   return (
     <RequireRole
       roles={["DRIVE_TEAM", "EXPERTSCOUT", "ADMIN", "SUPERUSER"]}
@@ -77,7 +56,7 @@ const StrategyMatchesPage = () => {
           <h1>Match Strategy — {tournamentId}</h1>
           <p>Pick a match to plan for.</p>
           <NavLink to="/strategy" className="btn-secondary">
-            ← Back to tournaments
+            &larr; Back to tournaments
           </NavLink>
         </div>
         {loading && <Spinner />}
@@ -88,17 +67,10 @@ const StrategyMatchesPage = () => {
             return (
               <section className="card" key={level}>
                 <h2>{level}</h2>
-                <div className="strategy-match-grid">
-                  {matches.map((m) => (
-                    <NavLink
-                      key={m.id}
-                      to={`/strategy/${encodeURIComponent(tournamentId)}/${encodeURIComponent(level)}/${m.match}`}
-                      className="btn-secondary"
-                    >
-                      {m.match}
-                    </NavLink>
-                  ))}
-                </div>
+                <MatchTeamPicker
+                  matches={matches}
+                  onSelectMatch={selectMatch}
+                />
               </section>
             );
           })}

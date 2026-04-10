@@ -6,6 +6,7 @@ import {
   getTeamSchedulePublic,
   getTournamentList,
 } from "~/common/storage/rb.ts";
+import TournamentPicker from "~/common/components/TournamentPicker.tsx";
 import { useLoginStatus, useRole } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import {
@@ -389,178 +390,6 @@ function RankingsTable({
   );
 }
 
-function groupByWeek(tournaments: RBTournament[]): Map<number, RBTournament[]> {
-  const groups = new Map<number, RBTournament[]>();
-  for (const t of tournaments) {
-    const list = groups.get(t.weekNumber) ?? [];
-    list.push(t);
-    groups.set(t.weekNumber, list);
-  }
-  return groups;
-}
-
-function formatDate(date: Date) {
-  return new Date(date).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function isCurrentWeek(tournaments: RBTournament[]): boolean {
-  const now = Date.now();
-  return tournaments.some((t) => {
-    const start = new Date(t.startTime).getTime();
-    const end = new Date(t.endTime).getTime();
-    return start <= now && end >= now;
-  });
-}
-
-function TournamentPicker({ onSelect, activeTournaments = [] }: { onSelect: (t: RBTournament) => void; activeTournaments?: RBTournament[] }) {
-  const activeTournamentIds = activeTournaments.map((t) => t.id);
-  const [tournaments, setTournaments] = useState<RBTournament[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filterInput, setFilterInput] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const filterRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    getTournamentList()
-      .then((all) => {
-        const now = Date.now();
-        const currentYear = new Date().getFullYear();
-        setTournaments(
-          all
-            .filter((t) => t.season === currentYear)
-            .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()),
-        );
-      })
-      .catch((e) => console.error("Failed to load tournaments", e))
-      .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    if (!loading && filterRef.current) {
-      filterRef.current.focus();
-    }
-  }, [loading]);
-
-  const filterLower = filterInput.toLowerCase();
-  const filteredTournaments = filterInput
-    ? tournaments.filter(
-        (t) =>
-          t.name.toLowerCase().includes(filterLower) ||
-          t.id.toLowerCase().includes(filterLower),
-      )
-    : tournaments;
-
-  const suggestions = filterInput ? filteredTournaments.slice(0, 8) : [];
-
-  const weekGroups = groupByWeek(filteredTournaments);
-
-  return (
-    <main>
-      <div className="page-header schedule-header">
-        <h1>Tournament Report</h1>
-        <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
-      </div>
-      <p>Select a tournament to view its schedule.</p>
-      {!loading && activeTournaments.length > 0 && !filterInput && (
-        <section className="card">
-          {activeTournaments.map((t) => (
-            <div key={t.id} className="tournament-row">
-              <button
-                className="tournament-btn"
-                onClick={() => onSelect(t)}
-              >
-                {t.id.slice(String(t.season).length)}
-              </button>
-              <div className="tournament-info">
-                <span className="tournament-name">{t.name} (active)</span>
-                <span className="tournament-date">
-                  {formatDate(t.startTime)} – {formatDate(t.endTime)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
-      {loading && <Spinner />}
-      {!loading && tournaments.length === 0 && <p>No tournaments available.</p>}
-      {!loading && tournaments.length > 0 && (
-        <section className="card">
-          <div className="typeahead">
-            <input
-              ref={filterRef}
-              className="form-field"
-              type="text"
-              placeholder="Filter by name or code..."
-              value={filterInput}
-              onChange={(e) => {
-                setFilterInput(e.target.value);
-                setShowSuggestions(true);
-              }}
-              onFocus={() => setShowSuggestions(true)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && suggestions.length === 1) {
-                  setShowSuggestions(false);
-                  onSelect(suggestions[0]);
-                }
-              }}
-            />
-            {showSuggestions && filterInput && suggestions.length > 0 && (
-              <ul className="typeahead-suggestions">
-                {suggestions.map((t) => (
-                  <li key={t.id}>
-                    <button
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        setShowSuggestions(false);
-                        onSelect(t);
-                      }}
-                    >
-                      {t.id.slice(String(t.season).length)} — {t.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-          {[...weekGroups.entries()].map(([weekNum, weekTournaments]) => {
-            const firstStart = weekTournaments[0].startTime;
-            const lastEnd = weekTournaments[weekTournaments.length - 1].endTime;
-            const weekLabel = `Week ${weekNum} — ${formatDate(firstStart)} – ${formatDate(lastEnd)}`;
-            return (
-              <details
-                key={weekNum}
-                className="tournament-week-group"
-                open={isCurrentWeek(weekTournaments)}
-              >
-                <summary>{weekLabel}</summary>
-                {weekTournaments.map((t) => (
-                  <div key={t.id} className="tournament-row">
-                    <button
-                      className="tournament-btn"
-                      onClick={() => onSelect(t)}
-                    >
-                      {t.id.slice(String(t.season).length)}
-                    </button>
-                    <div className="tournament-info">
-                      <span className="tournament-name">{t.name}{activeTournamentIds.includes(t.id) ? " (active)" : ""}</span>
-                      <span className="tournament-date">
-                        {formatDate(t.startTime)} – {formatDate(t.endTime)}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </details>
-            );
-          })}
-        </section>
-      )}
-    </main>
-  );
-}
-
 // ---------------------------------------------------------------------------
 // Playoff bracket + alliance components for schedule page
 // ---------------------------------------------------------------------------
@@ -644,7 +473,16 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [manualTournament, setManualTournament] = useState<RBTournament | null>(null);
+  const [allTournaments, setAllTournaments] = useState<RBTournament[]>([]);
+  const [tournamentsListLoading, setTournamentsListLoading] = useState(true);
   const autoSelectedRef = useRef(false);
+
+  useEffect(() => {
+    getTournamentList()
+      .then((all) => setAllTournaments(all))
+      .catch((e) => console.error("Failed to load tournaments", e))
+      .finally(() => setTournamentsListLoading(false));
+  }, []);
 
   // Auto-select first active tournament when using /schedule/active
   useEffect(() => {
@@ -840,7 +678,44 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
   }
 
   if (!selectedTournament) {
-    return <TournamentPicker onSelect={(t) => setManualTournament(t)} activeTournaments={activeTournaments} />;
+    const renderTournament = (t: RBTournament) => (
+      <div className="tournament-row">
+        <button
+          className="tournament-btn"
+          onClick={() => setManualTournament(t)}
+        >
+          {t.id.slice(String(t.season).length)}
+        </button>
+        <div className="tournament-info">
+          <span className="tournament-name">{t.name}</span>
+          <span className="tournament-date">
+            {new Date(t.startTime).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+            {" – "}
+            {new Date(t.endTime).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+          </span>
+        </div>
+      </div>
+    );
+
+    return (
+      <main>
+        <div className="page-header schedule-header">
+          <h1>Tournament Report</h1>
+          <p><a href="#" onClick={(e) => { e.preventDefault(); window.history.back(); }}>&larr; Back</a></p>
+        </div>
+        <p>Select a tournament to view its schedule.</p>
+        {(tournamentsListLoading || tournamentsLoading) && <Spinner />}
+        {!tournamentsListLoading && !tournamentsLoading && (
+          <TournamentPicker
+            tournaments={allTournaments}
+            activeTournaments={activeTournaments}
+            renderTournament={renderTournament}
+            onSelectTournament={(t) => setManualTournament(t)}
+            groupBy="week"
+          />
+        )}
+      </main>
+    );
   }
 
   if ((loading || !schedule) && !schedule) {

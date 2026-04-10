@@ -881,6 +881,11 @@ main.track button {
     margin: 2px;
 }
 
+main.track .tools button {
+    font-size: 1rem;
+    padding: 0.3rem 0.6rem;
+}
+
 main.track button.btn-sequence {
     position: relative;
     border-radius: var(--btn-border-radius) 0 0 var(--btn-border-radius);
@@ -1253,20 +1258,6 @@ table tbody tr:nth-child(odd).forgot-password-row {
     font-size: 0.8rem;
 }
 
-.tournament-week-group {
-    margin-bottom: 0.25rem;
-}
-
-.tournament-week-group summary {
-    cursor: pointer;
-    font-weight: 600;
-    padding: 0.35rem 0;
-    color: var(--color-text-secondary);
-}
-
-.tournament-week-group[open] summary {
-    margin-bottom: 0.25rem;
-}
 
 @media (max-width: 480px) {
     .tournament-row {

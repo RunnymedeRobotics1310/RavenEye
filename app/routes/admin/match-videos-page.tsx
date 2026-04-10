@@ -9,10 +9,10 @@ import {
   deleteMatchVideo,
 } from "~/common/storage/rb.ts";
 import { useRole } from "~/common/storage/rbauth.ts";
-import type { RBTournament } from "~/types/RBTournament.ts";
 import type { TeamScheduleMatch } from "~/types/TeamSchedule.ts";
 import type { MatchVideo } from "~/types/MatchVideo.ts";
 import Spinner from "~/common/Spinner.tsx";
+import SharedTournamentPicker from "~/common/components/TournamentPicker.tsx";
 
 function levelLabel(level: string): string {
   if (level === "Qualification") return "Q";
@@ -161,70 +161,25 @@ function MatchVideoContent({ tournamentId }: { tournamentId: string }) {
   );
 }
 
-function isCurrentWeek(tournaments: RBTournament[]): boolean {
-  const now = Date.now();
-  return tournaments.some((t) => {
-    const start = new Date(t.startTime).getTime();
-    const end = new Date(t.endTime).getTime();
-    return start <= now && end >= now;
-  });
-}
-
-function TournamentPicker() {
+function MatchVideoTournamentPicker() {
   const { list: tournaments, loading } = useTournamentList();
 
   if (loading) return <Spinner />;
 
-  const currentYear = new Date().getFullYear();
-
-  // Group by year descending
-  const byYear = new Map<number, RBTournament[]>();
-  for (const t of tournaments) {
-    const list = byYear.get(t.season) ?? [];
-    list.push(t);
-    byYear.set(t.season, list);
-  }
-  const years = [...byYear.keys()].sort((a, b) => b - a);
-
   return (
     <>
       <p>Select a tournament:</p>
-      {years.length === 0 && <p>No tournaments found.</p>}
-      {years.map((year) => {
-        const yearTournaments = byYear.get(year)!;
-        // Group by week
-        const byWeek = new Map<number, RBTournament[]>();
-        for (const t of yearTournaments) {
-          const list = byWeek.get(t.weekNumber) ?? [];
-          list.push(t);
-          byWeek.set(t.weekNumber, list);
-        }
-        const weeks = [...byWeek.keys()].sort((a, b) => a - b);
-
-        return (
-          <details key={year} open={year === currentYear}>
-            <summary><strong>{year}</strong></summary>
-            {weeks.map((week) => {
-              const weekTournaments = byWeek.get(week)!.sort(
-                (a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-              );
-              const weekOpen = year === currentYear && isCurrentWeek(weekTournaments);
-              return (
-                <details key={week} open={weekOpen} style={{ marginLeft: "1rem" }}>
-                  <summary>Week {week}</summary>
-                  <ul>
-                    {weekTournaments.map((t) => (
-                      <li key={t.id}>
-                        <NavLink to={`/admin/match-videos/${t.id}`}>{t.name}</NavLink>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              );
-            })}
-          </details>
-        );
-      })}
+      <SharedTournamentPicker
+        tournaments={tournaments}
+        showTypeahead={false}
+        groupBy="week"
+        renderTournament={(t) => (
+          <NavLink to={`/admin/match-videos/${t.id}`} className="btn-secondary">
+            {t.name}
+          </NavLink>
+        )}
+        emptyMessage="No tournaments found."
+      />
     </>
   );
 }
@@ -248,7 +203,7 @@ const MatchVideosPage = () => {
           {params.tournamentId ? (
             <MatchVideoContent tournamentId={params.tournamentId} />
           ) : (
-            <TournamentPicker />
+            <MatchVideoTournamentPicker />
           )}
         </RequireLogin>
       </section>

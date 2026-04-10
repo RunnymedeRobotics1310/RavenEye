@@ -4,6 +4,7 @@ import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { getSequenceTeams } from "~/common/storage/rb.ts";
 import { useSequenceTypeList } from "~/common/storage/dbhooks.ts";
 import Spinner from "~/common/Spinner.tsx";
+import TeamList from "~/common/components/TeamList.tsx";
 
 const SequenceTournamentTeamsPage = () => {
   const { sequenceTypeCode } = useParams<{ sequenceTypeCode: string }>();
@@ -37,25 +38,20 @@ const SequenceTournamentTeamsPage = () => {
       <RequireLogin>
         {loading && <Spinner />}
         {error && <p className="banner banner-warning">{error}</p>}
-        {teams && teams.length === 0 && (
+        {teams && (
           <section className="card">
-            <p>No teams with event data found.</p>
-          </section>
-        )}
-        {teams && teams.length > 0 && (
-          <section className="card">
-            <ul className="nav-list">
-              {teams.map((teamId) => (
-                <li key={teamId}>
-                  <NavLink
-                    to={`/report/tournament/${sequenceTypeCode}/${teamId}`}
-                    className="btn-secondary"
-                  >
-                    Team {teamId}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
+            <TeamList
+              teams={teams}
+              renderTeam={(teamId) => (
+                <NavLink
+                  to={`/report/tournament/${sequenceTypeCode}/${teamId}`}
+                  className="btn-secondary"
+                >
+                  Team {teamId}
+                </NavLink>
+              )}
+              emptyMessage="No teams with event data found."
+            />
           </section>
         )}
       </RequireLogin>

@@ -7,6 +7,7 @@ import {
 } from "~/common/storage/rb.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import Spinner from "~/common/Spinner.tsx";
+import TournamentPicker from "~/common/components/TournamentPicker.tsx";
 
 function safeHref(url: string): string {
   try {
@@ -110,91 +111,28 @@ function TournamentRow({ tournament }: { tournament: RBTournament }) {
   );
 }
 
-function getCurrentWeek(tournaments: RBTournament[]): number | null {
-  const now = Date.now();
-  for (const t of tournaments) {
-    const start = new Date(t.startTime).getTime();
-    const end = new Date(t.endTime).getTime();
-    if (start <= now && end >= now) return t.weekNumber;
-  }
-  // If nothing active, find the nearest upcoming week
-  let closest: RBTournament | null = null;
-  for (const t of tournaments) {
-    const start = new Date(t.startTime).getTime();
-    if (start > now && (!closest || start < new Date(closest.startTime).getTime())) {
-      closest = t;
-    }
-  }
-  return closest?.weekNumber ?? null;
-}
-
-function TournamentStreamsContent() {
+const TournamentStreamsPage = () => {
   const { list: tournaments, loading } = useTournamentList();
 
-  if (loading) return <Spinner />;
-
-  const currentSeason = new Date().getFullYear();
-  const seasonTournaments = tournaments.filter((t) => t.season === currentSeason);
-
-  const currentWeek = getCurrentWeek(seasonTournaments);
-
-  // Group by week
-  const byWeek = new Map<number, RBTournament[]>();
-  for (const t of seasonTournaments) {
-    const week = t.weekNumber ?? 0;
-    if (!byWeek.has(week)) byWeek.set(week, []);
-    byWeek.get(week)!.push(t);
-  }
-  const weeks = [...byWeek.keys()].sort((a, b) => a - b);
-
-  if (seasonTournaments.length === 0) {
-    return (
-      <p>No tournaments found for {currentSeason}. Sync tournament data first.</p>
-    );
-  }
-
-  return (
-    <>
-      {weeks.map((week) => {
-        const weekTournaments = byWeek.get(week)!.sort(
-          (a, b) =>
-            new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
-        );
-        return (
-          <details
-            key={week}
-            className="admin-stream-week"
-            open={week === currentWeek}
-          >
-            <summary>
-              Week {week}
-              <span className="admin-stream-week-count">
-                {weekTournaments.length} tournament
-                {weekTournaments.length !== 1 ? "s" : ""}
-              </span>
-            </summary>
-            {weekTournaments.map((t) => (
-              <TournamentRow key={t.id} tournament={t} />
-            ))}
-          </details>
-        );
-      })}
-    </>
-  );
-}
-
-const TournamentStreamsPage = () => {
   return (
     <main>
       <div className="page-header">
         <h1>Tournament Streams</h1>
         <p>Add custom livestream URLs for the pit kiosk display.</p>
       </div>
-      <section className="card">
-        <RequireLogin>
-          <TournamentStreamsContent />
-        </RequireLogin>
-      </section>
+      <RequireLogin>
+        {loading ? (
+          <Spinner />
+        ) : (
+          <TournamentPicker
+            tournaments={tournaments}
+            showTypeahead={false}
+            groupBy="week"
+            renderTournament={(t) => <TournamentRow tournament={t} />}
+            emptyMessage="No tournaments found. Sync tournament data first."
+          />
+        )}
+      </RequireLogin>
     </main>
   );
 };

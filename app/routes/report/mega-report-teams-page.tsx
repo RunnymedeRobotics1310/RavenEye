@@ -3,6 +3,7 @@ import { NavLink, useParams } from "react-router";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { getMegaReportTeams } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
+import TeamList from "~/common/components/TeamList.tsx";
 
 const MegaReportTeamsPage = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
@@ -38,19 +39,18 @@ const MegaReportTeamsPage = () => {
         {teams && (
           <section className="card">
             <h2>Select a Team</h2>
-            {teams.length === 0 && <p>No teams have data for this tournament.</p>}
-            <ul className="nav-list">
-              {teams.map((team) => (
-                <li key={team}>
-                  <NavLink
-                    to={`/report/mega/${tournamentId}/${team}`}
-                    className="btn-secondary"
-                  >
-                    Team {team}
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
+            <TeamList
+              teams={teams}
+              renderTeam={(team) => (
+                <NavLink
+                  to={`/report/mega/${tournamentId}/${team}`}
+                  className="btn-secondary"
+                >
+                  Team {team}
+                </NavLink>
+              )}
+              emptyMessage="No teams have data for this tournament."
+            />
           </section>
         )}
       </RequireLogin>
