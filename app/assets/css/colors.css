@@ -4,6 +4,11 @@
  *
  */
 
+:root {
+    --color-sync-attention: #FFD600;
+    --color-star: goldenrod;
+}
+
 html {
     color: var(--color-text-primary);
     background-color: var(--color-bg-primary);
@@ -52,7 +57,7 @@ a:focus-visible {
 }
 
 #layout > header .syncToDo {
-    fill: #FFD600;
+    fill: var(--color-sync-attention);
 }
 
 #layout > header .syncHappening {
@@ -60,7 +65,7 @@ a:focus-visible {
 }
 
 #layout > header .syncError {
-    fill: #FFD600;
+    fill: var(--color-sync-attention);
 }
 
 /* Admin menu dropdown (uses page colors, not header inverse) */
@@ -135,7 +140,7 @@ a:focus-visible {
 
 /* Stars */
 .gold {
-    fill: goldenrod;
+    fill: var(--color-star);
 }
 
 .star-outline {
@@ -143,7 +148,7 @@ a:focus-visible {
 }
 
 .star-filled {
-    fill: goldenrod;
+    fill: var(--color-star);
 }
 
 .star-empty {

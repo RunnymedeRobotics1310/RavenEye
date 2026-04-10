@@ -244,37 +244,6 @@ button.secondary:hover {
 }
 
 /*
- * Strategy tournament picker (home + matches pages).
- */
-.strategy-tournament-list {
-    list-style: none;
-    padding: 0;
-}
-.strategy-tournament-list li {
-    margin: 0.5rem 0;
-}
-.strategy-tournament-list li a {
-    display: inline-block;
-}
-.strategy-season-hint {
-    opacity: 0.7;
-    font-size: 0.85rem;
-    margin-top: 0;
-}
-
-/*
- * Strategy match picker — grid of match-number buttons per level.
- */
-.strategy-match-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr));
-    gap: 0.4rem;
-}
-.strategy-match-grid a {
-    text-align: center;
-}
-
-/*
  * Strategy plan editor — page layout + sidebar + canvas-card chrome.
  */
 .strategy-plan-grid {
@@ -441,7 +410,7 @@ button.secondary:hover {
 }
 
 .btn-danger {
-    background-color: var(--color-danger, #c0392b);
+    background-color: var(--color-danger);
     color: #fff;
     font-size: 0.75rem;
     padding: 0.25rem 0.6rem;
@@ -693,7 +662,7 @@ section.usersAdmin {
     list-style: none;
     background: var(--color-bg-tertiary);
     border: 1px solid var(--color-border);
-    border-radius: 0 0 var(--radius-sm, 4px) var(--radius-sm, 4px);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -778,7 +747,7 @@ section.usersAdmin {
 }
 
 .banner-queue-queuing {
-    background-color: #e67e22;
+    background-color: var(--color-highlight);
 }
 
 .banner-queue-ondeck {
@@ -786,13 +755,13 @@ section.usersAdmin {
 }
 
 @keyframes banner-flash-ondeck {
-    0%, 100% { background-color: #e67e22; color: #fff; }
-    50% { background-color: #fff; color: #e67e22; }
+    0%, 100% { background-color: var(--color-highlight); color: #fff; }
+    50% { background-color: #fff; color: var(--color-highlight); }
 }
 
 @media (prefers-color-scheme: dark) {
     @keyframes banner-flash-ondeck {
-        0%, 100% { background-color: #e67e22; color: #fff; }
+        0%, 100% { background-color: var(--color-highlight); color: #fff; }
         50% { background-color: #1a1a1a; color: #fff; }
     }
 }
@@ -1632,7 +1601,7 @@ main.mega-report {
 }
 
 .schedule-rank-more:hover {
-    background-color: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
+    background-color: var(--color-bg-hover);
 }
 
 .schedule-nav-row {
@@ -1674,13 +1643,13 @@ main.mega-report {
 }
 
 .schedule-row-highlight {
-    outline: 2.5px solid #e67e22;
+    outline: 2.5px solid var(--color-highlight);
     outline-offset: -2.5px;
     box-shadow: 0 0 0 1px rgba(230, 126, 34, 0.3);
 }
 
 .schedule-row-highlight td:first-child {
-    border-left: 3px solid #e67e22;
+    border-left: 3px solid var(--color-highlight);
 }
 
 /*
@@ -2121,7 +2090,7 @@ main.track.pmva button {
 }
 
 .pmva-svg-chart .max-line {
-    stroke: var(--color-warning, #e67e22);
+    stroke: var(--color-warning);
     stroke-width: 1.5;
     stroke-dasharray: 3 3;
 }
@@ -2320,7 +2289,7 @@ main.track.pmva button {
 }
 
 .kiosk-bar-queuing {
-    background: #e67e22;
+    background: var(--color-highlight);
 }
 
 .kiosk-bar-ondeck {
@@ -2328,7 +2297,7 @@ main.track.pmva button {
 }
 
 @keyframes kiosk-flash-ondeck {
-    0%, 100% { background: #e67e22; }
+    0%, 100% { background: var(--color-highlight); }
     50% { background: #1a1a1a; }
 }
 
@@ -2719,12 +2688,12 @@ a.kiosk-brand {
 }
 
 .kiosk-row-highlight {
-    outline: 2px solid #e67e22;
+    outline: 2px solid var(--color-highlight);
     outline-offset: -2px;
 }
 
 .kiosk-row-highlight td:first-child {
-    border-left: 3px solid #e67e22;
+    border-left: 3px solid var(--color-highlight);
 }
 
 .kiosk-schedule-separator td {
@@ -2891,7 +2860,7 @@ a.kiosk-brand {
 }
 
 .kiosk-alliance-owner {
-    border-left-color: #FF3820;
+    border-left-color: var(--runnymede-red);
     background: rgba(255, 56, 32, 0.1);
 }
 
