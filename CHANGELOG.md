@@ -1,3 +1,13 @@
+## [3.40.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.40.2...v3.40.3) (2026-04-10)
+
+
+### Bug Fixes
+
+* Better typeahead styling ([bad81db](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bad81dbf576f509b64ea4bb6014e2920a89d3f18))
+* CSS consolidation ([6531c30](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6531c306eced98118f919e34d39918b90f71c880))
+* Title bar was clipping ([da683f6](https://github.com/RunnymedeRobotics1310/RavenEye/commit/da683f60bbfb720963102cf83c42fad3e640ec73))
+* Type ahead on match videos page ([60e7e8f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/60e7e8f23eda60ac75971148774499998825705d))
+
 ## [3.40.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.40.1...v3.40.2) (2026-04-10)
 
 
