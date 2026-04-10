@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, NavLink } from "react-router";
+import { useParams, useNavigate, NavLink } from "react-router";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import {
@@ -163,6 +163,7 @@ function MatchVideoContent({ tournamentId }: { tournamentId: string }) {
 
 function MatchVideoTournamentPicker() {
   const { list: tournaments, loading } = useTournamentList();
+  const navigate = useNavigate();
 
   if (loading) return <Spinner />;
 
@@ -171,8 +172,8 @@ function MatchVideoTournamentPicker() {
       <p>Select a tournament:</p>
       <SharedTournamentPicker
         tournaments={tournaments}
-        showTypeahead={false}
         groupBy="week"
+        onSelectTournament={(t) => navigate(`/admin/match-videos/${t.id}`)}
         renderTournament={(t) => (
           <NavLink to={`/admin/match-videos/${t.id}`} className="btn-secondary">
             {t.name}
