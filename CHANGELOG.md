@@ -1,3 +1,11 @@
+## [3.40.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.40.1...v3.40.2) (2026-04-10)
+
+
+### Bug Fixes
+
+* Consolidate tournament selection/navigation, removing over 1000 lines of code ([6d2a617](https://github.com/RunnymedeRobotics1310/RavenEye/commit/6d2a617ea52a86261b81cd58664228561b385e00))
+* reorder reports on report home page ([4be4215](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4be4215662a523882b71a504403dd564b74676d2))
+
 ## [3.40.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.40.0...v3.40.1) (2026-04-09)
 
 
