@@ -1,3 +1,10 @@
+# [3.41.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.40.3...v3.41.0) (2026-04-11)
+
+
+### Features
+
+* PMVA updates and Robot Performance Report ([0ef7abd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/0ef7abdad245c5c50b011bae827c01c7a8125797))
+
 ## [3.40.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.40.2...v3.40.3) (2026-04-10)
 
 
