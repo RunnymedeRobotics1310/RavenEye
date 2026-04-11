@@ -43,6 +43,11 @@ const ReportHomePage = () => {
                     </NavLink>
                   </li>
                   <li>
+                    <NavLink to="/report/robot-performance" className="btn-secondary">
+                      Robot Performance Report
+                    </NavLink>
+                  </li>
+                  <li>
                     <NavLink to="/report/mega" className="btn-secondary">
                       Mega Report
                     </NavLink>

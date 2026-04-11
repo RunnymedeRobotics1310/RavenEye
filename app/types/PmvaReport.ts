@@ -2,11 +2,11 @@ export interface PmvaReport {
   teamNumber: number;
   matchCount: number;
   general: GeneralSection;
-  hopper: HopperSection;
-  swi: SwiSection;
+  shooting: ShootingSection;
 }
 
 export interface MatchComment {
+  tournamentId: string;
   matchId: number;
   level: string;
   note: string;
@@ -25,27 +25,28 @@ export interface GeneralSection {
 }
 
 export interface MatchBreakdown {
+  tournamentId: string;
   matchId: number;
   level: string;
   note: string;
   videoLink: string | null;
 }
 
-export interface HopperSection {
+export interface ShootingSection {
   loading: LoadingStats;
-  shootingAll: ShootingView;
+  shootingAll: ShootingView | null;
   shootingClose: ShootingView | null;
   shootingMid: ShootingView | null;
   shootingFar: ShootingView | null;
   shootingMoving: ShootingView | null;
   shootingIntaking: ShootingView | null;
+  swi: SwiSummary;
 }
 
 export interface LoadingStats {
   avgFillCount: number;
   hopperFilledPercentage: number;
   maxFillExcludingIntaking: number;
-  hopperFilledRating: number;
   loadComments: MatchComment[];
   shootComments: MatchComment[];
 }
@@ -60,6 +61,7 @@ export interface ShootingView {
 }
 
 export interface MatchCycleData {
+  tournamentId: string;
   matchId: number;
   level: string;
   cycleCount: number;
@@ -67,9 +69,11 @@ export interface MatchCycleData {
   totalScores: number;
   totalMisses: number;
   totalStuck: number;
+  avgLoadAmount: number;
 }
 
 export interface SequenceShotData {
+  tournamentId: string;
   matchId: number;
   level: string;
   sequenceIndex: number;
@@ -82,7 +86,7 @@ export interface SequenceShotData {
   scoresPerSecond: number;
 }
 
-export interface SwiSection {
+export interface SwiSummary {
   avgSequencesPerMatch: number;
   avgScoresPerSequence: number;
   avgScorePercentPerSequence: number;
@@ -95,6 +99,7 @@ export interface SwiSection {
 }
 
 export interface MatchSwiData {
+  tournamentId: string;
   matchId: number;
   level: string;
   sequenceCount: number;

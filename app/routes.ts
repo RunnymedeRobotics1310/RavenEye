@@ -101,6 +101,10 @@ export default [
     "report/pmva/:tournamentId",
     "./routes/report/pmva-report-page.tsx",
   ),
+  route(
+    "report/robot-performance",
+    "./routes/report/robot-performance-page.tsx",
+  ),
   route("report/mega", "./routes/report/mega-report-tournaments-page.tsx"),
   route(
     "report/mega/:tournamentId",

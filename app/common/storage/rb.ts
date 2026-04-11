@@ -1285,6 +1285,28 @@ export async function getPmvaReport(
   }
 }
 
+// ── Robot Performance Report ────────────────────────────────────────────
+
+export async function getRobotPerformanceReport(): Promise<PmvaReportResponse> {
+  const resp = await rbfetch("/api/report/robot-performance", {});
+  if (resp.ok) {
+    return resp.json() as unknown as PmvaReportResponse;
+  } else {
+    throw new Error("Failure fetching Robot Performance report");
+  }
+}
+
+// ── Config ──────────────────────────────────────────────────────────────
+
+export async function getOwnerTeam(): Promise<{ teamNumber: number }> {
+  const resp = await rbfetch("/api/config/owner-team", {});
+  if (resp.ok) {
+    return resp.json() as unknown as { teamNumber: number };
+  } else {
+    throw new Error("Failure fetching owner team");
+  }
+}
+
 export async function forgotPassword(login: string): Promise<void> {
   const resp = await fetch(
     import.meta.env.VITE_API_HOST +
