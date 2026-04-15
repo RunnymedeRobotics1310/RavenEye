@@ -3021,3 +3021,164 @@ a.kiosk-brand {
     font-size: 0.7rem;
 }
 
+/*
+ * Bar chart — colour-blind-friendly palette (Paul Tol "vibrant"), dual-encoded with SVG hatch pattern.
+ */
+:root {
+    --chart-success: #0077BB;
+    --chart-miss: #EE7733;
+    --chart-pickup: #009988;
+    --chart-axis: #666;
+    --chart-grid: rgba(0, 0, 0, 0.08);
+    --chart-tooltip-bg: #ffffff;
+    --chart-tooltip-border: #cccccc;
+    --chart-tooltip-text: #1a1a1a;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --chart-success: #33BBEE;
+        --chart-miss: #EE7733;
+        --chart-pickup: #44BB99;
+        --chart-axis: #aaa;
+        --chart-grid: rgba(255, 255, 255, 0.1);
+        --chart-tooltip-bg: #242424;
+        --chart-tooltip-border: #555;
+        --chart-tooltip-text: #f0f0f0;
+    }
+}
+
+.chart-block {
+    margin-bottom: var(--space-lg);
+}
+
+.chart-block:last-child {
+    margin-bottom: 0;
+}
+
+.chart-block-stats {
+    color: var(--color-text-secondary);
+    margin: 0.25rem 0 0.5rem;
+    font-size: 0.9rem;
+}
+
+.bar-chart {
+    position: relative;
+}
+
+.bar-chart-empty {
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.bar-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.bar-chart-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.bar-chart-legend-swatch {
+    display: inline-block;
+    width: 0.9rem;
+    height: 0.9rem;
+    border: 1px solid;
+    border-radius: 2px;
+}
+
+.bar-chart-svg-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.bar-chart-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 360px;
+}
+
+.bar-chart-grid {
+    stroke: var(--chart-grid);
+    stroke-width: 1;
+}
+
+.bar-chart-axis {
+    stroke: var(--chart-axis);
+    stroke-width: 1;
+}
+
+.bar-chart-axis-text {
+    fill: var(--chart-axis);
+    font-size: 11px;
+    font-family: -apple-system, system-ui, sans-serif;
+}
+
+.bar-chart-bar {
+    transition: opacity 0.12s ease;
+}
+
+.bar-chart-bar-hover {
+    opacity: 0.75;
+}
+
+.bar-chart-tooltip {
+    position: absolute;
+    top: 0.5rem;
+    transform: translateX(-50%);
+    background: var(--chart-tooltip-bg);
+    color: var(--chart-tooltip-text);
+    border: 1px solid var(--chart-tooltip-border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-md);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: 11rem;
+    max-width: 16rem;
+    pointer-events: auto;
+    z-index: 2;
+}
+
+.bar-chart-tooltip dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem 0.75rem;
+}
+
+.bar-chart-tooltip-row {
+    display: contents;
+}
+
+.bar-chart-tooltip dt {
+    color: var(--color-text-secondary);
+    font-weight: normal;
+}
+
+.bar-chart-tooltip dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+}
+
+.bar-chart-tooltip-close {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.3rem;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.1rem 0.3rem;
+}
+
