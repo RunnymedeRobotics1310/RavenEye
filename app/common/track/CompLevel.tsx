@@ -40,7 +40,6 @@ const CompLevel = ({}: TrackScreenProps) => {
             <button onClick={() => selectLevel(level)}>{level}</button>{" "}
           </span>
         ))}
-        <button onClick={pitScout}>I'm a Pit Scout</button>
       </div>
     </main>
   );

@@ -41,10 +41,11 @@ const LoggedIn = () => {
   const fullName = getDisplayName();
   const hasActive = useHasActiveTournament();
   const roles = useRole();
-  // TEMPORARY: hide Match Strategy from scouts until launch — admins and
-  // superusers can see it. Restore to
-  // `roles.isExpertScout || roles.isAdmin || roles.isSuperuser` before launch.
-  const canStrategize = roles.isDriveTeam || roles.isAdmin || roles.isSuperuser;
+  const canStrategize =
+    roles.isExpertScout ||
+    roles.isDriveTeam ||
+    roles.isAdmin ||
+    roles.isSuperuser;
   const [copyToast, setCopyToast] = useState(false);
   return (
     <main>
@@ -57,26 +58,46 @@ const LoggedIn = () => {
       <section className="card">
         <nav className="home-nav">
           <div className="home-nav-primary">
-            <NavLink to={"/track"} className="btn">Track a Robot</NavLink>
-            <NavLink to={"/report"} className="btn">View Reports</NavLink>
-            {canStrategize && <NavLink to={"/strategy"} className="btn">Match Strategy</NavLink>}
-            {hasActive && <NavLink to={"/report/schedule/active"} className="btn-secondary">Current Tournament Schedule & Scores</NavLink>}
-            {hasActive && <NavLink to={"/report/schedule"} className="btn-secondary">Schedule & Scores</NavLink>}
+            <NavLink to={"/track"} className="btn">
+              Track a Robot
+            </NavLink>
+            <NavLink to={"/report"} className="btn">
+              View Reports
+            </NavLink>
+            {canStrategize && (
+              <NavLink to={"/strategy"} className="btn">
+                Match Strategy
+              </NavLink>
+            )}
+            {hasActive && (
+              <NavLink to={"/report/schedule/active"} className="btn-secondary">
+                Current Tournament Schedule & Scores
+              </NavLink>
+            )}
+            {hasActive && (
+              <NavLink to={"/report/schedule"} className="btn-secondary">
+                Schedule & Scores
+              </NavLink>
+            )}
           </div>
           <div className="home-nav-secondary">
-            <NavLink to={"/profile"} className="btn-secondary">My Profile</NavLink>
-            <NavLink to={"/logout"} className="btn-secondary">Log out</NavLink>
+            <NavLink to={"/profile"} className="btn-secondary">
+              My Profile
+            </NavLink>
+            <NavLink to={"/logout"} className="btn-secondary">
+              Log out
+            </NavLink>
           </div>
         </nav>
       </section>
       <section className="card">
         <h2>Pit Support</h2>
         <p>
-          The following features exist to drive a pit kiosk in Raven Eye.
-          All of the data shown in the pit section is available in the
-          &ldquo;Schedule &amp; Scores&rdquo; report. Please do not run
-          the pit kiosk mode on your own &mdash; it puts unnecessary load
-          on the server and we don&rsquo;t want to be shut down.
+          The following features exist to drive a pit kiosk in Raven Eye. All of
+          the data shown in the pit section is available in the &ldquo;Schedule
+          &amp; Scores&rdquo; report. Please do not run the pit kiosk mode on
+          your own &mdash; it puts unnecessary load on the server and we
+          don&rsquo;t want to be shut down.
         </p>
         <table className="status-table">
           <thead>
@@ -87,13 +108,28 @@ const LoggedIn = () => {
           </thead>
           <tbody>
             <tr>
-              <td><NavLink to="/admin/tournament-streams" className="btn-secondary">Livestreams</NavLink></td>
-              <td>Enter or change override tournament livestream YouTube URLs &mdash; admin access only.</td>
+              <td>
+                <NavLink
+                  to="/admin/tournament-streams"
+                  className="btn-secondary"
+                >
+                  Livestreams
+                </NavLink>
+              </td>
+              <td>
+                Enter or change override tournament livestream YouTube URLs
+                &mdash; admin access only.
+              </td>
             </tr>
             <tr>
-              <td><NavLink to="/kiosk-pit" className="btn-secondary">Pit Kiosk</NavLink></td>
               <td>
-                Load this URL in the pit (you do not need to be logged in):<br />
+                <NavLink to="/kiosk-pit" className="btn-secondary">
+                  Pit Kiosk
+                </NavLink>
+              </td>
+              <td>
+                Load this URL in the pit (you do not need to be logged in):
+                <br />
                 <code>{window.location.origin}/kiosk-pit</code>
               </td>
             </tr>
@@ -115,8 +151,14 @@ const NotLoggedIn = (props: any) => {
         </p>
       </div>
       <div className="page-section">
-        <NavLink to={"/login"} className="btn">Log in</NavLink>
-        {hasActive && <NavLink to={"/report/schedule/active"} className="btn-secondary">Schedule & Scores</NavLink>}
+        <NavLink to={"/login"} className="btn">
+          Log in
+        </NavLink>
+        {hasActive && (
+          <NavLink to={"/report/schedule/active"} className="btn-secondary">
+            Schedule & Scores
+          </NavLink>
+        )}
       </div>
       <section className="card">
         <h3>Login Status</h3>
