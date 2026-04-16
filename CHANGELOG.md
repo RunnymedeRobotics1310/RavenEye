@@ -1,3 +1,10 @@
+## [3.42.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.42.1...v3.42.2) (2026-04-16)
+
+
+### Bug Fixes
+
+* Show practice matches in kiosk ([56f89cd](https://github.com/RunnymedeRobotics1310/RavenEye/commit/56f89cd8f4ecd59cfb49e83c9d03d3584a1cc6ea))
+
 ## [3.42.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.42.0...v3.42.1) (2026-04-16)
 
 
