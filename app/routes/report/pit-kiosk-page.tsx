@@ -385,11 +385,8 @@ function SchedulePanel({
   const rankByTeam = new Map<number, number>();
   rankings.forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
 
-  const hasQuals = matches.some((m) => m.level === "Qualification");
   const allOwner = matches.filter(
-    (m) =>
-      getAllianceForTeam(m, ownerTeam) !== null &&
-      !(hasQuals && m.level === "Practice"),
+    (m) => getAllianceForTeam(m, ownerTeam) !== null,
   );
   const upcoming = allOwner.filter((m) => m.winningAlliance === 0);
   const completed = allOwner
