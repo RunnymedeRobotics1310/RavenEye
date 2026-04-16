@@ -1,3 +1,10 @@
+## [3.42.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.42.2...v3.42.3) (2026-04-16)
+
+
+### Bug Fixes
+
+* Simultaneous active tournament picker ([8ed744c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/8ed744c1ac26cb934238e9d754fc7edafa5f75ec))
+
 ## [3.42.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.42.1...v3.42.2) (2026-04-16)
 
 
