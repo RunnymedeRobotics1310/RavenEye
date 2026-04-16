@@ -1,3 +1,11 @@
+## [3.42.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.42.0...v3.42.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* remove pitscout button and add match strat to expert scouts ([78bb795](https://github.com/RunnymedeRobotics1310/RavenEye/commit/78bb795ae43480f0f93c7f798f46cdf50a59f7b5))
+* Remove scout button and add match strat button ([3349b07](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3349b077ac0c306d97dd5c71864dafc1597965fb))
+
 # [3.42.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.41.0...v3.42.0) (2026-04-15)
 
 
