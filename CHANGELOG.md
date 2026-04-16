@@ -1,3 +1,10 @@
+# [3.42.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.41.0...v3.42.0) (2026-04-15)
+
+
+### Features
+
+* Bar chart support ([95e618e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/95e618e666fcefe4b1bdfecaf40af04f993ba9d1))
+
 # [3.41.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.40.3...v3.41.0) (2026-04-11)
 
 
