@@ -27,6 +27,7 @@ import type {
 
 const REFRESH_INTERVAL_ACTIVE_MS = 30_000;
 const REFRESH_INTERVAL_IDLE_MS = 30_000;
+const ACTIVE_SCHEDULE_TOURNAMENT_KEY = "raveneye-active-schedule-tournament-id";
 
 function hasRed4(matches: TeamScheduleMatch[]): boolean {
   return matches.some((m) => m.red4 !== 0);
@@ -484,11 +485,25 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
       .finally(() => setTournamentsListLoading(false));
   }, []);
 
-  // Auto-select first active tournament when using /schedule/active
+  // Auto-select tournament when using /schedule/active:
+  // 1. If a previously chosen active tournament is still active, use it.
+  // 2. Else if exactly one is active, use it.
+  // 3. Else (2+ active, no stored choice) fall through to the picker.
   useEffect(() => {
-    if (autoSelect && !autoSelectedRef.current && !tournamentsLoading && activeTournaments.length > 0) {
-      autoSelectedRef.current = true;
-      setManualTournament(activeTournaments[0]);
+    if (autoSelect && !autoSelectedRef.current && !tournamentsLoading) {
+      if (activeTournaments.length === 0) return;
+      const stored = sessionStorage.getItem(ACTIVE_SCHEDULE_TOURNAMENT_KEY);
+      const remembered = stored
+        ? activeTournaments.find((t) => t.id === stored)
+        : undefined;
+      if (remembered) {
+        autoSelectedRef.current = true;
+        setManualTournament(remembered);
+      } else if (activeTournaments.length === 1) {
+        autoSelectedRef.current = true;
+        setManualTournament(activeTournaments[0]);
+        sessionStorage.setItem(ACTIVE_SCHEDULE_TOURNAMENT_KEY, activeTournaments[0].id);
+      }
     }
   }, [autoSelect, tournamentsLoading, activeTournaments]);
   const loggedInRef = useRef(loggedIn);
@@ -497,6 +512,13 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
   const selectedTournament = manualTournament;
   const selectedTournamentId = selectedTournament?.id ?? null;
 
+  const selectTournament = (t: RBTournament) => {
+    setManualTournament(t);
+    if (autoSelect) {
+      sessionStorage.setItem(ACTIVE_SCHEDULE_TOURNAMENT_KEY, t.id);
+    }
+  };
+
   const handleBack = (e: React.MouseEvent) => {
     e.preventDefault();
     if (manualTournament) {
@@ -504,6 +526,10 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
       setSchedule(null);
       setError(null);
       setShowAllInitialized(false);
+      if (autoSelect) {
+        sessionStorage.removeItem(ACTIVE_SCHEDULE_TOURNAMENT_KEY);
+        autoSelectedRef.current = false;
+      }
     } else {
       window.history.back();
     }
@@ -682,7 +708,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
       <div className="tournament-row">
         <button
           className="tournament-btn"
-          onClick={() => setManualTournament(t)}
+          onClick={() => selectTournament(t)}
         >
           {t.id.slice(String(t.season).length)}
         </button>
@@ -710,7 +736,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
             tournaments={allTournaments}
             activeTournaments={activeTournaments}
             renderTournament={renderTournament}
-            onSelectTournament={(t) => setManualTournament(t)}
+            onSelectTournament={(t) => selectTournament(t)}
             groupBy="week"
           />
         )}

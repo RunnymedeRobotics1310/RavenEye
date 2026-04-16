@@ -27,6 +27,7 @@ import BracketSvg from "~/common/BracketSvg.tsx";
 
 const REFRESH_MS = 15_000;
 const SCROLL_PX_PER_SEC = 18;
+const KIOSK_TOURNAMENT_KEY = "raveneye-kiosk-tournament-id";
 
 function AutoScrollViewport({
   children,
@@ -147,11 +148,13 @@ function TopBar({
   webcasts,
   activeWebcast,
   onSelectWebcast,
+  onChangeTournament,
 }: {
   queueStatus: NexusQueueStatus | null;
   webcasts: ParsedWebcast[];
   activeWebcast: number;
   onSelectWebcast: (i: number) => void;
+  onChangeTournament?: () => void;
 }) {
   const startTime = formatQueueTime(queueStatus?.estimatedStartTime ?? null);
   const queueTime = formatQueueTime(queueStatus?.estimatedQueueTime ?? null);
@@ -217,6 +220,14 @@ function TopBar({
               {w.label}
             </button>
           ))}
+        {onChangeTournament && (
+          <button
+            className="kiosk-stream-tab kiosk-change-tournament"
+            onClick={onChangeTournament}
+          >
+            Change tournament
+          </button>
+        )}
       </div>
     </div>
   );
@@ -560,6 +571,9 @@ function BracketPanel({
 export default function PitKioskPage() {
   const { tournamentId: paramTournamentId } = useParams();
   const [tournament, setTournament] = useState<RBTournament | null>(null);
+  const [pickerChoices, setPickerChoices] = useState<RBTournament[] | null>(
+    null,
+  );
   const [schedule, setSchedule] = useState<TeamScheduleResponse | null>(null);
   const [queueStatus, setQueueStatus] = useState<NexusQueueStatus | null>(
     null,
@@ -567,6 +581,7 @@ export default function PitKioskPage() {
   const [activeWebcast, setActiveWebcast] = useState(0);
   const [loading, setLoading] = useState(true);
   const [countdown, setCountdown] = useState(REFRESH_MS / 1000);
+  const [reloadKey, setReloadKey] = useState(0);
 
   // Hide app header/footer
   useEffect(() => {
@@ -577,23 +592,63 @@ export default function PitKioskPage() {
     };
   }, []);
 
-  // Load tournament: use param if provided, otherwise auto-detect active
+  // Load tournament: use URL param if provided; otherwise choose from the
+  // active list (remembering a prior choice when 2+ are active).
   useEffect(() => {
     if (paramTournamentId) {
       getTournamentList()
         .then((list) => {
           const found = list.find((t) => t.id === paramTournamentId);
           setTournament(found ?? { id: paramTournamentId } as RBTournament);
+          setPickerChoices(null);
         })
         .catch(() => setTournament({ id: paramTournamentId } as RBTournament))
         .finally(() => setLoading(false));
-    } else {
-      getActiveTeamTournaments()
-        .then((active) => setTournament(active.length > 0 ? active[0] : null))
-        .catch(() => {})
-        .finally(() => setLoading(false));
+      return;
     }
-  }, [paramTournamentId]);
+    getActiveTeamTournaments()
+      .then((active) => {
+        if (active.length === 0) {
+          setTournament(null);
+          setPickerChoices(null);
+          return;
+        }
+        if (active.length === 1) {
+          setTournament(active[0]);
+          setPickerChoices(null);
+          localStorage.setItem(KIOSK_TOURNAMENT_KEY, active[0].id);
+          return;
+        }
+        const stored = localStorage.getItem(KIOSK_TOURNAMENT_KEY);
+        const remembered = stored
+          ? active.find((t) => t.id === stored)
+          : undefined;
+        if (remembered) {
+          setTournament(remembered);
+          setPickerChoices(null);
+        } else {
+          setTournament(null);
+          setPickerChoices(active);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [paramTournamentId, reloadKey]);
+
+  const choosePickerTournament = (t: RBTournament) => {
+    localStorage.setItem(KIOSK_TOURNAMENT_KEY, t.id);
+    setTournament(t);
+    setPickerChoices(null);
+  };
+
+  const changeTournament = () => {
+    localStorage.removeItem(KIOSK_TOURNAMENT_KEY);
+    setTournament(null);
+    setSchedule(null);
+    setQueueStatus(null);
+    setLoading(true);
+    setReloadKey((k) => k + 1);
+  };
 
   const tournamentId = tournament?.id ?? null;
 
@@ -692,6 +747,29 @@ export default function PitKioskPage() {
     );
   }
 
+  if (pickerChoices) {
+    return (
+      <main className="kiosk kiosk-loading">
+        <div className="kiosk-picker">
+          <h2>Select a tournament</h2>
+          <p>Multiple tournaments are active. Pick one for this kiosk.</p>
+          {pickerChoices.map((t) => (
+            <button
+              key={t.id}
+              className="kiosk-picker-btn"
+              onClick={() => choosePickerTournament(t)}
+            >
+              <span className="kiosk-picker-code">
+                {t.id.slice(String(t.season).length)}
+              </span>
+              <span className="kiosk-picker-name">{t.name}</span>
+            </button>
+          ))}
+        </div>
+      </main>
+    );
+  }
+
   if (!tournament) {
     return (
       <main className="kiosk kiosk-loading">
@@ -715,6 +793,7 @@ export default function PitKioskPage() {
         webcasts={webcasts}
         activeWebcast={activeWebcast}
         onSelectWebcast={setActiveWebcast}
+        onChangeTournament={!paramTournamentId ? changeTournament : undefined}
       />
       <div className="kiosk-left">
         {isPlayoffMode ? (
