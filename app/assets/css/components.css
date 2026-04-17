@@ -3236,3 +3236,194 @@ a.kiosk-brand {
     padding: 0.1rem 0.3rem;
 }
 
+/*
+ *
+ * FIELD MAP CALIBRATION
+ *
+ */
+
+/* The SVG overlay pins to the same rect as the field image. The container's
+   aspect-ratio (set inline from the current field dimensions) keeps the image
+   undistorted so normalized SVG coords land where the user clicked. */
+.field-map {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    user-select: none;
+}
+
+.field-map img,
+.field-map svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.field-map svg {
+    overflow: visible;
+    touch-action: manipulation;
+}
+
+.field-grid-line {
+    stroke: var(--field-grid);
+    stroke-width: 1;
+    fill: none;
+}
+
+.field-axis-x {
+    stroke: var(--field-axis-x);
+    stroke-width: 3;
+    fill: none;
+}
+
+.field-axis-y {
+    stroke: var(--field-axis-y);
+    stroke-width: 1.5;
+    fill: none;
+}
+
+.field-origin-marker {
+    fill: var(--field-axis-x);
+    stroke: #ffffff;
+    stroke-width: 0.002;
+}
+
+.field-origin-label {
+    fill: var(--field-axis-x);
+    stroke: #ffffff;
+    stroke-width: 0.0015;
+}
+
+.robot-body-shape {
+    fill: var(--robot-body);
+    fill-opacity: 0.4;
+    stroke: var(--robot-body);
+    stroke-width: 2;
+}
+
+.robot-front-shape {
+    fill: var(--robot-front);
+    fill-opacity: 0.9;
+    stroke: var(--robot-body);
+    stroke-width: 1;
+}
+
+.field-calibration-page .form-field {
+    margin-bottom: 0.75rem;
+}
+
+.field-calibration-page .dimensions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.5rem 1rem;
+}
+
+.field-calibration-phase {
+    font-weight: 600;
+    color: var(--color-accent);
+    margin: 0.25rem 0 0.5rem;
+}
+
+.field-calibration-error {
+    color: var(--color-error);
+    font-weight: 600;
+    margin: 0.5rem 0;
+}
+
+.field-calibration-verify {
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    background: var(--color-bg-tertiary);
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    white-space: pre;
+    overflow-x: auto;
+}
+
+.field-calibration-corners {
+    width: 100%;
+    margin: 0.5rem 0 0.75rem;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.field-calibration-corners th,
+.field-calibration-corners td {
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid var(--color-border);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.field-calibration-corners thead th {
+    background: var(--color-bg-tertiary);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.field-calibration-corners .corner-status-cell {
+    width: 1.75rem;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.field-calibration-corners .corner-coord-cell {
+    width: 6rem;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.field-calibration-corners .corner-hint {
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+}
+
+.field-calibration-corners .corner-done {
+    opacity: 0.7;
+}
+
+.field-calibration-corners .corner-done .corner-status-cell {
+    color: var(--color-success);
+}
+
+.field-calibration-corners .corner-active {
+    background: var(--color-accent-light);
+    outline: 2px solid var(--color-accent);
+}
+
+.field-calibration-corners .corner-active .corner-status-cell {
+    color: var(--color-accent);
+}
+
+.corner-badge {
+    display: inline-block;
+    min-width: 1.75rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.35rem;
+    font-weight: 700;
+    text-align: center;
+    border: 2px solid transparent;
+}
+
+.corner-badge-blue {
+    background: var(--alliance-blue-bg);
+    color: var(--alliance-blue);
+    border-color: var(--alliance-blue);
+}
+
+.corner-badge-red {
+    background: var(--alliance-red-bg);
+    color: var(--alliance-red);
+    border-color: var(--alliance-red);
+}
+

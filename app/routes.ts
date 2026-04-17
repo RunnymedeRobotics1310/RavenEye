@@ -53,6 +53,10 @@ export default [
   route("admin/tournament-streams", "./routes/admin/tournament-streams-page.tsx"),
   route("admin/match-videos", "./routes/admin/match-videos-page.tsx"),
   route("admin/match-videos/:tournamentId", "./routes/admin/match-videos-detail-page.tsx"),
+  route(
+    "admin/field-map-calibration",
+    "./routes/admin/field-map-calibration/calibration-page.tsx",
+  ),
   route("profile", "./routes/profile/profile-page.tsx"),
   route("report", "./routes/report/report-home-page.tsx"),
   route("report/schedule", "./routes/report/team-schedule-page.tsx"),

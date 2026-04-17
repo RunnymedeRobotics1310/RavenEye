@@ -82,6 +82,16 @@
 
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
     --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.12);
+
+    /* Field-map calibration overlay palette (Paul Tol "Bright" — colour-blind
+       safe). Dual-encoded in markup: X axis thicker than Y, robot front is a
+       triangle, corners carry A/B/C/D letter labels. */
+    --field-grid: rgba(0, 0, 0, 0.25);
+    --field-axis-x: #0077BB;
+    --field-axis-y: #EE7733;
+    --field-corner: #CC3311;
+    --robot-body: #009988;
+    --robot-front: #EEDD00;
 }
 
 /* Dark mode */
@@ -143,5 +153,12 @@
 
         --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
         --shadow-md: 0 3px 10px rgba(0, 0, 0, 0.4);
+
+        --field-grid: rgba(255, 255, 255, 0.25);
+        --field-axis-x: #33BBEE;
+        --field-axis-y: #EE7733;
+        --field-corner: #EE3377;
+        --robot-body: #44BB99;
+        --robot-front: #EEDD00;
     }
 }
