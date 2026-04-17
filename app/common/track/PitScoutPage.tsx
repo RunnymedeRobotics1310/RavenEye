@@ -12,6 +12,7 @@ import { useEventTypeList } from "~/common/storage/dbhooks.ts";
 const PitScoutPage = ({}: TrackScreenProps) => {
   const [entry, setEntry] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [climbAuto, setClimbAuto] = useState<boolean>(false);
   const [preload, setPreload] = useState<boolean>(false);
   const [drive, setDrive] = useState<string>("");
@@ -44,26 +45,29 @@ const PitScoutPage = ({}: TrackScreenProps) => {
 
   async function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
-    // set up scouting session
-    // record drive event
-    await recordEvent("number-of-autos", numberAutos, "");
-    if (climbAuto) {
-      await recordEvent("climb-in-auto", 0, "");
-    }
-    if (preload) {
-      await recordEvent("preload-true", 0, "");
-    }
-    await recordEvent("drive-event", 0, drive);
-    await recordEvent("max-fuel-hold", maxFuel, "");
-    // record maxFuel
-    // record numberAutos
-    // navigate somewhere
-    if (entry !== "") {
-      await recordComment(team, entry); //or recordEvent?
-      setSubmitted(true);
-      setTeam(0);
-      setEntry("");
-      setMaxFuel(0);
+    setError(null);
+    try {
+      await recordEvent("number-of-autos", numberAutos, "");
+      if (climbAuto) {
+        await recordEvent("climb-in-auto", 0, "");
+      }
+      if (preload) {
+        await recordEvent("preload-true", 0, "");
+      }
+      await recordEvent("drive-event", 0, drive);
+      await recordEvent("max-fuel-hold", maxFuel, "");
+      if (entry !== "") {
+        await recordComment(team, entry);
+        setSubmitted(true);
+        setTeam(0);
+        setEntry("");
+        setMaxFuel(0);
+      }
+    } catch (err) {
+      setError(
+        "Failed to record pit scout entry: " +
+          (err instanceof Error ? err.message : String(err)),
+      );
     }
   }
 
@@ -155,6 +159,7 @@ const PitScoutPage = ({}: TrackScreenProps) => {
       <p>Strat Notes?</p>
       <textarea value={entry} onChange={(e) => setEntry(e.target.value)} />
       <p></p>
+      {error && <div className="banner banner-warning">{error}</div>}
       <button type="submit" disabled={disabled} onClick={handleSubmit}>
         Submit
       </button>

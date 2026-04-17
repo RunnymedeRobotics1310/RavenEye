@@ -92,6 +92,7 @@ async function runSync(
 }
 
 const SCHEDULE_SYNC_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const TRACKING_DATA_SYNC_INTERVAL = 15 * 1000; // 15 seconds
 const ACTIVE_TOURNAMENT_CUTOFF = 36 * 60 * 60 * 1000; // 36 hours
 
 let syncInitialized = false;
@@ -115,6 +116,32 @@ export function initializeSyncSchedule() {
 
   setInterval(autoSyncMatchSchedule, SCHEDULE_SYNC_INTERVAL);
   setInterval(autoSyncStrategyPlans, SCHEDULE_SYNC_INTERVAL);
+  setInterval(autoSyncTrackingData, TRACKING_DATA_SYNC_INTERVAL);
+}
+
+/**
+ * Upload any locally-captured tracking events every 15 seconds if the scout
+ * is online and has unsynced data. Guards short-circuit fast so this is
+ * cheap when idle and safe when already syncing.
+ */
+async function autoSyncTrackingData(): Promise<void> {
+  const hasSession =
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem("raveneye_access_token") !== null;
+  if (!hasSession) return;
+
+  // Don't stack syncs if one is already running.
+  const existing = await repository.getSyncStatus(TRACKING_DATA);
+  if (existing && existing.inProgress) return;
+
+  // Nothing to sync → skip the network call entirely.
+  const pending = await repository.getUnsynchronizedEvents();
+  if (pending.length === 0) return;
+
+  const alive = await ping();
+  if (!alive) return;
+
+  await syncTrackingData();
 }
 
 async function autoSyncStrategyPlans(): Promise<void> {

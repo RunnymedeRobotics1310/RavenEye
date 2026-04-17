@@ -17,6 +17,7 @@ import SyncServerDataButton from "~/common/sync/SyncServerDataButton.tsx";
 import FrcSyncButton from "~/common/sync/FrcSyncButton.tsx";
 import ClearReportCacheButton from "~/common/ClearReportCacheButton.tsx";
 import { useRole } from "~/common/storage/rbauth.ts";
+import { useManualSyncStatus } from "~/common/sync/sync.ts";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -29,6 +30,7 @@ export function meta({}: Route.MetaArgs) {
 }
 const SyncPage = () => {
   const { isAdmin, isSuperuser } = useRole();
+  const manualStatus = useManualSyncStatus();
 
   return (
     <main>
@@ -41,7 +43,14 @@ const SyncPage = () => {
           </p>
         </div>
         <section className="card">
-          <h2>My Tracking Data</h2>
+          <h2>
+            My Tracking Data
+            {manualStatus.remaining > 0 && (
+              <span className="pending-badge">
+                {manualStatus.remaining} pending
+              </span>
+            )}
+          </h2>
           <SyncQuickComments />
           <SyncTrackingData />
           <SyncRobotAlerts />
