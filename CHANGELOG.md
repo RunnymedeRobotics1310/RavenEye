@@ -1,3 +1,10 @@
+## [3.43.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.43.0...v3.43.1) (2026-04-17)
+
+
+### Bug Fixes
+
+* Remove practice matches from futrue event schedule ([02c6b7f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/02c6b7fc411e38614105e296c376311f0de60a58))
+
 # [3.43.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.42.3...v3.43.0) (2026-04-17)
 
 
