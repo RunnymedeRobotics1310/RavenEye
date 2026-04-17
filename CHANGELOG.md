@@ -1,3 +1,12 @@
+## [3.45.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.0...v3.45.1) (2026-04-17)
+
+
+### Bug Fixes
+
+* auto-sync tracking data reads shared networkHealth instead of pinging ([f2c3e48](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f2c3e48dd5f77c26aa9b2a35e65d408a6c19744e))
+* harden track forms, auto-sync events every 15s, show unsync counts ([b2be8ec](https://github.com/RunnymedeRobotics1310/RavenEye/commit/b2be8ec69560b575fb26805a416e193e4d3b12b9))
+* route remaining ping() callers through shared networkHealth ([397a567](https://github.com/RunnymedeRobotics1310/RavenEye/commit/397a56740bfe551fd4c747f8df09b3352f1a17a0))
+
 # [3.45.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.44.0...v3.45.0) (2026-04-17)
 
 
