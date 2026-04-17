@@ -1,3 +1,10 @@
+# [3.44.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.43.1...v3.44.0) (2026-04-17)
+
+
+### Features
+
+* add programming data section and pit kiosk clock ([07820c6](https://github.com/RunnymedeRobotics1310/RavenEye/commit/07820c6492483e8f47a522a9044e49d93b2c38cd))
+
 ## [3.43.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.43.0...v3.43.1) (2026-04-17)
 
 
