@@ -1,3 +1,10 @@
+# [3.45.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.44.0...v3.45.0) (2026-04-17)
+
+
+### Features
+
+* Network status indicator ([634441c](https://github.com/RunnymedeRobotics1310/RavenEye/commit/634441cf73c6f7446203c0c8dccaafeb27523c44))
+
 # [3.44.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.43.1...v3.44.0) (2026-04-17)
 
 
