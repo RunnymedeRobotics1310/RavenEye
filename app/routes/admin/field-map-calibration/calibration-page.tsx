@@ -35,6 +35,44 @@ const PHASES_FOR_CLICK_COUNT: OverlayPhase[] = [
   "ready",
 ];
 
+/**
+ * Corner descriptions use driver-station-relative language ("blue drivers'
+ * right-hand corner") because that's how a human standing at the field
+ * thinks about the geometry. The parenthetical image orientation matches the
+ * project's standard field-image layout: blue on the left, red on the right,
+ * scoring table toward the bottom of the image.
+ */
+const CORNERS = [
+  {
+    code: "A",
+    alliance: "blue" as const,
+    fieldCoord: "(0, 0)",
+    heading: "Blue alliance — driver-right corner",
+    hint: "Near the scoring table. Bottom-left of the field image.",
+  },
+  {
+    code: "B",
+    alliance: "red" as const,
+    fieldCoord: "(L, 0)",
+    heading: "Red alliance — driver-left corner",
+    hint: "Near the scoring table. Bottom-right of the field image.",
+  },
+  {
+    code: "C",
+    alliance: "red" as const,
+    fieldCoord: "(L, W)",
+    heading: "Red alliance — driver-right corner",
+    hint: "Far side from the scoring table. Top-right of the field image.",
+  },
+  {
+    code: "D",
+    alliance: "blue" as const,
+    fieldCoord: "(0, W)",
+    heading: "Blue alliance — driver-left corner",
+    hint: "Far side from the scoring table. Top-left of the field image.",
+  },
+] as const;
+
 function defaultDimensions(year: number) {
   const dims = FIELD_DIMENSIONS_BY_YEAR[year];
   return {
@@ -205,21 +243,31 @@ const CalibrationWorkArea = () => {
 
   const imageUrl = fieldImageForYear(year);
 
-  const phaseHint = (() => {
+  // Which corner index is the user expected to click next, if any.
+  const activeIndex: number | null = (() => {
     switch (phase) {
       case "idle":
-        return "Press Start to begin clicking the four field corners.";
       case "picking-corner-0":
-        return "Click the BLUE origin corner (field 0, 0).";
+        return 0;
       case "picking-corner-1":
-        return "Click the RED origin corner (field L, 0).";
+        return 1;
       case "picking-corner-2":
-        return "Click the RED far corner (field L, W).";
+        return 2;
       case "picking-corner-3":
-        return "Click the BLUE far corner (field 0, W).";
+        return 3;
       case "ready":
-        return "Calibration ready. A robot at (2, 2, 0°) is drawn as a visual sanity check.";
+        return null;
     }
+  })();
+
+  const phaseHint = (() => {
+    if (phase === "ready") {
+      return "Calibration ready. A robot at (2 m, 2 m, 0°) is drawn as a visual sanity check.";
+    }
+    const idx = activeIndex ?? 0;
+    const c = CORNERS[idx]!;
+    const prefix = phase === "idle" ? `Press Start. The first corner is:` : `Next corner:`;
+    return `${prefix} corner ${c.code} — ${c.heading}. ${c.hint}`;
   })();
 
   return (
@@ -303,6 +351,50 @@ const CalibrationWorkArea = () => {
       <fieldset>
         <legend>Calibrate corners</legend>
         <p className="field-calibration-phase">{phaseHint}</p>
+        <table className="field-calibration-corners">
+          <thead>
+            <tr>
+              <th scope="col">Status</th>
+              <th scope="col">Corner</th>
+              <th scope="col">Where to click</th>
+              <th scope="col">Field (m)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {CORNERS.map((c, i) => {
+              const done = i < corners.length;
+              const active = activeIndex === i && phase !== "idle";
+              const rowClass = done
+                ? "corner-row corner-done"
+                : active
+                  ? "corner-row corner-active"
+                  : "corner-row";
+              return (
+                <tr key={c.code} className={rowClass}>
+                  <td className="corner-status-cell">
+                    {done ? (
+                      <span aria-label="Clicked">✓</span>
+                    ) : active ? (
+                      <span aria-label="Next to click">→</span>
+                    ) : (
+                      <span aria-hidden="true">·</span>
+                    )}
+                  </td>
+                  <td>
+                    <span className={`corner-badge corner-badge-${c.alliance}`}>
+                      {c.code}
+                    </span>
+                  </td>
+                  <td>
+                    <strong>{c.heading}.</strong>{" "}
+                    <span className="corner-hint">{c.hint}</span>
+                  </td>
+                  <td className="corner-coord-cell">{c.fieldCoord}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
         <FieldCalibrationOverlay
           imageUrl={imageUrl}
           fieldL={fieldLengthM}
