@@ -24,6 +24,7 @@ import {
 } from "~/common/sync/sync.ts";
 import { useEffect, useState } from "react";
 import { getRavenBrainVersion } from "~/common/storage/rbauth.ts";
+import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 import Banners from "~/common/banners/Banners.tsx";
 import AdminMenu from "~/common/AdminMenu.tsx";
 
@@ -37,6 +38,7 @@ export const links: Route.LinksFunction = () => [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const syncStatus = useOverallSyncStatus();
+  const { isOffline } = useNetworkHealth();
   const [ravenBrainVersion, setRavenBrainVersion] = useState<string | null>(
     null,
   );
@@ -68,7 +70,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <header>
             <div id="logo">
               <NavLink to={"/"}>
-                <img src={logoUrl} alt="Runnymede Robotics" />
+                <img
+                  src={logoUrl}
+                  alt="Runnymede Robotics"
+                  className={isOffline ? "logo-offline" : undefined}
+                />
               </NavLink>
             </div>
             <div id="title">

@@ -2394,6 +2394,13 @@ a.kiosk-brand {
     width: auto;
 }
 
+/* Applied to the header logo when the last two pings to RavenBrain
+   have failed — gives a quick visual signal that the network is down. */
+.logo-offline {
+    filter: grayscale(1);
+    transition: filter 0.4s ease;
+}
+
 
 .kiosk-queue-status {
     flex: 1;

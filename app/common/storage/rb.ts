@@ -33,23 +33,33 @@ import type { MatchStrategyDrawing } from "~/types/MatchStrategyDrawing.ts";
 import type { StrategyStroke } from "~/types/StrategyStroke.ts";
 import type { FieldCalibration } from "~/types/FieldCalibration.ts";
 
+const PING_TIMEOUT_MS = 3000;
+
 /**
  * Sends a ping request to the API to check if the server is reachable.
+ *
+ * Bounded by a 3-second timeout so flaky venue WiFi (TCP connects but
+ * never delivers) can't hang sync flows indefinitely.
  *
  * @return {Promise<boolean>} A promise that resolves to true if the server responds with a status indicating success, otherwise false.
  */
 export async function ping(): Promise<boolean> {
-  return fetch(import.meta.env.VITE_API_HOST + "/api/ping", {})
-    .then((resp) => {
-      const ver = resp.headers.get("X-RavenBrain-Version");
-      if (ver && typeof sessionStorage !== "undefined") {
-        sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, ver);
-      }
-      return resp.ok;
-    })
-    .catch(() => {
-      return false;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), PING_TIMEOUT_MS);
+  try {
+    const resp = await fetch(import.meta.env.VITE_API_HOST + "/api/ping", {
+      signal: controller.signal,
     });
+    const ver = resp.headers.get("X-RavenBrain-Version");
+    if (ver && typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, ver);
+    }
+    return resp.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**
