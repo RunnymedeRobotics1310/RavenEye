@@ -2,15 +2,15 @@ import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import Spinner from "~/common/Spinner.tsx";
 import { NavLink } from "react-router";
 import { useStrategyAreaList, useTournamentList } from "~/common/storage/dbhooks.ts";
-import { useEffect, useState } from "react";
-import { ping, deleteStrategyArea } from "~/common/storage/rb.ts";
+import { deleteStrategyArea } from "~/common/storage/rb.ts";
 import { syncStrategyAreaList } from "~/common/sync/sync.ts";
+import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 
 const List = () => {
   const { list: data, loading } = useStrategyAreaList();
   const { list: tournaments } = useTournamentList();
-  const [online, setOnline] = useState(false);
-  useEffect(() => { ping().then(setOnline); }, []);
+  const { alive } = useNetworkHealth();
+  const online = alive === true;
   const now = new Date();
   const tournamentActive = tournaments.some(
     (t) => new Date(t.startTime) <= now && now <= new Date(t.endTime),

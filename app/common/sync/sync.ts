@@ -11,7 +11,6 @@ import {
   getTeamTournamentIds,
   getTournamentList,
   getSchedulesForTournaments,
-  ping,
   saveQuickCommentRecords,
   saveEventLogRecords,
   saveRobotAlertRecords,
@@ -157,8 +156,8 @@ async function autoSyncStrategyPlans(): Promise<void> {
   if (!hasSession) return;
   const active = await hasActiveTournament();
   if (!active) return;
-  const alive = await ping();
-  if (!alive) return;
+  const { alive } = getNetworkHealth();
+  if (alive !== true) return;
   await syncStrategyPlans();
 }
 
@@ -177,15 +176,15 @@ async function autoSyncMatchSchedule(): Promise<void> {
   const active = await hasActiveTournament();
   if (!active) return;
 
-  const alive = await ping();
-  if (!alive) return;
+  const { alive } = getNetworkHealth();
+  if (alive !== true) return;
 
   await syncMatchSchedule();
 }
 
 export async function doManualSync() {
-  const alive = await ping();
-  if (alive) {
+  const { alive } = getNetworkHealth();
+  if (alive === true) {
     await Promise.all([
       syncQuickComments(),
       syncTrackingData(),
@@ -199,8 +198,8 @@ export async function doManualSync() {
 
 export async function doServerDataSync() {
   console.log("doServerDataSync");
-  const alive = await ping();
-  if (alive) {
+  const { alive } = getNetworkHealth();
+  if (alive === true) {
     // Tournaments must sync first — schedules and robot alerts depend on the tournament list
     await syncTournamentList();
     await Promise.all([
@@ -649,8 +648,8 @@ export async function refreshStrategyPlanForMatch(
     typeof sessionStorage !== "undefined" &&
     sessionStorage.getItem("raveneye_access_token") !== null;
   if (!hasSession) return;
-  const alive = await ping();
-  if (!alive) return;
+  const { alive } = getNetworkHealth();
+  if (alive !== true) return;
   let pwd: RBPlanWithDrawings | null;
   try {
     pwd = await getStrategyPlan(tournamentId, matchLevel, matchNumber);

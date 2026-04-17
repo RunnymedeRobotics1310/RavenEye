@@ -1,19 +1,19 @@
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
-import { useUserList, deleteUser, forceLogoutUser, useActiveSessions, ping } from "~/common/storage/rb.ts";
+import { useUserList, deleteUser, forceLogoutUser, useActiveSessions } from "~/common/storage/rb.ts";
 import Spinner from "~/common/Spinner.tsx";
 import ErrorMessage from "~/common/ErrorMessage.tsx";
 import { NavLink } from "react-router";
-import { useEffect, useState } from "react";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import { getUserid } from "~/common/storage/rbauth.ts";
+import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 
 const List = () => {
   const currentUserId = getUserid();
   const { data, loading, error } = useUserList();
   const { list: tournaments } = useTournamentList();
   const { data: activeSessions } = useActiveSessions();
-  const [online, setOnline] = useState(false);
-  useEffect(() => { ping().then(setOnline); }, []);
+  const { alive } = useNetworkHealth();
+  const online = alive === true;
   const now = new Date();
   const tournamentActive = tournaments.some(
     (t) => new Date(t.startTime) <= now && now <= new Date(t.endTime),
