@@ -245,10 +245,10 @@ function OwnerScoresPanel({
   const ownerMatches = matches.filter(
     (m) => getAllianceForTeam(m, ownerTeam) !== null,
   );
-  // Show scored matches, oldest first
+  // Show scored matches, oldest first (Practice → Qualification → Playoff)
   const scored = ownerMatches
     .filter((m) => m.winningAlliance !== 0)
-    .sort((a, b) => a.match - b.match);
+    .sort(compareByLevelThenMatch);
 
   return (
     <div className="kiosk-owner-scores">
@@ -382,6 +382,21 @@ function levelPrefix(level: string): string {
   return "";
 }
 
+function levelOrder(level: string): number {
+  if (level === "Practice") return 0;
+  if (level === "Qualification") return 1;
+  if (level === "Playoff") return 2;
+  return 3;
+}
+
+function compareByLevelThenMatch(
+  a: TeamScheduleMatch,
+  b: TeamScheduleMatch,
+): number {
+  const lo = levelOrder(a.level) - levelOrder(b.level);
+  return lo !== 0 ? lo : a.match - b.match;
+}
+
 function SchedulePanel({
   matches,
   ownerTeam,
@@ -399,10 +414,19 @@ function SchedulePanel({
   const allOwner = matches.filter(
     (m) => getAllianceForTeam(m, ownerTeam) !== null,
   );
-  const upcoming = allOwner.filter((m) => m.winningAlliance === 0);
+  // Once quals have started, practice matches are effectively "done" even if
+  // they never got scored — move them down with the completed matches.
+  const qualsStarted = matches.some(
+    (m) => m.level === "Qualification" && m.winningAlliance !== 0,
+  );
+  const isDone = (m: TeamScheduleMatch) =>
+    m.winningAlliance !== 0 || (qualsStarted && m.level === "Practice");
+  const upcoming = allOwner
+    .filter((m) => !isDone(m))
+    .sort(compareByLevelThenMatch);
   const completed = allOwner
-    .filter((m) => m.winningAlliance !== 0)
-    .sort((a, b) => b.match - a.match);
+    .filter(isDone)
+    .sort((a, b) => -compareByLevelThenMatch(a, b));
 
   const viewportRef = useRef<HTMLDivElement>(null);
   const highlightRowRef = useRef<HTMLTableRowElement>(null);
@@ -706,13 +730,19 @@ export default function PitKioskPage() {
 
   // Highlight the owner team's next unplayed match (skip M16 if finals decided)
   const finalsOver = isFinalsDecided(resolvedMatches);
-  const nextOwnerMatch = matches.find(
-    (m) =>
-      getAllianceForTeam(m, ownerTeam) !== null &&
-      m.redScore == null &&
-      m.blueScore == null &&
-      !(m.match === 16 && m.level === "Playoff" && finalsOver),
+  const qualsStarted = matches.some(
+    (m) => m.level === "Qualification" && m.winningAlliance !== 0,
   );
+  const nextOwnerMatch = [...matches]
+    .sort(compareByLevelThenMatch)
+    .find(
+      (m) =>
+        getAllianceForTeam(m, ownerTeam) !== null &&
+        m.redScore == null &&
+        m.blueScore == null &&
+        !(qualsStarted && m.level === "Practice") &&
+        !(m.match === 16 && m.level === "Playoff" && finalsOver),
+    );
   const highlightMatch = nextOwnerMatch?.match ?? null;
 
   // Parse webcasts from tournament. Backend stores as JSON string, so handle both formats.
