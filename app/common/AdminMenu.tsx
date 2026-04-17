@@ -83,6 +83,14 @@ const AdminMenu = () => {
               </NavLink>
             </li>
             <li>
+              <NavLink
+                to="/admin/field-map-calibration"
+                onClick={handleLinkClick}
+              >
+                Field Map Calibration
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/admin/design-system" onClick={handleLinkClick}>
                 Design System
               </NavLink>

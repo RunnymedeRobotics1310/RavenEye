@@ -31,6 +31,7 @@ import type { PmvaReportResponse } from "~/types/PmvaReport.ts";
 import type { MatchStrategyPlan } from "~/types/MatchStrategyPlan.ts";
 import type { MatchStrategyDrawing } from "~/types/MatchStrategyDrawing.ts";
 import type { StrategyStroke } from "~/types/StrategyStroke.ts";
+import type { FieldCalibration } from "~/types/FieldCalibration.ts";
 
 /**
  * Sends a ping request to the API to check if the server is reachable.
@@ -1446,4 +1447,102 @@ export async function deleteStrategyDrawing(id: number): Promise<void> {
   if (!resp.ok && resp.status !== 204) {
     throw new Error("Failed to delete strategy drawing: " + resp.status);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Field Calibration
+// ---------------------------------------------------------------------------
+//
+// The backend stores corners as eight flat columns (corner0_x..corner3_y).
+// The frontend uses a nested `corners: [{x,y}, ...]` tuple, which is easier
+// to iterate and to feed directly into the homography math. These helpers do
+// the translation at the API boundary.
+
+interface WireFieldCalibration {
+  id?: number | null;
+  year: number;
+  fieldLengthM: number;
+  fieldWidthM: number;
+  robotLengthM: number;
+  robotWidthM: number;
+  corner0X: number;
+  corner0Y: number;
+  corner1X: number;
+  corner1Y: number;
+  corner2X: number;
+  corner2Y: number;
+  corner3X: number;
+  corner3Y: number;
+  updatedAt?: string | null;
+  updatedByUserId?: number | null;
+}
+
+function wireToFieldCalibration(w: WireFieldCalibration): FieldCalibration {
+  return {
+    id: w.id,
+    year: w.year,
+    fieldLengthM: w.fieldLengthM,
+    fieldWidthM: w.fieldWidthM,
+    robotLengthM: w.robotLengthM,
+    robotWidthM: w.robotWidthM,
+    corners: [
+      { x: w.corner0X, y: w.corner0Y },
+      { x: w.corner1X, y: w.corner1Y },
+      { x: w.corner2X, y: w.corner2Y },
+      { x: w.corner3X, y: w.corner3Y },
+    ],
+    updatedAt: w.updatedAt,
+    updatedByUserId: w.updatedByUserId,
+  };
+}
+
+function fieldCalibrationToWire(c: FieldCalibration): WireFieldCalibration {
+  return {
+    year: c.year,
+    fieldLengthM: c.fieldLengthM,
+    fieldWidthM: c.fieldWidthM,
+    robotLengthM: c.robotLengthM,
+    robotWidthM: c.robotWidthM,
+    corner0X: c.corners[0].x,
+    corner0Y: c.corners[0].y,
+    corner1X: c.corners[1].x,
+    corner1Y: c.corners[1].y,
+    corner2X: c.corners[2].x,
+    corner2Y: c.corners[2].y,
+    corner3X: c.corners[3].x,
+    corner3Y: c.corners[3].y,
+  };
+}
+
+/**
+ * Intentional divergence from the default rb.ts idiom: returns `null` on 404
+ * rather than throwing. The first time an admin opens the calibration page
+ * for a given year there is legitimately no record — that must be a normal
+ * empty state, not an error path. Any other non-OK response still throws.
+ */
+export async function getFieldCalibration(
+  year: number,
+): Promise<FieldCalibration | null> {
+  const resp = await rbfetch(`/api/field-calibration/${year}`, {});
+  if (resp.ok) {
+    const wire = (await resp.json()) as unknown as WireFieldCalibration;
+    return wireToFieldCalibration(wire);
+  }
+  if (resp.status === 404) return null;
+  throw new Error("Failure fetching field calibration for year " + year);
+}
+
+export async function saveFieldCalibration(
+  year: number,
+  cal: FieldCalibration,
+): Promise<FieldCalibration> {
+  const resp = await rbfetch(`/api/field-calibration/${year}`, {
+    method: "PUT",
+    body: JSON.stringify(fieldCalibrationToWire(cal)),
+  });
+  if (!resp.ok) {
+    throw new Error("Failure saving field calibration: " + resp.status);
+  }
+  const wire = (await resp.json()) as unknown as WireFieldCalibration;
+  return wireToFieldCalibration(wire);
 }
