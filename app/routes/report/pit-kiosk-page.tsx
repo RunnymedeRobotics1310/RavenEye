@@ -16,6 +16,7 @@ import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 import logoUrl from "~/assets/images/logo.png";
 import Title from "~/common/icons/Title.tsx";
 import Spinner from "~/common/Spinner.tsx";
+import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 import {
   deriveAlliances,
   isFinalsDecided,
@@ -170,6 +171,7 @@ function TopBar({
 }) {
   const startTime = formatQueueTime(queueStatus?.estimatedStartTime ?? null);
   const queueTime = formatQueueTime(queueStatus?.estimatedQueueTime ?? null);
+  const { isOffline } = useNetworkHealth();
 
   const status = queueStatus?.teamStatus ?? null;
   const barClass = status === "On field"
@@ -185,7 +187,11 @@ function TopBar({
   return (
     <div className={`kiosk-top-bar ${barClass}`}>
       <a href="/report/schedule/active" className="kiosk-brand">
-        <img src={logoUrl} alt="" className="kiosk-logo" />
+        <img
+          src={logoUrl}
+          alt=""
+          className={`kiosk-logo${isOffline ? " logo-offline" : ""}`}
+        />
         <Title />
       </a>
       <div className="kiosk-queue-status">

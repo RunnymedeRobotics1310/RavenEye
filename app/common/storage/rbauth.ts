@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { ping } from "~/common/storage/rb.ts";
+import { useEffect, useRef, useState } from "react";
+import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 import type { RBJWT } from "~/types/RBJWT.ts";
 
 const SESSION_KEY_ACCESS_TOKEN = "raveneye_access_token";
@@ -61,6 +61,15 @@ export async function authenticate(
         localStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
       }
       window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+      // Kick off a full server-data sync so first-login scouts have every
+      // reference list (tournaments, areas, event types, etc.) in IndexedDB
+      // before they navigate to track pages. Fire-and-forget — never block
+      // the login flow on sync. Dynamic import breaks the rbauth↔sync cycle.
+      import("~/common/sync/sync.ts")
+        .then((m) => m.doServerDataSync())
+        .catch((err) => {
+          console.warn("Post-login server data sync failed", err);
+        });
       return;
     });
 }
@@ -256,6 +265,8 @@ export async function rbfetch(
   return response;
 }
 
+const RBFETCH_TIMEOUT_MS = 20_000;
+
 async function doRbFetch(
   urlpath: string,
   options: RequestInit,
@@ -264,6 +275,8 @@ async function doRbFetch(
   if (typeof sessionStorage !== "undefined") {
     accessToken = sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN);
   }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), RBFETCH_TIMEOUT_MS);
   const o2: Record<string, unknown> = {
     ...options,
     headers: {
@@ -271,10 +284,15 @@ async function doRbFetch(
       "Content-Type": "application/json",
       Authorization: `Bearer ${accessToken}`,
     },
+    mode: "cors",
+    signal: controller.signal,
   };
-  o2.mode = "cors";
 
-  return fetch(import.meta.env.VITE_API_HOST + urlpath, o2);
+  try {
+    return await fetch(import.meta.env.VITE_API_HOST + urlpath, o2);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**
@@ -329,101 +347,90 @@ export function getRavenBrainVersion(): string | null {
  * - `debug_expired` (boolean): Intermediate login status - the access token has expired
  */
 export function useLoginStatus() {
+  const { alive, ready } = useNetworkHealth();
   const [loading, setLoading] = useState(true);
-  const [alive, setAlive] = useState(false);
+  const [aliveState, setAliveState] = useState(false);
   const [hasToken, setHasToken] = useState(false);
   const [expired, setExpired] = useState(false);
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    ping()
-      .then((result) => {
-        if (!result) {
-          // Offline: trust the local session if we have a non-expired JWT
-          setAlive(false);
-          const accessToken =
-            typeof sessionStorage !== "undefined"
-              ? sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN)
-              : null;
-          if (accessToken && !isJwtExpired(accessToken)) {
-            setHasToken(true);
-            setLoggedIn(true);
-          }
-          setLoading(false);
-          return;
-        }
-        setAlive(true);
-        let accessToken = null;
-        if (typeof sessionStorage !== "undefined") {
-          accessToken = sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN);
-        }
-        if (accessToken === null) {
-          setHasToken(false);
-          // No access token but server is alive — try refresh from localStorage
-          refreshAccessToken()
-            .then((refreshed) => {
-              if (refreshed) {
-                return validate().then(() => {
-                  setHasToken(true);
-                  setLoggedIn(true);
-                  setLoading(false);
-                });
-              }
-              setLoading(false);
-            })
-            .catch(() => {
-              setLoading(false);
-            });
-          return;
-        } else {
-          setHasToken(true);
-        }
+    if (!ready || startedRef.current) return;
+    startedRef.current = true;
 
-        if (isJwtExpired(accessToken)) {
-          setExpired(true);
-          refreshAccessToken()
-            .then((refreshed) => {
-              if (refreshed) {
-                return validate().then(() => {
-                  setExpired(false);
-                  setLoggedIn(true);
-                  setLoading(false);
-                });
-              }
-              setLoading(false);
-            })
-            .catch(() => {
-              setLoading(false);
-            });
-        } else {
-          validate()
-            .then(() => {
+    if (!alive) {
+      // Offline: trust the local session if we have a non-expired JWT
+      setAliveState(false);
+      const accessToken =
+        typeof sessionStorage !== "undefined"
+          ? sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN)
+          : null;
+      if (accessToken && !isJwtExpired(accessToken)) {
+        setHasToken(true);
+        setLoggedIn(true);
+      }
+      setLoading(false);
+      return;
+    }
+    setAliveState(true);
+    let accessToken = null;
+    if (typeof sessionStorage !== "undefined") {
+      accessToken = sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN);
+    }
+    if (accessToken === null) {
+      setHasToken(false);
+      // No access token but server is alive — try refresh from localStorage
+      refreshAccessToken()
+        .then((refreshed) => {
+          if (refreshed) {
+            return validate().then(() => {
+              setHasToken(true);
               setLoggedIn(true);
               setLoading(false);
-            })
-            .catch(() => {
+            });
+          }
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+      return;
+    } else {
+      setHasToken(true);
+    }
+
+    if (isJwtExpired(accessToken)) {
+      setExpired(true);
+      refreshAccessToken()
+        .then((refreshed) => {
+          if (refreshed) {
+            return validate().then(() => {
+              setExpired(false);
+              setLoggedIn(true);
               setLoading(false);
             });
-        }
-      })
-      .catch(() => {
-        // Offline: trust the local session if we have a non-expired JWT
-        setAlive(false);
-        const accessToken =
-          typeof sessionStorage !== "undefined"
-            ? sessionStorage.getItem(SESSION_KEY_ACCESS_TOKEN)
-            : null;
-        if (accessToken && !isJwtExpired(accessToken)) {
-          setHasToken(true);
+          }
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+    } else {
+      validate()
+        .then(() => {
           setLoggedIn(true);
-        }
-        setLoading(false);
-      });
-  }, []);
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+    }
+  }, [ready, alive]);
 
   return {
     loading,
-    debug_alive: alive,
+    debug_alive: aliveState,
     debug_hasToken: hasToken,
     debug_expired: expired,
     loggedIn,
