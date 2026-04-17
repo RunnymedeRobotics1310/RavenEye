@@ -1546,3 +1546,15 @@ export async function saveFieldCalibration(
   const wire = (await resp.json()) as unknown as WireFieldCalibration;
   return wireToFieldCalibration(wire);
 }
+
+/**
+ * Fetches the sorted, de-duplicated list of NetworkTables keys seen across all
+ * telemetry entries. Secured to ROLE_PROGRAMMER, ROLE_ADMIN, ROLE_SUPERUSER.
+ */
+export async function getTelemetryNtKeys(): Promise<string[]> {
+  const resp = await rbfetch("/api/telemetry/nt-keys", {});
+  if (resp.ok) {
+    return (await resp.json()) as unknown as string[];
+  }
+  throw new Error("Failure fetching telemetry nt keys: " + resp.status);
+}
