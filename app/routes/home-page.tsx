@@ -46,6 +46,7 @@ const LoggedIn = () => {
     roles.isDriveTeam ||
     roles.isAdmin ||
     roles.isSuperuser;
+  const canProgram = roles.isProgrammer || roles.isAdmin || roles.isSuperuser;
   const [copyToast, setCopyToast] = useState(false);
   return (
     <main>
@@ -67,6 +68,11 @@ const LoggedIn = () => {
             {canStrategize && (
               <NavLink to={"/strategy"} className="btn">
                 Match Strategy
+              </NavLink>
+            )}
+            {canProgram && (
+              <NavLink to={"/programming"} className="btn">
+                Programming Home
               </NavLink>
             )}
             {hasActive && (

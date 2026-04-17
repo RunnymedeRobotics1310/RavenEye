@@ -145,4 +145,9 @@ export default [
     "./routes/strategy/strategy-plan-page.tsx",
   ),
   route("kiosk-pit/:tournamentId?", "./routes/report/pit-kiosk-page.tsx"),
+  route("programming", "./routes/programming/programming-home-page.tsx"),
+  route(
+    "programming/nt-keys",
+    "./routes/programming/nt-keys-page.tsx",
+  ),
 ] satisfies RouteConfig;

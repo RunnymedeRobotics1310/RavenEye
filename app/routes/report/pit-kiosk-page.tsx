@@ -143,6 +143,18 @@ function parseWebcast(url: string): ParsedWebcast {
 // Sub-components
 // ---------------------------------------------------------------------------
 
+function Clock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const hh = now.getHours().toString().padStart(2, "0");
+  const mm = now.getMinutes().toString().padStart(2, "0");
+  const ss = now.getSeconds().toString().padStart(2, "0");
+  return <span className="kiosk-clock">{hh}:{mm}:{ss}</span>;
+}
+
 function TopBar({
   queueStatus,
   webcasts,
@@ -209,6 +221,7 @@ function TopBar({
           </>
         )}
       </div>
+      <Clock />
       <div className="kiosk-stream-tabs">
         {webcasts.length > 1 &&
           webcasts.map((w, i) => (
