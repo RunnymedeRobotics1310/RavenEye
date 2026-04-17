@@ -1,3 +1,11 @@
+# [3.43.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.42.3...v3.43.0) (2026-04-17)
+
+
+### Features
+
+* corner instruction table on calibration page ([202c6d8](https://github.com/RunnymedeRobotics1310/RavenEye/commit/202c6d83f854829faa4c5aaf10378ac42d330213))
+* field map calibration stage 1 frontend ([d882451](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d8824510df14f309f67a096aa3f9bba397742cb7))
+
 ## [3.42.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.42.2...v3.42.3) (2026-04-16)
 
 
