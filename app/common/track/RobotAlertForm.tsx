@@ -11,14 +11,23 @@ function RobotAlertForm({}: TrackScreenProps) {
   const [team, setTeam] = useState(-1);
   const [alert, setAlert] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
     if (tournamentId !== "" && team !== -1 && alert !== "") {
-      await recordRobotAlert(tournamentId, team, alert);
-      setSubmitted(true);
-      setTeam(-1);
-      setAlert("");
+      setError(null);
+      try {
+        await recordRobotAlert(tournamentId, team, alert);
+        setSubmitted(true);
+        setTeam(-1);
+        setAlert("");
+      } catch (err) {
+        setError(
+          "Failed to record alert: " +
+            (err instanceof Error ? err.message : String(err)),
+        );
+      }
     }
   }
 
@@ -94,6 +103,7 @@ function RobotAlertForm({}: TrackScreenProps) {
             onChange={(e) => setAlert(e.target.value)}
           />
         </div>
+        {error && <div className="banner banner-warning">{error}</div>}
         <div className="form-actions">
           <button disabled={disabled} onClick={handleSubmit}>
             Record Alert

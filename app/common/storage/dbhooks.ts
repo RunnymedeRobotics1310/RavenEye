@@ -22,6 +22,7 @@ export function useTournamentList() {
         }
       } catch (err) {
         console.error("Failed to load tournament list", err);
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -68,6 +69,7 @@ export function useActiveTeamTournaments() {
         }
       } catch (err) {
         console.error("Failed to load active team tournaments", err);
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -97,6 +99,7 @@ export function useStrategyAreaList() {
         }
       } catch (err) {
         console.error("Failed to load strategy area list", err);
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -126,6 +129,7 @@ export function useEventTypeList() {
         }
       } catch (err) {
         console.error("Failed to load event type list", err);
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -155,6 +159,7 @@ export function useSequenceTypeList() {
         }
       } catch (err) {
         console.error("Failed to load sequence type list", err);
+        if (isMounted) setLoading(false);
       }
     };
 
@@ -184,6 +189,7 @@ export function useMatchSchedule() {
         }
       } catch (err) {
         console.error("Failed to load match schedule", err);
+        if (isMounted) setLoading(false);
       }
     };
 

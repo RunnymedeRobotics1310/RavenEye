@@ -2,18 +2,18 @@ import { useState } from "react";
 import {
   fetchTournamentSchedule,
   getScheduleForTournament,
-  ping,
 } from "~/common/storage/rb.ts";
 import { repository } from "~/common/storage/db.ts";
+import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 
 export function useFetchSchedule(tournamentId: string) {
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { alive } = useNetworkHealth();
 
   const handleFetchSchedule = async () => {
     setError(null);
-    const online = await ping();
-    if (!online) {
+    if (alive !== true) {
       setError(
         "No schedule is available. You must be able to connect to RavenBrain to load the schedule.",
       );

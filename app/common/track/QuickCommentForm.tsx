@@ -8,14 +8,23 @@ function QuickCommentForm({}: TrackScreenProps) {
   const [team, setTeam] = useState(-1);
   const [comment, setComment] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: { preventDefault: () => void }) {
     e.preventDefault();
     if (comment !== "") {
-      await recordComment(team, comment);
-      setSubmitted(true);
-      setTeam(-1);
-      setComment("");
+      setError(null);
+      try {
+        await recordComment(team, comment);
+        setSubmitted(true);
+        setTeam(-1);
+        setComment("");
+      } catch (err) {
+        setError(
+          "Failed to record comment: " +
+            (err instanceof Error ? err.message : String(err)),
+        );
+      }
     }
   }
 
@@ -68,6 +77,7 @@ function QuickCommentForm({}: TrackScreenProps) {
             onChange={(e) => setComment(e.target.value)}
           />
         </div>
+        {error && <div className="banner banner-warning">{error}</div>}
         <div className="form-actions">
           <button disabled={disabled} onClick={handleSubmit}>
             Record Comment

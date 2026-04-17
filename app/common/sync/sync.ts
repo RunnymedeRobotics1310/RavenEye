@@ -11,7 +11,6 @@ import {
   getTeamTournamentIds,
   getTournamentList,
   getSchedulesForTournaments,
-  ping,
   saveQuickCommentRecords,
   saveEventLogRecords,
   saveRobotAlertRecords,
@@ -25,6 +24,7 @@ import {
 } from "~/common/storage/rb.ts";
 import type { RBPlanWithDrawings } from "~/common/storage/rb.ts";
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
+import { getNetworkHealth } from "~/common/storage/networkHealth.ts";
 
 const TOURNAMENT_LIST = "Tournament List";
 const TEAM_TOURNAMENTS = "Team Tournaments";
@@ -92,6 +92,7 @@ async function runSync(
 }
 
 const SCHEDULE_SYNC_INTERVAL = 3 * 60 * 1000; // 3 minutes
+const TRACKING_DATA_SYNC_INTERVAL = 15 * 1000; // 15 seconds
 const ACTIVE_TOURNAMENT_CUTOFF = 36 * 60 * 60 * 1000; // 36 hours
 
 let syncInitialized = false;
@@ -115,6 +116,37 @@ export function initializeSyncSchedule() {
 
   setInterval(autoSyncMatchSchedule, SCHEDULE_SYNC_INTERVAL);
   setInterval(autoSyncStrategyPlans, SCHEDULE_SYNC_INTERVAL);
+  setInterval(autoSyncTrackingData, TRACKING_DATA_SYNC_INTERVAL);
+}
+
+/**
+ * Upload any locally-captured tracking events every 15 seconds if the scout
+ * is online and has unsynced data. Guards short-circuit fast so this is
+ * cheap when idle and safe when already syncing. Network availability is
+ * read from the shared `networkHealth` state (30s rolling ping) rather
+ * than firing a fresh ping on every tick — avoids hammering flaky WiFi.
+ */
+async function autoSyncTrackingData(): Promise<void> {
+  const hasSession =
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem("raveneye_access_token") !== null;
+  if (!hasSession) return;
+
+  // Don't stack syncs if one is already running.
+  const existing = await repository.getSyncStatus(TRACKING_DATA);
+  if (existing && existing.inProgress) return;
+
+  // Nothing to sync → skip entirely.
+  const pending = await repository.getUnsynchronizedEvents();
+  if (pending.length === 0) return;
+
+  // Piggy-back on the shared 30s network poll. `alive` is null before the
+  // first ping completes and false after a recent failure — skip in both
+  // cases and try again on the next 15s tick.
+  const { alive } = getNetworkHealth();
+  if (alive !== true) return;
+
+  await syncTrackingData();
 }
 
 async function autoSyncStrategyPlans(): Promise<void> {
@@ -124,8 +156,8 @@ async function autoSyncStrategyPlans(): Promise<void> {
   if (!hasSession) return;
   const active = await hasActiveTournament();
   if (!active) return;
-  const alive = await ping();
-  if (!alive) return;
+  const { alive } = getNetworkHealth();
+  if (alive !== true) return;
   await syncStrategyPlans();
 }
 
@@ -144,15 +176,15 @@ async function autoSyncMatchSchedule(): Promise<void> {
   const active = await hasActiveTournament();
   if (!active) return;
 
-  const alive = await ping();
-  if (!alive) return;
+  const { alive } = getNetworkHealth();
+  if (alive !== true) return;
 
   await syncMatchSchedule();
 }
 
 export async function doManualSync() {
-  const alive = await ping();
-  if (alive) {
+  const { alive } = getNetworkHealth();
+  if (alive === true) {
     await Promise.all([
       syncQuickComments(),
       syncTrackingData(),
@@ -166,8 +198,8 @@ export async function doManualSync() {
 
 export async function doServerDataSync() {
   console.log("doServerDataSync");
-  const alive = await ping();
-  if (alive) {
+  const { alive } = getNetworkHealth();
+  if (alive === true) {
     // Tournaments must sync first — schedules and robot alerts depend on the tournament list
     await syncTournamentList();
     await Promise.all([
@@ -616,8 +648,8 @@ export async function refreshStrategyPlanForMatch(
     typeof sessionStorage !== "undefined" &&
     sessionStorage.getItem("raveneye_access_token") !== null;
   if (!hasSession) return;
-  const alive = await ping();
-  if (!alive) return;
+  const { alive } = getNetworkHealth();
+  if (alive !== true) return;
   let pwd: RBPlanWithDrawings | null;
   try {
     pwd = await getStrategyPlan(tournamentId, matchLevel, matchNumber);

@@ -37,6 +37,11 @@ const SyncStatusLayout = (props: PropTypes) => {
               day: "numeric",
             })}
       </div>
+      {status.remaining > 0 && (
+        <div className="sync-status-pending">
+          {status.remaining} pending
+        </div>
+      )}
       {status.error && (
         <div className="sync-status-error">{status.error.message}</div>
       )}

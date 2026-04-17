@@ -6,17 +6,18 @@ import {
   useStrategyAreaList,
 } from "~/common/storage/dbhooks.ts";
 import { useEffect, useMemo, useState } from "react";
-import { ping, deleteSequenceType, getInUseSequenceTypes } from "~/common/storage/rb.ts";
+import { deleteSequenceType, getInUseSequenceTypes } from "~/common/storage/rb.ts";
 import { syncSequenceTypeList } from "~/common/sync/sync.ts";
 import { useRole } from "~/common/storage/rbauth.ts";
+import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 
 const List = () => {
   const { list: data, loading } = useSequenceTypeList();
   const { list: strategyAreas } = useStrategyAreaList();
   const { isSuperuser, isAdmin } = useRole();
-  const [online, setOnline] = useState(false);
+  const { alive } = useNetworkHealth();
+  const online = alive === true;
   const [inUseSet, setInUseSet] = useState<Set<number>>(new Set());
-  useEffect(() => { ping().then(setOnline); }, []);
   const canManage = isSuperuser || isAdmin;
   useEffect(() => {
     if (canManage && online) {

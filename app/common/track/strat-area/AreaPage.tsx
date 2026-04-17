@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { TrackScreenProps } from "~/routes/track/track-home-page";
 import {
   useStrategyAreaList,
@@ -17,6 +17,7 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
   const { list: areas, loading: areasLoading } = useStrategyAreaList();
   const { list: sequences, loading: seqLoading } = useSequenceTypeList();
   const { list: eventTypes, loading: etLoading } = useEventTypeList();
+  const [error, setError] = useState<string | null>(null);
 
   const area = useMemo(
     () => areas.find((a) => a.code === areaCode),
@@ -69,15 +70,22 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
     );
   }
 
-  function startSequence(seq: SequenceType) {
-    console.log("Starting sequence "+seq.name);
+  async function startSequence(seq: SequenceType) {
+    console.log("Starting sequence " + seq.name);
     const firstSeqEvent = seq.events && seq.events[0];
-    if (firstSeqEvent) {
-      const firstEvent = firstSeqEvent.eventtype;
-      recordEvent(firstEvent.eventtype, 0, "")
-      navigate("seq:" + seq.code)
-    } else {
-      console.log("Sequence "+seq.name+" has no events")
+    if (!firstSeqEvent) {
+      console.log("Sequence " + seq.name + " has no events");
+      return;
+    }
+    setError(null);
+    try {
+      await recordEvent(firstSeqEvent.eventtype.eventtype, 0, "");
+      navigate("seq:" + seq.code);
+    } catch (err) {
+      setError(
+        "Failed to start sequence: " +
+          (err instanceof Error ? err.message : String(err)),
+      );
     }
   }
 
@@ -85,6 +93,7 @@ const AreaPage = ({ areaCode }: TrackScreenProps) => {
     <main className="track">
       <TrackNav />
       <h2>Strategy Area: {area.name}</h2>
+      {error && <div className="banner banner-warning">{error}</div>}
       {areaSequences.map((seq) => (
         <span key={seq.id}>
           <button className="btn-sequence" onClick={() => startSequence(seq)}>

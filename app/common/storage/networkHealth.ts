@@ -34,6 +34,26 @@ export interface NetworkHealth {
   ready: boolean;
 }
 
+function snapshot(): NetworkHealth {
+  const alive =
+    lastResults.length === 0 ? null : lastResults[lastResults.length - 1];
+  const isOffline =
+    lastResults.length >= 2 && lastResults.every((r) => r === false);
+  const ready = lastResults.length > 0;
+  return { alive, isOffline, ready };
+}
+
+/**
+ * Non-hook accessor for the shared network-health state. Safe to call from
+ * background timers / sync loops that can't use React hooks. Kicks the
+ * shared ping loop if nothing has mounted `useNetworkHealth()` yet so the
+ * caller gets fresh state on subsequent reads.
+ */
+export function getNetworkHealth(): NetworkHealth {
+  start();
+  return snapshot();
+}
+
 /**
  * Subscribes to a shared, app-wide ping loop that runs every 30 seconds.
  * The first call from any component starts the loop; the loop never stops
@@ -53,11 +73,5 @@ export function useNetworkHealth(): NetworkHealth {
     };
   }, []);
 
-  const alive =
-    lastResults.length === 0 ? null : lastResults[lastResults.length - 1];
-  const isOffline =
-    lastResults.length >= 2 && lastResults.every((r) => r === false);
-  const ready = lastResults.length > 0;
-
-  return { alive, isOffline, ready };
+  return snapshot();
 }
