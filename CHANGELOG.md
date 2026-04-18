@@ -1,3 +1,10 @@
+## [3.46.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.46.0...v3.46.1) (2026-04-18)
+
+
+### Bug Fixes
+
+* Include rank in schedule page beside team ([68976e1](https://github.com/RunnymedeRobotics1310/RavenEye/commit/68976e124b4fbf338f60b16042c896256b163658))
+
 # [3.46.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.4...v3.46.0) (2026-04-18)
 
 
