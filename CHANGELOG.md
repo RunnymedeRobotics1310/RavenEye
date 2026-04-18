@@ -1,3 +1,10 @@
+## [3.45.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.1...v3.45.2) (2026-04-18)
+
+
+### Bug Fixes
+
+* Kiosk view to use 12h clock ([9c08e5f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9c08e5f2bb4a4261d739c09727250999fc32311e))
+
 ## [3.45.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.0...v3.45.1) (2026-04-17)
 
 
