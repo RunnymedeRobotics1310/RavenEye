@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import RequireLogin from "~/common/auth/RequireLogin.tsx";
 import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import {
@@ -19,6 +19,11 @@ function safeHref(url: string): string {
   return "";
 }
 
+/**
+ * Best-effort parse of the merged webcasts field. After the TBA data foundation (P0), the server
+ * returns a pre-canonicalized string[]. The legacy JSON-array-string shape is kept as a fallback
+ * for the first render after upgrade when IndexedDB may still hold older entries.
+ */
 function parseWebcasts(tournament: RBTournament): string[] {
   const raw = tournament.webcasts;
   if (Array.isArray(raw)) return raw;
@@ -33,12 +38,39 @@ function parseWebcasts(tournament: RBTournament): string[] {
   return [];
 }
 
+/** Humanize "time since" for the staleness banner without pulling in a date library. */
+function relativeAgo(iso: string): string {
+  const then = Date.parse(iso);
+  if (isNaN(then)) return iso;
+  const minutes = Math.round((Date.now() - then) / 60000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} hr ago`;
+  const days = Math.round(hours / 24);
+  return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
 function TournamentRow({ tournament }: { tournament: RBTournament }) {
   const [url, setUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [streams, setStreams] = useState<string[]>(parseWebcasts(tournament));
+
+  const tbaSet = useMemo(
+    () => new Set(tournament.webcastsFromTba ?? []),
+    [tournament.webcastsFromTba],
+  );
+  const isTbaSourced = (u: string) => tbaSet.has(u);
+
+  const stalenessMessage = useMemo(() => {
+    if (!tournament.webcastsStale) return null;
+    if (tournament.webcastsLastSync) {
+      return `(i) Webcast data last synced ${relativeAgo(tournament.webcastsLastSync)} — may be out of date.`;
+    }
+    return "(i) Webcast data has not yet synced — the TBA event key may be incorrect or no key is configured.";
+  }, [tournament.webcastsStale, tournament.webcastsLastSync]);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,23 +105,36 @@ function TournamentRow({ tournament }: { tournament: RBTournament }) {
   return (
     <div className="admin-stream-tournament">
       <h3>{tournament.name}</h3>
+      {stalenessMessage && (
+        <div className="banner banner-info admin-stream-staleness">{stalenessMessage}</div>
+      )}
       {streams.length > 0 ? (
         <ul className="admin-stream-list">
-          {streams.map((s, i) => (
-            <li key={i} className="admin-stream-item">
-              <a href={safeHref(s)} target="_blank" rel="noopener noreferrer">
-                {s}
-              </a>
-              <button
-                className="admin-stream-remove"
-                onClick={() => handleRemove(s)}
-                disabled={removing === s}
-                title="Remove stream"
-              >
-                {removing === s ? "..." : "\u00D7"}
-              </button>
-            </li>
-          ))}
+          {streams.map((s, i) => {
+            const fromTba = isTbaSourced(s);
+            return (
+              <li key={i} className="admin-stream-item">
+                <a href={safeHref(s)} target="_blank" rel="noopener noreferrer">
+                  {s}
+                </a>
+                <span className={fromTba ? "badge-tba" : "badge-manual"}>
+                  {fromTba ? "From TBA" : "Manual override"}
+                </span>
+                <button
+                  className="admin-stream-remove"
+                  onClick={() => handleRemove(s)}
+                  disabled={fromTba || removing === s}
+                  title={
+                    fromTba
+                      ? "Served by TBA — remove by clearing the TBA event key or contacting TBA."
+                      : "Remove stream"
+                  }
+                >
+                  {removing === s ? "..." : "\u00D7"}
+                </button>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <p className="admin-stream-empty">No streams configured</p>
