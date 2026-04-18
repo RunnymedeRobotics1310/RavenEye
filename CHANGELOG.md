@@ -1,3 +1,10 @@
+## [3.45.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.3...v3.45.4) (2026-04-18)
+
+
+### Bug Fixes
+
+* Don't clear schedule on connectivity break ([780ff95](https://github.com/RunnymedeRobotics1310/RavenEye/commit/780ff95ff6853246251a26606cf3d5cc7d2bbb3e))
+
 ## [3.45.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.2...v3.45.3) (2026-04-18)
 
 
