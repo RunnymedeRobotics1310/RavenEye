@@ -42,6 +42,7 @@ services:
       FRC_USER: ${FRC_USER:-frc_api_user_id}
       FRC_KEY: ${FRC_KEY:-frc_api_user_key}
       NEXUS_KEY: ${NEXUS_KEY:-more_friendly_dummy_key}
+      TBA_KEY: ${TBA_KEY:-dummy-tba-key}
     networks:
       - raveneye-network
 
