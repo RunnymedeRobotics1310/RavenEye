@@ -1,3 +1,12 @@
+# [3.46.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.4...v3.46.0) (2026-04-18)
+
+
+### Features
+
+* **tba:** admin UI for TBA event-key overrides ([9cb5da7](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9cb5da7b8f16df9efc5563e28da36c17772db79a))
+* **tba:** P0 — TBA data foundation and webcast sync ([87e8ad7](https://github.com/RunnymedeRobotics1310/RavenEye/commit/87e8ad73570c369b27cf5e074f84da8321ebd0e4))
+* **tba:** show webcast source badges + staleness banner on admin streams page ([4c67564](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4c67564a232891fc5ae7663e7fdf18a925e257d5))
+
 ## [3.45.4](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.3...v3.45.4) (2026-04-18)
 
 
