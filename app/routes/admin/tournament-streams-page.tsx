@@ -4,6 +4,7 @@ import { useTournamentList } from "~/common/storage/dbhooks.ts";
 import {
   addTournamentWebcast,
   removeTournamentWebcast,
+  setTournamentTbaEventKey,
 } from "~/common/storage/rb.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import Spinner from "~/common/Spinner.tsx";
@@ -51,12 +52,21 @@ function relativeAgo(iso: string): string {
   return `${days} day${days === 1 ? "" : "s"} ago`;
 }
 
+/** Client-side regex matching the server's TBA event-key validation exactly. */
+const TBA_EVENT_KEY_RE = /^20\d{2}[a-z][a-z0-9]{1,15}$/;
+
 function TournamentRow({ tournament }: { tournament: RBTournament }) {
   const [url, setUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [streams, setStreams] = useState<string[]>(parseWebcasts(tournament));
+  const [tbaKeyDraft, setTbaKeyDraft] = useState<string>(tournament.tbaEventKey ?? "");
+  const [tbaSaving, setTbaSaving] = useState(false);
+  const [tbaMsg, setTbaMsg] = useState<string | null>(null);
+
+  const tbaKeyValid =
+    tbaKeyDraft.trim() === "" || TBA_EVENT_KEY_RE.test(tbaKeyDraft.trim().toLowerCase());
 
   const tbaSet = useMemo(
     () => new Set(tournament.webcastsFromTba ?? []),
@@ -90,6 +100,40 @@ function TournamentRow({ tournament }: { tournament: RBTournament }) {
     }
   };
 
+  const handleSaveTbaKey = async () => {
+    if (tbaSaving) return;
+    const draft = tbaKeyDraft.trim().toLowerCase();
+    if (draft !== "" && !TBA_EVENT_KEY_RE.test(draft)) {
+      setTbaMsg("Invalid key format. e.g. 2026onto");
+      return;
+    }
+    setTbaSaving(true);
+    setTbaMsg(null);
+    const result = await setTournamentTbaEventKey(tournament.id, draft === "" ? null : draft);
+    setTbaSaving(false);
+    if (result.ok) {
+      setTbaKeyDraft(draft); // canonicalize the input box
+      setTbaMsg("Saved");
+      setTimeout(() => setTbaMsg(null), 1500);
+    } else {
+      setTbaMsg(`Failed: ${result.reason}`);
+    }
+  };
+
+  const handleClearTbaKey = async () => {
+    setTbaKeyDraft("");
+    setTbaSaving(true);
+    setTbaMsg(null);
+    const result = await setTournamentTbaEventKey(tournament.id, null);
+    setTbaSaving(false);
+    if (result.ok) {
+      setTbaMsg("Cleared");
+      setTimeout(() => setTbaMsg(null), 1500);
+    } else {
+      setTbaMsg(`Failed: ${result.reason}`);
+    }
+  };
+
   const handleRemove = async (streamUrl: string) => {
     setRemoving(streamUrl);
     const ok = await removeTournamentWebcast(tournament.id, streamUrl);
@@ -105,6 +149,41 @@ function TournamentRow({ tournament }: { tournament: RBTournament }) {
   return (
     <div className="admin-stream-tournament">
       <h3>{tournament.name}</h3>
+      <div className="admin-stream-tba-key">
+        <label className="admin-stream-tba-key-label" htmlFor={`tba-key-${tournament.id}`}>
+          TBA event key
+        </label>
+        <input
+          id={`tba-key-${tournament.id}`}
+          type="text"
+          className="admin-stream-tba-key-input"
+          value={tbaKeyDraft}
+          onChange={(e) => setTbaKeyDraft(e.target.value)}
+          placeholder="e.g. 2026onto"
+          spellCheck={false}
+          disabled={tbaSaving}
+        />
+        <button
+          type="button"
+          onClick={handleSaveTbaKey}
+          disabled={tbaSaving || !tbaKeyValid}
+          title={tbaKeyValid ? "Save TBA event key" : "Invalid key format"}
+        >
+          {tbaSaving ? "..." : "Save"}
+        </button>
+        <button
+          type="button"
+          onClick={handleClearTbaKey}
+          disabled={tbaSaving || tbaKeyDraft === ""}
+          title="Clear the TBA event key"
+        >
+          Clear
+        </button>
+        {tbaMsg && <span className="admin-stream-msg">{tbaMsg}</span>}
+        <span className="admin-stream-tba-key-hint">
+          Matches the TBA event URL. Auto-populated on FRC sync; override only when wrong.
+        </span>
+      </div>
       {stalenessMessage && (
         <div className="banner banner-info admin-stream-staleness">{stalenessMessage}</div>
       )}

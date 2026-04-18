@@ -2994,6 +2994,32 @@ a.kiosk-brand {
     font-size: 0.85rem;
 }
 
+/* TBA event-key override input (Unit 7) */
+.admin-stream-tba-key {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.25rem 0 0.5rem 0;
+    font-size: 0.85rem;
+}
+
+.admin-stream-tba-key-label {
+    font-weight: bold;
+    color: var(--color-text-secondary);
+}
+
+.admin-stream-tba-key-input {
+    font-family: var(--font-monospace, monospace);
+    width: 10rem;
+}
+
+.admin-stream-tba-key-hint {
+    flex-basis: 100%;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+}
+
 /*
  *
  * KIOSK PLAYOFF MODE
