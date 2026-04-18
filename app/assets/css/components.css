@@ -745,6 +745,26 @@ section.usersAdmin {
     color: var(--color-text-inverse);
 }
 
+/*
+ * Informational banner (softer than banner-warning). Tol vibrant cyan, used for staleness and
+ * other non-error advisories. An "(i) " prefix is included in the text to carry meaning without
+ * relying on colour.
+ */
+.banner-info {
+    background-color: rgba(51, 187, 238, 0.15); /* Tol vibrant cyan at 15% */
+    color: inherit;
+    border-left: 4px solid #33BBEE;
+    font-weight: normal;
+    text-align: left;
+}
+
+@media (prefers-color-scheme: dark) {
+    .banner-info {
+        background-color: rgba(85, 204, 238, 0.2); /* lighter tint for dark backgrounds */
+        border-left-color: #55CCEE;
+    }
+}
+
 .banner-queue {
     background-color: #1a1a1a;
     color: #fff;
@@ -2925,6 +2945,79 @@ a.kiosk-brand {
 .admin-stream-msg {
     font-size: 0.8rem;
     color: var(--color-text-secondary);
+}
+
+/*
+ * Source badges for webcast URLs. Text label is the primary channel; colour + shape are
+ * redundant channels so CB users can still distinguish the two states. Solid cyan pill for TBA,
+ * outlined grey pill for manual override. Dark-mode overrides preserve contrast on the page.
+ */
+.badge-tba,
+.badge-manual {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.75rem;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.badge-tba {
+    background-color: #33BBEE; /* Tol vibrant cyan */
+    color: #000;
+    border: 1px solid #33BBEE;
+}
+
+.badge-manual {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    border: 1px solid #BBBBBB; /* Tol vibrant grey */
+}
+
+@media (prefers-color-scheme: dark) {
+    .badge-tba {
+        background-color: #55CCEE;
+        color: #000;
+        border-color: #55CCEE;
+    }
+    .badge-manual {
+        border-color: #888888;
+    }
+}
+
+.admin-stream-staleness {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+/* TBA event-key override input (Unit 7) */
+.admin-stream-tba-key {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.25rem 0 0.5rem 0;
+    font-size: 0.85rem;
+}
+
+.admin-stream-tba-key-label {
+    font-weight: bold;
+    color: var(--color-text-secondary);
+}
+
+.admin-stream-tba-key-input {
+    font-family: var(--font-monospace, monospace);
+    width: 10rem;
+}
+
+.admin-stream-tba-key-hint {
+    flex-basis: 100%;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
 }
 
 /*

@@ -1180,6 +1180,35 @@ export async function removeTournamentWebcast(
   }
 }
 
+/**
+ * Set or clear the TBA event key for a tournament. Returns {ok:true} when the server accepted
+ * the change, or {ok:false, reason} when the server rejected it (e.g. invalid format, not
+ * authorized). Requires ROLE_SUPERUSER or ROLE_ADMIN on the server side.
+ */
+export async function setTournamentTbaEventKey(
+  tournamentId: string,
+  tbaEventKey: string | null,
+): Promise<{ ok: true } | { ok: false; reason: string }> {
+  try {
+    const resp = await rbfetch(`/api/tournament/${tournamentId}/tba-event-key`, {
+      method: "PUT",
+      body: JSON.stringify({ tbaEventKey }),
+    });
+    if (resp.ok) return { ok: true };
+    const reason =
+      resp.status === 400
+        ? "invalid TBA event key format"
+        : resp.status === 403
+          ? "not authorized"
+          : resp.status === 404
+            ? "tournament not found"
+            : `HTTP ${resp.status}`;
+    return { ok: false, reason };
+  } catch (e) {
+    return { ok: false, reason: e instanceof Error ? e.message : "network error" };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Match Videos
 // ---------------------------------------------------------------------------
