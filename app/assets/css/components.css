@@ -2793,6 +2793,13 @@ a.kiosk-brand {
     margin-left: 0.1rem;
 }
 
+.schedule-team-rank {
+    font-size: 0.7em;
+    color: var(--color-text-secondary, var(--color-text-primary));
+    margin-left: 0.15rem;
+    font-weight: 400;
+}
+
 
 .kiosk-score-cell {
     font-weight: 600;

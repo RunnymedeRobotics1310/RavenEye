@@ -40,13 +40,20 @@ function hasBlue4(matches: TeamScheduleMatch[]): boolean {
 function TeamCell({
   team,
   ownerTeam,
+  rank,
 }: {
   team: number;
   ownerTeam: number;
+  rank?: number;
 }) {
   if (team === 0) return <td className="schedule-col-team"></td>;
   const isOwner = team === ownerTeam;
-  return <td className="schedule-col-team" style={isOwner ? { fontWeight: 700 } : undefined}>{team}</td>;
+  return (
+    <td className="schedule-col-team" style={isOwner ? { fontWeight: 700 } : undefined}>
+      {team}
+      {rank != null && <span className="schedule-team-rank">({rank})</span>}
+    </td>
+  );
 }
 
 function AllianceCell({
@@ -242,6 +249,7 @@ function ScheduleTable({
   ownerRs,
   loggedIn,
   highlightMatch,
+  rankings,
 }: {
   label: string;
   level: string;
@@ -258,6 +266,7 @@ function ScheduleTable({
   ownerRs?: number | null;
   loggedIn: boolean;
   highlightMatch?: number | null;
+  rankings: TeamRanking[];
 }) {
   const isElimination = level === "Playoff";
   const allLevelMatches = (matches ?? []).filter((m) => m.level === level);
@@ -266,6 +275,8 @@ function ScheduleTable({
     : allLevelMatches.filter((m) => getAllianceForTeam(m, ownerTeam) !== null);
   const showRed4 = hasRed4(levelMatches);
   const showBlue4 = hasBlue4(levelMatches);
+  const rankByTeam = new Map<number, number>();
+  rankings.forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
   return (
     <section className="card schedule-card">
       <h3>
@@ -323,17 +334,17 @@ function ScheduleTable({
                       {formatMatchTime(m.startTime)}
                     </td>
                     <AllianceCell match={m} ownerTeam={ownerTeam} />
-                    <TeamCell team={m.red1} ownerTeam={ownerTeam} />
-                    <TeamCell team={m.red2} ownerTeam={ownerTeam} />
-                    <TeamCell team={m.red3} ownerTeam={ownerTeam} />
+                    <TeamCell team={m.red1} ownerTeam={ownerTeam} rank={rankByTeam.get(m.red1)} />
+                    <TeamCell team={m.red2} ownerTeam={ownerTeam} rank={rankByTeam.get(m.red2)} />
+                    <TeamCell team={m.red3} ownerTeam={ownerTeam} rank={rankByTeam.get(m.red3)} />
                     {showRed4 && (
-                      <TeamCell team={m.red4} ownerTeam={ownerTeam} />
+                      <TeamCell team={m.red4} ownerTeam={ownerTeam} rank={rankByTeam.get(m.red4)} />
                     )}
-                    <TeamCell team={m.blue1} ownerTeam={ownerTeam} />
-                    <TeamCell team={m.blue2} ownerTeam={ownerTeam} />
-                    <TeamCell team={m.blue3} ownerTeam={ownerTeam} />
+                    <TeamCell team={m.blue1} ownerTeam={ownerTeam} rank={rankByTeam.get(m.blue1)} />
+                    <TeamCell team={m.blue2} ownerTeam={ownerTeam} rank={rankByTeam.get(m.blue2)} />
+                    <TeamCell team={m.blue3} ownerTeam={ownerTeam} rank={rankByTeam.get(m.blue3)} />
                     {showBlue4 && (
-                      <TeamCell team={m.blue4} ownerTeam={ownerTeam} />
+                      <TeamCell team={m.blue4} ownerTeam={ownerTeam} rank={rankByTeam.get(m.blue4)} />
                     )}
                     <ScoreCell match={m} />
                     <RpCell match={m} ownerTeam={ownerTeam} isElimination={isElimination} />
@@ -851,6 +862,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
             ownerRs={ownerRs}
             loggedIn={loggedIn}
             highlightMatch={highlightByLevel[section.level]}
+            rankings={schedule.rankings}
           />
         ) : section.level === "Playoff" && hasPlayoffBracket ? (
           <div key={section.level}>
@@ -879,6 +891,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
               countdown={countdown}
               loggedIn={loggedIn}
               highlightMatch={highlightByLevel[section.level]}
+              rankings={schedule.rankings}
             />
           </div>
         ) : (
@@ -896,6 +909,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
             countdown={countdown}
             loggedIn={loggedIn}
             highlightMatch={highlightByLevel[section.level]}
+            rankings={schedule.rankings}
           />
         ),
       )}
