@@ -1,3 +1,10 @@
+## [3.45.3](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.2...v3.45.3) (2026-04-18)
+
+
+### Bug Fixes
+
+* add tba key to placeholder ([1f365b3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/1f365b3c1052b6ddc558a18e6292fa1d55beae0b))
+
 ## [3.45.2](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.45.1...v3.45.2) (2026-04-18)
 
 
