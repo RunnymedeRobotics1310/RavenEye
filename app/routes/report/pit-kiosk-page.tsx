@@ -150,10 +150,12 @@ function Clock() {
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
-  const hh = now.getHours().toString().padStart(2, "0");
+  const h24 = now.getHours();
+  const period = h24 >= 12 ? "PM" : "AM";
+  const hh = (h24 % 12 || 12).toString();
   const mm = now.getMinutes().toString().padStart(2, "0");
   const ss = now.getSeconds().toString().padStart(2, "0");
-  return <span className="kiosk-clock">{hh}:{mm}:{ss}</span>;
+  return <span className="kiosk-clock">{hh}:{mm}:{ss} {period}</span>;
 }
 
 function TopBar({
