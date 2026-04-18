@@ -1118,19 +1118,15 @@ export async function getTeamSchedulePublic(
     matches: [],
     rankings: [],
   };
-  try {
-    const resp = await fetch(
-      import.meta.env.VITE_API_HOST +
-        "/api/schedule/team-schedule/" +
-        tournamentId,
-      { mode: "cors" },
-    );
-    if (!resp.ok) return empty;
-    const data = await resp.json() as unknown as TeamScheduleResponse;
-    return data ?? empty;
-  } catch {
-    return empty;
-  }
+  const resp = await fetch(
+    import.meta.env.VITE_API_HOST +
+      "/api/schedule/team-schedule/" +
+      tournamentId,
+    { mode: "cors" },
+  );
+  if (!resp.ok) return empty;
+  const data = await resp.json() as unknown as TeamScheduleResponse;
+  return data ?? empty;
 }
 
 /**
