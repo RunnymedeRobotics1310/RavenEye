@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
+import {
+  recordQualifyingResponse,
+  useNetworkHealth,
+} from "~/common/storage/networkHealth.ts";
 import { recordServerTime, serverNow } from "~/common/storage/serverTime.ts";
 import { clearDataCaches } from "~/common/storage/cacheClear.ts";
 import type { RBJWT } from "~/types/RBJWT.ts";
@@ -327,6 +330,13 @@ async function doRbFetch(
     // successful authenticated responses — missing header ≠ empty header; the filter
     // deliberately omits the header on 401/403/anonymous/error paths so we never
     // misinterpret those as "roles removed".
+    // Unit 8: feed the liveness qualifier. Body omitted here because rbfetch returns the
+    // raw Response to callers — they parse the body themselves. recordQualifyingResponse
+    // treats an omitted body as "other header-level checks apply" which is correct for
+    // the 304 / write-endpoint / plain-read cases. For reads that DO parse a body, the
+    // caller (cacheFetch) re-invokes recordQualifyingResponse with the body so the
+    // ping-body-shape defense still applies on those paths.
+    recordQualifyingResponse(urlpath, response);
     if (response.status === 200) {
       const fp = response.headers.get(HEADER_ROLE_FP);
       if (fp) {

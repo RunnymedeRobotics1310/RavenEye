@@ -6,6 +6,7 @@ import {
 } from "~/common/storage/rbauth.ts";
 import { recordServerTime } from "~/common/storage/serverTime.ts";
 import { cacheFetch } from "~/common/storage/cacheFetch.ts";
+import { recordQualifyingResponse } from "~/common/storage/networkHealth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
@@ -59,6 +60,18 @@ export async function ping(): Promise<boolean> {
     const ver = resp.headers.get("X-RavenBrain-Version");
     if (ver && typeof sessionStorage !== "undefined") {
       sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, ver);
+    }
+    // Unit 8: /api/ping now returns JSON ({pong: true, version}). Parse and feed the
+    // liveness qualifier so recordQualifyingResponse can enforce the body-shape check
+    // specifically for the ping path (captive-portal defense).
+    if (resp.ok) {
+      try {
+        const body = await resp.clone().json();
+        recordQualifyingResponse("/api/ping", resp, body);
+      } catch {
+        // Not JSON → does not qualify as liveness (captive portal returning text/html
+        // with a 200, for example). Leave the indicator alone.
+      }
     }
     return resp.ok;
   } catch {

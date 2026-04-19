@@ -1,5 +1,6 @@
 import { rbfetch } from "~/common/storage/rbauth.ts";
 import { API_ETAGS_STORE } from "~/common/storage/db.ts";
+import { recordQualifyingResponse } from "~/common/storage/networkHealth.ts";
 
 /**
  * Reusable HTTP cache wrapping {@link rbfetch}. Reads the most recent ETag for {@code url} from
@@ -127,6 +128,10 @@ export async function cacheFetch<T>(
   const response = await rbfetch(url, { ...init, headers });
 
   if (response.status === 304 && cached) {
+    // 304 is itself a liveness signal — the server validated the ETag. Feed the qualifier
+    // with no body (networkHealth treats undefined body as qualifying — the header checks
+    // still apply, see recordQualifyingResponse).
+    recordQualifyingResponse(url, response);
     return { body: cached.body as T, fromCache: true };
   }
 
@@ -137,6 +142,9 @@ export async function cacheFetch<T>(
   }
 
   const body = (await response.json()) as T;
+  // Unit 8 liveness qualifier — feed the parsed body so recordQualifyingResponse can run
+  // its structural non-empty check (captive-portal defense).
+  recordQualifyingResponse(url, response, body);
   const etag = response.headers.get("ETag");
   if (etag) {
     await writeEtag({
