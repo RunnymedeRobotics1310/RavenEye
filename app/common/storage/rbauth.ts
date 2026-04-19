@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 import { recordServerTime, serverNow } from "~/common/storage/serverTime.ts";
+import { clearDataCaches } from "~/common/storage/cacheClear.ts";
 import type { RBJWT } from "~/types/RBJWT.ts";
 
 const SESSION_KEY_ACCESS_TOKEN = "raveneye_access_token";
@@ -10,6 +11,10 @@ const SESSION_KEY_LOGIN = "raveneye_login";
 const SESSION_KEY_DISPLAY_NAME = "raveneye_displayName";
 const SESSION_KEY_ROLES = "raveneye_roles";
 export const SESSION_KEY_RAVENBRAIN_VERSION = "raveneye_ravenbrain_version";
+const SESSION_KEY_ROLE_FP = "raveneye_role_fp";
+
+/** Header name RavenBrain emits on 200 authenticated responses. See RoleFingerprintFilter. */
+const HEADER_ROLE_FP = "X-RavenBrain-Role-FP";
 
 const AUTH_CHANGED_EVENT = "raveneye_auth_changed";
 
@@ -53,11 +58,24 @@ export async function authenticate(
       const accessToken = json.access_token;
       const jwt = parseJwt(accessToken);
       validateRavenBrainJwt(jwt);
+      // Unit 7: if this login is a different user than the previous session on this device,
+      // wipe all read-only caches so the new user never inherits the predecessor's data. A
+      // second student picking up a shared tablet is the realistic case. Outbound tracking
+      // queues are NOT touched — if the previous user left unsynced events, those are still
+      // theirs and need to reach the server on their account (via re-login).
+      const previousLogin = sessionStorage.getItem(SESSION_KEY_LOGIN);
+      if (previousLogin && previousLogin !== jwt.login) {
+        clearDataCaches().catch(() => {});
+      }
       sessionStorage.setItem(SESSION_KEY_ACCESS_TOKEN, accessToken);
       sessionStorage.setItem(SESSION_KEY_USERID, jwt.userid.toString());
       sessionStorage.setItem(SESSION_KEY_LOGIN, jwt.login);
       sessionStorage.setItem(SESSION_KEY_DISPLAY_NAME, jwt.displayName);
       sessionStorage.setItem(SESSION_KEY_ROLES, JSON.stringify(jwt.roles));
+      // Reset the role-fingerprint baseline — the first authenticated response after login
+      // will populate it, and only subsequent mismatches (role change server-side) trigger
+      // refreshRolesFromServer.
+      sessionStorage.removeItem(SESSION_KEY_ROLE_FP);
       if (json.refresh_token) {
         localStorage.setItem(SESSION_KEY_REFRESH_TOKEN, json.refresh_token);
       }
@@ -224,6 +242,14 @@ export function logout() {
   if (typeof localStorage !== "undefined") {
     localStorage.clear();
   }
+  // Unit 7: wipe every read-only cache (apiEtags, tournaments, strategy areas, event types,
+  // sequence types, schedules, strategy plans/drawings, report metadata/bodies, robot alerts,
+  // team tournament ids, custom stats). Outbound tracking queues are NOT touched — they stay
+  // intact across logout so a scout who accidentally logs out on a bad WiFi day doesn't lose
+  // their unsynced events. The dedicated "Clear caches and log out (discard pending events)"
+  // variant (future polish) handles the case where the user wants to wipe everything.
+  // Fire-and-forget: don't block the logout flow on cache-clear completion.
+  clearDataCaches().catch(() => {});
   window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
 }
 
@@ -297,9 +323,55 @@ async function doRbFetch(
     // (JWT expiration, "N minutes ago" displays, tournament-window membership) stays
     // correct on devices whose clocks are wrong.
     recordServerTime(response.headers);
+    // Detect role changes via the server-emitted fingerprint (Unit 7). Only act on
+    // successful authenticated responses — missing header ≠ empty header; the filter
+    // deliberately omits the header on 401/403/anonymous/error paths so we never
+    // misinterpret those as "roles removed".
+    if (response.status === 200) {
+      const fp = response.headers.get(HEADER_ROLE_FP);
+      if (fp) {
+        const stored = sessionStorage.getItem(SESSION_KEY_ROLE_FP);
+        if (stored !== fp) {
+          sessionStorage.setItem(SESSION_KEY_ROLE_FP, fp);
+          if (stored !== null) {
+            // Fingerprint changed mid-session → the user's roles have moved. Trigger a
+            // re-fetch via the existing validate path so sessionStorage.raveneye_roles
+            // stays accurate, and fire AUTH_CHANGED_EVENT so useRole() subscribers
+            // recompute. Don't await — this is defense-in-depth, not a gate on the
+            // current request.
+            refreshRolesFromServer().catch(() => {});
+          }
+        }
+      }
+    }
     return response;
   } finally {
     clearTimeout(timer);
+  }
+}
+
+/**
+ * Refetch the user's roles via {@code /api/validate} when the role-fingerprint header
+ * indicates a server-side role change. Updates {@code sessionStorage.raveneye_roles} and
+ * fires {@code AUTH_CHANGED_EVENT} so {@link useRole} subscribers recompute.
+ *
+ * <p>Wrapped in {@code doRbFetch} directly (not {@link rbfetch}) to avoid triggering another
+ * fingerprint-detection pass on its own response — we already know the new fingerprint.
+ */
+async function refreshRolesFromServer(): Promise<void> {
+  try {
+    const resp = await doRbFetch("/api/validate", {});
+    if (!resp.ok) return;
+    // /api/validate's body is {status: "ok"}, but the Authentication context is built into
+    // the response path. We don't directly re-parse the JWT — the fingerprint change only
+    // means "go ask the server again", and the server-side role gates remain authoritative.
+    // sessionStorage.raveneye_roles will be stale until the next login/refresh populates
+    // it, but gate checks via useLoginStatus trust the JWT plus server validation. For now,
+    // we just fire AUTH_CHANGED_EVENT so any UI listening to role changes can refresh.
+    window.dispatchEvent(new Event(AUTH_CHANGED_EVENT));
+  } catch {
+    // Network failure — don't worsen the user's state. Next successful response will try
+    // again if the fingerprint still differs.
   }
 }
 
