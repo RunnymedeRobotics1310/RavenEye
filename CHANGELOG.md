@@ -1,3 +1,10 @@
+# [3.47.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.46.1...v3.47.0) (2026-04-19)
+
+
+### Features
+
+* Match video sync from TBA ([7ad8aa3](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7ad8aa3e449fddca1eb8fd07bc3c3b36f0f55a38))
+
 ## [3.46.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.46.0...v3.46.1) (2026-04-18)
 
 
