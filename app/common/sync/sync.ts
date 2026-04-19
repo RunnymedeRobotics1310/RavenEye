@@ -23,6 +23,10 @@ import {
   parseDrawingStrokes,
 } from "~/common/storage/rb.ts";
 import type { RBPlanWithDrawings } from "~/common/storage/rb.ts";
+import {
+  hasAnyActiveTournament,
+  activeTournaments,
+} from "~/common/storage/tournamentWindow.ts";
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
 import { getNetworkHealth } from "~/common/storage/networkHealth.ts";
 
@@ -93,7 +97,9 @@ async function runSync(
 
 const SCHEDULE_SYNC_INTERVAL = 3 * 60 * 1000; // 3 minutes
 const TRACKING_DATA_SYNC_INTERVAL = 15 * 1000; // 15 seconds
-const ACTIVE_TOURNAMENT_CUTOFF = 36 * 60 * 60 * 1000; // 36 hours
+// Unit 4 removed the ACTIVE_TOURNAMENT_CUTOFF constant: tournament activity is now
+// computed from server-emitted activeFrom/activeUntil timestamps in
+// ~/common/storage/tournamentWindow.ts (which corrects for device clock skew).
 
 let syncInitialized = false;
 
@@ -163,8 +169,7 @@ async function autoSyncStrategyPlans(): Promise<void> {
 
 async function hasActiveTournament(): Promise<boolean> {
   const tournaments = await repository.getTournamentList();
-  const cutoff = Date.now() - ACTIVE_TOURNAMENT_CUTOFF;
-  return tournaments.some((t) => new Date(t.endTime).getTime() > cutoff);
+  return hasAnyActiveTournament(tournaments);
 }
 
 async function autoSyncMatchSchedule(): Promise<void> {
@@ -254,11 +259,7 @@ export async function syncSequenceTypeList() {
 export async function syncMatchSchedule() {
   await runSync(MATCH_SCHEDULE, async () => {
     const tournaments = await repository.getTournamentList();
-
-    const cutoff = Date.now() - ACTIVE_TOURNAMENT_CUTOFF;
-    const activeTournamentIds = tournaments
-      .filter((t) => new Date(t.endTime).getTime() > cutoff)
-      .map((t) => t.id);
+    const activeTournamentIds = activeTournaments(tournaments).map((t) => t.id);
     const schedules = await getSchedulesForTournaments(activeTournamentIds);
     await repository.mergeMatchSchedule(schedules);
   });
@@ -571,10 +572,7 @@ async function uploadDirtyStrategyPlans(): Promise<void> {
 
 async function downloadStrategyPlansForActiveTournaments(): Promise<void> {
     const tournaments = await repository.getTournamentList();
-    const cutoff = Date.now() - ACTIVE_TOURNAMENT_CUTOFF;
-    const activeTournamentIds = tournaments
-      .filter((t) => new Date(t.endTime).getTime() > cutoff)
-      .map((t) => t.id);
+    const activeTournamentIds = activeTournaments(tournaments).map((t) => t.id);
     for (const tid of activeTournamentIds) {
       const remote = await getStrategyPlansForTournament(tid);
       for (const pwd of remote) {
@@ -735,10 +733,7 @@ export const useStrategyPlansSyncStatus = (): SyncStatus => {
 export async function syncRobotAlertList() {
   await runSync(ROBOT_ALERT_LIST, async () => {
     const tournaments = await repository.getTournamentList();
-    const cutoff = Date.now() - ACTIVE_TOURNAMENT_CUTOFF;
-    const activeTournamentIds = tournaments
-      .filter((t) => new Date(t.endTime).getTime() > cutoff)
-      .map((t) => t.id);
+    const activeTournamentIds = activeTournaments(tournaments).map((t) => t.id);
     const data = await getRobotAlertListBulk(activeTournamentIds);
     await repository.putRobotAlerts(data);
   });

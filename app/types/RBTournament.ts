@@ -20,4 +20,10 @@ export type RBTournament = {
   webcastsStale?: boolean;
   // TBA event key (e.g. "2026onto") — admin-editable (see Unit 7) when auto-derivation was wrong.
   tbaEventKey?: string | null;
+  // Tournament-window bounds, server-computed from startTime/endTime + the configured lead/tail.
+  // Client uses serverNow() to compute "is this tournament currently active?" locally each render
+  // — see common/storage/tournamentWindow.ts. Optional for backward compatibility with cached
+  // entries written before Unit 4 added these fields.
+  activeFrom?: string;
+  activeUntil?: string;
 };
