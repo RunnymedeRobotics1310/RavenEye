@@ -1,3 +1,10 @@
+## [3.47.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.47.0...v3.47.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* Auto-fill tba codes ([5b60d4e](https://github.com/RunnymedeRobotics1310/RavenEye/commit/5b60d4eea479d0398d14c2bd11cd54243f58b6ed))
+
 # [3.47.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.46.1...v3.47.0) (2026-04-19)
 
 
