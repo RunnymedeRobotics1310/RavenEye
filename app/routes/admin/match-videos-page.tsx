@@ -65,23 +65,38 @@ function MatchRow({
       <td>
         {matchVideos.length > 0 ? (
           <ul className="match-video-list">
-            {matchVideos.map((v) => (
-              <li key={v.id}>
-                <span className="match-video-label">{v.label}:</span>{" "}
-                <a href={v.videoUrl} target="_blank" rel="noopener noreferrer">
-                  {v.videoUrl}
-                </a>
-                {isAdmin && (
-                  <button
-                    className="match-video-delete"
-                    onClick={() => handleDelete(v.id)}
-                    title="Delete"
-                  >
-                    &times;
-                  </button>
-                )}
-              </li>
-            ))}
+            {matchVideos.map((v, idx) => {
+              const isTba = v.source === "tba";
+              // TBA rows have no RB_MATCH_VIDEO row to delete; admin rows always have id.
+              const key = v.id != null ? `m-${v.id}` : `t-${idx}-${v.videoUrl}`;
+              return (
+                <li key={key}>
+                  <span className="match-video-label">{v.label}:</span>{" "}
+                  <a href={v.videoUrl} target="_blank" rel="noopener noreferrer">
+                    {v.videoUrl}
+                  </a>
+                  <span className={isTba ? "badge-tba" : "badge-manual"}>
+                    {isTba ? "From TBA" : "Manual"}
+                  </span>
+                  {isAdmin && (
+                    <button
+                      className="match-video-delete"
+                      onClick={() => {
+                        if (v.id != null) handleDelete(v.id);
+                      }}
+                      disabled={isTba || v.id == null}
+                      title={
+                        isTba
+                          ? "Served by TBA — remove by clearing the TBA event key or contacting TBA."
+                          : "Delete"
+                      }
+                    >
+                      &times;
+                    </button>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <span className="match-video-none">No videos</span>
@@ -136,28 +151,37 @@ function MatchVideoContent({ tournamentId }: { tournamentId: string }) {
     return la !== lb ? la - lb : a.match - b.match;
   });
 
+  const hasStale = videos.some((v) => v.stale === true);
+
   return (
-    <table className="match-video-table">
-      <thead>
-        <tr>
-          <th>Match</th>
-          <th>Videos</th>
-          <th>Add</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortedMatches.map((m) => (
-          <MatchRow
-            key={`${m.level}-${m.match}`}
-            match={m}
-            tournamentId={tournamentId}
-            videos={videos}
-            isAdmin={admin}
-            onChanged={loadData}
-          />
-        ))}
-      </tbody>
-    </table>
+    <>
+      {hasStale && (
+        <div className="banner banner-info">
+          (i) TBA match video sync last failed — some links may be stale or missing.
+        </div>
+      )}
+      <table className="match-video-table">
+        <thead>
+          <tr>
+            <th>Match</th>
+            <th>Videos</th>
+            <th>Add</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedMatches.map((m) => (
+            <MatchRow
+              key={`${m.level}-${m.match}`}
+              match={m}
+              tournamentId={tournamentId}
+              videos={videos}
+              isAdmin={admin}
+              onChanged={loadData}
+            />
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
 

@@ -1587,6 +1587,28 @@ main.mega-report {
     font-size: 0.7rem;
 }
 
+/* Inline 📺 icon per schedule row — opens the first available match video in a new tab.
+ * First entry is admin-curated when present (see MatchVideoEnricher). No text, no underline; the
+ * title attribute carries the hover/screen-reader hint. */
+.schedule-video-icon {
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-left: 0.3rem;
+    opacity: 0.75;
+    cursor: pointer;
+}
+.schedule-video-icon:hover {
+    opacity: 1;
+}
+@media (prefers-color-scheme: dark) {
+    .schedule-video-icon {
+        opacity: 0.85;
+    }
+    .schedule-video-icon:hover {
+        opacity: 1;
+    }
+}
+
 .schedule-table .schedule-score-cell {
     font-weight: 700;
 }

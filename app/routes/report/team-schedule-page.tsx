@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchTournamentSchedule,
   getActiveTeamTournaments,
+  getMatchVideos,
   getNexusQueueStatus,
   getTeamSchedulePublic,
   getTournamentList,
 } from "~/common/storage/rb.ts";
+import type { MatchVideo } from "~/types/MatchVideo.ts";
 import TournamentPicker from "~/common/components/TournamentPicker.tsx";
 import { useLoginStatus, useRole } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
@@ -250,6 +252,7 @@ function ScheduleTable({
   loggedIn,
   highlightMatch,
   rankings,
+  videosByMatch,
 }: {
   label: string;
   level: string;
@@ -267,6 +270,7 @@ function ScheduleTable({
   loggedIn: boolean;
   highlightMatch?: number | null;
   rankings: TeamRanking[];
+  videosByMatch: Map<string, MatchVideo[]>;
 }) {
   const isElimination = level === "Playoff";
   const allLevelMatches = (matches ?? []).filter((m) => m.level === level);
@@ -327,9 +331,23 @@ function ScheduleTable({
                   alliance === "red" ? "schedule-row-our-red" : alliance === "blue" ? "schedule-row-our-blue" : "",
                   highlightMatch === m.match ? "schedule-row-highlight" : "",
                 ].filter(Boolean).join(" ");
+                const videos = videosByMatch.get(`${m.level}:${m.match}`) ?? [];
                 return (
                   <tr key={`${m.level}-${m.match}`} className={classes}>
-                    <td className="schedule-match-num">{m.match}</td>
+                    <td className="schedule-match-num">
+                      {m.match}
+                      {videos.length > 0 && (
+                        <a
+                          className="schedule-video-icon"
+                          href={videos[0].videoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Watch match video (opens in new tab)"
+                        >
+                          📺
+                        </a>
+                      )}
+                    </td>
                     <td className="schedule-time">
                       {formatMatchTime(m.startTime)}
                     </td>
@@ -487,6 +505,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
   const [manualTournament, setManualTournament] = useState<RBTournament | null>(null);
   const [allTournaments, setAllTournaments] = useState<RBTournament[]>([]);
   const [tournamentsListLoading, setTournamentsListLoading] = useState(true);
+  const [matchVideos, setMatchVideos] = useState<MatchVideo[]>([]);
   const autoSelectedRef = useRef(false);
 
   useEffect(() => {
@@ -594,6 +613,13 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
     setShowAll(true);
     setLoading(true);
     loadSchedule(selectedTournamentId, false).finally(() => setLoading(false));
+    // Match videos fetch is additive — the page renders fine with an empty list if this fails.
+    getMatchVideos(selectedTournamentId)
+      .then(setMatchVideos)
+      .catch((e) => {
+        console.error("Failed to load match videos", e);
+        setMatchVideos([]);
+      });
 
     setCountdown(countdownStart);
     countdownRef.current = setInterval(() => {
@@ -682,6 +708,17 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
       }
     }
   }
+
+  const videosByMatch = useMemo(() => {
+    const map = new Map<string, MatchVideo[]>();
+    for (const v of matchVideos) {
+      const key = `${v.matchLevel}:${v.matchNumber}`;
+      const list = map.get(key);
+      if (list) list.push(v);
+      else map.set(key, [v]);
+    }
+    return map;
+  }, [matchVideos]);
 
   // Livestream links — only show for active tournaments
   const isActiveTournament = activeTournaments.some(
@@ -863,6 +900,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
             loggedIn={loggedIn}
             highlightMatch={highlightByLevel[section.level]}
             rankings={schedule.rankings}
+            videosByMatch={videosByMatch}
           />
         ) : section.level === "Playoff" && hasPlayoffBracket ? (
           <div key={section.level}>
@@ -892,6 +930,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
               loggedIn={loggedIn}
               highlightMatch={highlightByLevel[section.level]}
               rankings={schedule.rankings}
+              videosByMatch={videosByMatch}
             />
           </div>
         ) : (
@@ -910,6 +949,7 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
             loggedIn={loggedIn}
             highlightMatch={highlightByLevel[section.level]}
             rankings={schedule.rankings}
+            videosByMatch={videosByMatch}
           />
         ),
       )}

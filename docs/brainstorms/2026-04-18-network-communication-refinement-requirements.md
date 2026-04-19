@@ -101,7 +101,19 @@ A fifth, forward-looking concern shapes this work too: as reports grow richer an
 
 **Documentation**
 - R33. The rejection of WebSockets / SSE / any server-push mechanism is recorded in `RavenBrain/doc/architecture.md` and in a RavenEye architecture document under `RavenEye/docs/`. The recorded rationale is servlet-mode architectural simplicity and student-contributor readability — not claims about flaky-WiFi resilience (that argument is contested and should not be used as justification).
-- R34. The data-source authority is recorded in the same architecture docs: FRC API is authoritative for scores and schedules; TBA and Statbotics are designated as the sources for derived analytics, match data, and statistics. TBA integration proceeds on its existing track (see `RavenEye/docs/plans/2026-04-18-001-feat-tba-data-foundation-plan.md`); Statbotics integration is planned for later and is not implemented here.
+- R34. The data-source authority is recorded in the same architecture docs: FRC API is authoritative for scores and schedules; TBA and Statbotics are designated as the sources for derived analytics, match data, and statistics. TBA integration proceeds on its existing track (see `RavenEye/docs/plans/2026-04-18-001-feat-tba-data-foundation-plan.md` and `RavenEye/docs/tba-data-foundation.md`); Statbotics integration is planned for later and is not implemented here.
+
+**TBA Plan Alignment**
+
+The TBA Data Foundation plan (`RavenEye/docs/tba-data-foundation.md`, status `active`, dated 2026-04-18) was authored in parallel with this refinement. Its architecture is compatible with the standards set here, but the following alignment items must be applied — either during the TBA plan's own implementation or as a follow-on PR before this refinement ships — so the two efforts produce one coherent system rather than two.
+
+- R35. `TbaEventSyncService`'s sync cadence — currently `@Scheduled(fixedDelay = "1h")` — is driven by the unified `sync` config block (R19). The annotation reads its interval from config; no hard-coded cadence remains in Java source.
+- R36. The TBA cache TTL and stale-threshold configuration (`raven-eye.tba-api.ttl-seconds`, `raven-eye.tba-api.stale-threshold-minutes`) are consolidated into — or mirrored under — the unified `sync` config block per R19, keeping all cadence-related knobs in one place. The TBA plan's documented invariant `stale-threshold ≥ 1.5 × cadence` is validated at application startup.
+- R37. `GET /api/tournament`, enriched with `webcastsFromTba`, `webcastsLastSync`, and `webcastsStale` per the TBA plan, inherits `ETag` / `If-None-Match` support from R25 without TBA-plan-specific wiring. The enriched response body is the ETag input.
+- R38. Relative-time displays in `tournament-streams-page.tsx` (e.g., "Webcast data last synced 2h ago") are computed through the centralized clock-skew-tolerance module from R22-R23. This covers the pre-existing "N minutes ago" rendering (currently line ~45) as well as any new TBA-added staleness text. Raw `Date.now()` in time-sensitive display code is not allowed once the skew module lands.
+- R39. `webcastsStale` is a server-computed flag, which is the TBA plan's design and establishes the preferred pattern for this project: **the server computes staleness booleans, the client displays them.** Future staleness/freshness indicators follow this shape rather than comparing server timestamps to local `Date.now()` on the client.
+- R40. Any non-admin page that renders webcasts (the TBA plan flags `schedule-page.tsx` and any tournament-summary render as spot-check items) reads the enriched tournament record from IndexedDB per R1. The TBA-enriched fields flow through existing tournament sync — no new client code path is introduced for non-admin webcast rendering.
+- R41. Flyway migration numbering: the TBA plan uses V30-V32. Any schema migration added by this refinement (only likely candidate: stored `activeFrom`/`activeUntil` columns, if planning R16 chooses the stored option over computed) starts at V33 or later and is coordinated with the TBA plan's merge status.
 
 ## Success Criteria
 
@@ -120,7 +132,7 @@ A fifth, forward-looking concern shapes this work too: as reports grow richer an
 - **Image optimization (WebP/AVIF, lazy-loading, explicit dimensions) is out of scope for this work** and tracked as a separate future improvement not attached to this refinement.
 - **Consolidated `/api/bootstrap` endpoint is out of scope.** With per-endpoint conditional GETs (R25), the startup cost of parallel requests is dominated by 304s; a combined endpoint adds complexity without meaningful win.
 - **Statbotics integration is out of scope.** The architecture must allow adding it later as a derived-data source.
-- **TBA integration changes beyond the data-source authority decision are out of scope.**
+- **Core TBA architecture changes are out of scope.** The TBA Data Foundation plan (`RavenEye/docs/tba-data-foundation.md`) owns TBA's data model, read path, and admin UX. This refinement *adjusts how the TBA plan integrates with the system* (see R35-R41) but does not redesign its tables, sync service, or response shape.
 - **Admin screens** remain direct-fetch; no offline capability is added to them.
 - **Authentication flow** (JWT issuance, refresh token lifecycle, role-guard components) is not redesigned. Role-refresh (R24) and skew-tolerance (R22-R23) sit alongside it, not inside it.
 - **Telemetry endpoints** (`/api/telemetry/*`) are not part of this work.
@@ -151,6 +163,7 @@ A fifth, forward-looking concern shapes this work too: as reports grow richer an
 - The existing `RB_REPORT_CACHE` cache-key format can be exposed (or an equivalent `updatedAt` derived) for use as the report-metadata version (R9). If not, planning designs a unified replacement.
 - `RB_TOURNAMENT` has `startDate`/`endDate` (or equivalent) columns sufficient to compute `activeFrom`/`activeUntil` at query time. Whether they are stored or computed is a planning choice.
 - The outbound tracking queue continues to handle per-record partial success. Accelerating strategy plan/drawing uploads to 15s inherits that behavior without change to the server-side `/api/match-strategy` endpoints.
+- The TBA Data Foundation plan (`RavenEye/docs/tba-data-foundation.md`, status `active`) is assumed to be coordinated with this refinement. R35-R41 capture the specific alignment items the TBA plan needs to pick up; they can be applied during the TBA plan's implementation or as a targeted follow-on PR. If the TBA plan has already merged by the time this refinement is planned, R35-R41 become a discrete cleanup step.
 
 ## Outstanding Questions
 
