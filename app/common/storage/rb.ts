@@ -1573,9 +1573,6 @@ export async function saveFieldCalibration(
  * telemetry entries. Secured to ROLE_PROGRAMMER, ROLE_ADMIN, ROLE_SUPERUSER.
  */
 export async function getTelemetryNtKeys(): Promise<string[]> {
-  const resp = await rbfetch("/api/telemetry/nt-keys", {});
-  if (resp.ok) {
-    return (await resp.json()) as unknown as string[];
-  }
-  throw new Error("Failure fetching telemetry nt keys: " + resp.status);
+  const { body } = await cacheFetch<string[]>("/api/telemetry/nt-keys");
+  return body;
 }

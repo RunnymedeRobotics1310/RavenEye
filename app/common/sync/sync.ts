@@ -95,11 +95,100 @@ async function runSync(
   }
 }
 
-const SCHEDULE_SYNC_INTERVAL = 3 * 60 * 1000; // 3 minutes
-const TRACKING_DATA_SYNC_INTERVAL = 15 * 1000; // 15 seconds
+// Upload queue cadence (own setInterval — offline-first priority, never blocked by
+// reference-data fetches). Unit 5's design: uploads first, reads second.
+const UPLOAD_TICK_MS = 15 * 1000;
+// JOBS-scheduler tick cadence. 5 seconds balances responsiveness (a job overdue by >5s
+// starts within 5s) against battery / wakeup cost (all individual jobs have cadence ≥30s).
+const SYNC_TICK_MS = 5 * 1000;
 // Unit 4 removed the ACTIVE_TOURNAMENT_CUTOFF constant: tournament activity is now
 // computed from server-emitted activeFrom/activeUntil timestamps in
 // ~/common/storage/tournamentWindow.ts (which corrects for device clock skew).
+
+/**
+ * A single background sync job. The scheduler loop walks an inline array of these and runs each
+ * when its {@code precondition} returns true and {@code cadenceMs} has elapsed since its last
+ * run. Array order is load-bearing: jobs earlier in the array see each tick first, so data
+ * dependencies (e.g., tournament list must land before strategy plans can filter by
+ * active-tournament) are preserved by position.
+ */
+interface SyncJob {
+  id: string;
+  cadenceMs: number;
+  precondition: () => Promise<boolean> | boolean;
+  run: () => Promise<void>;
+  lastRunAt: number;
+}
+
+function hasSession(): boolean {
+  return (
+    typeof sessionStorage !== "undefined" &&
+    sessionStorage.getItem("raveneye_access_token") !== null
+  );
+}
+
+async function windowActive(): Promise<boolean> {
+  const tournaments = await repository.getTournamentList();
+  return hasAnyActiveTournament(tournaments);
+}
+
+/**
+ * Inline registry of every background sync job. Adding a new job is appending one entry here;
+ * the scheduler body never changes.
+ *
+ * <p>Cadences default to 30s inside the tournament window and idle outside it (preconditions
+ * gate that). The 5s tick means a job is picked up within 5s of becoming overdue.
+ */
+const JOBS: SyncJob[] = [
+  {
+    id: "match-schedule",
+    cadenceMs: 30_000,
+    precondition: async () => hasSession() && (await windowActive()) && getNetworkHealth().alive === true,
+    run: () => syncMatchSchedule(),
+    lastRunAt: 0,
+  },
+  {
+    id: "strategy-plans",
+    cadenceMs: 30_000,
+    precondition: async () => hasSession() && (await windowActive()) && getNetworkHealth().alive === true,
+    run: () => syncStrategyPlans(),
+    lastRunAt: 0,
+  },
+  {
+    id: "robot-alert-list",
+    cadenceMs: 30_000,
+    precondition: async () => hasSession() && (await windowActive()) && getNetworkHealth().alive === true,
+    run: () => syncRobotAlertList(),
+    lastRunAt: 0,
+  },
+];
+
+/** Append a job at runtime. Used by feature modules (e.g. Unit 5's nt-keys/kiosk pages). */
+export function registerSyncJob(job: Omit<SyncJob, "lastRunAt">): void {
+  if (JOBS.some((j) => j.id === job.id)) return;
+  JOBS.push({ ...job, lastRunAt: 0 });
+}
+
+async function syncTick(): Promise<void> {
+  const now = Date.now();
+  for (const job of JOBS) {
+    if (now - job.lastRunAt < job.cadenceMs) continue;
+    let ok = false;
+    try {
+      ok = (await Promise.resolve(job.precondition())) === true;
+    } catch {
+      ok = false;
+    }
+    if (!ok) continue;
+    try {
+      await job.run();
+    } catch (err) {
+      console.warn("syncTick job failed:", job.id, err);
+    } finally {
+      job.lastRunAt = Date.now();
+    }
+  }
+}
 
 let syncInitialized = false;
 
@@ -113,16 +202,15 @@ export function initializeSyncSchedule() {
   updateStrategyPlansUnsyncCount();
 
   // Sync server data on startup if the user has a session
-  const hasSession =
-    typeof sessionStorage !== "undefined" &&
-    sessionStorage.getItem("raveneye_access_token") !== null;
-  if (hasSession) {
+  if (hasSession()) {
     doServerDataSync();
   }
 
-  setInterval(autoSyncMatchSchedule, SCHEDULE_SYNC_INTERVAL);
-  setInterval(autoSyncStrategyPlans, SCHEDULE_SYNC_INTERVAL);
-  setInterval(autoSyncTrackingData, TRACKING_DATA_SYNC_INTERVAL);
+  // Two-loop scheduler (Unit 5). Uploads run on their own 15s tick — offline-first
+  // priority, never blocked by a slow reference-data fetch. Everything else walks the
+  // JOBS array on the 5s tick at its own configured cadence.
+  setInterval(autoSyncTrackingData, UPLOAD_TICK_MS);
+  setInterval(syncTick, SYNC_TICK_MS);
 }
 
 /**
@@ -155,37 +243,9 @@ async function autoSyncTrackingData(): Promise<void> {
   await syncTrackingData();
 }
 
-async function autoSyncStrategyPlans(): Promise<void> {
-  const hasSession =
-    typeof sessionStorage !== "undefined" &&
-    sessionStorage.getItem("raveneye_access_token") !== null;
-  if (!hasSession) return;
-  const active = await hasActiveTournament();
-  if (!active) return;
-  const { alive } = getNetworkHealth();
-  if (alive !== true) return;
-  await syncStrategyPlans();
-}
-
-async function hasActiveTournament(): Promise<boolean> {
-  const tournaments = await repository.getTournamentList();
-  return hasAnyActiveTournament(tournaments);
-}
-
-async function autoSyncMatchSchedule(): Promise<void> {
-  const hasSession =
-    typeof sessionStorage !== "undefined" &&
-    sessionStorage.getItem("raveneye_access_token") !== null;
-  if (!hasSession) return;
-
-  const active = await hasActiveTournament();
-  if (!active) return;
-
-  const { alive } = getNetworkHealth();
-  if (alive !== true) return;
-
-  await syncMatchSchedule();
-}
+// Unit 5 inlined the auto-sync guards into JOBS[].precondition. The old
+// autoSyncMatchSchedule / autoSyncStrategyPlans wrappers are gone — every sync trigger now
+// goes through either initializeSyncSchedule()'s JOBS loop or doManualSync().
 
 export async function doManualSync() {
   const { alive } = getNetworkHealth();
