@@ -5,6 +5,7 @@ import {
   SESSION_KEY_RAVENBRAIN_VERSION,
 } from "~/common/storage/rbauth.ts";
 import { recordServerTime } from "~/common/storage/serverTime.ts";
+import { cacheFetch } from "~/common/storage/cacheFetch.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
@@ -74,12 +75,8 @@ export async function ping(): Promise<boolean> {
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getTournamentList() {
-  const resp = await rbfetch("/api/tournament", {});
-  if (resp.ok) {
-    return resp.json() as unknown as RBTournament[];
-  } else {
-    throw new Error("Failure fetching tournament list");
-  }
+  const { body } = await cacheFetch<RBTournament[]>("/api/tournament");
+  return body;
 }
 
 /**
@@ -89,12 +86,8 @@ export async function getTournamentList() {
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getTeamTournamentIds() {
-  const resp = await rbfetch("/api/tournament/team-ids", {});
-  if (resp.ok) {
-    return resp.json() as unknown as string[];
-  } else {
-    throw new Error("Failure fetching team tournament IDs");
-  }
+  const { body } = await cacheFetch<string[]>("/api/tournament/team-ids");
+  return body;
 }
 
 /**
@@ -121,12 +114,8 @@ export async function fetchTournamentSchedule(
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getStrategyAreaList() {
-  const resp = await rbfetch("/api/strategy-areas", {});
-  if (resp.ok) {
-    return resp.json() as unknown as StrategyArea[];
-  } else {
-    throw new Error("Failure fetching strategy area list");
-  }
+  const { body } = await cacheFetch<StrategyArea[]>("/api/strategy-areas");
+  return body;
 }
 
 /**
@@ -136,12 +125,8 @@ export async function getStrategyAreaList() {
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getEventTypeList() {
-  const resp = await rbfetch("/api/event-types", {});
-  if (resp.ok) {
-    return resp.json() as unknown as EventType[];
-  } else {
-    throw new Error("Failure fetching event type list");
-  }
+  const { body } = await cacheFetch<EventType[]>("/api/event-types");
+  return body;
 }
 
 /**
@@ -261,12 +246,8 @@ export async function getInUseEventTypes(): Promise<Set<string>> {
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getSequenceTypeList() {
-  const resp = await rbfetch("/api/sequence-types", {});
-  if (resp.ok) {
-    return resp.json() as unknown as SequenceType[];
-  } else {
-    throw new Error("Failure fetching sequence type list");
-  }
+  const { body } = await cacheFetch<SequenceType[]>("/api/sequence-types");
+  return body;
 }
 
 /**
