@@ -12,7 +12,7 @@ import type { CustomTournamentStats } from "~/types/TeamSummaryReport.ts";
 import type { StrategyStroke } from "~/types/StrategyStroke.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 14;
+const DB_VERSION = 15;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -176,6 +176,13 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains(API_ETAGS_STORE)) {
           db.createObjectStore(API_ETAGS_STORE, { keyPath: "url" });
+        }
+        // Unit 6: reports-in-IndexedDB stores. See app/common/storage/reportCache.ts.
+        if (!db.objectStoreNames.contains("reportMetadata")) {
+          db.createObjectStore("reportMetadata", { keyPath: "cachekey" });
+        }
+        if (!db.objectStoreNames.contains("reportBodies")) {
+          db.createObjectStore("reportBodies", { keyPath: "cachekey" });
         }
       };
     });

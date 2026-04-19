@@ -27,6 +27,10 @@ import {
   hasAnyActiveTournament,
   activeTournaments,
 } from "~/common/storage/tournamentWindow.ts";
+import {
+  syncReportMetadata,
+  evictExpiredReportBodies,
+} from "~/common/sync/reportSync.ts";
 import { useSyncStatus } from "~/common/storage/dbhooks.ts";
 import { getNetworkHealth } from "~/common/storage/networkHealth.ts";
 
@@ -127,6 +131,21 @@ function hasSession(): boolean {
   );
 }
 
+/** True when the logged-in user holds a role with reports access. */
+function hasReportsRole(): boolean {
+  if (typeof sessionStorage === "undefined") return false;
+  const raw = sessionStorage.getItem("raveneye_roles");
+  if (!raw) return false;
+  try {
+    const roles = JSON.parse(raw) as string[];
+    return roles.some(
+      (r) => r === "ROLE_EXPERTSCOUT" || r === "ROLE_ADMIN" || r === "ROLE_SUPERUSER",
+    );
+  } catch {
+    return false;
+  }
+}
+
 async function windowActive(): Promise<boolean> {
   const tournaments = await repository.getTournamentList();
   return hasAnyActiveTournament(tournaments);
@@ -159,6 +178,24 @@ const JOBS: SyncJob[] = [
     cadenceMs: 30_000,
     precondition: async () => hasSession() && (await windowActive()) && getNetworkHealth().alive === true,
     run: () => syncRobotAlertList(),
+    lastRunAt: 0,
+  },
+  {
+    id: "report-metadata",
+    cadenceMs: 30_000,
+    precondition: async () =>
+      hasSession() && hasReportsRole() && (await windowActive()) && getNetworkHealth().alive === true,
+    run: () => syncReportMetadata(),
+    lastRunAt: 0,
+  },
+  {
+    id: "report-body-eviction",
+    // Evict expired report bodies once per hour — TTL-driven; no tournament-window gate.
+    cadenceMs: 60 * 60 * 1000,
+    precondition: () => hasSession(),
+    run: async () => {
+      await evictExpiredReportBodies();
+    },
     lastRunAt: 0,
   },
 ];
