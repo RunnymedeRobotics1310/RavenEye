@@ -1,3 +1,16 @@
+# [3.48.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.47.1...v3.48.0) (2026-04-19)
+
+
+### Features
+
+* add cacheFetch + syncConfig + migrate high-value GETs (Unit 3, client) ([fa13235](https://github.com/RunnymedeRobotics1310/RavenEye/commit/fa13235316f83970991c420fdbb5f6791d3b5462)), closes [hi#value](https://github.com/hi/issues/value)
+* add centralized clock-skew tolerance module (Unit 2) ([4c7fc66](https://github.com/RunnymedeRobotics1310/RavenEye/commit/4c7fc6607d7b7e732ffcd834c901f6eeb3a88c08))
+* online indicator from lastOk + tight liveness qualifier (Unit 8, client) ([36ae95d](https://github.com/RunnymedeRobotics1310/RavenEye/commit/36ae95da1e3b973fdc986dc44d2385282fb5ed62))
+* reports-in-IndexedDB infrastructure + metadata sync job (Unit 6, client) ([ab53525](https://github.com/RunnymedeRobotics1310/RavenEye/commit/ab535250913b5b51755d0b30e23a8793efe5fc94))
+* role-fingerprint detection + cache lifecycle on login/logout (Unit 7, client) ([3807446](https://github.com/RunnymedeRobotics1310/RavenEye/commit/3807446ff5a57e48c0fb2d652bbe2f64e6ab218c))
+* tournament-window helper + sync.ts ACTIVE_TOURNAMENT_CUTOFF removal (Unit 4) ([d5f33f9](https://github.com/RunnymedeRobotics1310/RavenEye/commit/d5f33f9ae5334b2c09ee27702cbb27f9981f7181))
+* two-loop sync scheduler + JOBS registry (Unit 5) ([4380364](https://github.com/RunnymedeRobotics1310/RavenEye/commit/438036496dca599e45cce647d9e85ec6bef15d3f))
+
 ## [3.47.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.47.0...v3.47.1) (2026-04-19)
 
 
