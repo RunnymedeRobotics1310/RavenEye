@@ -4,6 +4,7 @@ import {
   rbfetch,
   SESSION_KEY_RAVENBRAIN_VERSION,
 } from "~/common/storage/rbauth.ts";
+import { recordServerTime } from "~/common/storage/serverTime.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
@@ -50,6 +51,10 @@ export async function ping(): Promise<boolean> {
     const resp = await fetch(import.meta.env.VITE_API_HOST + "/api/ping", {
       signal: controller.signal,
     });
+    // Feed the centralized skew-tolerance module — /api/ping is unauthenticated and
+    // therefore doesn't go through rbfetch's response hook, but it still emits
+    // X-RavenBrain-Time and is one of the earliest responses we see at session start.
+    recordServerTime(resp.headers);
     const ver = resp.headers.get("X-RavenBrain-Version");
     if (ver && typeof sessionStorage !== "undefined") {
       sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, ver);

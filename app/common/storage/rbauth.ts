@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
+import { recordServerTime, serverNow } from "~/common/storage/serverTime.ts";
 import type { RBJWT } from "~/types/RBJWT.ts";
 
 const SESSION_KEY_ACCESS_TOKEN = "raveneye_access_token";
@@ -108,7 +109,8 @@ function validateRavenBrainJwt(jwt: RBJWT): void {
   if (jwt.iss !== "raven-brain") {
     throw new Error("JWT Not from Raven Brain. iss: " + jwt.iss);
   }
-  const currentTime = Date.now() / 1000; // Current time in seconds
+  // serverNow() corrects for any device clock skew (X-RavenBrain-Time header).
+  const currentTime = serverNow() / 1000; // Current time in seconds
   if (jwt.exp < currentTime) {
     throw new Error("JWT has expired. Current time: " + currentTime+" exp: "+ jwt.exp);
   }
@@ -128,7 +130,8 @@ function isJwtExpired(token: string): boolean {
   if (!token) return true; // Token is missing
   try {
     const decodedToken: { exp: number } = parseJwt(token);
-    const currentTime = Date.now() / 1000; // Current time in seconds
+    // serverNow() corrects for any device clock skew (X-RavenBrain-Time header).
+    const currentTime = serverNow() / 1000; // Current time in seconds
     return decodedToken.exp < currentTime; // Check if expired
   } catch (error) {
     console.error("Error decoding token:", error);
@@ -289,7 +292,12 @@ async function doRbFetch(
   };
 
   try {
-    return await fetch(import.meta.env.VITE_API_HOST + urlpath, o2);
+    const response = await fetch(import.meta.env.VITE_API_HOST + urlpath, o2);
+    // Feed the centralized skew-tolerance module so any time-sensitive client logic
+    // (JWT expiration, "N minutes ago" displays, tournament-window membership) stays
+    // correct on devices whose clocks are wrong.
+    recordServerTime(response.headers);
+    return response;
   } finally {
     clearTimeout(timer);
   }
