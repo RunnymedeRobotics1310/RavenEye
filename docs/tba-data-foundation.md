@@ -9,6 +9,34 @@ origin: RavenEye/docs/brainstorms/2026-04-17-team-capability-rankings-requiremen
 
 # TBA Data Foundation and Webcast Sync (P0)
 
+> **2026-04-19 — Alignment note from network-communication-refinement (Unit 9).**
+> The network-communication-refinement work
+> (`RavenEye/docs/plans/2026-04-19-001-feat-network-communication-refinement-plan.md`)
+> has landed and this plan is halted awaiting a resume. When it resumes, the following
+> adjustments are already in place and should be reflected in the implementation rather
+> than re-introduced:
+>
+> - `TbaEventSyncService` and `TbaMatchSyncService` no longer use hardcoded
+>   `@Scheduled(fixedDelay = "1h")` literals. Both read from `raven-eye.sync.tba-event-poll`
+>   and `raven-eye.sync.tba-match-poll` in the unified sync-config block.
+> - `TournamentResponse` now carries `activeFrom` / `activeUntil` in addition to the
+>   webcast fields this plan adds. No conflict — they're independent additive fields.
+> - `TournamentEnricher` has a four-arg constructor (adds `windowLeadHours` and
+>   `windowTailHours`). Tests construct it via reflection; the P0 plan's test scaffolding
+>   should follow the same pattern.
+> - `GET /api/tournament` emits a weak ETag and supports `If-None-Match`; the webcast
+>   fields this plan adds are included inside that ETag naturally because the controller
+>   is `@Transactional(readOnly = true)` and the version source is `MAX(updated_at)` over
+>   `RB_TOURNAMENT` — writes by either FRC or TBA bump `updated_at` and the ETag changes.
+> - `tournament-streams-page.tsx` relative-time display goes through
+>   `minutesAgo()` from the skew-tolerance module instead of raw `Date.now()`. No
+>   action needed by this plan; the staleness banner rendering already uses the helper.
+> - "Server computes staleness booleans, client displays them" is the canonical
+>   pattern — `webcastsStale` (this plan) is the exemplar. Continue this posture for any
+>   new staleness indicator added in subsequent phases.
+> - Flyway migrations: V34 landed with this refinement. Any new migration in subsequent
+>   P-level phases should be V35 or later.
+
 **Target repos:** `RavenBrain` (primary — new `tbaapi` package, migrations, sync service) and `RavenEye` (minimal UI change — admin-page source indicator + staleness banner). All file paths in this plan are monorepo-relative, prefixed with `RavenBrain/` or `RavenEye/`.
 
 ## Overview

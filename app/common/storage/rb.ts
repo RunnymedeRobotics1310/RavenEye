@@ -4,6 +4,9 @@ import {
   rbfetch,
   SESSION_KEY_RAVENBRAIN_VERSION,
 } from "~/common/storage/rbauth.ts";
+import { recordServerTime } from "~/common/storage/serverTime.ts";
+import { cacheFetch } from "~/common/storage/cacheFetch.ts";
+import { recordQualifyingResponse } from "~/common/storage/networkHealth.ts";
 import type { StrategyArea } from "~/types/StrategyArea.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { EventType } from "~/types/EventType.ts";
@@ -50,9 +53,25 @@ export async function ping(): Promise<boolean> {
     const resp = await fetch(import.meta.env.VITE_API_HOST + "/api/ping", {
       signal: controller.signal,
     });
+    // Feed the centralized skew-tolerance module — /api/ping is unauthenticated and
+    // therefore doesn't go through rbfetch's response hook, but it still emits
+    // X-RavenBrain-Time and is one of the earliest responses we see at session start.
+    recordServerTime(resp.headers);
     const ver = resp.headers.get("X-RavenBrain-Version");
     if (ver && typeof sessionStorage !== "undefined") {
       sessionStorage.setItem(SESSION_KEY_RAVENBRAIN_VERSION, ver);
+    }
+    // Unit 8: /api/ping now returns JSON ({pong: true, version}). Parse and feed the
+    // liveness qualifier so recordQualifyingResponse can enforce the body-shape check
+    // specifically for the ping path (captive-portal defense).
+    if (resp.ok) {
+      try {
+        const body = await resp.clone().json();
+        recordQualifyingResponse("/api/ping", resp, body);
+      } catch {
+        // Not JSON → does not qualify as liveness (captive portal returning text/html
+        // with a 200, for example). Leave the indicator alone.
+      }
     }
     return resp.ok;
   } catch {
@@ -69,12 +88,8 @@ export async function ping(): Promise<boolean> {
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getTournamentList() {
-  const resp = await rbfetch("/api/tournament", {});
-  if (resp.ok) {
-    return resp.json() as unknown as RBTournament[];
-  } else {
-    throw new Error("Failure fetching tournament list");
-  }
+  const { body } = await cacheFetch<RBTournament[]>("/api/tournament");
+  return body;
 }
 
 /**
@@ -84,12 +99,8 @@ export async function getTournamentList() {
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getTeamTournamentIds() {
-  const resp = await rbfetch("/api/tournament/team-ids", {});
-  if (resp.ok) {
-    return resp.json() as unknown as string[];
-  } else {
-    throw new Error("Failure fetching team tournament IDs");
-  }
+  const { body } = await cacheFetch<string[]>("/api/tournament/team-ids");
+  return body;
 }
 
 /**
@@ -116,12 +127,8 @@ export async function fetchTournamentSchedule(
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getStrategyAreaList() {
-  const resp = await rbfetch("/api/strategy-areas", {});
-  if (resp.ok) {
-    return resp.json() as unknown as StrategyArea[];
-  } else {
-    throw new Error("Failure fetching strategy area list");
-  }
+  const { body } = await cacheFetch<StrategyArea[]>("/api/strategy-areas");
+  return body;
 }
 
 /**
@@ -131,12 +138,8 @@ export async function getStrategyAreaList() {
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getEventTypeList() {
-  const resp = await rbfetch("/api/event-types", {});
-  if (resp.ok) {
-    return resp.json() as unknown as EventType[];
-  } else {
-    throw new Error("Failure fetching event type list");
-  }
+  const { body } = await cacheFetch<EventType[]>("/api/event-types");
+  return body;
 }
 
 /**
@@ -256,12 +259,8 @@ export async function getInUseEventTypes(): Promise<Set<string>> {
  * @throws {Error} If the request fails or the server responds with an error status.
  */
 export async function getSequenceTypeList() {
-  const resp = await rbfetch("/api/sequence-types", {});
-  if (resp.ok) {
-    return resp.json() as unknown as SequenceType[];
-  } else {
-    throw new Error("Failure fetching sequence type list");
-  }
+  const { body } = await cacheFetch<SequenceType[]>("/api/sequence-types");
+  return body;
 }
 
 /**
@@ -1587,9 +1586,6 @@ export async function saveFieldCalibration(
  * telemetry entries. Secured to ROLE_PROGRAMMER, ROLE_ADMIN, ROLE_SUPERUSER.
  */
 export async function getTelemetryNtKeys(): Promise<string[]> {
-  const resp = await rbfetch("/api/telemetry/nt-keys", {});
-  if (resp.ok) {
-    return (await resp.json()) as unknown as string[];
-  }
-  throw new Error("Failure fetching telemetry nt keys: " + resp.status);
+  const { body } = await cacheFetch<string[]>("/api/telemetry/nt-keys");
+  return body;
 }

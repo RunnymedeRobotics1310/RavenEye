@@ -6,6 +6,7 @@ import {
   removeTournamentWebcast,
   setTournamentTbaEventKey,
 } from "~/common/storage/rb.ts";
+import { minutesAgo } from "~/common/storage/serverTime.ts";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import Spinner from "~/common/Spinner.tsx";
 import TournamentPicker from "~/common/components/TournamentPicker.tsx";
@@ -43,7 +44,8 @@ function parseWebcasts(tournament: RBTournament): string[] {
 function relativeAgo(iso: string): string {
   const then = Date.parse(iso);
   if (isNaN(then)) return iso;
-  const minutes = Math.round((Date.now() - then) / 60000);
+  // minutesAgo() corrects for any device clock skew using the server-time header.
+  const minutes = minutesAgo(then);
   if (minutes < 1) return "just now";
   if (minutes < 60) return `${minutes} min ago`;
   const hours = Math.round(minutes / 60);

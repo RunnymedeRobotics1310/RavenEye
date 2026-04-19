@@ -12,7 +12,7 @@ import type { CustomTournamentStats } from "~/types/TeamSummaryReport.ts";
 import type { StrategyStroke } from "~/types/StrategyStroke.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 13;
+const DB_VERSION = 15;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -30,6 +30,11 @@ const TEAM_TOURNAMENT_IDS_STORE = "teamTournamentIds";
 const CUSTOM_STATS_CACHE_STORE = "customStatsCache";
 const STRATEGY_PLAN_STORE = "strategyPlans";
 const STRATEGY_DRAWING_STORE = "strategyDrawings";
+// HTTP cache metadata: one record per URL holding the most recent ETag returned by RavenBrain.
+// Keyed by URL path so cacheFetch can build conditional GETs (If-None-Match) and short-circuit
+// IndexedDB writes on 304. List-style endpoints (tournament list, strategy areas, ...) get one
+// entry per URL; per-entity endpoints (report body) get one entry per URL+key. See cacheFetch.ts.
+export const API_ETAGS_STORE = "apiEtags";
 
 /**
  * Minimal typed reference to a single match in a tournament — the three
@@ -168,6 +173,16 @@ export class Repository {
           drawingStore.createIndex("planLocalKey", "planLocalKey", {
             unique: false,
           });
+        }
+        if (!db.objectStoreNames.contains(API_ETAGS_STORE)) {
+          db.createObjectStore(API_ETAGS_STORE, { keyPath: "url" });
+        }
+        // Unit 6: reports-in-IndexedDB stores. See app/common/storage/reportCache.ts.
+        if (!db.objectStoreNames.contains("reportMetadata")) {
+          db.createObjectStore("reportMetadata", { keyPath: "cachekey" });
+        }
+        if (!db.objectStoreNames.contains("reportBodies")) {
+          db.createObjectStore("reportBodies", { keyPath: "cachekey" });
         }
       };
     });
