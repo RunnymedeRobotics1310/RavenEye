@@ -15,6 +15,7 @@ import SyncDashboardData from "~/common/sync/SyncDashboardData.tsx";
 import SyncNowButton from "~/common/sync/SyncNowButton.tsx";
 import SyncServerDataButton from "~/common/sync/SyncServerDataButton.tsx";
 import FrcSyncButton from "~/common/sync/FrcSyncButton.tsx";
+import TbaSyncButton from "~/common/sync/TbaSyncButton.tsx";
 import ClearReportCacheButton from "~/common/ClearReportCacheButton.tsx";
 import { useRole } from "~/common/storage/rbauth.ts";
 import { useManualSyncStatus } from "~/common/sync/sync.ts";
@@ -78,6 +79,18 @@ const SyncPage = () => {
               the updated data from RavenBrain.
             </p>
             <FrcSyncButton />
+          </section>
+        )}
+        {isSuperuser && (
+          <section className="card">
+            <h2>Force Sync with TBA</h2>
+            <p>
+              Forces RavenBrain to immediately re-sync event webcasts and match
+              videos from The Blue Alliance, without waiting for the hourly
+              scheduled sync. Covers watched/active tournaments that have a TBA
+              event key mapped.
+            </p>
+            <TbaSyncButton />
           </section>
         )}
         {(isAdmin || isSuperuser) && (
