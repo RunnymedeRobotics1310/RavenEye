@@ -55,13 +55,26 @@ function relativeAgo(iso: string): string {
 /** Client-side regex matching the server's TBA event-key validation exactly. */
 const TBA_EVENT_KEY_RE = /^20\d{2}[a-z][a-z0-9]{1,15}$/;
 
+/**
+ * Best-effort TBA event-key guess derived from RB's tournament id. FRC event codes and TBA event
+ * codes align for the vast majority of events — mostly divergent cases are district championship
+ * divisions, FIRST Championship divisions, and offseason events. Shown as a pre-filled input value
+ * when the server has no key yet so admins one-click save the common case.
+ */
+function suggestedTbaEventKey(t: RBTournament): string {
+  const code = t.id.startsWith(String(t.season)) ? t.id.slice(String(t.season).length) : t.id;
+  return `${t.season}${code.toLowerCase()}`;
+}
+
 function TournamentRow({ tournament }: { tournament: RBTournament }) {
   const [url, setUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [streams, setStreams] = useState<string[]>(parseWebcasts(tournament));
-  const [tbaKeyDraft, setTbaKeyDraft] = useState<string>(tournament.tbaEventKey ?? "");
+  const [tbaKeyDraft, setTbaKeyDraft] = useState<string>(
+    tournament.tbaEventKey ?? suggestedTbaEventKey(tournament),
+  );
   const [tbaSaving, setTbaSaving] = useState(false);
   const [tbaMsg, setTbaMsg] = useState<string | null>(null);
 
@@ -181,7 +194,8 @@ function TournamentRow({ tournament }: { tournament: RBTournament }) {
         </button>
         {tbaMsg && <span className="admin-stream-msg">{tbaMsg}</span>}
         <span className="admin-stream-tba-key-hint">
-          Matches the TBA event URL. Auto-populated on FRC sync; override only when wrong.
+          Matches the TBA event URL. Pre-filled with the likely key — save as-is, or edit before
+          saving if TBA uses a different code (common for district/championship divisions).
         </span>
       </div>
       {stalenessMessage && (
