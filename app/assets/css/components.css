@@ -3587,3 +3587,241 @@ a.kiosk-brand {
     border-color: var(--alliance-red);
 }
 
+/* ──────────────────────────────────────────────────────────────────────── */
+/* Team Capability — Unit 7                                                 */
+/* Tournament Teams card on team-schedule page.                             */
+/* ──────────────────────────────────────────────────────────────────────── */
+
+.tournament-teams-card .tournament-teams-table {
+    font-size: 0.75rem;
+}
+
+.tournament-teams-card .tournament-teams-table tbody tr {
+    cursor: pointer;
+}
+
+.tournament-teams-card .tournament-teams-table tbody tr:hover {
+    background-color: var(--color-bg-hover, rgba(0, 0, 0, 0.04));
+}
+
+@media (prefers-color-scheme: dark) {
+    .tournament-teams-card .tournament-teams-table tbody tr:hover {
+        background-color: var(--color-bg-hover, rgba(255, 255, 255, 0.06));
+    }
+}
+
+.tournament-teams-card .tt-col-rank {
+    text-align: right;
+    width: 1%;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-secondary);
+}
+
+.tournament-teams-card tbody .tt-col-rank {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.tournament-teams-card .tt-col-team {
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tournament-teams-card .tt-team-number {
+    font-weight: 700;
+}
+
+.tournament-teams-card .tt-team-name {
+    color: var(--color-text-secondary);
+    font-weight: normal;
+}
+
+.tournament-teams-card .tt-loading-cell,
+.tournament-teams-card .tt-empty-cell {
+    text-align: center;
+    font-style: italic;
+    color: var(--color-text-secondary);
+    padding: 0.75rem;
+}
+
+/* Withdrawn rows: line-through for the whole row. Values remain visible
+ * for historical reference; sort position is always last (enforced in JS). */
+.tournament-teams-row-withdrawn {
+    text-decoration: line-through;
+    color: var(--color-text-tertiary);
+}
+
+/* Hide "wide" columns in portrait-iPhone so only Team | Overall EPA | OPR
+ * remain. Matches the existing .schedule-rotate-hint breakpoint. */
+@media (max-width: 480px) and (orientation: portrait) {
+    .tournament-teams-card .tt-col-wide {
+        display: none;
+    }
+}
+
+/*
+ * Scouting-coverage pill. Text label ("Full" / "Thin" / "None") is the primary
+ * channel; Paul Tol vibrant colour + border shape are redundant channels so
+ * CB users can still distinguish states.
+ */
+.badge-scouting-full,
+.badge-scouting-thin,
+.badge-scouting-none {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.75rem;
+    vertical-align: middle;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.badge-scouting-full {
+    background-color: #009988; /* Tol vibrant teal */
+    color: #fff;
+    border: 1px solid #009988;
+}
+
+.badge-scouting-thin {
+    background-color: #EE7733; /* Tol vibrant orange */
+    color: #000;
+    border: 1px solid #EE7733;
+}
+
+.badge-scouting-none {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    border: 1px dashed #BBBBBB; /* Tol vibrant grey, dashed for shape redundancy */
+}
+
+@media (prefers-color-scheme: dark) {
+    .badge-scouting-full {
+        background-color: #00BBAA;
+        color: #000;
+        border-color: #00BBAA;
+    }
+    .badge-scouting-thin {
+        background-color: #FF9955;
+        color: #000;
+        border-color: #FF9955;
+    }
+    .badge-scouting-none {
+        border-color: #888888;
+    }
+}
+
+/* ──────────────────────────────────────────────────────────────────────── */
+/* Team Capability — Unit 8                                                 */
+/* Match Teams table on match strategy page.                                */
+/*                                                                          */
+/* Alliance colour on the row background + a textual "Red" / "Blue" label   */
+/* column are redundant channels so colour-blind users and screen readers   */
+/* can always identify alliance membership.                                 */
+/* ──────────────────────────────────────────────────────────────────────── */
+
+.match-teams-card .match-teams-table {
+    font-size: 0.75rem;
+}
+
+.match-teams-card .match-teams-table tbody tr {
+    cursor: pointer;
+}
+
+/* Alliance-colour row tinting (light mode). The --alliance-red-bg /
+ * --alliance-blue-bg variables are dark-theme values, so light mode needs a
+ * lighter tint. Using rgba of the alliance colour keeps the tint CB-safe
+ * without introducing new variables. */
+.match-teams-card .match-teams-row-red {
+    background-color: rgba(255, 90, 71, 0.08);
+}
+
+.match-teams-card .match-teams-row-blue {
+    background-color: rgba(68, 136, 255, 0.08);
+}
+
+/* Emphasise the alliance boundary between red block and blue block. */
+.match-teams-card .match-teams-alliance-first {
+    border-top: 2px solid var(--color-border, #bbb);
+}
+
+/* Alliance label column — bold, matches alliance text colour.  The label
+ * itself (not colour alone) is the primary CB-safe channel. */
+.match-teams-card .mt-col-alliance {
+    font-weight: 700;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.match-teams-card .match-teams-row-red .mt-col-alliance {
+    color: var(--alliance-red);
+}
+
+.match-teams-card .match-teams-row-blue .mt-col-alliance {
+    color: var(--alliance-blue);
+}
+
+.match-teams-card .mt-col-team {
+    text-align: left;
+    white-space: nowrap;
+}
+
+.match-teams-card .mt-team-number {
+    font-weight: 700;
+}
+
+.match-teams-card .mt-team-name {
+    color: var(--color-text-secondary);
+    font-weight: normal;
+}
+
+.match-teams-card .mt-loading-cell {
+    text-align: center;
+    font-style: italic;
+    color: var(--color-text-secondary);
+    padding: 0.75rem;
+}
+
+/* Withdrawn rows: strike-through the whole row; values remain visible so the
+ * scout can still see historical capability numbers. Rank computation
+ * (JS-side) excludes these rows. */
+.match-teams-card .match-teams-row-withdrawn {
+    text-decoration: line-through;
+    color: var(--color-text-tertiary);
+}
+
+/* Hover affordance — matches Unit 7 convention. Alliance tint wins on the
+ * base row, hover nudges it slightly darker. */
+.match-teams-card .match-teams-table tbody tr:hover {
+    background-color: var(--color-bg-hover, rgba(0, 0, 0, 0.06));
+}
+
+.match-teams-card .match-teams-row-red:hover {
+    background-color: rgba(255, 90, 71, 0.18);
+}
+
+.match-teams-card .match-teams-row-blue:hover {
+    background-color: rgba(68, 136, 255, 0.18);
+}
+
+@media (prefers-color-scheme: dark) {
+    /* Dark-mode tints — use the full alliance-*-bg variables which are
+     * already calibrated to be CB-safe against the dark canvas. */
+    .match-teams-card .match-teams-row-red {
+        background-color: var(--alliance-red-bg);
+    }
+    .match-teams-card .match-teams-row-blue {
+        background-color: var(--alliance-blue-bg);
+    }
+    .match-teams-card .match-teams-row-red:hover {
+        background-color: rgba(255, 90, 71, 0.35);
+    }
+    .match-teams-card .match-teams-row-blue:hover {
+        background-color: rgba(68, 136, 255, 0.35);
+    }
+    .match-teams-card .match-teams-table tbody tr:hover {
+        background-color: var(--color-bg-hover, rgba(255, 255, 255, 0.08));
+    }
+}
+

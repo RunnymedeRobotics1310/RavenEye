@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NavLink, useParams } from "react-router";
 import RequireRole from "~/common/auth/RequireRole.tsx";
+import MatchTeamsTable from "~/components/MatchTeamsTable.tsx";
 import {
   repository,
   strategyPlanLocalKey,
@@ -206,6 +207,42 @@ function teamNumbersForMatch(
   };
 }
 
+/**
+ * Returns the teams in the match grouped by alliance, including slot 4 when
+ * non-zero (4-team playoff alliances + surrogates). Slot 4 is included for
+ * red and blue independently — a qualification match returns 3/3, a playoff
+ * alliance selection may return 4/4 or 3/4.
+ *
+ * Unlike {@link teamNumbersForMatch}, this helper flattens to alliance-level
+ * lists so match-surface components (Match Teams table) can group without
+ * owning RobotSlot mapping logic.
+ */
+function matchTeamsByAlliance(
+  schedule: RBScheduleRecord[],
+  tournamentId: string,
+  level: string,
+  matchNumber: number,
+): { red: number[]; blue: number[] } {
+  const m = schedule.find(
+    (r) =>
+      r.tournamentId === tournamentId &&
+      r.level === level &&
+      r.match === matchNumber,
+  );
+  if (!m) return { red: [], blue: [] };
+  const red: number[] = [];
+  const blue: number[] = [];
+  if (m.red1) red.push(m.red1);
+  if (m.red2) red.push(m.red2);
+  if (m.red3) red.push(m.red3);
+  if (m.red4) red.push(m.red4);
+  if (m.blue1) blue.push(m.blue1);
+  if (m.blue2) blue.push(m.blue2);
+  if (m.blue3) blue.push(m.blue3);
+  if (m.blue4) blue.push(m.blue4);
+  return { red, blue };
+}
+
 /** Owner team — Team 1310. Determines which alliance goes at the bottom of
  *  the rotated field diagram. (If 1310 isn't in the match, rotation falls
  *  back to source orientation.) */
@@ -272,6 +309,10 @@ const StrategyPlanPageInner = (props: {
   const { list: schedule } = useMatchSchedule();
   const teamNumbers = useMemo(
     () => teamNumbersForMatch(schedule, tournamentId, matchLevel, matchNumber),
+    [schedule, tournamentId, matchLevel, matchNumber],
+  );
+  const matchAllianceTeams = useMemo(
+    () => matchTeamsByAlliance(schedule, tournamentId, matchLevel, matchNumber),
     [schedule, tournamentId, matchLevel, matchNumber],
   );
   const rotation = useMemo<CanvasRotation>(
@@ -890,6 +931,17 @@ const StrategyPlanPageInner = (props: {
           )}
         </p>
       </div>
+
+      {matchLevel !== "Practice" &&
+        (matchAllianceTeams.red.length > 0 ||
+          matchAllianceTeams.blue.length > 0) && (
+          <MatchTeamsTable
+            tournamentId={tournamentId}
+            ownerTeam={OWNER_TEAM_NUMBER}
+            redTeams={matchAllianceTeams.red}
+            blueTeams={matchAllianceTeams.blue}
+          />
+        )}
 
       <div
         className={

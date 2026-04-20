@@ -44,6 +44,10 @@ const READ_ONLY_CACHE_STORES: string[] = [
   "customStatsCache",
   "strategyPlans",
   "strategyDrawings",
+  // P1 Unit 6 — team-capability rows. ETag entries in apiEtags are already wiped above, so
+  // adding the object store here is all that's needed to clear capability data on identity
+  // boundaries (logout / username change on a shared device).
+  "teamCapability",
 ];
 
 let dbHandle: IDBDatabase | null = null;

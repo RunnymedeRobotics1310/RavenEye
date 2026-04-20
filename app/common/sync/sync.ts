@@ -21,6 +21,7 @@ import {
   saveStrategyDrawing,
   deleteStrategyDrawing,
   parseDrawingStrokes,
+  getTeamCapability,
 } from "~/common/storage/rb.ts";
 import type { RBPlanWithDrawings } from "~/common/storage/rb.ts";
 import {
@@ -46,6 +47,7 @@ const ROBOT_ALERTS = "Robot Alerts";
 const ROBOT_ALERT_LIST = "Robot Alert List";
 const DASHBOARD_DATA = "Dashboard Data";
 const STRATEGY_PLANS = "Strategy Plans";
+const TEAM_CAPABILITY = "Team Capability";
 
 function log(msg: string): void {
   console.log(
@@ -171,6 +173,23 @@ const JOBS: SyncJob[] = [
     cadenceMs: 30_000,
     precondition: async () => hasSession() && (await windowActive()) && getNetworkHealth().alive === true,
     run: () => syncStrategyPlans(),
+    lastRunAt: 0,
+  },
+  {
+    // P1 Unit 6 — team capability snapshot. cacheFetch with If-None-Match keeps the network
+    // hit cheap (304 most ticks); the precondition idles the job outside the tournament
+    // window so a Tuesday tick is a no-op. Runs once per active tournament so the schedule
+    // page (Unit 7) and strategy page (Unit 8) can read by tournamentId offline.
+    id: "team-capability",
+    cadenceMs: 30_000,
+    precondition: async () => {
+      if (!hasSession()) return false;
+      if (getNetworkHealth().alive !== true) return false;
+      const tournaments = await repository.getTournamentList();
+      // Window-active AND at least one active tournament (i.e. a tournamentId is known).
+      return activeTournaments(tournaments).length > 0;
+    },
+    run: () => syncTeamCapability(),
     lastRunAt: 0,
   },
   {
@@ -835,6 +854,27 @@ export async function syncRobotAlertList() {
     await repository.putRobotAlerts(data);
   });
 }
+
+/**
+ * Fetch-then-persist the team-capability snapshot for every active tournament. One GET per
+ * active tournament; {@code cacheFetch} short-circuits to the stored ETag body on 304 so the
+ * steady-state cost is close to free. Results are written to the {@code teamCapability} store
+ * keyed by tournamentId — Units 7 and 8 read straight from IndexedDB.
+ */
+export async function syncTeamCapability() {
+  await runSync(TEAM_CAPABILITY, async () => {
+    const tournaments = await repository.getTournamentList();
+    const activeTournamentIds = activeTournaments(tournaments).map((t) => t.id);
+    for (const tid of activeTournamentIds) {
+      const rows = await getTeamCapability(tid);
+      await repository.putTeamCapability(tid, rows);
+    }
+  });
+}
+
+export const useTeamCapabilitySyncStatus = (): SyncStatus => {
+  return useSyncStatus(TEAM_CAPABILITY);
+};
 
 export async function updateRobotAlertUnsyncCount() {
   const data = await repository.getUnsynchronizedRobotAlerts();

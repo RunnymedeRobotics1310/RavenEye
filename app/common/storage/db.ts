@@ -10,9 +10,11 @@ import type { RBEventLogRecord } from "~/types/RBEventLogRecord.ts";
 import type { RBRobotAlert } from "~/types/RBRobotAlert.ts";
 import type { CustomTournamentStats } from "~/types/TeamSummaryReport.ts";
 import type { StrategyStroke } from "~/types/StrategyStroke.ts";
+import type { TeamCapability } from "~/types/TeamCapability.ts";
 
 const DB_NAME = "RavenEyeDB";
-const DB_VERSION = 15;
+// Bumped to 16 for the team-capability object store (P1 Unit 6).
+const DB_VERSION = 16;
 const SYNC_STATUS_STORE = "syncStatus";
 const TOURNAMENT_LIST_STORE = "tournamentList";
 const STRATEGY_AREAS_STORE = "strategyAreas";
@@ -30,6 +32,10 @@ const TEAM_TOURNAMENT_IDS_STORE = "teamTournamentIds";
 const CUSTOM_STATS_CACHE_STORE = "customStatsCache";
 const STRATEGY_PLAN_STORE = "strategyPlans";
 const STRATEGY_DRAWING_STORE = "strategyDrawings";
+// Team capability rows, keyed by tournamentId. One record per tournament holds the full array
+// of TeamCapability rows emitted by GET /api/team-capability/{tournamentId}. Overwrite-on-write
+// by the sync job; readers (Units 7 & 8) pull straight from IndexedDB to stay offline-capable.
+const TEAM_CAPABILITY_STORE = "teamCapability";
 // HTTP cache metadata: one record per URL holding the most recent ETag returned by RavenBrain.
 // Keyed by URL path so cacheFetch can build conditional GETs (If-None-Match) and short-circuit
 // IndexedDB writes on 304. List-style endpoints (tournament list, strategy areas, ...) get one
@@ -111,9 +117,28 @@ export class Repository {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = () => reject(request.error);
+      // Another tab/connection is holding the DB at an older version and won't let the
+      // upgrade proceed. Surface a clear error instead of hanging forever; the user must
+      // close the stale tab (or restart the browser) for the upgrade to complete.
+      request.onblocked = () => {
+        reject(
+          new Error(
+            "RavenEye database upgrade is blocked by another tab. " +
+              "Close every other RavenEye tab and reload this page.",
+          ),
+        );
+      };
       request.onsuccess = () => {
-        this.db = request.result;
-        resolve(request.result);
+        const db = request.result;
+        // If another tab tries to upgrade the DB after we've connected, close our
+        // connection voluntarily so the other tab's upgrade can proceed. The repository
+        // reopens lazily on the next call via getDB().
+        db.onversionchange = () => {
+          db.close();
+          this.db = null;
+        };
+        this.db = db;
+        resolve(db);
       };
 
       request.onupgradeneeded = () => {
@@ -183,6 +208,11 @@ export class Repository {
         }
         if (!db.objectStoreNames.contains("reportBodies")) {
           db.createObjectStore("reportBodies", { keyPath: "cachekey" });
+        }
+        // P1 Unit 6: team-capability rows, one array per tournamentId. Populated by the
+        // JOBS scheduler; read by Units 7 (schedule page) and 8 (strategy page).
+        if (!db.objectStoreNames.contains(TEAM_CAPABILITY_STORE)) {
+          db.createObjectStore(TEAM_CAPABILITY_STORE, { keyPath: "tournamentId" });
         }
       };
     });
@@ -826,6 +856,45 @@ export class Repository {
       store.put(replacement);
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // -------- Team Capability (P1 Unit 6) --------
+
+  /**
+   * Overwrite the team-capability rows for a single tournament. One record in the store holds
+   * the full array under the tournamentId key; the sync job re-writes the whole array on every
+   * refresh (readers Units 7 & 8 always see a consistent snapshot).
+   */
+  async putTeamCapability(
+    tournamentId: string,
+    rows: TeamCapability[],
+  ): Promise<void> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([TEAM_CAPABILITY_STORE], "readwrite");
+      tx.objectStore(TEAM_CAPABILITY_STORE).put({ tournamentId, rows });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  /**
+   * Read the cached team-capability rows for a tournament. Returns an empty array when the
+   * sync has not populated this tournament yet (cold IndexedDB / first-visit offline).
+   */
+  async getTeamCapability(tournamentId: string): Promise<TeamCapability[]> {
+    const db = await this.getDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction([TEAM_CAPABILITY_STORE], "readonly");
+      const req = tx.objectStore(TEAM_CAPABILITY_STORE).get(tournamentId);
+      req.onsuccess = () => {
+        const record = req.result as
+          | { tournamentId: string; rows: TeamCapability[] }
+          | undefined;
+        resolve(record?.rows ?? []);
+      };
+      req.onerror = () => reject(req.error);
     });
   }
 

@@ -20,6 +20,7 @@ import {
   type ResolvedMatch,
 } from "~/common/bracket.ts";
 import BracketSvg from "~/common/BracketSvg.tsx";
+import TournamentTeamsCard from "~/components/TournamentTeamsCard.tsx";
 import type { RBTournament } from "~/types/RBTournament.ts";
 import type { NexusQueueStatus } from "~/types/NexusQueueStatus.ts";
 import type {
@@ -958,6 +959,10 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
       )}
       <RankingsTable
         rankings={schedule.rankings}
+        ownerTeam={schedule.teamNumber}
+      />
+      <TournamentTeamsCard
+        tournamentId={schedule.tournamentId}
         ownerTeam={schedule.teamNumber}
       />
       {queueStatus && queueStatus.teamStatus && (

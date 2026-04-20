@@ -35,6 +35,7 @@ import type { MatchStrategyPlan } from "~/types/MatchStrategyPlan.ts";
 import type { MatchStrategyDrawing } from "~/types/MatchStrategyDrawing.ts";
 import type { StrategyStroke } from "~/types/StrategyStroke.ts";
 import type { FieldCalibration } from "~/types/FieldCalibration.ts";
+import type { TeamCapability } from "~/types/TeamCapability.ts";
 
 const PING_TIMEOUT_MS = 3000;
 
@@ -1587,5 +1588,27 @@ export async function saveFieldCalibration(
  */
 export async function getTelemetryNtKeys(): Promise<string[]> {
   const { body } = await cacheFetch<string[]>("/api/telemetry/nt-keys");
+  return body;
+}
+
+/**
+ * Fetches the team-capability snapshot for a tournament. One row per registered team merging
+ * TBA OPR, Statbotics EPA, and RavenBrain scouting aggregates with server-computed staleness
+ * flags, coverage classification, and withdrawn detection.
+ *
+ * <p>Uses {@link cacheFetch} so the conditional GET (If-None-Match) short-circuits to the cached
+ * parsed body on 304 — this endpoint is hit on every JOBS-scheduler tick during the tournament
+ * window, so cache hits are the common case.
+ *
+ * @param tournamentId the FRC tournament ID whose capability snapshot to fetch
+ * @return a promise resolving to the full team-capability array
+ * @throws Error if the request fails or the server responds with a non-OK, non-304 status
+ */
+export async function getTeamCapability(
+  tournamentId: string,
+): Promise<TeamCapability[]> {
+  const { body } = await cacheFetch<TeamCapability[]>(
+    "/api/team-capability/" + encodeURIComponent(tournamentId),
+  );
   return body;
 }
