@@ -110,9 +110,6 @@ export function deriveAlliances(
   ownerTeam: number,
   rankings: TeamRanking[] = [],
 ): Alliance[] {
-  const matchByNum = new Map<number, TeamScheduleMatch>();
-  for (const m of playoffMatches) matchByNum.set(m.match, m);
-
   const rankByTeam = new Map<number, number>();
   rankings.forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
 
@@ -129,32 +126,46 @@ export function deriveAlliances(
     return best;
   }
 
+  // Resolve the bracket first so we know the seed of every match's red/blue
+  // side, then union team numbers across every playoff match for each seed.
+  // Backup robots may only appear in later matches, so a single-match lookup
+  // misses them.
+  const resolved = resolveBracket(playoffMatches);
+  const teamsBySeed = new Map<number, number[]>();
+  function addTeams(seed: number | null, teams: number[]) {
+    if (seed == null) return;
+    let list = teamsBySeed.get(seed);
+    if (!list) {
+      list = [];
+      teamsBySeed.set(seed, list);
+    }
+    for (const t of teams) {
+      if (!list.includes(t)) list.push(t);
+    }
+  }
+  for (const rm of resolved) {
+    addTeams(rm.redSeed, rm.redTeams);
+    addTeams(rm.blueSeed, rm.blueTeams);
+  }
+
   const alliances: Alliance[] = [];
-  for (const [matchNum, [redSeed, blueSeed]] of Object.entries(SEED_BY_MATCH)) {
-    const m = matchByNum.get(Number(matchNum));
-    if (!m) continue;
-    const redTeams = [m.red1, m.red2, m.red3, m.red4].filter(Boolean);
-    const blueTeams = [m.blue1, m.blue2, m.blue3, m.blue4].filter(Boolean);
-    alliances.push({
-      seed: redSeed,
-      teams: redTeams,
-      captain: findCaptain(redTeams),
-      eliminated: false,
-      isOwner: redTeams.includes(ownerTeam),
-    });
-    alliances.push({
-      seed: blueSeed,
-      teams: blueTeams,
-      captain: findCaptain(blueTeams),
-      eliminated: false,
-      isOwner: blueTeams.includes(ownerTeam),
-    });
+  for (const [, [redSeed, blueSeed]] of Object.entries(SEED_BY_MATCH)) {
+    for (const seed of [redSeed, blueSeed]) {
+      const teams = teamsBySeed.get(seed);
+      if (!teams || teams.length === 0) continue;
+      alliances.push({
+        seed,
+        teams,
+        captain: findCaptain(teams),
+        eliminated: false,
+        isOwner: teams.includes(ownerTeam),
+      });
+    }
   }
 
   alliances.sort((a, b) => a.seed - b.seed);
 
   // Determine elimination status by tracing bracket results
-  const resolved = resolveBracket(playoffMatches);
   const eliminatedSeeds = new Set<number>();
 
   for (const rm of resolved) {
