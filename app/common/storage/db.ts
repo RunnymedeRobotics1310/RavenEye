@@ -117,9 +117,28 @@ export class Repository {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = () => reject(request.error);
+      // Another tab/connection is holding the DB at an older version and won't let the
+      // upgrade proceed. Surface a clear error instead of hanging forever; the user must
+      // close the stale tab (or restart the browser) for the upgrade to complete.
+      request.onblocked = () => {
+        reject(
+          new Error(
+            "RavenEye database upgrade is blocked by another tab. " +
+              "Close every other RavenEye tab and reload this page.",
+          ),
+        );
+      };
       request.onsuccess = () => {
-        this.db = request.result;
-        resolve(request.result);
+        const db = request.result;
+        // If another tab tries to upgrade the DB after we've connected, close our
+        // connection voluntarily so the other tab's upgrade can proceed. The repository
+        // reopens lazily on the next call via getDB().
+        db.onversionchange = () => {
+          db.close();
+          this.db = null;
+        };
+        this.db = db;
+        resolve(db);
       };
 
       request.onupgradeneeded = () => {
