@@ -3587,3 +3587,115 @@ a.kiosk-brand {
     border-color: var(--alliance-red);
 }
 
+/* ──────────────────────────────────────────────────────────────────────── */
+/* Team Capability — Unit 7                                                 */
+/* Tournament Teams card on team-schedule page.                             */
+/* ──────────────────────────────────────────────────────────────────────── */
+
+.tournament-teams-card .tournament-teams-table {
+    font-size: 0.75rem;
+}
+
+.tournament-teams-card .tournament-teams-table tbody tr {
+    cursor: pointer;
+}
+
+.tournament-teams-card .tournament-teams-table tbody tr:hover {
+    background-color: var(--color-bg-hover, rgba(0, 0, 0, 0.04));
+}
+
+@media (prefers-color-scheme: dark) {
+    .tournament-teams-card .tournament-teams-table tbody tr:hover {
+        background-color: var(--color-bg-hover, rgba(255, 255, 255, 0.06));
+    }
+}
+
+.tournament-teams-card .tt-col-team {
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tournament-teams-card .tt-team-number {
+    font-weight: 700;
+}
+
+.tournament-teams-card .tt-team-name {
+    color: var(--color-text-secondary);
+    font-weight: normal;
+}
+
+.tournament-teams-card .tt-loading-cell,
+.tournament-teams-card .tt-empty-cell {
+    text-align: center;
+    font-style: italic;
+    color: var(--color-text-secondary);
+    padding: 0.75rem;
+}
+
+/* Withdrawn rows: line-through for the whole row. Values remain visible
+ * for historical reference; sort position is always last (enforced in JS). */
+.tournament-teams-row-withdrawn {
+    text-decoration: line-through;
+    color: var(--color-text-tertiary);
+}
+
+/* Hide "wide" columns in portrait-iPhone so only Team | Overall EPA | OPR
+ * remain. Matches the existing .schedule-rotate-hint breakpoint. */
+@media (max-width: 480px) and (orientation: portrait) {
+    .tournament-teams-card .tt-col-wide {
+        display: none;
+    }
+}
+
+/*
+ * Scouting-coverage pill. Text label ("Full" / "Thin" / "None") is the primary
+ * channel; Paul Tol vibrant colour + border shape are redundant channels so
+ * CB users can still distinguish states.
+ */
+.badge-scouting-full,
+.badge-scouting-thin,
+.badge-scouting-none {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 0.15rem 0.45rem;
+    border-radius: 0.75rem;
+    vertical-align: middle;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+}
+
+.badge-scouting-full {
+    background-color: #009988; /* Tol vibrant teal */
+    color: #fff;
+    border: 1px solid #009988;
+}
+
+.badge-scouting-thin {
+    background-color: #EE7733; /* Tol vibrant orange */
+    color: #000;
+    border: 1px solid #EE7733;
+}
+
+.badge-scouting-none {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    border: 1px dashed #BBBBBB; /* Tol vibrant grey, dashed for shape redundancy */
+}
+
+@media (prefers-color-scheme: dark) {
+    .badge-scouting-full {
+        background-color: #00BBAA;
+        color: #000;
+        border-color: #00BBAA;
+    }
+    .badge-scouting-thin {
+        background-color: #FF9955;
+        color: #000;
+        border-color: #FF9955;
+    }
+    .badge-scouting-none {
+        border-color: #888888;
+    }
+}
+
