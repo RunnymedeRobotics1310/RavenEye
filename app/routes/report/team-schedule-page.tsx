@@ -280,7 +280,7 @@ function ScheduleTable({
   const showRed4 = hasRed4(levelMatches);
   const showBlue4 = hasBlue4(levelMatches);
   const rankByTeam = new Map<number, number>();
-  rankings.forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
+  (rankings ?? []).forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
   return (
     <section className="card schedule-card">
       <h3>
@@ -434,7 +434,7 @@ function ScheduleAllianceList({
   rankings: TeamRanking[];
 }) {
   const rankByTeam = new Map<number, number>();
-  rankings.forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
+  (rankings ?? []).forEach((r, i) => rankByTeam.set(r.teamNumber, i + 1));
 
   return (
     <div className="schedule-alliance-list">
