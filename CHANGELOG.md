@@ -1,3 +1,13 @@
+## [3.48.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.48.0...v3.48.1) (2026-04-20)
+
+
+### Bug Fixes
+
+* ⏺ Topology fixed per the official 2025 FRC manual figure 13-1. The connector lines route to the same source/destination matches, just into the correct halves now — so placeholders before teams arrive and the final team positions will agree. ([7c58b25](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7c58b25569b769e0900fed897e63cce71c4596bc))
+* Render error first time viewing event on kiosk page ([df136f4](https://github.com/RunnymedeRobotics1310/RavenEye/commit/df136f4c895b091f1267bdda132a27878a8a7f48))
+* Resize bracket for championship matches ([9116a98](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9116a9897ffa99726dcda5da840db8679ab90147))
+* Show 4th team in kiosk page ([a30bfac](https://github.com/RunnymedeRobotics1310/RavenEye/commit/a30bfac843d0366f5579b23e2ee02b8c17137fb0))
+
 # [3.48.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.47.1...v3.48.0) (2026-04-19)
 
 
