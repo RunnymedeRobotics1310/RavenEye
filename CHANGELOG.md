@@ -1,3 +1,19 @@
+# [3.49.0](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.48.1...v3.49.0) (2026-04-20)
+
+
+### Bug Fixes
+
+* **capability:** on-demand fetch when IndexedDB is empty ([7033334](https://github.com/RunnymedeRobotics1310/RavenEye/commit/7033334067d2371179dcd185d9e851b1c2ddf431))
+* **db:** handle IndexedDB upgrade-blocked and cross-tab version change ([bccc092](https://github.com/RunnymedeRobotics1310/RavenEye/commit/bccc0921aa64bf6b6d7a38d59b1983f04265363b))
+
+
+### Features
+
+* **capability:** add Rank column to Tournament Teams card ([9b938d5](https://github.com/RunnymedeRobotics1310/RavenEye/commit/9b938d5b9032000e979d87b1dfcfb299607ef16c))
+* **capability:** frontend data layer (Unit 6) ([156fa7a](https://github.com/RunnymedeRobotics1310/RavenEye/commit/156fa7a986b067f637d1703a2ff1a6e72ac5acea))
+* **capability:** Match Teams table on strategy page (Unit 8) ([f3ac3b5](https://github.com/RunnymedeRobotics1310/RavenEye/commit/f3ac3b52761f22250988b3a32fecd5670058cd3b))
+* **capability:** Tournament Teams card (Unit 7) ([e08b09f](https://github.com/RunnymedeRobotics1310/RavenEye/commit/e08b09f90f5a503a8939f69ce6c5875f5c5a8d98))
+
 ## [3.48.1](https://github.com/RunnymedeRobotics1310/RavenEye/compare/v3.48.0...v3.48.1) (2026-04-20)
 
 
