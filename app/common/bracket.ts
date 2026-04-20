@@ -39,12 +39,20 @@ export interface ResolvedMatch {
   matchData: TeamScheduleMatch | null;
 }
 
+export type BracketFormat = "full8" | "finals3" | "none";
+
+export interface BracketTopology {
+  format: BracketFormat;
+  slots: BracketSlot[];
+  // First-round / seed-source matches: which seed pair plays each match.
+  seedByMatch: Record<number, [number, number]>;
+}
+
 // ---------------------------------------------------------------------------
 // Bracket topology for 8 alliances
 // ---------------------------------------------------------------------------
 
-// Seed pairings for first-round matches
-const SEED_BY_MATCH: Record<number, [number, number]> = {
+const SEED_BY_MATCH_8: Record<number, [number, number]> = {
   1: [1, 8],
   2: [4, 5],
   3: [2, 7],
@@ -102,6 +110,51 @@ export const BRACKET_8: BracketSlot[] = [
 ];
 
 // ---------------------------------------------------------------------------
+// Topology selection
+// ---------------------------------------------------------------------------
+
+export function detectBracketFormat(
+  playoffMatches: TeamScheduleMatch[],
+): BracketFormat {
+  const n = playoffMatches.length;
+  if (n === 0) return "none";
+  if (n >= 4) return "full8";
+  return "finals3";
+}
+
+function buildFinals3Topology(
+  playoffMatches: TeamScheduleMatch[],
+): BracketTopology {
+  const sorted = [...playoffMatches].sort((a, b) => a.match - b.match).slice(0, 3);
+  const slots: BracketSlot[] = sorted.map((m, i) => ({
+    match: m.match,
+    label: `F${i + 1}`,
+    region: "finals" as const,
+    round: 0,
+    row: i,
+    redSource: { type: "seed", seed: 1 },
+    blueSource: { type: "seed", seed: 2 },
+  }));
+  // Use the lowest-numbered match as the seed source: red is seed 1, blue is seed 2.
+  const seedByMatch: Record<number, [number, number]> = {};
+  if (sorted.length > 0) {
+    seedByMatch[sorted[0].match] = [1, 2];
+  }
+  return { format: "finals3", slots, seedByMatch };
+}
+
+function getTopology(playoffMatches: TeamScheduleMatch[]): BracketTopology {
+  const format = detectBracketFormat(playoffMatches);
+  if (format === "full8") {
+    return { format, slots: BRACKET_8, seedByMatch: SEED_BY_MATCH_8 };
+  }
+  if (format === "finals3") {
+    return buildFinals3Topology(playoffMatches);
+  }
+  return { format: "none", slots: [], seedByMatch: {} };
+}
+
+// ---------------------------------------------------------------------------
 // Alliance derivation
 // ---------------------------------------------------------------------------
 
@@ -130,7 +183,8 @@ export function deriveAlliances(
   // side, then union team numbers across every playoff match for each seed.
   // Backup robots may only appear in later matches, so a single-match lookup
   // misses them.
-  const resolved = resolveBracket(playoffMatches);
+  const topology = getTopology(playoffMatches);
+  const resolved = resolveBracketWithTopology(playoffMatches, topology);
   const teamsBySeed = new Map<number, number[]>();
   function addTeams(seed: number | null, teams: number[]) {
     if (seed == null) return;
@@ -149,7 +203,7 @@ export function deriveAlliances(
   }
 
   const alliances: Alliance[] = [];
-  for (const [, [redSeed, blueSeed]] of Object.entries(SEED_BY_MATCH)) {
+  for (const [, [redSeed, blueSeed]] of Object.entries(topology.seedByMatch)) {
     for (const seed of [redSeed, blueSeed]) {
       const teams = teamsBySeed.get(seed);
       if (!teams || teams.length === 0) continue;
@@ -174,14 +228,12 @@ export function deriveAlliances(
     if (loserSeed === null) continue;
 
     const slot = rm.slot;
-    // Eliminated if lost in lower bracket (feedsLoserTo would be null in lower bracket)
-    // Or more precisely: a team is eliminated when they lose and have no lower bracket path
+    // Eliminated if lost in lower bracket — no further lower-bracket path
     if (slot.region === "lower") {
       eliminatedSeeds.add(loserSeed);
     }
-    // In finals, loser of best-of-3 is eliminated (check if they lost 2)
+    // In finals (best-of-3), an alliance is eliminated after 2 losses
     if (slot.region === "finals") {
-      // Count finals losses per seed
       const finalsMatches = resolved.filter((r) => r.slot.region === "finals" && r.winner !== null);
       const lossCount = new Map<number, number>();
       for (const fm of finalsMatches) {
@@ -210,6 +262,13 @@ export function deriveAlliances(
 export function resolveBracket(
   playoffMatches: TeamScheduleMatch[],
 ): ResolvedMatch[] {
+  return resolveBracketWithTopology(playoffMatches, getTopology(playoffMatches));
+}
+
+function resolveBracketWithTopology(
+  playoffMatches: TeamScheduleMatch[],
+  topology: BracketTopology,
+): ResolvedMatch[] {
   const matchByNum = new Map<number, TeamScheduleMatch>();
   for (const m of playoffMatches) matchByNum.set(m.match, m);
 
@@ -218,7 +277,7 @@ export function resolveBracket(
   // (team composition can change between matches due to backup robots)
   const seedByTeams = new Map<string, number>();
   const seedByTeam = new Map<number, number>();
-  for (const [matchNum, [redSeed, blueSeed]] of Object.entries(SEED_BY_MATCH)) {
+  for (const [matchNum, [redSeed, blueSeed]] of Object.entries(topology.seedByMatch)) {
     const m = matchByNum.get(Number(matchNum));
     if (!m) continue;
     const redTeams = [m.red1, m.red2, m.red3, m.red4].filter(Boolean);
@@ -245,7 +304,7 @@ export function resolveBracket(
 
   const results: ResolvedMatch[] = [];
 
-  for (const slot of BRACKET_8) {
+  for (const slot of topology.slots) {
     const m = matchByNum.get(slot.match);
     if (!m) {
       results.push({
@@ -290,15 +349,18 @@ export function resolveBracket(
 }
 
 /**
- * Returns true if the finals series is already decided (same alliance won
- * both M14 and M15), making M16 unnecessary.
+ * Returns true if a best-of-3 finals series is already decided (same alliance
+ * won the first two finals matches), making the third match unnecessary.
  */
 export function isFinalsDecided(resolved: ResolvedMatch[]): boolean {
-  const m14 = resolved.find((rm) => rm.slot.match === 14);
-  const m15 = resolved.find((rm) => rm.slot.match === 15);
+  const finalsByRow = resolved
+    .filter((rm) => rm.slot.region === "finals")
+    .sort((a, b) => a.slot.row - b.slot.row);
+  const first = finalsByRow[0];
+  const second = finalsByRow[1];
   return (
-    m14?.winner != null &&
-    m15?.winner != null &&
-    m14.winner === m15.winner
+    first?.winner != null &&
+    second?.winner != null &&
+    first.winner === second.winner
   );
 }

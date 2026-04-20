@@ -2,13 +2,18 @@ import { BRACKET_8, isFinalsDecided } from "~/common/bracket.ts";
 import type { ResolvedMatch } from "~/common/bracket.ts";
 
 // ---------------------------------------------------------------------------
-// Layout constants
+// Layout constants (shared)
 // ---------------------------------------------------------------------------
 
 const FONT = "-apple-system, system-ui, sans-serif";
 const BOX_W = 155;
 const BOX_H = 40;
 const HALF_H = BOX_H / 2;
+
+// ---------------------------------------------------------------------------
+// Full 8-alliance layout
+// ---------------------------------------------------------------------------
+
 const COL_W = BOX_W + 50;
 const LEFT_PAD = 22;
 
@@ -24,17 +29,15 @@ const LOWER_FINAL_Y = [LB_TOP];
 
 const LB_SHIFT = COL_W / 2;
 
-// M13 right edge determines where the dot and finals go
 const M13_RIGHT = LEFT_PAD + COL_W * 3 + LB_SHIFT + BOX_W;
 const DOT_X = M13_RIGHT + 45 - 5;
-const DOT_Y = UPPER_F_Y[0] + BOX_H / 2; // aligned with M11 center
+const DOT_Y = UPPER_F_Y[0] + BOX_H / 2;
 const DOT_R = 3.5;
 const FINALS_LABEL_X = DOT_X + DOT_R + 6;
 
-// Finals matches positioned so dot aligns with the gap between M14 and M15
 const FINALS_Y = [DOT_Y - 42.5, DOT_Y + 2.5, DOT_Y + 47.5];
 
-const POSITIONS: Record<number, { x: number; y: number }> = {
+const POSITIONS_8: Record<number, { x: number; y: number }> = {
   1: { x: LEFT_PAD, y: UPPER_R1_Y[0] },
   2: { x: LEFT_PAD, y: UPPER_R1_Y[1] },
   3: { x: LEFT_PAD, y: UPPER_R1_Y[2] },
@@ -53,8 +56,8 @@ const POSITIONS: Record<number, { x: number; y: number }> = {
   16: { x: FINALS_LABEL_X + 25, y: FINALS_Y[2] },
 };
 
-const SVG_W = FINALS_LABEL_X + 25 + BOX_W + 10;
-const SVG_H = LB_TOP + 100;
+const SVG_W_8 = FINALS_LABEL_X + 25 + BOX_W + 10;
+const SVG_H_8 = LB_TOP + 100;
 
 // ---------------------------------------------------------------------------
 // Color themes
@@ -121,33 +124,30 @@ const AUTO_COLORS: BracketColors = {
 };
 
 // ---------------------------------------------------------------------------
-// Connectors
+// Connectors (full8 only)
 // ---------------------------------------------------------------------------
 
 function buildConnectors(resolvedMatches: ResolvedMatch[]): string[] {
   const paths: string[] = [];
   for (const rm of resolvedMatches) {
     if (rm.slot.region === "finals") continue;
-    const toPos = POSITIONS[rm.slot.match];
+    const toPos = POSITIONS_8[rm.slot.match];
     if (!toPos) continue;
     for (const [i, source] of [rm.slot.redSource, rm.slot.blueSource].entries()) {
       if (source.type === "seed") continue;
-      const fromPos = POSITIONS[source.match];
+      const fromPos = POSITIONS_8[source.match];
       if (!fromPos) continue;
       const fromX = fromPos.x + BOX_W;
       const fromY = fromPos.y + HALF_H;
       const toX = toPos.x;
       const toY = toPos.y + (i === 0 ? HALF_H * 0.5 : HALF_H * 1.5);
       let midX = (fromX + toX) / 2;
-      // Avoid vertical segment overlapping M12 (M11 loser → M13)
       if (source.match === 11 && rm.slot.match === 13) {
-        midX = (POSITIONS[12].x + BOX_W + POSITIONS[13].x) / 2;
+        midX = (POSITIONS_8[12].x + BOX_W + POSITIONS_8[13].x) / 2;
       }
-      // Separate overlapping vertical risers in lower bracket
       if (source.match === 5 && rm.slot.match === 10) midX -= 9;
       if (source.match === 7 && rm.slot.match === 9) midX -= 4.5;
       if (source.match === 8 && rm.slot.match === 10) midX += 4.5;
-      // Separate M1/M2→M5 and M3/M4→M6 crossover lines horizontally
       if (source.match === 1 && rm.slot.match === 5) midX -= 13.5;
       if (source.match === 2 && rm.slot.match === 5) midX -= 4.5;
       if (source.match === 3 && rm.slot.match === 6) midX += 4.5;
@@ -156,7 +156,7 @@ function buildConnectors(resolvedMatches: ResolvedMatch[]): string[] {
     }
   }
   for (const matchNum of [11, 13]) {
-    const fromPos = POSITIONS[matchNum];
+    const fromPos = POSITIONS_8[matchNum];
     if (!fromPos) continue;
     const fromX = fromPos.x + BOX_W;
     const fromY = fromPos.y + HALF_H;
@@ -167,7 +167,7 @@ function buildConnectors(resolvedMatches: ResolvedMatch[]): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// Component
+// Source label (full8)
 // ---------------------------------------------------------------------------
 
 function sourceLabel(source: { type: string; seed?: number; match?: number }): string {
@@ -176,6 +176,10 @@ function sourceLabel(source: { type: string; seed?: number; match?: number }): s
   if (source.type === "loser") return `L ${BRACKET_8.find((s) => s.match === source.match)?.label ?? `M${source.match}`}`;
   return "TBD";
 }
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export default function BracketSvg({
   resolvedMatches,
@@ -198,9 +202,13 @@ export default function BracketSvg({
     return null;
   })();
 
-  const connectorPaths = buildConnectors(resolvedMatches);
-
   const finalsDecided = isFinalsDecided(resolvedMatches);
+
+  // Detect format: if any slot is in upper/lower region, it's a full 8-alliance
+  // bracket; otherwise all slots are finals (finals3 layout).
+  const isFull8 = resolvedMatches.some(
+    (rm) => rm.slot.region === "upper" || rm.slot.region === "lower",
+  );
 
   function renderAllianceHalf(
     x: number,
@@ -246,12 +254,16 @@ export default function BracketSvg({
     );
   }
 
-  function renderMatchBox(rm: ResolvedMatch) {
-    const pos = POSITIONS[rm.slot.match];
-    if (!pos) return null;
+  function renderMatchBox(rm: ResolvedMatch, pos: { x: number; y: number }) {
     const { x, y } = pos;
     const isLive = rm.matchData != null && rm.winner === null;
-    const isUnnecessary = rm.slot.match === 16 && finalsDecided && rm.winner === null;
+    // For full8, M16 becomes unnecessary if M14+M15 decide the series.
+    // For finals3, the third match (row 2) is unnecessary if rows 0+1 decided it.
+    const isUnnecessary =
+      rm.slot.region === "finals" &&
+      rm.slot.row === 2 &&
+      finalsDecided &&
+      rm.winner === null;
 
     return (
       <g key={rm.slot.match} opacity={isUnnecessary ? 0.3 : 1}>
@@ -264,19 +276,52 @@ export default function BracketSvg({
     );
   }
 
+  if (isFull8) {
+    const connectorPaths = buildConnectors(resolvedMatches);
+    return (
+      <svg
+        viewBox={`-5 -18 ${SVG_W_8 + 10} ${SVG_H_8 + 20}`}
+        preserveAspectRatio="xMidYMid meet"
+        width="100%"
+        height="100%"
+      >
+        <text x={0} y={3} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">UPPER BRACKET</text>
+        <text x={0} y={LB_TOP - 7} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">LOWER BRACKET</text>
+        {connectorPaths.map((d, i) => <path key={i} d={d} fill="none" stroke={c.connector} strokeWidth={1} />)}
+        <circle cx={DOT_X} cy={DOT_Y} r={DOT_R} fill={c.connector} />
+        <text x={FINALS_LABEL_X} y={FINALS_Y[0] - 7} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">FINALS</text>
+        {resolvedMatches.map((rm) => {
+          const pos = POSITIONS_8[rm.slot.match];
+          return pos ? renderMatchBox(rm, pos) : null;
+        })}
+      </svg>
+    );
+  }
+
+  // finals3 layout: horizontal row of up to 3 finals matches.
+  // A wide-and-short aspect ratio scales sanely when the parent card is
+  // full-width: height stays reasonable instead of ballooning the way a
+  // vertical-stack viewBox would.
+  const F3_LEFT = 22;
+  const F3_TOP = 18;
+  const F3_GAP = 28;
+  const cols = [...resolvedMatches]
+    .filter((rm) => rm.slot.region === "finals")
+    .sort((a, b) => a.slot.row - b.slot.row);
+  const svgW = F3_LEFT + cols.length * BOX_W + Math.max(0, cols.length - 1) * F3_GAP + 12;
+  const svgH = F3_TOP + BOX_H + 6;
+
   return (
     <svg
-      viewBox={`-5 -18 ${SVG_W + 10} ${SVG_H + 20}`}
+      viewBox={`-5 -18 ${svgW + 10} ${svgH + 20}`}
       preserveAspectRatio="xMidYMid meet"
       width="100%"
       height="100%"
     >
-      <text x={0} y={3} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">UPPER BRACKET</text>
-      <text x={0} y={LB_TOP - 7} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">LOWER BRACKET</text>
-      {connectorPaths.map((d, i) => <path key={i} d={d} fill="none" stroke={c.connector} strokeWidth={1} />)}
-      <circle cx={DOT_X} cy={DOT_Y} r={DOT_R} fill={c.connector} />
-      <text x={FINALS_LABEL_X} y={FINALS_Y[0] - 7} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">FINALS</text>
-      {resolvedMatches.map((rm) => renderMatchBox(rm))}
+      <text x={0} y={3} fill={c.label} fontSize="9" fontWeight="bold" fontFamily={FONT} letterSpacing="0.5">FINALS</text>
+      {cols.map((rm, i) =>
+        renderMatchBox(rm, { x: F3_LEFT + i * (BOX_W + F3_GAP), y: F3_TOP }),
+      )}
     </svg>
   );
 }

@@ -13,6 +13,7 @@ import { useLoginStatus, useRole } from "~/common/storage/rbauth.ts";
 import Spinner from "~/common/Spinner.tsx";
 import {
   deriveAlliances,
+  detectBracketFormat,
   isFinalsDecided,
   resolveBracket,
   type Alliance,
@@ -672,7 +673,9 @@ const TeamScheduleContent = ({ autoSelect = false }: { autoSelect?: boolean }) =
 
   // Playoff bracket data (needed before highlight logic for finalsOver check)
   const playoffMatches = matches.filter((m) => m.level === "Playoff");
-  const hasPlayoffBracket = schedule?.hasPlayoff === true && playoffMatches.length >= 4;
+  const hasPlayoffBracket =
+    schedule?.hasPlayoff === true &&
+    detectBracketFormat(playoffMatches) !== "none";
   const playoffAlliances = hasPlayoffBracket
     ? deriveAlliances(playoffMatches, schedule!.teamNumber, schedule!.rankings)
     : [];

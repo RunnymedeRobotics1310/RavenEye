@@ -19,6 +19,7 @@ import Spinner from "~/common/Spinner.tsx";
 import { useNetworkHealth } from "~/common/storage/networkHealth.ts";
 import {
   deriveAlliances,
+  detectBracketFormat,
   isFinalsDecided,
   resolveBracket,
   type Alliance,
@@ -742,7 +743,8 @@ export default function PitKioskPage() {
   // Playoff mode detection
   const playoffMatches = matches.filter((m) => m.level === "Playoff");
   const isPlayoffMode =
-    schedule?.hasPlayoff === true && playoffMatches.length >= 4;
+    schedule?.hasPlayoff === true &&
+    detectBracketFormat(playoffMatches) !== "none";
   const alliances = isPlayoffMode
     ? deriveAlliances(playoffMatches, ownerTeam, rankings)
     : [];
