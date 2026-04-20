@@ -3610,6 +3610,19 @@ a.kiosk-brand {
     }
 }
 
+.tournament-teams-card .tt-col-rank {
+    text-align: right;
+    width: 1%;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-secondary);
+}
+
+.tournament-teams-card tbody .tt-col-rank {
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
 .tournament-teams-card .tt-col-team {
     text-align: left;
     white-space: nowrap;

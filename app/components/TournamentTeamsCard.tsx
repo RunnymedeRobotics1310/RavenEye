@@ -302,6 +302,9 @@ export default function TournamentTeamsCard({
             <table className="schedule-table tournament-teams-table">
               <thead>
                 <tr>
+                  <th scope="col" className="tt-col-rank">
+                    Rank
+                  </th>
                   <SortHeader
                     label="Team"
                     sortKey="team"
@@ -390,7 +393,7 @@ export default function TournamentTeamsCard({
                 {loading && data.length === 0 && (
                   <tr>
                     <td
-                      colSpan={isNarrow ? 3 : 12}
+                      colSpan={isNarrow ? 4 : 13}
                       className="tt-loading-cell"
                     >
                       Loading team capability…
@@ -400,14 +403,14 @@ export default function TournamentTeamsCard({
                 {!loading && data.length === 0 && (
                   <tr>
                     <td
-                      colSpan={isNarrow ? 3 : 12}
+                      colSpan={isNarrow ? 4 : 13}
                       className="tt-empty-cell"
                     >
                       No team capability data yet.
                     </td>
                   </tr>
                 )}
-                {sortedRows.map((row) => {
+                {sortedRows.map((row, index) => {
                   const isOwner = row.teamNumber === ownerTeam;
                   const classNames = [
                     isOwner ? "rankings-row-owner" : "",
@@ -422,6 +425,7 @@ export default function TournamentTeamsCard({
                       onClick={() => handleRowClick(row.teamNumber)}
                       style={{ cursor: "pointer" }}
                     >
+                      <td className="tt-col-rank">{index + 1}</td>
                       <td className="tt-col-team">
                         <span className="tt-team-number">{row.teamNumber}</span>
                         {row.teamName && (
