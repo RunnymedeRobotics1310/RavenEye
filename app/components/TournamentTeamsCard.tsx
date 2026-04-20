@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import { repository } from "~/common/storage/db.ts";
+import { getTeamCapability as fetchTeamCapability } from "~/common/storage/rb.ts";
 import type { TeamCapability } from "~/types/TeamCapability.ts";
 
 /**
@@ -79,7 +80,21 @@ function useTeamCapability(tournamentId: string): {
         }
       }
     };
+    // On-demand fetch: the JOBS sync only populates active tournaments, so post-season
+    // (or unwatched) tournaments start with an empty IndexedDB store. One-off fetch ensures
+    // the page has data to render; cacheFetch handles ETag re-use on subsequent mounts.
+    const syncIfEmpty = async () => {
+      try {
+        const existing = await repository.getTeamCapability(tournamentId);
+        if (existing.length > 0) return;
+        const rows = await fetchTeamCapability(tournamentId);
+        await repository.putTeamCapability(tournamentId, rows);
+      } catch (err) {
+        console.warn("On-demand team-capability fetch failed", err);
+      }
+    };
     load();
+    syncIfEmpty();
     const interval = setInterval(load, 1000);
     return () => {
       isMounted = false;
