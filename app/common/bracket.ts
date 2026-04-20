@@ -86,15 +86,15 @@ export const BRACKET_8: BracketSlot[] = [
   { match: 6, label: "M6", region: "lower", round: 0, row: 1,
     redSource: { type: "loser", match: 3 }, blueSource: { type: "loser", match: 4 } },
 
-  // Lower Bracket Round 2 (crossover)
+  // Lower Bracket Round 2 (crossover) — per FRC manual figure 13-1
   { match: 9, label: "M9", region: "lower", round: 1, row: 0,
-    redSource: { type: "winner", match: 6 }, blueSource: { type: "loser", match: 7 } },
+    redSource: { type: "loser", match: 7 }, blueSource: { type: "winner", match: 6 } },
   { match: 10, label: "M10", region: "lower", round: 1, row: 1,
-    redSource: { type: "winner", match: 5 }, blueSource: { type: "loser", match: 8 } },
+    redSource: { type: "loser", match: 8 }, blueSource: { type: "winner", match: 5 } },
 
   // Lower Bracket Round 3
   { match: 12, label: "M12", region: "lower", round: 2, row: 0,
-    redSource: { type: "winner", match: 9 }, blueSource: { type: "winner", match: 10 } },
+    redSource: { type: "winner", match: 10 }, blueSource: { type: "winner", match: 9 } },
 
   // Lower Final
   { match: 13, label: "M13", region: "lower", round: 3, row: 0,
